@@ -615,6 +615,13 @@ static inline int round_down(double x)
 	}
 }
 
+void
+DiagnosticDump(int x)
+{
+	char buffer[100];
+	sprintf(buffer, "%x", x);
+	::OutputDebugString (buffer);
+}
 
 double
 AggFontPixelCacheFill(AggBuffer* buffer, agg::font_face* face, const wchar_t* text, double scale,
@@ -736,6 +743,8 @@ AggFontPixelCacheFill(AggBuffer* buffer, agg::font_face* face, const wchar_t* te
 				agg::renderer_scanline_aa_solid<agg::renderer_base<agg::pixfmt_gray8> > renderer(ren_base);
 				agg::scanline_p8 scanline;
 				::OutputDebugString("H");
+				DiagnosticDump((int)pixel_size);
+				DiagnosticDump((int)data->pixels);
 				ren_base.clear (agg::gray8 (0x00));
 				::OutputDebugString("I");
 				renderer.color (agg::gray8 (0xff));
