@@ -54,5 +54,5 @@ using System.Runtime.CompilerServices;
 //       documentation for more information on this.
 //
 [assembly: AssemblyDelaySign(false)]
-[assembly: AssemblyKeyFile("..\\..\\..\\..\\Epsitec.Cresus\\Epsitec.Cresus.snk")]
+[assembly: AssemblyKeyFile("s:\\Epsitec.Cresus\\Epsitec.Cresus.snk")]
 [assembly: AssemblyKeyName("")]

@@ -502,8 +502,8 @@ void AggRasterizerAddPathStroke2(AggRasterizer* rasterizer, AggPath* path, doubl
 					curve.approximation_scale (s);
 					stroke.approximation_scale (s);
 					stroke.width (width);
-					stroke.line_cap ((agg::vcgen_stroke::line_cap_e) cap);
-					stroke.line_join ((agg::vcgen_stroke::line_join_e) join);
+					stroke.line_cap ((agg::line_cap_e) cap);
+					stroke.line_join ((agg::line_join_e) join);
 					stroke.miter_limit (miter_limit);
 					
 					agg::conv_transform<agg::conv_stroke<agg::conv_curve<agg::path_storage> >, agg::trans_affine> conv (stroke, rasterizer->transform_matrix);
@@ -525,8 +525,8 @@ void AggRasterizerAddPathStroke2(AggRasterizer* rasterizer, AggPath* path, doubl
 					curve.approximation_scale (s);
 					stroke.approximation_scale (s);
 					stroke.width (width);
-					stroke.line_cap ((agg::vcgen_stroke::line_cap_e) cap);
-					stroke.line_join ((agg::vcgen_stroke::line_join_e) join);
+					stroke.line_cap ((agg::line_cap_e) cap);
+					stroke.line_join ((agg::line_join_e) join);
 					stroke.miter_limit (miter_limit);
 					
 					agg::conv_transform<agg::conv_stroke<agg::conv_curve<agg::path_storage> >, agg::trans_affine> conv (stroke, rasterizer->transform_matrix);
@@ -544,8 +544,8 @@ void AggRasterizerAddPathStroke2(AggRasterizer* rasterizer, AggPath* path, doubl
 					curve.approximation_scale (2);
 					
 					stroke.width (width);
-					stroke.line_cap ((agg::vcgen_stroke::line_cap_e) cap);
-					stroke.line_join ((agg::vcgen_stroke::line_join_e) join);
+					stroke.line_cap ((agg::line_cap_e) cap);
+					stroke.line_join ((agg::line_join_e) join);
 					stroke.miter_limit (miter_limit);
 					
 					agg::conv_clip_polygon<agg::conv_stroke<agg::conv_curve<agg::path_storage> > > clip (stroke);
@@ -565,8 +565,8 @@ void AggRasterizerAddPathStroke2(AggRasterizer* rasterizer, AggPath* path, doubl
 					curve.approximation_scale (2);
 					
 					stroke.width (width);
-					stroke.line_cap ((agg::vcgen_stroke::line_cap_e) cap);
-					stroke.line_join ((agg::vcgen_stroke::line_join_e) join);
+					stroke.line_cap ((agg::line_cap_e) cap);
+					stroke.line_join ((agg::line_join_e) join);
 					stroke.miter_limit (miter_limit);
 					
 					rasterizer->rasterizer.add_path (stroke);
@@ -584,8 +584,8 @@ void AggRasterizerAddPathStroke2(AggRasterizer* rasterizer, AggPath* path, doubl
 					double s = rasterizer->transform_matrix.scale ();
 					stroke.approximation_scale (s);
 					stroke.width (width);
-					stroke.line_cap ((agg::vcgen_stroke::line_cap_e) cap);
-					stroke.line_join ((agg::vcgen_stroke::line_join_e) join);
+					stroke.line_cap ((agg::line_cap_e) cap);
+					stroke.line_join ((agg::line_join_e) join);
 					stroke.miter_limit (miter_limit);
 					
 					agg::conv_transform<agg::conv_stroke<agg::path_storage>, agg::trans_affine> conv (stroke, rasterizer->transform_matrix);
@@ -605,8 +605,8 @@ void AggRasterizerAddPathStroke2(AggRasterizer* rasterizer, AggPath* path, doubl
 					double s = rasterizer->transform_matrix.scale ();
 					stroke.approximation_scale (s);
 					stroke.width (width);
-					stroke.line_cap ((agg::vcgen_stroke::line_cap_e) cap);
-					stroke.line_join ((agg::vcgen_stroke::line_join_e) join);
+					stroke.line_cap ((agg::line_cap_e) cap);
+					stroke.line_join ((agg::line_join_e) join);
 					stroke.miter_limit (miter_limit);
 					
 					agg::conv_transform<agg::conv_stroke<agg::path_storage>, agg::trans_affine> conv (stroke, rasterizer->transform_matrix);
@@ -621,8 +621,8 @@ void AggRasterizerAddPathStroke2(AggRasterizer* rasterizer, AggPath* path, doubl
 					agg::conv_stroke<agg::path_storage> stroke (path->path);
 					
 					stroke.width (width);
-					stroke.line_cap ((agg::vcgen_stroke::line_cap_e) cap);
-					stroke.line_join ((agg::vcgen_stroke::line_join_e) join);
+					stroke.line_cap ((agg::line_cap_e) cap);
+					stroke.line_join ((agg::line_join_e) join);
 					stroke.miter_limit (miter_limit);
 					
 					agg::conv_clip_polygon<agg::conv_stroke<agg::path_storage> > clip (stroke);
@@ -639,8 +639,8 @@ void AggRasterizerAddPathStroke2(AggRasterizer* rasterizer, AggPath* path, doubl
 					agg::conv_stroke<agg::path_storage> stroke (path->path);
 					
 					stroke.width (width);
-					stroke.line_cap ((agg::vcgen_stroke::line_cap_e) cap);
-					stroke.line_join ((agg::vcgen_stroke::line_join_e) join);
+					stroke.line_cap ((agg::line_cap_e) cap);
+					stroke.line_join ((agg::line_join_e) join);
 					stroke.miter_limit (miter_limit);
 					
 					rasterizer->rasterizer.add_path (stroke);

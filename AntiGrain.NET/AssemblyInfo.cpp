@@ -53,5 +53,5 @@ using namespace System::Runtime::CompilerServices;
 //       documentation for more information on this.
 //
 [assembly:AssemblyDelaySignAttribute(false)];
-[assembly:AssemblyKeyFileAttribute("..\\..\\Epsitec.Cresus\\Epsitec.Cresus.snk")];
+[assembly:AssemblyKeyFileAttribute("s:\\Epsitec.Cresus\\Epsitec.Cresus.snk")];
 [assembly:AssemblyKeyNameAttribute("")];
