@@ -715,6 +715,10 @@ AggFontPixelCacheFill(AggBuffer* buffer, agg::font_face* face, const wchar_t* te
 			DiagnosticDump((int)pixel_size);
 			DiagnosticDump(i_x2 - i_x1);
 			DiagnosticDump(i_y2 - i_y1);
+			DiagnosticDump((int)(x1));
+			DiagnosticDump((int)(x2));
+			DiagnosticDump((int)(y1));
+			DiagnosticDump((int)(y2));
 			
 			if (data->dx)
 			{
