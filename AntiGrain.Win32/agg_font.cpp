@@ -713,12 +713,12 @@ AggFontPixelCacheFill(AggBuffer* buffer, agg::font_face* face, const wchar_t* te
 #endif
 			::OutputDebugString("F");
 			DiagnosticDump((int)pixel_size);
-			DiagnosticDump(i_x2 - i_x1);
-			DiagnosticDump(i_y2 - i_y1);
-			DiagnosticDump((int)(x1));
-			DiagnosticDump((int)(x2));
-			DiagnosticDump((int)(y1));
-			DiagnosticDump((int)(y2));
+			if ((i_x2 <= i_x1) ||
+				(i_y2 <= i_y1))
+			{
+				::OutputDebugString("*** wrong bbox ***");
+				__asm int 3;
+			}
 			
 			if (data->dx)
 			{
@@ -740,11 +740,8 @@ AggFontPixelCacheFill(AggBuffer* buffer, agg::font_face* face, const wchar_t* te
 				agg::render_scanlines (rasterizer, scanline, renderer);
 #else
 				agg::font_path_provider font_path = agg::font_path_provider (face, glyph, info, data->ox / 256.0, data->oy / 256.0, i_size / 256.0, i_size / 256.0);
-				DiagnosticDump((int)pixel_size);
 				agg::conv_curve<agg::font_path_provider> curve (font_path);
-				DiagnosticDump((int)pixel_size);
 				agg::rasterizer_scanline_aa<> rasterizer;
-				DiagnosticDump((int)pixel_size);
 				agg::rendering_buffer buffer;
 				buffer.attach (data->pixels, data->dx, data->dy, data->dx);
 				::OutputDebugString("G");
@@ -753,8 +750,6 @@ AggFontPixelCacheFill(AggBuffer* buffer, agg::font_face* face, const wchar_t* te
 				agg::renderer_scanline_aa_solid<agg::renderer_base<agg::pixfmt_gray8> > renderer(ren_base);
 				agg::scanline_p8 scanline;
 				::OutputDebugString("H");
-				DiagnosticDump((int)pixel_size);
-				DiagnosticDump((int)data->pixels);
 				ren_base.clear (agg::gray8 (0x00));
 				::OutputDebugString("I");
 				renderer.color (agg::gray8 (0xff));
