@@ -841,8 +841,8 @@ font_face::cache_record::FindSizeInfo (int16u glyph)
 		return info;
 	}
 	
-	int32u                glyph_offset = this->ot_loca->FindOffset (glyph, this->ot_head);
-	int32u				  glyph_o_next = this->ot_loca->FindOffset (glyph+1, this->ot_head);
+	int32u                 glyph_offset = this->ot_loca->FindOffset (glyph, this->ot_head);
+	int32u				   glyph_o_next = this->ot_loca->FindOffset (glyph+1, this->ot_head);
 	open_type::table_glyf* glyph_table  = this->ot_glyf->FindSubTable (glyph_offset);
 	
 	int16u left_side_bearing  = 0;
@@ -853,14 +853,14 @@ font_face::cache_record::FindSizeInfo (int16u glyph)
 	int16u x_max = 0;
 	
 	open_type::GetGlyphWidths (ot_maxp, ot_hhea, ot_hmtx, glyph,
-							  info->left_side_bearing, info->width_advance);
+							   info->left_side_bearing, info->width_advance);
 	
 	info->x_min = read_big_endian (glyph_table->header.x_min);
 	info->x_max = read_big_endian (glyph_table->header.x_max);
 	info->y_min = read_big_endian (glyph_table->header.y_min);
 	info->y_max = read_big_endian (glyph_table->header.y_max);
 	
-#if 1
+#if 0
 	Trace ("%S %S, Glyph %d has contents at offset %d [%d %d %d %d] %d %d [%d:%d]\n",
 			face->RetFamilyName (),
 			face->RetStyleNameUserLocale (),
