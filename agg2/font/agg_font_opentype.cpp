@@ -226,12 +226,13 @@ open_type::table_cmap::EncodingFmt12::FindGlyphIndex (int32u code) const
 
 size_t
 open_type::table_name::RetUnicodeLength (int16u language_id,
-										NameID name_id) const
+										 NameID name_id,
+										 PlatformID platform_id) const
 {
 	int16u num = read_big_endian (this->num_name_records);
 	
 	const int16u swp_encoding = read_big_endian (static_cast<int16u> (1));
-	const int16u swp_platform = read_big_endian (static_cast<int16u> (PLATFORM_Microsoft));
+	const int16u swp_platform = read_big_endian (static_cast<int16u> (platform_id));
 	const int16u swp_lang_id  = read_big_endian (language_id);
 	const int16u swp_name_id  = read_big_endian (static_cast<int16u> (name_id));
 
@@ -246,19 +247,20 @@ open_type::table_name::RetUnicodeLength (int16u language_id,
 		}
 	}
 	
-	return language_id ? this->RetUnicodeLength (0, name_id) : 0;
+	return language_id ? this->RetUnicodeLength (0, name_id, platform_id) : 0;
 }
 
 bool
 open_type::table_name::GetUnicodeName (int16u language_id,
-									  NameID name_id,
-									  wchar_t* buffer,
-									  size_t max) const
+									   NameID name_id,
+									   PlatformID platform_id,
+									   wchar_t* buffer,
+									   size_t max) const
 {
 	int16u num = read_big_endian (this->num_name_records);
 	
 	const int16u swp_encoding = read_big_endian (static_cast<int16u> (1));
-	const int16u swp_platform = read_big_endian (static_cast<int16u> (PLATFORM_Microsoft));
+	const int16u swp_platform = read_big_endian (static_cast<int16u> (platform_id));
 	const int16u swp_lang_id  = read_big_endian (language_id);
 	const int16u swp_name_id  = read_big_endian (static_cast<int16u> (name_id));
 	
@@ -274,7 +276,7 @@ open_type::table_name::GetUnicodeName (int16u language_id,
 			raw += read_big_endian (this->storage_area_offset);
 			raw += read_big_endian (this->record_head[i].string_offset);
 			
-			int16u         num_char = read_big_endian (this->record_head[i].string_length) / 2;
+			int16u        num_char = read_big_endian (this->record_head[i].string_length) / 2;
 			const int16u* name     = reinterpret_cast<const int16u*> (raw);
 			
 			if (num_char >= max)
@@ -293,7 +295,81 @@ open_type::table_name::GetUnicodeName (int16u language_id,
 		}
 	}
 	
-	return language_id ? this->GetUnicodeName (0, name_id, buffer, max) : false;
+	return language_id ? this->GetUnicodeName (0, name_id, platform_id, buffer, max) : false;
+}
+
+size_t
+open_type::table_name::RetLatinLength (int16u language_id,
+									   NameID name_id,
+									   PlatformID platform_id) const
+{
+	int16u num = read_big_endian (this->num_name_records);
+	
+	const int16u swp_encoding = read_big_endian (static_cast<int16u> (0));
+	const int16u swp_platform = read_big_endian (static_cast<int16u> (platform_id));
+	const int16u swp_lang_id  = read_big_endian (language_id);
+	const int16u swp_name_id  = read_big_endian (static_cast<int16u> (name_id));
+
+	for (int16u i = 0; i < num; i++)
+	{
+		if ( (this->record_head[i].platform_id == swp_platform)
+		  && (this->record_head[i].encoding_id == swp_encoding)
+		  && (this->record_head[i].language_id == swp_lang_id)
+		  && (this->record_head[i].name_id == swp_name_id) )
+		{
+			return read_big_endian (this->record_head[i].string_length) + 1;
+		}
+	}
+	
+	return language_id ? this->RetLatinLength (0, name_id, platform_id) : 0;
+}
+
+bool
+open_type::table_name::GetLatinName (int16u language_id,
+									 NameID name_id,
+									 PlatformID platform_id,
+									 wchar_t* buffer,
+									 size_t max) const
+{
+	int16u num = read_big_endian (this->num_name_records);
+	
+	const int16u swp_encoding = read_big_endian (static_cast<int16u> (0));
+	const int16u swp_platform = read_big_endian (static_cast<int16u> (platform_id));
+	const int16u swp_lang_id  = read_big_endian (language_id);
+	const int16u swp_name_id  = read_big_endian (static_cast<int16u> (name_id));
+	
+	for (int16u i = 0; i < num; i++)
+	{
+		if ( (this->record_head[i].platform_id == swp_platform)
+		  && (this->record_head[i].encoding_id == swp_encoding)
+		  && (this->record_head[i].language_id == swp_lang_id)
+		  && (this->record_head[i].name_id == swp_name_id) )
+		{
+			const int8u* raw = reinterpret_cast<const int8u*> (this);
+			
+			raw += read_big_endian (this->storage_area_offset);
+			raw += read_big_endian (this->record_head[i].string_offset);
+			
+			int16u       num_char = read_big_endian (this->record_head[i].string_length);
+			const int8u* name     = reinterpret_cast<const int8u*> (raw);
+			
+			if (num_char >= max)
+			{
+				num_char = static_cast<int16u> (max-1);
+			}
+			
+			for (int16u j = 0; j < num_char; j++)
+			{
+				buffer[j] = name[j];
+			}
+			
+			buffer[num_char] = 0;
+			
+			return true;
+		}
+	}
+	
+	return language_id ? this->GetLatinName (0, name_id, platform_id, buffer, max) : false;
 }
 
 const int16*

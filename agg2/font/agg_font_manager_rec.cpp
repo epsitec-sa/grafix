@@ -16,6 +16,8 @@
  *	warranty, and with no claim as to its suitability for any purpose.
  */
 
+#include "win32.h"
+
 #include "agg_font_manager.h"
 #include "agg_font_face.h"
 
@@ -76,19 +78,22 @@ font_manager::family_record::InsertFace (font_manager* type,
 										 const wchar_t* family_name,
 										 const open_type::table_name* ot_name)
 {
-	size_t ot_font_family_len = ot_name->RetUnicodeLength (1033, open_type::table_name::NAME_FontFamily);
-	size_t ot_font_style_len  = ot_name->RetUnicodeLength (1033, open_type::table_name::NAME_FontSubfamily);
-	size_t ot_pref_family_len = ot_name->RetUnicodeLength (1033, open_type::table_name::NAME_PreferredFamily);
-	size_t ot_pref_style_len  = ot_name->RetUnicodeLength (1033, open_type::table_name::NAME_PreferredSubfamily);
+	size_t ot_font_family_len = ot_name->RetUnicodeLength (1033, open_type::table_name::NAME_FontFamily, open_type::PLATFORM_Microsoft);
+	size_t ot_font_style_len  = ot_name->RetUnicodeLength (1033, open_type::table_name::NAME_FontSubfamily, open_type::PLATFORM_Microsoft);
+	size_t ot_pref_family_len = ot_name->RetUnicodeLength (1033, open_type::table_name::NAME_PreferredFamily, open_type::PLATFORM_Microsoft);
+	size_t ot_pref_style_len  = ot_name->RetUnicodeLength (1033, open_type::table_name::NAME_PreferredSubfamily, open_type::PLATFORM_Microsoft);
+	size_t ot_unique_name_len = ot_name->RetUnicodeLength (1033, open_type::table_name::NAME_UniqueFontIdentifier, open_type::PLATFORM_Microsoft);
 	
 	wchar_t ot_family[100] = { 0 };
 	wchar_t ot_style[100]  = { 0 };
 	wchar_t ot_optical[64] = { 0 };
+	wchar_t ot_uname[100]  = { 0 };
 	
 	if (ot_font_family_len || ot_pref_family_len)
 	{
 		ot_name->GetUnicodeName (1033, ot_pref_family_len ? open_type::table_name::NAME_PreferredFamily
 			/**/										  : open_type::table_name::NAME_FontFamily,
+			/**/				 open_type::PLATFORM_Microsoft,
 			/**/				 ot_family, 100);
 	}
 	
@@ -96,7 +101,13 @@ font_manager::family_record::InsertFace (font_manager* type,
 	{
 		ot_name->GetUnicodeName (1033, ot_pref_style_len  ? open_type::table_name::NAME_PreferredSubfamily
 			/**/										  : open_type::table_name::NAME_FontSubfamily,
+			/**/				 open_type::PLATFORM_Microsoft,
 			/**/				 ot_style, 100);
+	}
+	
+	if (ot_unique_name_len)
+	{
+		ot_name->GetUnicodeName (1033, open_type::table_name::NAME_UniqueFontIdentifier, open_type::PLATFORM_Microsoft, ot_uname, 100);
 	}
 	
 	if (ot_family[0] == 0)
@@ -195,6 +206,7 @@ again:
 	string_copy (face->style_name,     sizeof (face->style_name),     ot_style);
 	string_copy (face->optical_name,   sizeof (face->optical_name),   ot_optical);
 	string_copy (face->style_name_loc, sizeof (face->style_name_loc), style_name);
+	string_copy (face->unique_name,    sizeof (face->unique_name),    ot_uname);
 }
 
 /*

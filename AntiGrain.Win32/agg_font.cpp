@@ -54,6 +54,7 @@ const wchar_t* AggFontFaceGetName(agg::font_face* face, int id)
 			case 2:	return face->RetStyleName ();
 			case 3:	return face->RetStyleNameUserLocale ();
 			case 4: return face->RetOpticalName ();
+			case 5: return face->RetUniqueName ();
 		}
 	}
 	

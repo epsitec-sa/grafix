@@ -61,6 +61,7 @@ font_face::font_face (font_manager* f_manager)
 	string_zero (this->style_name, sizeof (this->style_name));
 	string_zero (this->style_name_loc, sizeof (this->style_name_loc));
 	string_zero (this->optical_name, sizeof (this->optical_name));
+	string_zero (this->unique_name, sizeof (this->unique_name));
 }
 
 font_face::~font_face ()
@@ -704,10 +705,11 @@ font_face::Unlock ()
 
 /*****************************************************************************/
 
-const wchar_t* font_face::RetFamilyName () const				{ return this->family_name; }
+const wchar_t* font_face::RetFamilyName () const			{ return this->family_name; }
 const wchar_t* font_face::RetStyleName () const				{ return this->style_name; }
 const wchar_t* font_face::RetStyleNameUserLocale () const	{ return this->style_name_loc; }
 const wchar_t* font_face::RetOpticalName () const			{ return this->optical_name; }
+const wchar_t* font_face::RetUniqueName () const			{ return this->unique_name; }
 
 /*****************************************************************************/
 

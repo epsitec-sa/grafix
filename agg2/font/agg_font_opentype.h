@@ -387,12 +387,12 @@ namespace agg
 			enum NameID
 			{
 				NAME_CopyrightNotice,
-				NAME_FontFamily,
-				NAME_FontSubfamily,
-				NAME_UniqueFontIdentifier,
-				NAME_FullFontName,
-				NAME_Version,
-				NAME_PostScriptName,
+				NAME_FontFamily,				//	"Futura Lt BT"
+				NAME_FontSubfamily,				//	"Light Italic"
+				NAME_UniqueFontIdentifier,		//	"Futura Light Italic, Geometric 211"
+				NAME_FullFontName,				//	"Futura Lt BT Light Italic"
+				NAME_Version,					//	"Version 2.001 mfgpctt 4.4"
+				NAME_PostScriptName,			//	"FuturaBT-LightItalic"
 				NAME_Trademark,
 				NAME_Manufacturer,
 				NAME_Designer,
@@ -424,8 +424,11 @@ namespace agg
 			int16u			storage_area_offset;
 			NameRecord		record_head[1];
 			
-			size_t RetUnicodeLength (int16u language_id, NameID name_id) const;	//	length in characters, including terminal zero
-			bool GetUnicodeName (int16u language_id, NameID name_id, wchar_t* buffer, size_t max) const;
+			size_t RetLatinLength (int16u language_id, NameID name_id, PlatformID platform_id) const;	//	length in characters, including terminal zero
+			size_t RetUnicodeLength (int16u language_id, NameID name_id, PlatformID platform_id) const;	//	length in characters, including terminal zero
+			
+			bool GetLatinName (int16u language_id, NameID name_id, PlatformID platform_id, wchar_t* buffer, size_t max) const;
+			bool GetUnicodeName (int16u language_id, NameID name_id, PlatformID platform_id, wchar_t* buffer, size_t max) const;
 		};
 
 		

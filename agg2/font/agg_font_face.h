@@ -206,6 +206,7 @@ namespace agg
 		wchar_t				style_name[64];			//	style name (untranslated)
 		wchar_t				style_name_loc[64];		//	style name (translated according to user's locale)
 		wchar_t				optical_name[64];		//	optical name (untranslated)
+		wchar_t				unique_name[100];		//	unique name (untranslated)
 		
 		int					lock_count;				//	# of uses of this face object
 		
@@ -291,6 +292,7 @@ namespace agg
 		const wchar_t* RetStyleName () const;
 		const wchar_t* RetStyleNameUserLocale () const;
 		const wchar_t* RetOpticalName () const;
+		const wchar_t* RetUniqueName () const;
 		
 		void* RetOsHandle ();
 		
