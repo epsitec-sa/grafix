@@ -128,6 +128,8 @@ namespace agg
 				int16							x_min, x_max, y_min, y_max;
 				int16							width_advance;
 				int16							left_side_bearing;
+				int16							mtx, mty;
+				double							mxx, mxy, myx, myy;
 				
 				int16u							num_coord;
 				int8u*							glyph_flags;			//	decompiled glyph path flags, from Open Type glyf table

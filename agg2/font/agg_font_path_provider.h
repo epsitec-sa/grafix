@@ -64,10 +64,17 @@ namespace agg
 					double x, double y,
 					double matrix_xx, double matrix_yy, double matrix_xy, double matrix_yx)
 		{
-			this->matrix_xx = matrix_xx * face->RetScaleToEM ();
-			this->matrix_xy = matrix_xy * face->RetScaleToEM ();
-			this->matrix_yx = matrix_yx * face->RetScaleToEM ();
-			this->matrix_yy = matrix_yy * face->RetScaleToEM ();
+			double scale = face->RetScaleToEM ();
+			
+			double xx = matrix_xx * scale;
+			double xy = matrix_xy * scale;
+			double yx = matrix_yx * scale;
+			double yy = matrix_yy * scale;
+			
+			this->matrix_xx = xx * info->mxx + xy * info->myx;
+			this->matrix_xy = xx * info->mxy + xy * info->myy;
+			this->matrix_yx = yx * info->mxx + yy * info->myx;
+			this->matrix_yy = yx * info->mxy + yy * info->myy;
 			
 			this->index       = 0;
 			this->num_coord   = info->num_coord;
@@ -79,8 +86,11 @@ namespace agg
 			this->generate_close = false;
 			this->composite_next = 0;
 			
-			this->ox = x;
-			this->oy = y;
+			double tx = xx * info->mtx + yx * info->mty;
+			double ty = xy * info->mtx + yy * info->mty;
+			
+			this->ox = x + tx;
+			this->oy = y + ty;
 			
 			if (info->composites)
 			{
@@ -89,10 +99,10 @@ namespace agg
 				
 				for (int i = 0; i < n; i++)
 				{
-					double xx = this->matrix_xx * info->composites[i].xx;
-					double xy = this->matrix_xy * info->composites[i].xy;
-					double yx = this->matrix_yx * info->composites[i].yx;
-					double yy = this->matrix_yy * info->composites[i].yy;
+					double xx = info->composites[i].xx * this->matrix_xx + info->composites[i].xy * this->matrix_yx;
+					double xy = info->composites[i].xx * this->matrix_xy + info->composites[i].xy * this->matrix_yy;
+					double yx = info->composites[i].yx * this->matrix_xx + info->composites[i].yy * this->matrix_yx;
+					double yy = info->composites[i].yx * this->matrix_xy + info->composites[i].yy * this->matrix_yy;
 					
 					int16u                                     other_glyph = info->composites[i].glyph;
 					font_face::cache_record::size_info_record* other_info  = face->FindSizeInfo (other_glyph);
@@ -218,8 +228,8 @@ namespace agg
 							continue;
 						}
 						
-						*x = this->contour_ox = x16 * this->matrix_xx + this->ox;
-						*y = this->contour_oy = y16 * this->matrix_yy + this->oy;
+						*x = this->contour_ox = this->matrix_xx * x16 + this->matrix_yx * y16 + this->ox;
+						*y = this->contour_oy = this->matrix_xy * x16 + this->matrix_yy * y16 + this->oy;
 						
 						this->state = STATE_ON_CURVE;
 						return agg::path_cmd_move_to;
@@ -227,8 +237,8 @@ namespace agg
 					
 					
 					case STATE_ON_CURVE:
-						*x = x16 * this->matrix_xx + this->ox;
-						*y = y16 * this->matrix_yy + this->oy;
+						*x = this->matrix_xx * x16 + this->matrix_yx * y16 + this->ox;
+						*y = this->matrix_xy * x16 + this->matrix_yy * y16 + this->oy;
 						
 						if (flag & font_face::cache_record::FLAG_ON_CURVE)
 						{
@@ -264,8 +274,8 @@ namespace agg
 					case STATE_OFF_CURVE:
 						if (flag & font_face::cache_record::FLAG_ON_CURVE)
 						{
-							*x = x16 * this->matrix_xx + this->ox;
-							*y = y16 * this->matrix_yy + this->oy;
+							*x = this->matrix_xx * x16 + this->matrix_yx * y16 + this->ox;
+							*y = this->matrix_xy * x16 + this->matrix_yy * y16 + this->oy;
 							
 							//	The last point was off the curve, and this point is on the curve again. This
 							//	means that we are finishing a curve here.
@@ -287,15 +297,20 @@ namespace agg
 						
 						this->index--;
 						
-						*x = (this->glyph_x[this->index - 1] + this->glyph_x[this->index]) * this->matrix_xx / 2 + this->ox;
-						*y = (this->glyph_y[this->index - 1] + this->glyph_y[this->index]) * this->matrix_yy / 2 + this->oy;
+						{
+							double temp_x = (this->glyph_x[this->index - 1] + this->glyph_x[this->index]) / 2.0;
+							double temp_y = (this->glyph_y[this->index - 1] + this->glyph_y[this->index]) / 2.0;
+							
+							*x = this->matrix_xx * temp_x + this->matrix_yx * temp_y + this->ox;
+							*y = this->matrix_xy * temp_x + this->matrix_yy * temp_y + this->oy;
+						}
 						
 						this->state = STATE_INTERPOLATED;
 						return agg::path_cmd_curve3;
 						
 					case STATE_INTERPOLATED:
-						*x = x16 * this->matrix_xx + this->ox;
-						*y = y16 * this->matrix_yy + this->oy;
+						*x = this->matrix_xx * x16 + this->matrix_yx * y16 + this->ox;
+						*y = this->matrix_xy * x16 + this->matrix_yy * y16 + this->oy;
 						
 						if (flag & font_face::cache_record::FLAG_CONTOUR_END)
 						{

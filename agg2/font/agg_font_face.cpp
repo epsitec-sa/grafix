@@ -860,6 +860,13 @@ font_face::cache_record::FindSizeInfo (int16u glyph)
 	info->y_min = read_big_endian (glyph_table->header.y_min);
 	info->y_max = read_big_endian (glyph_table->header.y_max);
 	
+	info->mtx = 0;
+	info->mty = 0;
+	info->mxx = 1.0;
+	info->myy = 1.0;
+	info->mxy = 0.0;
+	info->myx = 0.0;
+	
 #if 0
 	Trace ("%S %S, Glyph %d has contents at offset %d [%d %d %d %d] %d %d [%d:%d]\n",
 			face->RetFamilyName (),
@@ -935,6 +942,9 @@ font_face::cache_record::DecompileComposite (int16u glyph, size_info_record*& in
 	
 	info->composites      = composites;
 	info->composite_count = num_elements;
+	
+	compo->GetMatrix (info->mxx, info->mxy, info->myx, info->myy);
+	compo->GetOffsetXandY (info->mtx, info->mty);
 	
 	compo = compo->NextComposite ();
 	
