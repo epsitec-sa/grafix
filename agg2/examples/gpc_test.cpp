@@ -190,7 +190,7 @@ public:
             agg::gsv_text txt;
             agg::conv_stroke<agg::gsv_text> txt_stroke(txt);
             txt_stroke.width(1.5);
-            txt_stroke.line_cap(agg::vcgen_stroke::round_cap);
+            txt_stroke.line_cap(agg::round_cap);
             txt.size(10.0);
             txt.start_point(250, 5);
             txt.text(buf);
@@ -386,7 +386,7 @@ public:
 
 
 /*
-FILE* fd = fopen("contours.txt", "wt");
+FILE* fd = fopen("contours.txt", "w");
 if(fd)
 {
     unsigned cmd;

@@ -28,6 +28,7 @@ agg_trans_warp_magnifier.cpp \
 agg_trans_single_path.cpp \
 agg_trans_double_path.cpp \
 agg_vpgen_clip_polygon.cpp \
+agg_vpgen_clip_polyline.cpp \
 agg_vpgen_segmentator.cpp \
 ctrl/agg_cbox_ctrl.cpp \
 ctrl/agg_gamma_ctrl.cpp \
@@ -35,7 +36,9 @@ ctrl/agg_gamma_spline.cpp \
 ctrl/agg_rbox_ctrl.cpp \
 ctrl/agg_slider_ctrl.cpp \
 ctrl/agg_spline_ctrl.cpp \
-ctrl/agg_scale_ctrl.cpp
+ctrl/agg_scale_ctrl.cpp \
+ctrl/agg_polygon_ctrl.cpp \
+ctrl/agg_bezier_ctrl.cpp
 
 SRC_C=\
 ../gpc/gpc.c

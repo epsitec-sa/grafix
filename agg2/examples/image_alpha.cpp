@@ -40,7 +40,7 @@ namespace agg
         {
         }
 
-        void convert(color_type* colors, unsigned len) const
+        void convert(color_type* colors, int x, int y, unsigned len) const
         {
             do
             {
@@ -183,6 +183,28 @@ public:
 
         agg::render_ctrl(ras, sl, rs, m_alpha);
     }
+
+    virtual void on_key(int x, int y, unsigned key, unsigned flags)
+    {
+        if(key == ' ')
+        {
+            FILE* fd = fopen("alpha", "w");
+
+            int i;
+            for(i = 0; i < agg::span_conv_brightness_alpha_rgb8::array_size; i++)
+            {
+                int alpha = 
+                    agg::int8u(m_alpha.value(double(i) / 
+                             double(agg::span_conv_brightness_alpha_rgb8::array_size)) * 255.0);
+                if(i % 32 == 0) fprintf(fd, "\n");
+                fprintf(fd, "%3d, ", alpha);
+            }
+
+            fclose(fd);
+        }
+    }
+
+
 
 
 };

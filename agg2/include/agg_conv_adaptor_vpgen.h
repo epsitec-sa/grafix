@@ -79,7 +79,7 @@ namespace agg
             cmd = m_vpgen.vertex(x, y);
             if(!is_stop(cmd)) break;
 
-            if(m_poly_flags)
+            if(m_poly_flags && !m_vpgen.auto_unclose())
             {
                 *x = 0.0;
                 *y = 0.0;

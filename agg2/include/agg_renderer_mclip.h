@@ -246,18 +246,6 @@ namespace agg
         }
 
         //--------------------------------------------------------------------
-        void blend_solid_hspan_cleartype(int x, int y, int len, 
-                                         const color_type& c, const cover_type* covers)
-        {
-            first_clip_box();
-            do
-            {
-                m_ren.blend_solid_hspan_cleartype(x, y, len, c, covers);
-            }
-            while(next_clip_box());
-        }
-
-        //--------------------------------------------------------------------
         void blend_solid_vspan(int x, int y, int len, 
                                const color_type& c, const cover_type* covers)
         {

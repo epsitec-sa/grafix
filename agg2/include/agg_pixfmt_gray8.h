@@ -30,6 +30,9 @@ namespace agg
     {
     public:
         typedef gray8 color_type;
+        typedef bool  order_type;
+        typedef rendering_buffer::row_data row_data;
+
 
         //--------------------------------------------------------------------
         pixfmt_gray8_base(rendering_buffer& rb)
@@ -42,9 +45,15 @@ namespace agg
         unsigned height() const { return m_rbuf->height(); }
 
         //--------------------------------------------------------------------
-        color_type pixel(int x, int y)
+        color_type pixel(int x, int y) const
         {
             return color_type(m_rbuf->row(y)[x * Step + Offset]);
+        }
+
+        //--------------------------------------------------------------------
+        row_data span(int x, int y) const
+        {
+            return row_data(x, width() - 1, m_rbuf->row(y) + x);
         }
 
         //--------------------------------------------------------------------
@@ -160,32 +169,6 @@ namespace agg
         //--------------------------------------------------------------------
         void blend_solid_hspan(int x, int y, unsigned len, 
                                const color_type& c, const int8u* covers)
-        {
-            int8u* p = m_rbuf->row(y) + x * Step + Offset;
-            do 
-            {
-                int alpha = int(*covers++) * c.a;
-
-                if(alpha)
-                {
-                    if(alpha == 255*255)
-                    {
-                        *p = (int8u)c.v; 
-                    }
-                    else
-                    {
-                        int v = *p;
-                        *p = (int8u)((((c.v - v) * alpha) + (v << 16)) >> 16);
-                    }
-                }
-                p += Step;
-            }
-            while(--len);
-        }
-
-        //--------------------------------------------------------------------
-        void blend_solid_hspan_cleartype(int x, int y, unsigned len, 
-                                         const color_type& c, const int8u* covers)
         {
             int8u* p = m_rbuf->row(y) + x * Step + Offset;
             do 

@@ -1,6 +1,7 @@
 all:
 	cd aa_demo; make
 	cd aa_test; make
+	cd alpha_gradient; make
 	cd alpha_mask; make
 	cd alpha_mask2; make
 	cd alpha_mask3; make
@@ -42,6 +43,7 @@ all:
 clean:
 	cd aa_demo; make clean
 	cd aa_test; make clean
+	cd alpha_gradient; make clean
 	cd alpha_mask; make clean
 	cd alpha_mask2; make clean
 	cd alpha_mask3; make clean

@@ -21,8 +21,6 @@
 #include "agg_color_rgba8.h"
 #include "agg_rendering_buffer.h"
 
-#define EMULATE_CLEARTYPE_X3		0
-
 namespace agg
 {
 
@@ -31,6 +29,8 @@ namespace agg
     {
     public:
         typedef rgba8 color_type;
+        typedef Order order_type;
+        typedef rendering_buffer::row_data row_data;
 
         //--------------------------------------------------------------------
         pixel_formats_rgba32(rendering_buffer& rb)
@@ -43,10 +43,16 @@ namespace agg
         unsigned height() const { return m_rbuf->height(); }
 
         //--------------------------------------------------------------------
-        color_type pixel(int x, int y)
+        color_type pixel(int x, int y) const
         {
             int8u* p = m_rbuf->row(y) + (x << 2);
             return color_type(p[Order::R], p[Order::G], p[Order::B], p[Order::A]);
+        }
+
+        //--------------------------------------------------------------------
+        row_data span(int x, int y) const
+        {
+            return row_data(x, width() - 1, m_rbuf->row(y) + (x << 2));
         }
 
         //--------------------------------------------------------------------
@@ -209,6 +215,59 @@ namespace agg
         }
 
 
+
+        //--------------------------------------------------------------------
+        template<class SrcPixelFormatRenderer>
+        void blend_from(const SrcPixelFormatRenderer& from, 
+                        const int8u* psrc,
+                        int xdst, int ydst,
+                        int xsrc, int ysrc,
+                        unsigned len)
+        {
+            typedef typename SrcPixelFormatRenderer::order_type src_order;
+
+            int8u* pdst = m_rbuf->row(ydst) + (xdst << 2);
+            int incp = 4;
+            if(xdst > xsrc)
+            {
+                psrc += (len-1) << 2;
+                pdst += (len-1) << 2;
+                incp = -4;
+            }
+            do 
+            {
+                int alpha = psrc[src_order::A];
+
+                if(alpha)
+                {
+                    if(alpha == 255)
+                    {
+                        pdst[Order::R] = psrc[src_order::R];
+                        pdst[Order::G] = psrc[src_order::G];
+                        pdst[Order::B] = psrc[src_order::B];
+                        pdst[Order::A] = psrc[src_order::A];
+                    }
+                    else
+                    {
+                        int r = pdst[Order::R];
+                        int g = pdst[Order::G];
+                        int b = pdst[Order::B];
+                        int a = pdst[Order::A];
+                        pdst[Order::R] = (int8u)((((psrc[src_order::R] - r) * alpha) + (r << 8)) >> 8);
+                        pdst[Order::G] = (int8u)((((psrc[src_order::G] - g) * alpha) + (g << 8)) >> 8);
+                        pdst[Order::B] = (int8u)((((psrc[src_order::B] - b) * alpha) + (b << 8)) >> 8);
+                        pdst[Order::A] = (int8u)((alpha + a) - ((alpha * a) >> 8));
+                    }
+                }
+                psrc += incp;
+                pdst += incp;
+            }
+            while(--len);
+        }
+
+
+
+
         //--------------------------------------------------------------------
         void blend_solid_hspan(int x, int y, unsigned len, 
                                const color_type& c, const int8u* covers)
@@ -242,78 +301,6 @@ namespace agg
                 p += 4;
             }
             while(--len);
-        }
-
-        //--------------------------------------------------------------------
-        void blend_solid_hspan_cleartype(int x, int y, unsigned len, 
-                                         const color_type& c, const int8u* covers)
-        {
-#if EMULATE_CLEARTYPE_X3
-			// 3 cover values per pixel
-            int8u* p = m_rbuf->row(y) + (x << 2);
-            do 
-            {
-                int alpha_r = int(*covers++) * c.a;
-                int alpha_g = int(*covers++) * c.a;
-                int alpha_b = int(*covers++) * c.a;
-
-                int r = p[Order::R];
-                int g = p[Order::G];
-                int b = p[Order::B];
-                int a = p[Order::A];
-                p[Order::R] = (int8u)((((c.r - r) * alpha_r) + (r << 16)) >> 16);
-                p[Order::G] = (int8u)((((c.g - g) * alpha_g) + (g << 16)) >> 16);
-                p[Order::B] = (int8u)((((c.b - b) * alpha_b) + (b << 16)) >> 16);
-                p[Order::A] = (int8u)(((alpha_g + (a << 8)) - ((alpha_g * a) >> 8)) >> 8);
-                
-				p += 4;
-            }
-            while(--len);
-#else
-			// coverage interpolation
-			int cover_prev = 0;
-            int cover_here = int(covers[0]);
-			int cover_next;
-			
-            int8u* p = m_rbuf->row(y) + (x << 2);
-            do 
-            {
-				cover_next = int(covers[1]);
-				
-				int alpha = int(*covers++) * c.a;
-				
-                if(alpha)
-                {
-                    if(alpha == 255*255)
-                    {
-                        p[Order::R] = (int8u)c.r;
-                        p[Order::G] = (int8u)c.g;
-                        p[Order::B] = (int8u)c.b;
-                        p[Order::A] = (int8u)c.a;
-                    }
-                    else
-                    {
-                        int r = p[Order::R];
-                        int g = p[Order::G];
-                        int b = p[Order::B];
-                        int a = p[Order::A];
-						
-						int alpha_r = (cover_prev + cover_here) * c.a >> 1;
-						int alpha_g = alpha;
-						int alpha_b = (cover_next + cover_here) * c.a >> 1;
-						
-						p[Order::R] = (int8u)((((c.r - r) * alpha_r) + (r << 16)) >> 16);
-                        p[Order::G] = (int8u)((((c.g - g) * alpha_g) + (g << 16)) >> 16);
-                        p[Order::B] = (int8u)((((c.b - b) * alpha_b) + (b << 16)) >> 16);
-                        p[Order::A] = (int8u)(((alpha + (a << 8)) - ((alpha * a) >> 8)) >> 8);
-                    }
-                }
-                p += 4;
-				cover_prev = cover_here;
-				cover_here = cover_next;
-            }
-            while(--len);
-#endif
         }
 
 

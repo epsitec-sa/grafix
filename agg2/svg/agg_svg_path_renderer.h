@@ -27,6 +27,7 @@
 #include "agg_color_rgba8.h"
 #include "agg_array.h"
 #include "agg_bounding_rect.h"
+#include "agg_rasterizer_scanline_aa.h"
 #include "agg_svg_path_tokenizer.h"
 
 namespace agg

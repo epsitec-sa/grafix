@@ -15,6 +15,7 @@
 #ifndef AGG_ARRAY_INCLUDED
 #define AGG_ARRAY_INCLUDED
 
+#include <stddef.h>
 #include <string.h>
 #include "agg_basics.h"
 
@@ -642,7 +643,7 @@ namespace agg
                 int8u* ptr = m_buf_ptr;
                 if(alignment > 1)
                 {
-                    unsigned align = (alignment - unsigned(size_t(ptr)) % alignment) % alignment;
+                    unsigned align = (alignment - unsigned((size_t)ptr) % alignment) % alignment;
                     size += align;
                     ptr += align;
                     if(size <= m_rest)

@@ -59,7 +59,7 @@ void write_gamma_bin(const char* fname)
 void write_gamma_txt(const char* fname)
 {
     const unsigned char* gamma = g_ctrl.gamma();
-    FILE* fd = fopen(fname, "wt");
+    FILE* fd = fopen(fname, "w");
     if(fd)
     {
         double kx1, ky1, kx2, ky2;

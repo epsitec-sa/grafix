@@ -54,7 +54,8 @@ namespace agg
         double x2() const { return m_clip_box.x2; }
         double y2() const { return m_clip_box.y2; }
 
-        static bool auto_close() { return true; }
+        static bool auto_close()   { return true;  }
+        static bool auto_unclose() { return false; }
 
         void     reset();
         void     move_to(double x, double y);

@@ -34,7 +34,8 @@ namespace agg
         void approximation_scale(double s) { m_approximation_scale = s;     }
         double approximation_scale() const { return m_approximation_scale;  }
 
-        static bool auto_close() { return false; }
+        static bool auto_close()   { return false; }
+        static bool auto_unclose() { return false; }
 
         void reset() { m_cmd = path_cmd_stop; }
         void move_to(double x, double y);

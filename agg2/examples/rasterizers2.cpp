@@ -231,7 +231,7 @@ public:
         spiral s4(width()/2, height() - height()/4 + 20, 5, 70, 8, m_start_angle);
         agg::conv_stroke<spiral> stroke(s4);
         stroke.width(m_width.value());
-        stroke.line_cap(agg::vcgen_stroke::round_cap);
+        stroke.line_cap(agg::round_cap);
         ren.color(agg::rgba(0.4, 0.3, 0.1));
         ras.add_path(stroke);
         agg::render_scanlines(ras, sl, ren);

@@ -176,6 +176,17 @@ namespace agg
     };
 
 
+    //========================================================gradient_radial_d
+    class gradient_radial_d
+    {
+    public:
+        static int calculate(int x, int y, int)
+        {
+            return int(sqrt(double(x)*double(x) + double(y)*double(y)));
+        }
+    };
+
+
     //====================================================gradient_radial_focus
     class gradient_radial_focus
     {
@@ -368,6 +379,44 @@ namespace agg
     };
 
 
+    //=================================================gradient_repeat_adaptor
+    template<class GradientF> class gradient_repeat_adaptor
+    {
+    public:
+        gradient_repeat_adaptor(const GradientF& gradient) : 
+            m_gradient(&gradient) {}
+
+        int calculate(int x, int y, int d) const
+        {
+            int ret = m_gradient->calculate(x, y, d) % d;
+            if(ret < 0) ret += d;
+            return ret;
+        }
+
+    private:
+        const GradientF* m_gradient;
+    };
+
+
+    //================================================gradient_reflect_adaptor
+    template<class GradientF> class gradient_reflect_adaptor
+    {
+    public:
+        gradient_reflect_adaptor(const GradientF& gradient) : 
+            m_gradient(&gradient) {}
+
+        int calculate(int x, int y, int d) const
+        {
+            int d2 = d << 1;
+            int ret = m_gradient->calculate(x, y, d) % d2;
+            if(ret <  0) ret += d2;
+            if(ret >= d) ret  = d2 - ret;
+            return ret;
+        }
+
+    private:
+        const GradientF* m_gradient;
+    };
 
 
 }

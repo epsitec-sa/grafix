@@ -110,14 +110,14 @@ public:
         path.line_to((m_x[2] + m_x[0]) / 2, (m_y[2] + m_y[0]) / 2);
         path.close_polygon();
 
-        agg::vcgen_stroke::line_cap_e cap = agg::vcgen_stroke::butt_cap;
-        if(m_cap.cur_item() == 1)   cap = agg::vcgen_stroke::square_cap;
-        if(m_cap.cur_item() == 2)   cap = agg::vcgen_stroke::round_cap;
+        agg::line_cap_e           cap = agg::butt_cap;
+        if(m_cap.cur_item() == 1) cap = agg::square_cap;
+        if(m_cap.cur_item() == 2) cap = agg::round_cap;
         
-        agg::vcgen_stroke::line_join_e join = agg::vcgen_stroke::miter_join;
-        if(m_join.cur_item() == 1)     join = agg::vcgen_stroke::miter_join_revert;
-        if(m_join.cur_item() == 2)     join = agg::vcgen_stroke::round_join;
-        if(m_join.cur_item() == 3)     join = agg::vcgen_stroke::bevel_join;
+        agg::line_join_e           join = agg::miter_join;
+        if(m_join.cur_item() == 1) join = agg::miter_join_revert;
+        if(m_join.cur_item() == 2) join = agg::round_join;
+        if(m_join.cur_item() == 3) join = agg::bevel_join;
 
 
 

@@ -255,9 +255,7 @@ namespace agg
 
         //--------------------------------------------------------------------
         span_pattern_filter_rgba32(alloc_type& alloc) : 
-            base_type(alloc),
-            m_remainder_x(src.width()),
-            m_remainder_y(src.height())
+            base_type(alloc)
         {}
 
         //--------------------------------------------------------------------

@@ -883,7 +883,7 @@ public:
                 times[2] -= times[1];
                 times[1] -= times[0];
             
-                FILE* fd = fopen(full_file_name("benchmark"), "at");
+                FILE* fd = fopen(full_file_name("benchmark"), "a");
                 fprintf(fd, "%10.3f %10.3f %10.3f %10.3f %10.3f\n", 
                             times[0], times[1], times[2], times[3], times[4]);
                 fclose(fd);

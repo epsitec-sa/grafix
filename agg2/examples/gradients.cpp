@@ -41,6 +41,8 @@ const double center_x = 350;
 const double center_y = 280;
 
 
+
+
 class gradient_polymorphic_wrapper_base
 {
 public:
@@ -51,11 +53,14 @@ template<class GradientF>
 class gradient_polymorphic_wrapper : public gradient_polymorphic_wrapper_base
 {
 public:
+    gradient_polymorphic_wrapper() : m_adaptor(m_gradient) {}
+
     virtual int calculate(int x, int y, int d) const
     {
-        return m_gradient.calculate(x, y, d);
+        return m_adaptor.calculate(x, y, d);
     }
     GradientF m_gradient;
+    agg::gradient_reflect_adaptor<GradientF> m_adaptor;
 };
 
 
@@ -103,7 +108,7 @@ class the_application : public agg::platform_support
 public:
     virtual ~the_application()
     {
-        FILE* fd = fopen(full_file_name("settings.dat"), "wt");
+        FILE* fd = fopen(full_file_name("settings.dat"), "w");
         fprintf(fd, "%f\n", m_center_x);
         fprintf(fd, "%f\n", m_center_y);
         fprintf(fd, "%f\n", m_scale);
@@ -248,7 +253,7 @@ public:
         m_rbox.add_item("Conic");
         m_rbox.cur_item(0);
 
-        FILE* fd = fopen(full_file_name("settings.dat"), "rt");
+        FILE* fd = fopen(full_file_name("settings.dat"), "r");
         if(fd)
         {
             float x;
@@ -380,14 +385,16 @@ public:
 
         agg::conv_transform<agg::ellipse, agg::trans_affine> t1(e1, mtx1);
 
-        gradient_polymorphic_wrapper<agg::gradient_circle>   gr_circle;
-        gradient_polymorphic_wrapper<agg::gradient_diamond>  gr_diamond;
-        gradient_polymorphic_wrapper<agg::gradient_x>        gr_x;
-        gradient_polymorphic_wrapper<agg::gradient_xy>       gr_xy;
-        gradient_polymorphic_wrapper<agg::gradient_sqrt_xy>  gr_sqrt_xy;
-        gradient_polymorphic_wrapper<agg::gradient_conic>    gr_conic;
+        gradient_polymorphic_wrapper<agg::gradient_radial>       gr_circle;
+        gradient_polymorphic_wrapper<agg::gradient_diamond>      gr_diamond;
+        gradient_polymorphic_wrapper<agg::gradient_x>            gr_x;
+        gradient_polymorphic_wrapper<agg::gradient_xy>           gr_xy;
+        gradient_polymorphic_wrapper<agg::gradient_sqrt_xy>      gr_sqrt_xy;
+        gradient_polymorphic_wrapper<agg::gradient_conic>        gr_conic;
 
         gradient_polymorphic_wrapper_base* gr_ptr = &gr_circle;
+
+//        gr_circle.m_gradient.init(150, 80, 80);
 
         switch(m_rbox.cur_item())
         {
@@ -487,7 +494,7 @@ public:
     {
         if(key == agg::key_f1)
         {
-            FILE* fd = fopen(full_file_name("colors.dat"), "wt");
+            FILE* fd = fopen(full_file_name("colors.dat"), "w");
             int i;
             for(i = 0; i < 256; i++)
             {
@@ -508,7 +515,7 @@ public:
 int agg_main(int argc, char* argv[])
 {
     //#ifdef _WIN32
-    //    FILE* fd = fopen("stdout.txt", "wt"); fclose(fd);
+    //    FILE* fd = fopen("stdout.txt", "w"); fclose(fd);
     //#endif
     //AGG_WATCHDOGGY(wd1, false);
 

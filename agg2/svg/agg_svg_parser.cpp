@@ -226,7 +226,7 @@ namespace svg
 	    XML_SetElementHandler(p, start_element, end_element);
 	    XML_SetCharacterDataHandler(p, content);
 
-        FILE* fd = fopen(fname, "rt");
+        FILE* fd = fopen(fname, "r");
         if(fd == 0)
         {
             sprintf(msg, "Couldn't open file %s", fname);
@@ -423,7 +423,7 @@ namespace svg
         unsigned c = 0;
         if(*str == '#')
         {
-            sscanf(str + 1, "%X", &c);
+            sscanf(str + 1, "%x", &c);
             return rgba8(c, rgba8::rgb);
         }
         else

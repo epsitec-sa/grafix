@@ -303,6 +303,7 @@ public:
             ren.color(agg::rgba8(rand() & 0x7F, 
                                  rand() & 0x7F, 
                                  rand() & 0x7F, 
+                                 //255));
                                  (rand() & 0x7F) + 0x7F)); 
             ras.move_to_d(rand() % width, rand() % height);
             ras.line_to_d(rand() % width, rand() % height);

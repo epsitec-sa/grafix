@@ -141,13 +141,13 @@ public:
             m_dash.remove_all_dashes();
             m_dash.add_dash(dash_length, dash_length);
             m_dash_stroke.width(line_width);
-            m_dash_stroke.line_cap(agg::vcgen_stroke::round_cap);
+            m_dash_stroke.line_cap(agg::round_cap);
             m_ras.add_path(m_dash_stroke);
         }
         else
         {
             m_stroke.width(line_width);
-            m_stroke.line_cap(agg::vcgen_stroke::round_cap);
+            m_stroke.line_cap(agg::round_cap);
             m_ras.add_path(m_stroke);
         }
         agg::render_scanlines(m_ras, m_sl, m_ren);

@@ -304,7 +304,7 @@ public:
             agg::gsv_text txt;
             agg::conv_stroke<agg::gsv_text> txt_stroke(txt);
             txt_stroke.width(1.0);
-            txt_stroke.line_cap(agg::vcgen_stroke::round_cap);
+            txt_stroke.line_cap(agg::round_cap);
             txt.size(8.0);
             txt.start_point(420, 40);
             txt.text(buf);

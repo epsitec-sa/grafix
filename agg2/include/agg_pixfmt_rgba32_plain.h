@@ -30,7 +30,8 @@ namespace agg
     {
     public:
         typedef rgba8 color_type;
-
+        typedef Order order_type;
+        typedef rendering_buffer::row_data row_data;
 
     private:
         //--------------------------------------------------------------------
@@ -117,10 +118,16 @@ namespace agg
         unsigned height() const { return m_rbuf->height(); }
 
         //--------------------------------------------------------------------
-        color_type pixel(int x, int y)
+        color_type pixel(int x, int y) const
         {
             int8u* p = m_rbuf->row(y) + (x << 2);
             return color_type(p[Order::R], p[Order::G], p[Order::B], p[Order::A]);
+        }
+
+        //--------------------------------------------------------------------
+        row_data span(int x, int y) const
+        {
+            return row_data(x, width() - 1, m_rbuf->row(y) + (x << 2));
         }
 
         //--------------------------------------------------------------------

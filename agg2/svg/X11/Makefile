@@ -5,9 +5,7 @@ OUTNAME=$(PROGNAME)
 PLATFORM=X11
 
 CXXFLAGS= $(AGGCXXFLAGS) -I../../include \
--I/usr/X11R6/include \
--L/usr/X11R6/lib \
--L/usr/lib \
+-L/usr/local/lib \
 -L../../src \
 $(PIXFMT)
 
@@ -20,13 +18,16 @@ SRC=\
 ../agg_svg_path_tokenizer.cpp \
 ../../src/platform/$(PLATFORM)/agg_platform_support.cpp
 
-OBJ= $(SRC:.cpp=.o)
+OBJ=$(SRC:.cpp=.o)
 
 $(OUTNAME):	$(OBJ)
 	$(CXX) $(CXXFLAGS)  $^ -o $(OUTNAME) $(LIBS)
 
 clean:
 	rm -f $(OUTNAME)
+	rm -f ../agg_svg_parser.o
+	rm -f ../agg_svg_path_renderer.o
+	rm -f ../agg_svg_path_tokenizer.o
 	rm -f ../$(PROGNAME).o
 	rm -f ../../src/platform/$(PLATFORM)/agg_platform_support.o
 

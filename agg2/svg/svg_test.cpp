@@ -185,7 +185,7 @@ public:
                          m[0], m[1], m[2], m[3], m[4], m[5]);
 
             message(buf);
-            FILE* fd = fopen("transform.txt", "at");
+            FILE* fd = fopen("transform.txt", "a");
             fprintf(fd, "%s\n", buf);
             fclose(fd);
         }

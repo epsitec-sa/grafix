@@ -95,9 +95,9 @@ public:
         agg::rasterizer_scanline_aa<> ras;
         agg::scanline_u8 sl;
 
-        agg::vcgen_stroke::line_cap_e cap = agg::vcgen_stroke::butt_cap;
-        if(m_cap.cur_item() == 1)   cap = agg::vcgen_stroke::square_cap;
-        if(m_cap.cur_item() == 2)   cap = agg::vcgen_stroke::round_cap;
+        agg::line_cap_e           cap = agg::butt_cap;
+        if(m_cap.cur_item() == 1) cap = agg::square_cap;
+        if(m_cap.cur_item() == 2) cap = agg::round_cap;
 
         agg::path_storage path;
 

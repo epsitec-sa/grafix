@@ -273,7 +273,7 @@ public:
 //m_feng.transform(agg::trans_affine_rotation(agg::deg2rad(40.0)));
 //m_feng.flip_y(false);
 
-        if(m_feng.create_font("Times New Roman", gren))
+        if(m_feng.create_font("Arial", gren))
         {
             m_fman.precache(' ', 127);
 

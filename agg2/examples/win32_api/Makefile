@@ -5,6 +5,7 @@
 all:
 	cd aa_demo; make
 	cd aa_test; make
+	cd alpha_gradient; make
 	cd alpha_mask; make
 	cd alpha_mask2; make
 	cd alpha_mask3; make
@@ -28,6 +29,7 @@ all:
 	cd image_transforms; make
 	cd image_perspective; make
 	cd images1; make
+	cd line_patterns; make
 	cd lion; make
 	cd lion_lens; make
 	cd lion_outline; make
@@ -50,6 +52,7 @@ all:
 clean:
 	cd aa_demo; make clean
 	cd aa_test; make clean
+	cd alpha_gradient; make clean
 	cd alpha_mask; make clean
 	cd alpha_mask2; make clean
 	cd alpha_mask3; make clean
@@ -73,6 +76,7 @@ clean:
 	cd image_perspective; make clean
 	cd image_transforms; make clean
 	cd images1; make clean
+	cd line_patterns; make clean
 	cd lion; make clean
 	cd lion_lens; make clean
 	cd lion_outline; make clean

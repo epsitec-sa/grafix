@@ -783,7 +783,7 @@ public:
         add_ctrl(m_thickness);
         add_ctrl(m_text_size);
 
-        FILE* fd = fopen(full_file_name(fname), "rt");
+        FILE* fd = fopen(full_file_name(fname), "r");
         if(fd)
         {
             unsigned i;
@@ -904,8 +904,8 @@ public:
         agg::gsv_text label;
         agg::conv_stroke<agg::gsv_text> ls(label);
         agg::conv_transform<agg::conv_stroke<agg::gsv_text> > lo(ls, mtx);
-        ls.line_join(agg::vcgen_stroke::round_join);
-        ls.line_cap(agg::vcgen_stroke::round_cap);
+        ls.line_join(agg::round_join);
+        ls.line_cap(agg::round_cap);
         ls.approximation_scale(mtx.scale());
         for(i = 0; i < mol.num_atoms(); i++)
         {
