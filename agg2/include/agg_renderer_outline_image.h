@@ -180,8 +180,7 @@ namespace agg
         }
 
         //--------------------------------------------------------------------
-        const filter_type& filter() const { return m_filter; }
-        filter_type& filter() { return m_filter; }
+        const filter_type& filter() const { return *m_filter; }
 
     private:
         line_image_pattern(const line_image_pattern<filter_type>&);

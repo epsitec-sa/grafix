@@ -269,7 +269,7 @@ public:
         // in practice.
         //-------------------------
         m_feng.width((m_width.value() == m_height.value()) ? 0.0 : m_width.value() / 2.4);
-        m_feng.italic(true);
+        //m_feng.italic(true);
 //m_feng.transform(agg::trans_affine_rotation(agg::deg2rad(40.0)));
 //m_feng.flip_y(false);
 

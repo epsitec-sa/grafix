@@ -23,19 +23,25 @@ namespace agg
     template<class Renderer> class rasterizer_outline
     {
     public:
-        rasterizer_outline(Renderer& ren) : m_ren(&ren), m_start_x(0), m_start_y(0)
+        rasterizer_outline(Renderer& ren) : 
+            m_ren(&ren), 
+            m_start_x(0), 
+            m_start_y(0), 
+            m_vertices(0)
         {
         }
 
         //--------------------------------------------------------------------
         void move_to(int x, int y)
         {
+            m_vertices = 1;
             m_ren->move_to(m_start_x = x, m_start_y = y);
         }
 
         //--------------------------------------------------------------------
         void line_to(int x, int y)
         {
+            ++m_vertices;
             m_ren->line_to(x, y);
         }
 
@@ -54,7 +60,11 @@ namespace agg
         //--------------------------------------------------------------------
         void close()
         {
-            line_to(m_start_x, m_start_y);
+            if(m_vertices > 2)
+            {
+                line_to(m_start_x, m_start_y);
+            }
+            m_vertices = 0;
         }
 
         //--------------------------------------------------------------------
@@ -125,6 +135,7 @@ namespace agg
         Renderer* m_ren;
         int       m_start_x;
         int       m_start_y;
+        unsigned  m_vertices;
     };
 
 

@@ -138,7 +138,10 @@ namespace agg
                 if(is_end_poly(cmd))
                 {
                     render(is_closed(cmd));
-                    if(is_closed(cmd)) move_to(m_start_x, m_start_y);
+                    if(is_closed(cmd)) 
+                    {
+                        move_to(m_start_x, m_start_y);
+                    }
                 }
                 else
                 {

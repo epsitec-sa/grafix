@@ -8,7 +8,7 @@
 #include "agg_rasterizer_scanline_aa.h"
 #include "agg_conv_curve.h"
 #include "agg_conv_contour.h"
-#include "agg_pixfmt_rgb24.h"
+#include "agg_pixfmt_rgb555.h"
 #include "agg_font_freetype.h"
 #include "platform/agg_platform_support.h"
 
@@ -17,8 +17,11 @@
 #include "ctrl/agg_rbox_ctrl.h"
 
 
-enum { flip_y = true };
+enum { flip_y = false };
 
+
+#define pix_format agg::pix_format_rgb555
+typedef agg::pixfmt_rgb555 pixfmt_type;
 
 
 static char text[] = 
@@ -143,7 +146,6 @@ static char text[] =
 
 class the_application : public agg::platform_support
 {
-    typedef agg::pixfmt_bgr24 pixfmt_type;
     typedef agg::renderer_base<pixfmt_type> base_ren_type;
     typedef agg::renderer_scanline_aa_solid<base_ren_type> renderer_solid;
     typedef agg::renderer_scanline_bin_solid<base_ren_type> renderer_bin;
@@ -258,11 +260,13 @@ public:
 
         m_contour.width(-m_weight.value() * m_height.value() * 0.05);
 
-        if(m_feng.load_font(full_file_name("timesi.ttf"), 0, gren))
+        if(m_feng.load_font(full_file_name("times.ttf"), 0, gren))
         {
             m_feng.hinting(m_hinting.status());
             m_feng.height(m_height.value());
             m_feng.width(m_width.value());
+//m_feng.transform(agg::trans_affine_rotation(agg::deg2rad(10.0)));
+            m_feng.flip_y(!::flip_y);
 
 //m_feng.transform(agg::trans_affine_rotation(agg::deg2rad(20.0)));
 //m_feng.flip_y(true);
@@ -347,7 +351,7 @@ public:
 
     virtual void on_draw()
     {
-        agg::pixfmt_bgr24 pf(rbuf_window());
+        pixfmt_type pf(rbuf_window());
         base_ren_type ren_base(pf);
         renderer_solid ren_solid(ren_base);
         renderer_bin ren_bin(ren_base);
@@ -402,7 +406,7 @@ public:
     {
         if(m_performance.status())
         {
-            agg::pixfmt_bgr24 pf(rbuf_window());
+            pixfmt_type pf(rbuf_window());
             base_ren_type ren_base(pf);
             renderer_solid ren_solid(ren_base);
             renderer_bin ren_bin(ren_base);
@@ -438,7 +442,7 @@ public:
 
 int agg_main(int argc, char* argv[])
 {
-    the_application app(agg::pix_format_bgr24, flip_y);
+    the_application app(pix_format, flip_y);
     app.caption("AGG Example. Rendering Fonts with FreeType");
 
     if(app.init(640, 520, agg::window_resize))

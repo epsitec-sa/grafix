@@ -76,7 +76,7 @@ namespace agg
 
         if(fabs(da) < stroke_theta)
         {
-            out_vertices.add(coord_type((x + x + dx1 + dx2) * 0.5,
+            out_vertices.add(coord_type((x + x + dx1 + dx2) * 0.5, 
                                         (y + y + dy1 + dy2) * 0.5));
             return;
         }
