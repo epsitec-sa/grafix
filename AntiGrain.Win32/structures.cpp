@@ -1,5 +1,9 @@
 #include "structures.h"
 
+#include "agg_font_manager.h"
+#include "agg_font_face.h"
+#include "agg_font_path_provider.h"
+
 bool
 AggRendererImage::Validate ()
 {
@@ -57,4 +61,58 @@ AggRendererGradient::Validate ()
 	}
 	
 	return this->is_ready;
+}
+
+
+
+extern void DiagnosticDump(int x)
+{
+	static char buffer[100];
+	sprintf(buffer, "%x", x);
+	::OutputDebugString (buffer);
+}
+
+extern bool AnalysePath(agg::conv_curve<agg::font_path_provider>& vs, unsigned start, unsigned num, double* x1, double* y1, double* x2, double* y2)
+{
+    unsigned i;
+    double x;
+    double y;
+    bool first = true;
+
+    for(i = 0; i < num; i++)
+    {
+        vs.rewind(0);
+        unsigned cmd;
+		while(!agg::is_stop(cmd = vs.vertex(&x, &y)))
+        {
+			if(agg::is_vertex(cmd))
+            {
+                if(first)
+                {
+                    *x1 = (x);
+                    *y1 = (y);
+                    *x2 = (x);
+                    *y2 = (y);
+					::DiagnosticDump ((int)(*x1));
+					::DiagnosticDump ((int)(*y1));
+					::DiagnosticDump ((int)(*x2));
+					::DiagnosticDump ((int)(*y2));
+                    first = false;
+                }
+                else
+                {
+                    if((x) < *x1) *x1 = (x);
+                    if((y) < *y1) *y1 = (y);
+                    if((x) > *x2) *x2 = (x);
+                    if((y) > *y2) *y2 = (y);
+					::OutputDebugString ("--");
+					::DiagnosticDump ((int)(*x1));
+					::DiagnosticDump ((int)(*y1));
+					::DiagnosticDump ((int)(*x2));
+					::DiagnosticDump ((int)(*y2));
+                }
+            }
+        }
+    }
+    return *x1 <= *x2 && *y1 <= *y2;
 }

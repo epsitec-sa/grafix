@@ -16,6 +16,9 @@
 #include "agg_renderer_scanline.h"
 #include "agg_renderer_mclip.h"
 
+extern void DiagnosticDump(int x);
+extern bool AnalysePath(agg::conv_curve<agg::font_path_provider>& vs, unsigned start, unsigned num, double* x1, double* y1, double* x2, double* y2);
+
 using namespace agg;
 
 static agg::font_manager global_font_manager;
@@ -615,63 +618,6 @@ static inline int round_down(double x)
 	}
 }
 
-void
-DiagnosticDump(int x)
-{
-	static char buffer[100];
-	sprintf(buffer, "%x", x);
-	::OutputDebugString (buffer);
-}
-
-template<class VertexSource, class GetId, class CoordT>
-bool AnalysePath(VertexSource& vs, GetId& gi, 
-                    unsigned start, unsigned num, 
-                    CoordT* x1, CoordT* y1, CoordT* x2, CoordT* y2)
-{
-    unsigned i;
-    double x;
-    double y;
-    bool first = true;
-
-    for(i = 0; i < num; i++)
-    {
-        vs.rewind(gi[start + i]);
-        unsigned cmd;
-        while(!is_stop(cmd = vs.vertex(&x, &y)))
-        {
-            if(is_vertex(cmd))
-            {
-                if(first)
-                {
-                    *x1 = CoordT(x);
-                    *y1 = CoordT(y);
-                    *x2 = CoordT(x);
-                    *y2 = CoordT(y);
-					::DiagnosticDump ((int)(*x1));
-					::DiagnosticDump ((int)(*y1));
-					::DiagnosticDump ((int)(*x2));
-					::DiagnosticDump ((int)(*y2));
-                    first = false;
-                }
-                else
-                {
-                    if(CoordT(x) < *x1) *x1 = CoordT(x);
-                    if(CoordT(y) < *y1) *y1 = CoordT(y);
-                    if(CoordT(x) > *x2) *x2 = CoordT(x);
-                    if(CoordT(y) > *y2) *y2 = CoordT(y);
-					::OutputDebugString ("--");
-					::DiagnosticDump ((int)(*x1));
-					::DiagnosticDump ((int)(*y1));
-					::DiagnosticDump ((int)(*x2));
-					::DiagnosticDump ((int)(*y2));
-                }
-            }
-        }
-    }
-    return *x1 <= *x2 && *y1 <= *y2;
-}
-
-
 double
 AggFontPixelCacheFill(AggBuffer* buffer, agg::font_face* face, const wchar_t* text, double scale,
 					  double ox, double oy,
@@ -766,7 +712,7 @@ AggFontPixelCacheFill(AggBuffer* buffer, agg::font_face* face, const wchar_t* te
 				(i_y2 < i_y1))
 			{
 				::OutputDebugString("*** wrong bbox ***");
-				AnalysePath (curve, path_i, 0, 1, &x1, &y1, &x2, &y2);
+				//AnalysePath (curve, path_i, 0, 1, &x1, &y1, &x2, &y2);
 			}
 			
 			if (data->dx)
