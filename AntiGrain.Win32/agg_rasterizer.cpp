@@ -37,10 +37,16 @@ void AggRasterizerFillingRule(AggRasterizer* rasterizer, int rule)
 
 void AggRasterizerGamma(AggRasterizer* rasterizer, double gamma)
 {
-	if ( (rasterizer)
-	  && (gamma) )
+	if (rasterizer)
 	{
-		rasterizer->rasterizer.gamma (agg::gamma_power (gamma));
+		if (gamma == 0.0)
+		{
+			rasterizer->rasterizer.gamma (agg::gamma_threshold ());
+		}
+		else
+		{
+			rasterizer->rasterizer.gamma (agg::gamma_power (gamma));
+		}
 	}
 }
 
