@@ -618,7 +618,7 @@ static inline int round_down(double x)
 void
 DiagnosticDump(int x)
 {
-	char buffer[100];
+	static char buffer[100];
 	sprintf(buffer, "%x", x);
 	::OutputDebugString (buffer);
 }
@@ -712,6 +712,7 @@ AggFontPixelCacheFill(AggBuffer* buffer, agg::font_face* face, const wchar_t* te
 			data->pixels = face->TurboAlloc (pixel_size);
 #endif
 			::OutputDebugString("F");
+			DiagnosticDump((int)pixel_size);
 			
 			if (data->dx)
 			{
@@ -733,8 +734,11 @@ AggFontPixelCacheFill(AggBuffer* buffer, agg::font_face* face, const wchar_t* te
 				agg::render_scanlines (rasterizer, scanline, renderer);
 #else
 				agg::font_path_provider font_path = agg::font_path_provider (face, glyph, info, data->ox / 256.0, data->oy / 256.0, i_size / 256.0, i_size / 256.0);
+				DiagnosticDump((int)pixel_size);
 				agg::conv_curve<agg::font_path_provider> curve (font_path);
+				DiagnosticDump((int)pixel_size);
 				agg::rasterizer_scanline_aa<> rasterizer;
+				DiagnosticDump((int)pixel_size);
 				agg::rendering_buffer buffer;
 				buffer.attach (data->pixels, data->dx, data->dy, data->dx);
 				::OutputDebugString("G");
