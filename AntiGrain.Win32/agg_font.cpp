@@ -712,7 +712,10 @@ AggFontPixelCacheFill(AggBuffer* buffer, agg::font_face* face, const wchar_t* te
 				(i_y2 < i_y1))
 			{
 				::OutputDebugString("*** wrong bbox ***");
-				//AnalysePath (curve, path_i, 0, 1, &x1, &y1, &x2, &y2);
+				DiagnosticDump((int)glyph);
+				DiagnosticDump((int)ox);
+				DiagnosticDump((int)oy);
+//				AnalysePath (curve, 0, 1, &x1, &y1, &x2, &y2);
 			}
 			
 			if (data->dx)
