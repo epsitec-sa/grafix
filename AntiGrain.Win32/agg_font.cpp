@@ -666,7 +666,7 @@ AggFontPixelCacheFill(AggBuffer* buffer, agg::font_face* face, const wchar_t* te
 			//	image. Instanciate a rasterizer and do everything in here. This is not
 			//	optimal yet.
 			
-			double x1, y1, x2, y2;
+			double x1 = 0, y1 = 0, x2 = 0, y2 = 0;
 			unsigned path_i [1] = { 0 };
 			
 			agg::font_path_provider font_path = agg::font_path_provider (face, glyph, info, ox, oy, scale, scale);
