@@ -492,6 +492,11 @@ void AggRasterizerAddPathStroke1(AggRasterizer* rasterizer, AggPath* path, doubl
 
 void AggRasterizerAddPathStroke2(AggRasterizer* rasterizer, AggPath* path, double width, int cap, int join, double miter_limit, bool curved)
 {
+	if (miter_limit < 0)
+	{
+		miter_limit = - miter_limit;
+	}
+	
 	if ( (rasterizer)
 	  && (path) )
 	{
@@ -504,7 +509,7 @@ void AggRasterizerAddPathStroke2(AggRasterizer* rasterizer, AggPath* path, doubl
 					agg::conv_curve<agg::path_storage> curve (path->path);
 					agg::conv_stroke<agg::conv_curve<agg::path_storage> > stroke (curve);
 					
-					double s = rasterizer->transform_matrix.scale () * 2;
+					double s = 2 * rasterizer->transform_matrix.scale ();
 					curve.approximation_scale (s);
 					stroke.approximation_scale (s);
 					stroke.width (width);
@@ -527,7 +532,7 @@ void AggRasterizerAddPathStroke2(AggRasterizer* rasterizer, AggPath* path, doubl
 					agg::conv_curve<agg::path_storage> curve (path->path);
 					agg::conv_stroke<agg::conv_curve<agg::path_storage> > stroke (curve);
 					
-					double s = rasterizer->transform_matrix.scale () * 2;
+					double s = 2 * rasterizer->transform_matrix.scale ();
 					curve.approximation_scale (s);
 					stroke.approximation_scale (s);
 					stroke.width (width);
@@ -549,6 +554,7 @@ void AggRasterizerAddPathStroke2(AggRasterizer* rasterizer, AggPath* path, doubl
 					
 					curve.approximation_scale (2);
 					
+					stroke.approximation_scale (2);
 					stroke.width (width);
 					stroke.line_cap ((agg::line_cap_e) cap);
 					stroke.line_join ((agg::line_join_e) join);
@@ -570,6 +576,7 @@ void AggRasterizerAddPathStroke2(AggRasterizer* rasterizer, AggPath* path, doubl
 					
 					curve.approximation_scale (2);
 					
+					stroke.approximation_scale (2);
 					stroke.width (width);
 					stroke.line_cap ((agg::line_cap_e) cap);
 					stroke.line_join ((agg::line_join_e) join);
@@ -587,7 +594,7 @@ void AggRasterizerAddPathStroke2(AggRasterizer* rasterizer, AggPath* path, doubl
 				{
 					agg::conv_stroke<agg::path_storage> stroke (path->path);
 					
-					double s = rasterizer->transform_matrix.scale ();
+					double s = 2 * rasterizer->transform_matrix.scale ();
 					stroke.approximation_scale (s);
 					stroke.width (width);
 					stroke.line_cap ((agg::line_cap_e) cap);
@@ -608,7 +615,7 @@ void AggRasterizerAddPathStroke2(AggRasterizer* rasterizer, AggPath* path, doubl
 				{
 					agg::conv_stroke<agg::path_storage> stroke (path->path);
 					
-					double s = rasterizer->transform_matrix.scale ();
+					double s = 2 * rasterizer->transform_matrix.scale ();
 					stroke.approximation_scale (s);
 					stroke.width (width);
 					stroke.line_cap ((agg::line_cap_e) cap);
@@ -626,6 +633,7 @@ void AggRasterizerAddPathStroke2(AggRasterizer* rasterizer, AggPath* path, doubl
 				{
 					agg::conv_stroke<agg::path_storage> stroke (path->path);
 					
+					stroke.approximation_scale (2);
 					stroke.width (width);
 					stroke.line_cap ((agg::line_cap_e) cap);
 					stroke.line_join ((agg::line_join_e) join);
@@ -644,6 +652,7 @@ void AggRasterizerAddPathStroke2(AggRasterizer* rasterizer, AggPath* path, doubl
 				{
 					agg::conv_stroke<agg::path_storage> stroke (path->path);
 					
+					stroke.approximation_scale (2);
 					stroke.width (width);
 					stroke.line_cap ((agg::line_cap_e) cap);
 					stroke.line_join ((agg::line_join_e) join);

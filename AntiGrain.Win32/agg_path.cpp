@@ -222,6 +222,40 @@ void AggPathAppendPath(AggPath* path, AggPath* path2, double xx, double xy, doub
 	}
 }
 
+void AggPathAppendPathStroke(AggPath* path, AggPath* path2, double width, int cap, int join, double miter_limit, double scale, bool curved)
+{
+	if (path && path2)
+	{
+		if (curved)
+		{
+			agg::conv_curve<agg::path_storage> curve (path2->path);
+			agg::conv_stroke<agg::conv_curve<agg::path_storage> > stroke (curve);
+			
+			curve.approximation_scale (scale * 2);
+			
+			stroke.approximation_scale (scale * 2);
+			stroke.width (width);
+			stroke.line_cap ((agg::line_cap_e) cap);
+			stroke.line_join ((agg::line_join_e) join);
+			stroke.miter_limit (miter_limit);
+			
+			path->path.add_path (stroke, 0, false);
+		}
+		else
+		{
+			agg::conv_stroke<agg::path_storage> stroke (path2->path);
+			
+			stroke.approximation_scale (scale * 2);
+			stroke.width (width);
+			stroke.line_cap ((agg::line_cap_e) cap);
+			stroke.line_join ((agg::line_join_e) join);
+			stroke.miter_limit (miter_limit);
+			
+			path->path.add_path (stroke, 0, false);
+		}
+	}
+}
+
 void AggPathComputeBounds(AggPath* path, double& x1, double& y1, double& x2, double& y2)
 {
 	if (path)

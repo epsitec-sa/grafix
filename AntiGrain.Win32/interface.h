@@ -117,6 +117,7 @@ extern "C" AGGDLL void				AggPathClose(AggPath* path);
 extern "C" AGGDLL void				AggPathAddNewPath(AggPath* path);
 extern "C" AGGDLL void				AggPathAppendGlyph(AggPath* path, agg::font_face* face, int glyph, double xx, double xy, double yx, double yy, double tx, double ty, double bold);
 extern "C" AGGDLL void				AggPathAppendPath(AggPath* path, AggPath* path2, double xx, double xy, double yx, double yy, double tx, double ty, double scale, double bold);
+extern "C" AGGDLL void				AggPathAppendPathStroke(AggPath* path, AggPath* path2, double width, int cap, int join, double miter_limit, double scale, bool curved);
 extern "C" AGGDLL void				AggPathAppendArc(AggPath* path, double x, double y, double rx, double ry, double a1, double a2, bool ccw, double scale, bool continue_path);
 extern "C" AGGDLL void				AggPathAppendDashedPath(AggPath* path, AggPath* dash, double scale);
 extern "C" AGGDLL void				AggPathCombinePathsUsingGpc(AggPath* path1, AggPath* path2, AggPath* result, int op);

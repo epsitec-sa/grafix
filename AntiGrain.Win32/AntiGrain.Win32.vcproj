@@ -332,6 +332,9 @@
 					RelativePath="..\agg2\include\agg_math.h">
 				</File>
 				<File
+					RelativePath="..\agg2\include\agg_math_stroke.h">
+				</File>
+				<File
 					RelativePath="..\agg2\include\agg_path_storage.h">
 				</File>
 				<File

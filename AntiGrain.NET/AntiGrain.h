@@ -484,6 +484,13 @@ namespace AntiGrain
 							   xx, xy, yx, yy, tx, ty, scale, bold);
 		}
 		
+		static void AppendPath(System::IntPtr path, System::IntPtr path2, double width, int cap, int join, double miter_limit, double scale, bool curved)
+		{
+			AggPathAppendPathStroke(reinterpret_cast<AggPath*> (path.ToPointer ()),
+									reinterpret_cast<AggPath*> (path2.ToPointer ()),
+									width, cap, join, miter_limit, scale, curved);
+		}
+		
 		static void AppendArc(System::IntPtr path, double x, double y, double rx, double ry, double a1, double a2, bool ccw, double scale, bool continue_path)
 		{
 			AggPathAppendArc (reinterpret_cast<AggPath*> (path.ToPointer ()), x, y, rx, ry, a1, a2, ccw, scale, continue_path);

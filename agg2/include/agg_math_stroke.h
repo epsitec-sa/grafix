@@ -57,29 +57,29 @@ namespace agg
     {
         typedef typename VertexConsumer::value_type coord_type;
 
-        // Check if we actually need the arc
-        //-----------------
-        double dd = calc_distance(dx1, dy1, dx2, dy2);
-        if(dd < approximation_scale)
-        {
-            out_vertices.add(coord_type(x + dx1, y + dy1));
-            if(dd > approximation_scale * 0.25)
-            {
-                out_vertices.add(coord_type(x + dx2, y + dy2));
-            }
-            return;
-        }
+        //// Check if we actually need the arc (this optimization works bad)
+        ////-----------------
+        //double dd = calc_distance(dx1, dy1, dx2, dy2);
+        //if(dd < 1.0/approximation_scale)
+        //{
+        //    out_vertices.add(coord_type(x + dx1, y + dy1));
+        //    if(dd > 0.25/approximation_scale)
+        //    {
+        //        out_vertices.add(coord_type(x + dx2, y + dy2));
+        //    }
+        //    return;
+        //}
 
         double a1 = atan2(dy1, dx1);
         double a2 = atan2(dy2, dx2);
         double da = a1 - a2;
 
-        //if(fabs(da) < stroke_theta)
-        //{
-        //    out_vertices.add(coord_type(x + dx1, y + dy1));
-        //    //out_vertices.add(coord_type(x + dx2, y + dy2));
-        //    return;
-        //}
+        if(fabs(da) < stroke_theta)
+        {
+            out_vertices.add(coord_type((x + x + dx1 + dx2) * 0.5,
+                                        (y + y + dy1 + dy2) * 0.5));
+            return;
+        }
 
         bool ccw = da > 0.0 && da < pi;
 

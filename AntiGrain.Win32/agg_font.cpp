@@ -16,6 +16,7 @@
 #include "agg_renderer_scanline.h"
 #include "agg_renderer_mclip.h"
 
+extern void Trace (const char* fmt, ...);
 
 using namespace agg;
 
@@ -24,24 +25,41 @@ static agg::font_manager global_font_manager;
 #define	EMULATE_CLEARTYPE_INTERPOLATE	0
 #define	EMULATE_CLEARTYPE_X3			0
 
+class DebugTraceMessage
+{
+	const char*			message;
+public:
+	DebugTraceMessage(const char* text) : message(text)
+	{
+		Trace("%s - enter", this->message);
+	}
+	~DebugTraceMessage()
+	{
+		Trace("%s - exit", this->message);
+	}
+};
 
 void AggFontInitialise()
 {
+//	DebugTraceMessage trace ("AggFontInitialise");
 	global_font_manager.Initialise ();
 }
 
 int AggFontGetFaceCount()
 {
+//	DebugTraceMessage trace ("AggFontGetFaceCount");
 	return global_font_manager.CountFontFaces ();
 }
 
 agg::font_face* AggFontGetFaceByRank(int n)
 {
+//	DebugTraceMessage trace ("AggGetFaceByRank");
 	return global_font_manager.RetNthFace (n);
 }
 
 agg::font_face* AggFontGetFaceByName(const wchar_t* family, const wchar_t* style, const wchar_t* optical)
 {
+//	DebugTraceMessage trace ("AggFontGetFaceByName");
 	return global_font_manager.FindFontFace (family, style, optical);
 }
 
