@@ -3,7 +3,7 @@
  *
  *	Font Manager implementation.
  *
- *	(C) Copyright 2002-2004, Pierre ARNAUD, OPaC bright ideas, Ch. du Fontenay 6,
+ *	(C) Copyright 2002-2005, Pierre ARNAUD, OPaC bright ideas, Ch. du Fontenay 6,
  *		CH-1400 YVERDON, Switzerland. All rights reserved. 
  *		Contact: pierre.arnaud@opac.ch, http://www.opac.ch
  *
@@ -20,6 +20,10 @@
 #include "agg_font_face.h"
 #include "agg_font_opentype.h"
 #include "agg_strsafe.h"
+
+/*****************************************************************************/
+
+extern void Trace (const char* fmt, ...);
 
 /*****************************************************************************/
 
@@ -121,59 +125,66 @@ gfx_enum_fonts_in_family (const PatchedENUMLOGFONTEXW* log_font,
 						  DWORD font_type,
 						  LPARAM param)
 {
-	font_manager*                type   = reinterpret_cast<font_manager*> (param);
-	font_manager::family_record* family = type->RetFamilyHead ();
-	
-	const wchar_t* full_name   = log_font->elfFullName;
-	const wchar_t* style_name  = log_font->elfStyle;
-	const wchar_t* script_name = log_font->elfScript;
-	const wchar_t* family_name = log_font->elfLogFont.lfFaceName;
-	
-	//	Only handle non-raster fonts here. The others can be omitted.
-	
-	if ( (font_type != 0)
-	  && ((font_type & RASTER_FONTTYPE) == 0) )
+	try
 	{
-		if (family->FindFace (full_name) == 0)
+		font_manager*                type   = reinterpret_cast<font_manager*> (param);
+		font_manager::family_record* family = type->RetFamilyHead ();
+		
+		const wchar_t* full_name   = log_font->elfFullName;
+		const wchar_t* style_name  = log_font->elfStyle;
+		const wchar_t* script_name = log_font->elfScript;
+		const wchar_t* family_name = log_font->elfLogFont.lfFaceName;
+		
+		//	Only handle non-raster fonts here. The others can be omitted.
+		
+		if ( (font_type != 0)
+		&& ((font_type & RASTER_FONTTYPE) == 0) )
 		{
-			HFONT new_font = CreateFontIndirectW (& log_font->elfLogFont);
-			
-			//	Load the font so that we can access the 'name' table. Win32 is smart
-			//	enough to load only the bytes really needed (probably thanks to some
-			//	memory mapping).
-			
-			if (new_font)
+			if (family->FindFace (full_name) == 0)
 			{
-				HGDIOBJ old_font = SelectObject (gfx_type_dc, new_font);
+				HFONT new_font = CreateFontIndirectW (& log_font->elfLogFont);
 				
-				DWORD table_name   = agg::read_big_endian (static_cast<int32u> (('n' << 24) | ('a' << 16) | ('m' << 8) | ('e' << 0)));
-				DWORD table_offset = 0;
-				DWORD table_length = GetFontData (gfx_type_dc, table_name, table_offset, 0, 0);
+				//	Load the font so that we can access the 'name' table. Win32 is smart
+				//	enough to load only the bytes really needed (probably thanks to some
+				//	memory mapping).
 				
-				if (table_length != GDI_ERROR)
+				if (new_font)
 				{
-					open_type::table_name* ot_name = reinterpret_cast<open_type::table_name*> (alloca (table_length));
-					GetFontData (gfx_type_dc, table_name, table_offset, ot_name, table_length);
+					HGDIOBJ old_font = SelectObject (gfx_type_dc, new_font);
 					
-					const void* os_desc_data = & log_font->elfLogFont;
-					size_t      os_desc_size = sizeof (log_font->elfLogFont);
+					DWORD table_name   = agg::read_big_endian (static_cast<int32u> (('n' << 24) | ('a' << 16) | ('m' << 8) | ('e' << 0)));
+					DWORD table_offset = 0;
+					DWORD table_length = GetFontData (gfx_type_dc, table_name, table_offset, 0, 0);
 					
-					//	Record the information about this font face:
+					if (table_length != GDI_ERROR)
+					{
+						open_type::table_name* ot_name = reinterpret_cast<open_type::table_name*> (alloca (table_length));
+						GetFontData (gfx_type_dc, table_name, table_offset, ot_name, table_length);
+						
+						const void* os_desc_data = & log_font->elfLogFont;
+						size_t      os_desc_size = sizeof (log_font->elfLogFont);
+						
+						//	Record the information about this font face:
+						
+						family->InsertFace (type, os_desc_data, os_desc_size, full_name, style_name, script_name, family_name, ot_name);
+					}
 					
-					family->InsertFace (type, os_desc_data, os_desc_size, full_name, style_name, script_name, family_name, ot_name);
+					SelectObject (gfx_type_dc, old_font);
+					DeleteObject (new_font);
 				}
-				
-				SelectObject (gfx_type_dc, old_font);
-				DeleteObject (new_font);
 			}
 		}
+		else if ( (family)
+			&& (family->face_head == 0)
+			&& (string_equal (family->name, family_name)) )
+		{
+			type->RemoveFamily (family);
+			delete family;
+		}
 	}
-	else if ( (family)
-		   && (family->face_head == 0)
-		   && (string_equal (family->name, family_name)) )
+	catch (...)
 	{
-		type->RemoveFamily (family);
-		delete family;
+		Trace ("EnumFontsInFamily: font '%S' produced an exception.", log_font->elfFullName);
 	}
 	
 	return 1;
@@ -185,29 +196,36 @@ gfx_enum_font_families (const PatchedENUMLOGFONTEXW* log_font,
 						DWORD font_type,
 						LPARAM param)
 {
-	font_manager*  type = reinterpret_cast<font_manager*> (param);
-	const wchar_t* name = log_font->elfLogFont.lfFaceName;
-	
-	//	Analyse every font family more in detail, unless it is already known, or it is
-	//	a synthetic vertical font (we identify these by the starting '@' in the family
-	//	name).
-	
-	if ( (name[0] != '@')
-	  && (type->FindFamily (name) == 0) )
+	try
 	{
-		LOGFONTW family_log_font;
+		font_manager*  type = reinterpret_cast<font_manager*> (param);
+		const wchar_t* name = log_font->elfLogFont.lfFaceName;
 		
-		font_manager::family_record* family = type->NewFamilyRecord ();
+		//	Analyse every font family more in detail, unless it is already known, or it is
+		//	a synthetic vertical font (we identify these by the starting '@' in the family
+		//	name).
 		
-		memory_zero (&family_log_font, sizeof (family_log_font));
-		string_copy (family_log_font.lfFaceName, sizeof (family_log_font.lfFaceName), name);
-		string_copy (family->name, sizeof (family->name), name);
-		
-		type->InsertFamily (family);
-		
-		family_log_font.lfCharSet = DEFAULT_CHARSET;
-		
-		::EnumFontFamiliesExW (gfx_type_dc, &family_log_font, (FONTENUMPROCW) gfx_enum_fonts_in_family, (LPARAM) type, 0);
+		if ( (name[0] != '@')
+		&& (type->FindFamily (name) == 0) )
+		{
+			LOGFONTW family_log_font;
+			
+			font_manager::family_record* family = type->NewFamilyRecord ();
+			
+			memory_zero (&family_log_font, sizeof (family_log_font));
+			string_copy (family_log_font.lfFaceName, sizeof (family_log_font.lfFaceName), name);
+			string_copy (family->name, sizeof (family->name), name);
+			
+			type->InsertFamily (family);
+			
+			family_log_font.lfCharSet = DEFAULT_CHARSET;
+			
+			::EnumFontFamiliesExW (gfx_type_dc, &family_log_font, (FONTENUMPROCW) gfx_enum_fonts_in_family, (LPARAM) type, 0);
+		}
+	}
+	catch (...)
+	{
+		Trace ("EnumFontFamilies: font '%S' produced an exception.", log_font->elfFullName);
 	}
 	
 	return 1;
