@@ -205,6 +205,11 @@ void AggPathComputeBounds(AggPath* path, double& x1, double& y1, double& x2, dou
 	{
 		unsigned path_i [1] = { 0 };
 		
+		x1 = 0;
+		y1 = 0;
+		x2 = 0;
+		y2 = 0;
+		
 		agg::bounding_rect (path->path, path_i, 0, 1, &x1, &y1, &x2, &y2);
 	}
 }
