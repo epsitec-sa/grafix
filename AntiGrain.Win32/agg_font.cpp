@@ -655,9 +655,11 @@ AggFontPixelCacheFill(AggBuffer* buffer, agg::font_face* face, const wchar_t* te
 		double advance = face->RetGlyphAdvance (glyph, info) * scale;
 		total_advance += advance;
 		
+		::OutputDebugString("B");
+		
 		if (data->pixels == 0)
 		{
-			::OutputDebugString("B");
+			::OutputDebugString("C");
 			//	The glyph is not yet known, so we will have to fill the cache with its
 			//	image. Instanciate a rasterizer and do everything in here. This is not
 			//	optimal yet.
@@ -668,6 +670,8 @@ AggFontPixelCacheFill(AggBuffer* buffer, agg::font_face* face, const wchar_t* te
 			agg::font_path_provider font_path = agg::font_path_provider (face, glyph, info, ox, oy, scale, scale);
 			agg::conv_curve<agg::font_path_provider> curve (font_path);
 			agg::bounding_rect (curve, path_i, 0, 1, &x1, &y1, &x2, &y2);
+			
+			::OutputDebugString("D");
 			
 			//	Round bounding box to nearest pixel size, shrinking the left border
 			//	and growing the right border...
@@ -690,6 +694,7 @@ AggFontPixelCacheFill(AggBuffer* buffer, agg::font_face* face, const wchar_t* te
 			}
 			
 			int32u pixel_size = data->dx * data->dy;
+			::OutputDebugString("E");
 			
 #if EMULATE_CLEARTYPE_X3
 			data->pixels = face->TurboAlloc (pixel_size*3);
@@ -699,6 +704,7 @@ AggFontPixelCacheFill(AggBuffer* buffer, agg::font_face* face, const wchar_t* te
 #else
 			data->pixels = face->TurboAlloc (pixel_size);
 #endif
+			::OutputDebugString("F");
 			
 			if (data->dx)
 			{
@@ -724,14 +730,19 @@ AggFontPixelCacheFill(AggBuffer* buffer, agg::font_face* face, const wchar_t* te
 				agg::rasterizer_scanline_aa<> rasterizer;
 				agg::rendering_buffer buffer;
 				buffer.attach (data->pixels, data->dx, data->dy, data->dx);
+				::OutputDebugString("G");
 				agg::pixfmt_gray8 pixf (buffer);
 				agg::renderer_base<agg::pixfmt_gray8> ren_base(pixf);
 				agg::renderer_scanline_aa_solid<agg::renderer_base<agg::pixfmt_gray8> > renderer(ren_base);
 				agg::scanline_p8 scanline;
+				::OutputDebugString("H");
 				ren_base.clear (agg::gray8 (0x00));
+				::OutputDebugString("I");
 				renderer.color (agg::gray8 (0xff));
+				::OutputDebugString("J");
 				rasterizer.add_path (curve);
 				agg::render_scanlines (rasterizer, scanline, renderer);
+				::OutputDebugString("K");
 #endif
 			}
 		}
