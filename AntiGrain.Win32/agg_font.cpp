@@ -713,8 +713,8 @@ AggFontPixelCacheFill(AggBuffer* buffer, agg::font_face* face, const wchar_t* te
 #endif
 			::OutputDebugString("F");
 			DiagnosticDump((int)pixel_size);
-			if ((i_x2 <= i_x1) ||
-				(i_y2 <= i_y1))
+			if ((i_x2 < i_x1) ||
+				(i_y2 < i_y1))
 			{
 				::OutputDebugString("*** wrong bbox ***");
 				__asm int 3;
