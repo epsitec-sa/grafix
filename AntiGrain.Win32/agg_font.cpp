@@ -640,6 +640,7 @@ AggFontPixelCacheFill(AggBuffer* buffer, agg::font_face* face, const wchar_t* te
 	double total_advance = 0;
 	
 	int32u i_size = static_cast<int32u> (scale * 256);
+	::OutputDebugString("A");
 	
 	while (*text)
 	{
@@ -656,6 +657,7 @@ AggFontPixelCacheFill(AggBuffer* buffer, agg::font_face* face, const wchar_t* te
 		
 		if (data->pixels == 0)
 		{
+			::OutputDebugString("B");
 			//	The glyph is not yet known, so we will have to fill the cache with its
 			//	image. Instanciate a rasterizer and do everything in here. This is not
 			//	optimal yet.
