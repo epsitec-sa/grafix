@@ -693,8 +693,17 @@ AggFontPixelCacheFill(AggBuffer* buffer, agg::font_face* face, const wchar_t* te
 			int i_y1 = round_down (y1);
 			int i_y2 = round_up (y2);
 			
-			data->dx = i_x2 - i_x1;
-			data->dy = i_y2 - i_y1;
+			if (((i_x1 - i_x2) == 1) ||
+				((i_y1 - i_y2) == 1))
+			{
+				data->dx = 0;
+				data->dy = 0;
+			}
+			else
+			{
+				data->dx = i_x2 - i_x1;
+				data->dy = i_y2 - i_y1;
+			}
 			
 			if (data->dx)
 			{
