@@ -702,6 +702,9 @@ AggFontPixelCacheFill(AggBuffer* buffer, agg::font_face* face, const wchar_t* te
 			
 			int32u pixel_size = data->dx * data->dy;
 			::OutputDebugString("E");
+			DiagnosticDump((int)data->dx);
+			DiagnosticDump((int)data->dy);
+			DiagnosticDump((int)pixel_size);
 			
 #if EMULATE_CLEARTYPE_X3
 			data->pixels = face->TurboAlloc (pixel_size*3);
