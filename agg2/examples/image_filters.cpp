@@ -243,7 +243,6 @@ public:
                 ras.add_path(tr);
                 agg::render_scanlines(ras, sl, ri);
                 delete filter;
-
             }
             break;
         }

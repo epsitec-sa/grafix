@@ -1,4 +1,9 @@
-// AntiGrain.h
+//	AntiGrain.h
+//
+//	Copyright © 2003-2005, Pierre ARNAUD, OPaC bright ideas, Ch. du Fontenay 6,
+//	                       CH-1400 YVERDON, Switzerland. All rights reserved. 
+//
+//	Contact: pierre.arnaud@opac.ch, http://www.opac.ch
 
 #pragma once
 
@@ -475,8 +480,8 @@ namespace AntiGrain
 		static void AppendPath(System::IntPtr path, System::IntPtr path2, double xx, double xy, double yx, double yy, double tx, double ty, double scale, double bold)
 		{
 			AggPathAppendPath (reinterpret_cast<AggPath*> (path.ToPointer ()),
-							reinterpret_cast<AggPath*> (path2.ToPointer ()),
-							xx, xy, yx, yy, tx, ty, scale, bold);
+							   reinterpret_cast<AggPath*> (path2.ToPointer ()),
+							   xx, xy, yx, yy, tx, ty, scale, bold);
 		}
 		
 		static void AppendArc(System::IntPtr path, double x, double y, double rx, double ry, double a1, double a2, bool ccw, double scale, bool continue_path)
@@ -489,12 +494,20 @@ namespace AntiGrain
 			AggPathAppendDashedPath (reinterpret_cast<AggPath*> (path.ToPointer ()), reinterpret_cast<AggPath*> (dash.ToPointer ()), scale);
 		}
 		
+		static void CombinePathsUsingGpc(System::IntPtr path1, System::IntPtr path2, System::IntPtr result, int operation)
+		{
+			AggPathCombinePathsUsingGpc (reinterpret_cast<AggPath*> (path1.ToPointer ()),
+										 reinterpret_cast<AggPath*> (path2.ToPointer ()),
+										 reinterpret_cast<AggPath*> (result.ToPointer ()),
+										 operation);
+		}
+		
 		static void ComputeBounds(System::IntPtr path, [Out] double __gc & x1, [Out] double __gc & y1, [Out] double __gc & x2, [Out] double __gc & y2)
 		{
 			double nx1, ny1, nx2, ny2;
 			
 			AggPathComputeBounds (reinterpret_cast<AggPath*> (path.ToPointer ()),
-								nx1, ny1, nx2, ny2);
+								  nx1, ny1, nx2, ny2);
 			
 			x1 = nx1;
 			y1 = ny1;

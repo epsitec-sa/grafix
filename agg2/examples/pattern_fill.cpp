@@ -7,7 +7,7 @@
 #include "agg_trans_affine.h"
 #include "agg_conv_transform.h"
 #include "agg_conv_smooth_poly1.h"
-#include "agg_scanline_u.h"
+#include "agg_scanline_p.h"
 #include "agg_renderer_scanline.h"
 #include "agg_span_pattern_rgba32.h"
 #include "ctrl/agg_slider_ctrl.h"
@@ -57,7 +57,7 @@ class the_application : public agg::platform_support
     agg::rendering_buffer m_pattern_rbuf;
 
     agg::rasterizer_scanline_aa<> m_ras;
-    agg::scanline_u8 m_sl;
+    agg::scanline_p8 m_sl;
     agg::path_storage m_ps;
 
 
@@ -233,6 +233,13 @@ public:
                                                         // for RGB only because
                                                         // RGBA has its own
         renderer_type rp(rb, sg);
+
+//m_ras.clip_box(-1, 0, width, height);
+//m_ras.move_to_d(-1,  100);
+//m_ras.line_to_d(100, 100);
+//m_ras.line_to_d(100, 200);
+//m_ras.line_to_d(-1,  200);
+//m_ras.close_polygon();
 
         m_ras.add_path(tr);
         rs.color(agg::rgba(0,0,0));

@@ -283,6 +283,9 @@ bin/multi_clip: examples/multi_clip.o examples/parse_lion.o $(PLATFORM_OBJ)
 bin/pattern_fill: examples/pattern_fill.o $(PLATFORM_OBJ)
 	$(CXX) $(CXXFLAGS) $^ -o $@ $(CXXLIBS)
 
+bin/pattern_perspective: examples/pattern_perspective.o $(PLATFORM_OBJ)
+	$(CXX) $(CXXFLAGS) $^ -o $@ $(CXXLIBS)
+
 bin/perspective: examples/perspective.o examples/interactive_polygon.o examples/parse_lion.o $(PLATFORM_OBJ)
 	$(CXX) $(CXXFLAGS) $^ -o $@ $(CXXLIBS)
 

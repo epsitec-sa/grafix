@@ -315,6 +315,18 @@ Package=<4>
 
 ###############################################################################
 
+Project: "line_patterns"=.\line_patterns\line_patterns.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
 Project: "lion"=.\lion\lion.dsp - Package Owner=<4>
 
 Package=<5>
@@ -376,6 +388,18 @@ Package=<4>
 ###############################################################################
 
 Project: "pattern_fill"=.\pattern_fill\pattern_fill.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "pattern_perspective"=.\pattern_perspective\pattern_perspective.dsp - Package Owner=<4>
 
 Package=<5>
 {{{

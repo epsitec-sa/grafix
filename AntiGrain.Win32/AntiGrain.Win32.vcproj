@@ -20,7 +20,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;$(SolutionDir)ipp\include&quot;;&quot;$(SolutionDir)agg2\include&quot;;&quot;$(SolutionDir)agg2\font&quot;;&quot;$(SolutionDir)freetype\include&quot;"
+				AdditionalIncludeDirectories="&quot;$(SolutionDir)ipp\include&quot;;&quot;$(SolutionDir)agg2\include&quot;;&quot;$(SolutionDir)agg2\font&quot;;&quot;$(SolutionDir)freetype\include&quot;;&quot;$(SolutionDir)agg2\gpc&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;AGGWRAPPER_EXPORTS;AGG_BMP_ALPHA_BLEND"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
@@ -82,7 +82,7 @@
 				FavorSizeOrSpeed="1"
 				OmitFramePointers="FALSE"
 				OptimizeForProcessor="3"
-				AdditionalIncludeDirectories="&quot;$(SolutionDir)ipp\include&quot;;&quot;$(SolutionDir)agg2\include&quot;;&quot;$(SolutionDir)agg2\font&quot;"
+				AdditionalIncludeDirectories="&quot;$(SolutionDir)ipp\include&quot;;&quot;$(SolutionDir)agg2\include&quot;;&quot;$(SolutionDir)agg2\font&quot;;&quot;$(SolutionDir)agg2\gpc&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;AGGWRAPPER_EXPORTS;AGG_BMP_ALPHA_BLEND"
 				StringPooling="TRUE"
 				RuntimeLibrary="0"
@@ -632,6 +632,9 @@
 				</File>
 				<File
 					RelativePath="..\agg2\src\agg_vpgen_segmentator.cpp">
+				</File>
+				<File
+					RelativePath="..\agg2\gpc\gpc.c">
 				</File>
 				<Filter
 					Name="ctrl"

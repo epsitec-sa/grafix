@@ -25,6 +25,7 @@
 
 namespace agg
 {
+    //-------------------------------------------------------------line_cap_e
     enum line_cap_e
     {
         butt_cap,
@@ -32,6 +33,7 @@ namespace agg
         round_cap
     };
 
+    //------------------------------------------------------------line_join_e
     enum line_join_e
     {
         miter_join,
@@ -54,16 +56,30 @@ namespace agg
                          double approximation_scale)
     {
         typedef typename VertexConsumer::value_type coord_type;
+
+        // Check if we actually need the arc
+        //-----------------
+        double dd = calc_distance(dx1, dy1, dx2, dy2);
+        if(dd < approximation_scale)
+        {
+            out_vertices.add(coord_type(x + dx1, y + dy1));
+            if(dd > approximation_scale * 0.25)
+            {
+                out_vertices.add(coord_type(x + dx2, y + dy2));
+            }
+            return;
+        }
+
         double a1 = atan2(dy1, dx1);
         double a2 = atan2(dy2, dx2);
         double da = a1 - a2;
 
-        if(fabs(da) < stroke_theta)
-        {
-            out_vertices.add(coord_type(x + dx1, y + dy1));
-            out_vertices.add(coord_type(x + dx2, y + dy2));
-            return;
-        }
+        //if(fabs(da) < stroke_theta)
+        //{
+        //    out_vertices.add(coord_type(x + dx1, y + dy1));
+        //    //out_vertices.add(coord_type(x + dx2, y + dy2));
+        //    return;
+        //}
 
         bool ccw = da > 0.0 && da < pi;
 
@@ -248,8 +264,9 @@ namespace agg
                           const vertex_dist& v2,
                           double len1, 
                           double len2,
-                          line_join_e line_join,
                           double width, 
+                          line_join_e line_join,
+                          line_join_e inner_line_join,
                           double miter_limit,
                           double inner_miter_limit,
                           double approximation_scale)
@@ -273,44 +290,44 @@ namespace agg
             stroke_calc_miter(out_vertices,
                               v0, v1, v2, dx1, dy1, dx2, dy2, 
                               width,                                   
-                              true, 
+                              inner_line_join == miter_join_revert, 
                               inner_miter_limit);
         }
         else
         {
-            if(line_join == round_join)
+            // Outer join
+            //---------------
+            switch(line_join)
             {
+            case miter_join:
+                stroke_calc_miter(out_vertices, 
+                                  v0, v1, v2, dx1, dy1, dx2, dy2, 
+                                  width,                                   
+                                  false, 
+                                  miter_limit);
+                break;
+
+            case miter_join_revert:
+                stroke_calc_miter(out_vertices, 
+                                  v0, v1, v2, dx1, dy1, dx2, dy2, 
+                                  width,                                   
+                                  true, 
+                                  miter_limit);
+                break;
+
+            case round_join:
                 stroke_calc_arc(out_vertices, 
                                 v1.x, v1.y, dx1, -dy1, dx2, -dy2, 
                                 width, approximation_scale);
-            }
-            else
-            {
-                if(line_join == miter_join)
+                break;
+
+            default: // Bevel join
+                out_vertices.add(coord_type(v1.x + dx1, v1.y - dy1));
+                if(calc_distance(dx1, dy1, dx2, dy2) > approximation_scale * 0.25)
                 {
-                    stroke_calc_miter(out_vertices, 
-                                      v0, v1, v2, dx1, dy1, dx2, dy2, 
-                                      width,                                   
-                                      false, 
-                                      miter_limit);
+                    out_vertices.add(coord_type(v1.x + dx2, v1.y - dy2));
                 }
-                else
-                {
-                    if(line_join == miter_join_revert)
-                    {
-                        stroke_calc_miter(out_vertices, 
-                                          v0, v1, v2, dx1, dy1, dx2, dy2, 
-                                          width,                                   
-                                          true, 
-                                          miter_limit);
-                    }
-                    else
-                    {
-                        // Bevel join
-                        out_vertices.add(coord_type(v1.x + dx1, v1.y - dy1));
-                        out_vertices.add(coord_type(v1.x + dx2, v1.y - dy2));
-                    }
-                }
+                break;
             }
         }
     }

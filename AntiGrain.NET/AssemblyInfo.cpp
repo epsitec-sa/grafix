@@ -1,3 +1,10 @@
+//	AssemblyInfo.cpp
+//
+//	Copyright © 2003-2005, Pierre ARNAUD, OPaC bright ideas, Ch. du Fontenay 6,
+//	                       CH-1400 YVERDON, Switzerland. All rights reserved. 
+//
+//	Contact: pierre.arnaud@opac.ch, http://www.opac.ch
+
 #include "stdafx.h"
 
 using namespace System::Reflection;
@@ -13,7 +20,7 @@ using namespace System::Runtime::CompilerServices;
 [assembly:AssemblyConfigurationAttribute("")];
 [assembly:AssemblyCompanyAttribute("OPaC bright ideas")];
 [assembly:AssemblyProductAttribute("Anti-Grain Geometry Graphics Library")];
-[assembly:AssemblyCopyrightAttribute("Copyright © 2003, Pierre Arnaud, OPaC bright ideas")];
+[assembly:AssemblyCopyrightAttribute("Copyright © 2003-2005, Pierre Arnaud, OPaC bright ideas")];
 [assembly:AssemblyTrademarkAttribute("")];
 [assembly:AssemblyCultureAttribute("")];		
 
@@ -28,7 +35,7 @@ using namespace System::Runtime::CompilerServices;
 // You can specify all the value or you can default the Revision and Build Numbers 
 // by using the '*' as shown below:
 
-[assembly:AssemblyVersionAttribute("2.0.1.0")];
+[assembly:AssemblyVersionAttribute("2.2.10.0")];
 
 //
 // In order to sign your assembly you must specify a key to use. Refer to the 

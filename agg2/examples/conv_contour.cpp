@@ -40,7 +40,7 @@ public:
         m_close.cur_item(0);
 
         add_ctrl(m_width);
-        m_width.range(-10.0, 10.0);
+        m_width.range(-100.0, 100.0);
         m_width.value(0.0);
         m_width.label("Width=%1.2f");
 
@@ -129,6 +129,9 @@ public:
                     <agg::path_storage> > > contour(curve);
 
         contour.width(m_width.value());
+        //contour.line_join(agg::miter_join);
+        //contour.inner_line_join(agg::miter_join);
+        //contour.inner_miter_limit(4.0);
         contour.auto_detect_orientation(m_auto_detect.status());
 
         compose_path();

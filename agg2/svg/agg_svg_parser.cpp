@@ -501,16 +501,16 @@ namespace svg
         else
         if(strcmp(name, "stroke-linecap") == 0)
         {
-            if(strcmp(value, "butt") == 0)        m_path.line_cap(vcgen_stroke::butt_cap);
-            else if(strcmp(value, "round") == 0)  m_path.line_cap(vcgen_stroke::round_cap);
-            else if(strcmp(value, "square") == 0) m_path.line_cap(vcgen_stroke::square_cap);
+            if(strcmp(value, "butt") == 0)        m_path.line_cap(butt_cap);
+            else if(strcmp(value, "round") == 0)  m_path.line_cap(round_cap);
+            else if(strcmp(value, "square") == 0) m_path.line_cap(square_cap);
         }
         else
         if(strcmp(name, "stroke-linejoin") == 0)
         {
-            if(strcmp(value, "miter") == 0)      m_path.line_join(vcgen_stroke::miter_join);
-            else if(strcmp(value, "round") == 0) m_path.line_join(vcgen_stroke::round_join);
-            else if(strcmp(value, "bevel") == 0) m_path.line_join(vcgen_stroke::bevel_join);
+            if(strcmp(value, "miter") == 0)      m_path.line_join(miter_join);
+            else if(strcmp(value, "round") == 0) m_path.line_join(round_join);
+            else if(strcmp(value, "bevel") == 0) m_path.line_join(bevel_join);
         }
         else
         if(strcmp(name, "stroke-miterlimit") == 0)

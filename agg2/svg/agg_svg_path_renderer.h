@@ -39,17 +39,17 @@ namespace svg
     // Basic path attributes
     struct path_attributes
     {
-        unsigned                  index;
-        rgba8                     fill_color;
-        rgba8                     stroke_color;
-        bool                      fill_flag;
-        bool                      stroke_flag;
-        bool                      even_odd_flag;
-        vcgen_stroke::line_join_e line_join;
-        vcgen_stroke::line_cap_e  line_cap;
-        double                    miter_limit;
-        double                    stroke_width;
-        trans_affine              transform;
+        unsigned     index;
+        rgba8        fill_color;
+        rgba8        stroke_color;
+        bool         fill_flag;
+        bool         stroke_flag;
+        bool         even_odd_flag;
+        line_join_e  line_join;
+        line_cap_e   line_cap;
+        double       miter_limit;
+        double       stroke_width;
+        trans_affine transform;
 
         // Empty constructor
         path_attributes() :
@@ -59,8 +59,8 @@ namespace svg
             fill_flag(true),
             stroke_flag(false),
             even_odd_flag(false),
-            line_join(vcgen_stroke::miter_join),
-            line_cap(vcgen_stroke::butt_cap),
+            line_join(miter_join),
+            line_cap(butt_cap),
             miter_limit(4.0),
             stroke_width(1.0),
             transform()
@@ -168,8 +168,8 @@ namespace svg
         void stroke_none();
         void fill_opacity(double op);
         void stroke_opacity(double op);
-        void line_join(vcgen_stroke::line_join_e join);
-        void line_cap(vcgen_stroke::line_cap_e cap);
+        void line_join(line_join_e join);
+        void line_cap(line_cap_e cap);
         void miter_limit(double ml);
         trans_affine& transform();
 

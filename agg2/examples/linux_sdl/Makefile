@@ -30,6 +30,7 @@ all:
 	cd mol_view; make
 	cd multi_clip; make
 	cd pattern_fill; make
+	cd pattern_perspective; make
 	cd perspective; make
 	cd polymorphic_renderer; make
 	cd raster_text; make
@@ -72,6 +73,7 @@ clean:
 	cd mol_view; make clean
 	cd multi_clip; make clean
 	cd pattern_fill; make clean
+	cd pattern_perspective; make clean
 	cd perspective; make clean
 	cd polymorphic_renderer; make clean
 	cd raster_text; make clean

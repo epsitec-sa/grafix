@@ -449,27 +449,22 @@ namespace agg
                 w = ::MulDiv(m_width,  m_resolution, 72);
             }
 
-
-            sprintf(m_signature, 
-                    "%s,%u,%dx%d,%d,%d,%d,%d,%d", 
-                    m_typeface,
-                    m_char_set,
-                    h,
-                    w,
-                    m_weight,
-                    int(m_italic),
-                    int(m_underline),
-                    int(m_strikeout),
-                    int(m_pitch_and_family));
-
+            m_glyph_rendering = ren_type;
+            update_signature();
             int idx = find_font(m_signature);
             if(idx >= 0)
             {
                 m_cur_font = m_fonts[idx];
                 ::SelectObject(m_dc, m_cur_font);
-                m_glyph_rendering = ren_type;
                 m_num_kerning_pairs = 0;
-                update_signature();
+				//=== Added by Ted Kapustin. Many thanks
+				m_matrix = m_mat2;
+				if (m_flip_y)
+				{
+					m_matrix.eM21 = negate_fx(m_matrix.eM21);
+					m_matrix.eM22 = negate_fx(m_matrix.eM22);
+				}
+				//===
                 return true;
             }
             else
@@ -509,7 +504,6 @@ namespace agg
                     m_fonts[m_num_fonts] = m_cur_font;
                     ++m_num_fonts;
                     ::SelectObject(m_dc, m_cur_font);
-                    m_glyph_rendering = ren_type;
                     m_num_kerning_pairs = 0;
 
                     m_matrix = m_mat2;

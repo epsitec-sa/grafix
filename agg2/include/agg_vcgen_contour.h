@@ -45,6 +45,7 @@ namespace agg
         vcgen_contour();
 
         void line_join(line_join_e lj) { m_line_join = lj; }
+        void inner_line_join(line_join_e lj) { m_inner_line_join = lj; }
         void width(double w) { m_width = w * 0.5; }
         void miter_limit(double ml) { m_miter_limit = ml; }
         void miter_limit_theta(double t);
@@ -53,6 +54,7 @@ namespace agg
         void auto_detect_orientation(bool v) { m_auto_detect = v; }
 
         line_join_e line_join() const { return m_line_join; }
+        line_join_e inner_line_join() const { return m_inner_line_join; }
         double width() const { return m_width * 2.0; }
         double miter_limit() const { return m_miter_limit; }
         double inner_miter_limit() const { return m_inner_miter_limit; }
@@ -75,6 +77,7 @@ namespace agg
         coord_storage  m_out_vertices;
         double         m_width;
         line_join_e    m_line_join;
+        line_join_e    m_inner_line_join;
         double         m_approx_scale;
         double         m_abs_width;
         double         m_signed_width;

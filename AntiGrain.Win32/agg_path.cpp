@@ -1,5 +1,14 @@
+//	AntiGrain.Win32/agg_path.cpp
+//
+//	Copyright © 2003-2005, Pierre ARNAUD, OPaC bright ideas, Ch. du Fontenay 6,
+//	                       CH-1400 YVERDON, Switzerland. All rights reserved. 
+//
+//	Contact: pierre.arnaud@opac.ch, http://www.opac.ch
+
 #include "interface.h"
 #include "structures.h"
+
+#include "agg_conv_gpc.h"
 
 #include "agg_arc.h"
 #include "agg_bounding_rect.h"
@@ -158,6 +167,20 @@ void AggPathAppendGlyph(AggPath* path, agg::font_face* face, int glyph, double x
 				path->path.add_path (conv, 0, false);
 			}
 		}
+	}
+}
+
+void AggPathCombinePathsUsingGpc(AggPath* path1, AggPath* path2, AggPath* result, int op)
+{
+	if (path1 && path2 && result)
+	{
+		agg::conv_curve<agg::path_storage> curve1 (path1->path);
+		agg::conv_curve<agg::path_storage> curve2 (path2->path);
+		
+		agg::conv_gpc<agg::conv_curve<agg::path_storage>, agg::conv_curve<agg::path_storage> > gpc (curve1, curve2);
+		gpc.operation (static_cast<agg::gpc_op_e> (op));
+		
+		result->path.add_path (gpc, 0, false);
 	}
 }
 

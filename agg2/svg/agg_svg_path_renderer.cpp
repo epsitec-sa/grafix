@@ -238,13 +238,13 @@ namespace svg
     }
 
     //------------------------------------------------------------------------
-    void path_renderer::line_join(vcgen_stroke::line_join_e join)
+    void path_renderer::line_join(line_join_e join)
     {
         cur_attr().line_join = join;
     }
 
     //------------------------------------------------------------------------
-    void path_renderer::line_cap(vcgen_stroke::line_cap_e cap)
+    void path_renderer::line_cap(line_cap_e cap)
     {
         cur_attr().line_cap = cap;
     }
