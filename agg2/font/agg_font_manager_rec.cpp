@@ -23,6 +23,7 @@
 #include "agg_strsafe.h"
 
 #include <string.h>
+#include <stdio.h>
 
 using namespace agg;
 
@@ -350,7 +351,29 @@ font_manager::family_record::LoadFontAndReturnOsHandle (const void* os_descripti
 	os_handle = 0;
 	
 #if defined(WIN32)
+#if 0
+	char  buffer[2000];
+	const LOGFONTW* lfw = reinterpret_cast<const LOGFONTW*> (os_description);
+	
+	_snprintf (buffer, 2000,
+			  "LOGFONT:\n"
+			  "  h=%d w=%d esc=%d orient=%d weight=%d\n"
+			  "  italic=%d under=%d strike=%d charset=%d outP=%d clipP=%d q=%d p&f=%d\n"
+			  "  face=%S\n",
+			  lfw->lfHeight, lfw->lfWidth, lfw->lfEscapement, lfw->lfOrientation, lfw->lfWeight,
+			  lfw->lfItalic, lfw->lfUnderline, lfw->lfStrikeOut, lfw->lfCharSet, lfw->lfOutPrecision, lfw->lfClipPrecision, lfw->lfQuality, lfw->lfPitchAndFamily,
+			  lfw->lfFaceName);
+	buffer[1999] = 0;
+	::OutputDebugString (buffer);
+#endif
+	
 	HFONT new_font = ::CreateFontIndirectW (reinterpret_cast<const LOGFONTW*> (os_description));
+	
+#if 0	
+	_snprintf (buffer, 2000, "HFONT --> %p (%d)", (void*)(new_font), (int)(void*)(new_font));
+	buffer[1999] = 0;
+	::OutputDebugString (buffer);
+#endif
 	
 	if (new_font)
 	{

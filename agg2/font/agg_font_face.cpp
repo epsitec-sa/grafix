@@ -51,6 +51,7 @@ font_face::font_face (font_manager* f_manager)
 	prev (0),
 	next (0),
 	os_description (0),
+	os_handle (0),
 	lock_count (0),
 	is_memory_usage_reduction_pending (false),
 	is_font_unsupported (false)
