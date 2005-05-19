@@ -239,10 +239,16 @@
 					RelativePath="..\agg2\include\agg_clip_liang_barsky.h">
 				</File>
 				<File
+					RelativePath="..\agg2\include\agg_color_gray.h">
+				</File>
+				<File
 					RelativePath="..\agg2\include\agg_color_rgba.h">
 				</File>
 				<File
 					RelativePath="..\agg2\include\agg_color_rgba8.h">
+				</File>
+				<File
+					RelativePath="..\agg2\include\agg_config.h">
 				</File>
 				<File
 					RelativePath="..\agg2\include\agg_conv_adaptor_vcgen.h">
@@ -338,13 +344,22 @@
 					RelativePath="..\agg2\include\agg_path_storage.h">
 				</File>
 				<File
+					RelativePath="..\agg2\include\agg_pattern_filters_rgba.h">
+				</File>
+				<File
 					RelativePath="..\agg2\include\agg_pattern_filters_rgba8.h">
 				</File>
 				<File
 					RelativePath="..\agg2\include\agg_pixfmt_amask_adaptor.h">
 				</File>
 				<File
+					RelativePath="..\agg2\include\agg_pixfmt_gray.h">
+				</File>
+				<File
 					RelativePath="..\agg2\include\agg_pixfmt_gray8.h">
+				</File>
+				<File
+					RelativePath="..\agg2\include\agg_pixfmt_rgb.h">
 				</File>
 				<File
 					RelativePath="..\agg2\include\agg_pixfmt_rgb24.h">
@@ -354,6 +369,12 @@
 				</File>
 				<File
 					RelativePath="..\agg2\include\agg_pixfmt_rgb565.h">
+				</File>
+				<File
+					RelativePath="..\agg2\include\agg_pixfmt_rgb_packed.h">
+				</File>
+				<File
+					RelativePath="..\agg2\include\agg_pixfmt_rgba.h">
 				</File>
 				<File
 					RelativePath="..\agg2\include\agg_pixfmt_rgba32.h">
@@ -434,7 +455,13 @@
 					RelativePath="..\agg2\include\agg_span_gouraud.h">
 				</File>
 				<File
+					RelativePath="..\agg2\include\agg_span_gouraud_gray.h">
+				</File>
+				<File
 					RelativePath="..\agg2\include\agg_span_gouraud_gray8.h">
+				</File>
+				<File
+					RelativePath="..\agg2\include\agg_span_gouraud_rgba.h">
 				</File>
 				<File
 					RelativePath="..\agg2\include\agg_span_gouraud_rgba8.h">
@@ -446,10 +473,31 @@
 					RelativePath="..\agg2\include\agg_span_image_filter.h">
 				</File>
 				<File
+					RelativePath="..\agg2\include\agg_span_image_filter_gray.h">
+				</File>
+				<File
+					RelativePath="..\agg2\include\agg_span_image_filter_rgb.h">
+				</File>
+				<File
 					RelativePath="..\agg2\include\agg_span_image_filter_rgb24.h">
 				</File>
 				<File
+					RelativePath="..\agg2\include\agg_span_image_filter_rgba.h">
+				</File>
+				<File
 					RelativePath="..\agg2\include\agg_span_image_filter_rgba32.h">
+				</File>
+				<File
+					RelativePath="..\agg2\include\agg_span_image_resample.h">
+				</File>
+				<File
+					RelativePath="..\agg2\include\agg_span_image_resample_gray.h">
+				</File>
+				<File
+					RelativePath="..\agg2\include\agg_span_image_resample_rgb.h">
+				</File>
+				<File
+					RelativePath="..\agg2\include\agg_span_image_resample_rgba.h">
 				</File>
 				<File
 					RelativePath="..\agg2\include\agg_span_interpolator_adaptor.h">
@@ -458,13 +506,40 @@
 					RelativePath="..\agg2\include\agg_span_interpolator_linear.h">
 				</File>
 				<File
+					RelativePath="..\agg2\include\agg_span_interpolator_persp.h">
+				</File>
+				<File
 					RelativePath="..\agg2\include\agg_span_interpolator_trans.h">
 				</File>
 				<File
 					RelativePath="..\agg2\include\agg_span_pattern.h">
 				</File>
 				<File
+					RelativePath="..\agg2\include\agg_span_pattern_filter_gray.h">
+				</File>
+				<File
+					RelativePath="..\agg2\include\agg_span_pattern_filter_rgb.h">
+				</File>
+				<File
+					RelativePath="..\agg2\include\agg_span_pattern_filter_rgba.h">
+				</File>
+				<File
+					RelativePath="..\agg2\include\agg_span_pattern_resample_gray.h">
+				</File>
+				<File
+					RelativePath="..\agg2\include\agg_span_pattern_resample_rgb.h">
+				</File>
+				<File
+					RelativePath="..\agg2\include\agg_span_pattern_resample_rgba.h">
+				</File>
+				<File
+					RelativePath="..\agg2\include\agg_span_pattern_rgb.h">
+				</File>
+				<File
 					RelativePath="..\agg2\include\agg_span_pattern_rgb24.h">
+				</File>
+				<File
+					RelativePath="..\agg2\include\agg_span_pattern_rgba.h">
 				</File>
 				<File
 					RelativePath="..\agg2\include\agg_span_pattern_rgba32.h">
@@ -473,10 +548,16 @@
 					RelativePath="..\agg2\include\agg_span_solid.h">
 				</File>
 				<File
+					RelativePath="..\agg2\include\agg_span_subdiv_adaptor.h">
+				</File>
+				<File
 					RelativePath="..\agg2\include\agg_trans_affine.h">
 				</File>
 				<File
 					RelativePath="..\agg2\include\agg_trans_bilinear.h">
+				</File>
+				<File
+					RelativePath="..\agg2\include\agg_trans_lens.h">
 				</File>
 				<File
 					RelativePath="..\agg2\include\agg_trans_perspective.h">
@@ -564,6 +645,9 @@
 					Filter="">
 					<File
 						RelativePath="..\agg2\include\util\agg_color_conv.h">
+					</File>
+					<File
+						RelativePath="..\agg2\include\util\agg_color_conv_rgb16.h">
 					</File>
 					<File
 						RelativePath="..\agg2\include\util\agg_color_conv_rgb8.h">

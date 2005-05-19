@@ -1,27 +1,26 @@
 #pragma once
 
-#include "agg_rendering_buffer.h"
+#include "agg_alpha_mask_u8.h"
+#include "agg_bounding_rect.h"
+#include "agg_path_storage.h"
 #include "agg_rasterizer_scanline_aa.h"
 #include "agg_rasterizer_outline_aa.h"
-#include "agg_path_storage.h"
-#include "agg_trans_affine.h"
-#include "agg_alpha_mask_u8.h"
-#include "agg_conv_transform.h"
-#include "agg_span_image_filter_rgba32.h"
-#include "agg_span_interpolator_linear.h"
-#include "agg_scanline_u.h"
-#include "agg_scanline_p.h"
+#include "agg_rendering_buffer.h"
 #include "agg_renderer_scanline.h"
 #include "agg_renderer_mclip.h"
 #include "agg_renderer_outline_aa.h"
+#include "agg_span_image_filter_rgb.h"
+#include "agg_span_image_filter_rgba.h"
+#include "agg_span_interpolator_linear.h"
+#include "agg_scanline_u.h"
+#include "agg_scanline_p.h"
+#include "agg_trans_affine.h"
 
+#include "agg_conv_clip_polygon.h"
 #include "agg_conv_curve.h"
 #include "agg_conv_dash.h"
 #include "agg_conv_stroke.h"
-#include "agg_conv_clip_polygon.h"
-#include "agg_vertex_iterator.h"
 #include "agg_conv_transform.h"
-#include "agg_bounding_rect.h"
 
 #include "agg_span_solid.h"
 #include "agg_span_gradient.h"
@@ -29,13 +28,12 @@
 #include "agg_ellipse.h"
 #include "ctrl/agg_gamma_spline.h"
 
-#include "agg_pixfmt_rgba32.h"
-#include "agg_pixfmt_rgba32_pre.h"
+#include "agg_pixfmt_rgba.h"
 
 typedef agg::pixfmt_bgra32				pixfmt;
-typedef agg::pixfmt_bgra32				pixfmt_pre;
-
+typedef agg::pixfmt_bgra32_pre			pixfmt_pre;
 typedef agg::rgba8						color_type;
+typedef agg::order_bgra					component_order;
 typedef agg::renderer_mclip<pixfmt>		renderer_base;
 typedef agg::renderer_mclip<pixfmt_pre>	renderer_base_pre;
 
@@ -205,13 +203,12 @@ struct AggRendererSmooth : AggRendererBase
 
 struct AggRendererImage
 {
-	AggRendererCommonPre*		renderer;
+	AggRendererCommon*			renderer;
 	
 	typedef agg::span_interpolator_linear<>								interpolator_type;
-    typedef agg::span_image_filter_rgba32_bilinear<agg::order_bgra32,
-												   interpolator_type>	span_gen_type;
-    typedef agg::renderer_scanline_aa<renderer_base_pre, span_gen_type>	renderer_type;
-	typedef agg::span_allocator<agg::rgba8>								span_alloc_type;
+	typedef agg::span_image_filter_rgba_bilinear<color_type, component_order, interpolator_type>	span_gen_type;
+    typedef agg::renderer_scanline_aa<renderer_base, span_gen_type>		renderer_type;
+	typedef agg::span_allocator<color_type>								span_alloc_type;
 	
 	agg::trans_affine			matrix;
 	interpolator_type			interpolator;
@@ -224,13 +221,13 @@ struct AggRendererImage
 	bool						is_ready;
 	
 	AggRendererImage (AggBuffer* buffer)
-		: renderer(buffer->renderer_pre),
+		: renderer(buffer->renderer),
 		  matrix (),
 		  interpolator (matrix),
 		  source_buffer (),
 		  span_alloc (),
-		  span_gen (span_alloc, source_buffer, agg::rgba8 (1, 0, 0, 1), interpolator),
-		  ren_image(renderer->ren_base_pre, span_gen),
+		  span_gen (span_alloc, source_buffer, agg::rgba (1, 0, 0, 1), interpolator),
+		  ren_image(renderer->ren_base, span_gen),
 		  is_source_ok (false),
 		  is_ready (false)
 	{
@@ -257,6 +254,7 @@ struct AggRendererGradient : AggRendererBase
 	{
 		color_function_profile() {}
 		color_function_profile(const color_type* colors, const agg::int8u* profile) :  m_colors(colors), m_profile(profile) {}
+	    static unsigned size() { return 256; }
         const color_type& operator [] (unsigned v) const
 		{ 
 			return m_colors[m_profile[v]]; 

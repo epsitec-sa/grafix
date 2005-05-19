@@ -10,7 +10,7 @@
 #include "agg_conv_contour.h"
 #include "agg_conv_curve.h"
 
-#include "agg_pixfmt_gray8.h"
+#include "agg_pixfmt_gray.h"
 #include "agg_renderer_base.h"
 #include "agg_renderer_primitives.h"
 #include "agg_renderer_scanline.h"
