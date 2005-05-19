@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <string.h>
-#include "agg_pixfmt_rgb24.h"
+#include "agg_pixfmt_rgb.h"
 
 enum
 {

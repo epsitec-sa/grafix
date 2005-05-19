@@ -7,7 +7,6 @@
 #include "agg_scanline_p.h"
 #include "agg_renderer_scanline.h"
 #include "agg_path_storage.h"
-#include "agg_vertex_iterator.h"
 #include "agg_conv_transform.h"
 #include "agg_trans_warp_magnifier.h"
 #include "agg_conv_segmentator.h"

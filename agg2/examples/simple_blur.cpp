@@ -7,12 +7,11 @@
 #include "agg_rasterizer_outline.h"
 #include "agg_path_storage.h"
 #include "agg_conv_stroke.h"
-#include "agg_vertex_iterator.h"
 #include "agg_conv_transform.h"
 #include "agg_bounding_rect.h"
 #include "agg_scanline_u.h"
 #include "agg_scanline_p.h"
-#include "agg_pixfmt_rgb24.h"
+#include "agg_pixfmt_rgb.h"
 #include "agg_renderer_base.h"
 #include "agg_renderer_outline_aa.h"
 #include "agg_rasterizer_outline_aa.h"
@@ -222,7 +221,7 @@ public:
         ras2.add_path(ell_stroke2);
         agg::render_scanlines(ras2, sl, rs);
 
-        typedef agg::span_simple_blur_rgb24<agg::order_bgr24> span_blur_gen;
+        typedef agg::span_simple_blur_rgb24<agg::order_bgr> span_blur_gen;
         typedef agg::span_allocator<span_blur_gen::color_type> span_blur_alloc;
         typedef agg::renderer_scanline_aa<renderer_base, span_blur_gen> renderer_blur;
 

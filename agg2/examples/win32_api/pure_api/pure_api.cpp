@@ -6,7 +6,7 @@
 
 #include "agg_scanline_p.h"
 #include "agg_renderer_scanline.h"
-#include "agg_pixfmt_rgba32.h"
+#include "agg_pixfmt_rgba.h"
 #include "agg_rasterizer_scanline_aa.h"
 
 #define MAX_LOADSTRING 100

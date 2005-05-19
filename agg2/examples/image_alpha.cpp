@@ -6,8 +6,8 @@
 #include "agg_conv_transform.h"
 
 #include "agg_rendering_buffer.h"
-#include "agg_pixfmt_rgb24.h"
-#include "agg_span_image_filter_rgb24.h"
+#include "agg_pixfmt_rgb.h"
+#include "agg_span_image_filter_rgb.h"
 #include "agg_span_interpolator_linear.h"
 #include "agg_span_converter.h"
 #include "agg_scanline_u.h"
@@ -142,8 +142,9 @@ public:
 
 
         typedef agg::span_interpolator_linear<> interpolator_type; 
-        typedef agg::span_image_filter_rgb24_bilinear<agg::order_bgr24,
-                                                      interpolator_type> span_gen;
+        typedef agg::span_image_filter_rgb_bilinear<agg::rgba8,
+                                                    agg::order_bgr,
+                                                    interpolator_type> span_gen;
         typedef agg::span_converter<span_gen,
                                     agg::span_conv_brightness_alpha_rgb8> span_conv;
 

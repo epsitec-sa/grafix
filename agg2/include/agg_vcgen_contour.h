@@ -1,6 +1,6 @@
 //----------------------------------------------------------------------------
-// Anti-Grain Geometry - Version 2.2
-// Copyright (C) 2002-2004 Maxim Shemanarev (http://www.antigrain.com)
+// Anti-Grain Geometry - Version 2.3
+// Copyright (C) 2002-2005 Maxim Shemanarev (http://www.antigrain.com)
 //
 // Permission to copy, use, modify, sell and distribute this software 
 // is granted provided this copyright notice appears in all copies. 
@@ -17,7 +17,6 @@
 #define AGG_VCGEN_CONTOUR_INCLUDED
 
 #include "agg_math_stroke.h"
-#include "agg_vertex_iterator.h"
 
 namespace agg
 {
@@ -66,7 +65,7 @@ namespace agg
         void add_vertex(double x, double y, unsigned cmd);
 
         // Vertex Source Interface
-        void     rewind(unsigned id);
+        void     rewind(unsigned path_id);
         unsigned vertex(double* x, double* y);
 
     private:

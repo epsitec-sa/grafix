@@ -1,6 +1,6 @@
 //----------------------------------------------------------------------------
-// Anti-Grain Geometry - Version 2.2
-// Copyright (C) 2002-2004 Maxim Shemanarev (http://www.antigrain.com)
+// Anti-Grain Geometry - Version 2.3
+// Copyright (C) 2002-2005 Maxim Shemanarev (http://www.antigrain.com)
 //
 // Permission to copy, use, modify, sell and distribute this software 
 // is granted provided this copyright notice appears in all copies. 
@@ -27,7 +27,6 @@
 #include <math.h>
 #include "agg_basics.h"
 #include "agg_array.h"
-#include "agg_vertex_iterator.h"
 
 extern "C" 
 { 
@@ -96,13 +95,8 @@ namespace agg
         void operation(gpc_op_e v) { m_operation = v; }
 
         // Vertex Source Interface
-        void     rewind(unsigned id);
+        void     rewind(unsigned path_id);
         unsigned vertex(double* x, double* y);
-
-        // Iterator
-        typedef vertex_iterator<self_type> iterator;
-        iterator begin(unsigned id) { return iterator(*this, id); }
-        iterator end() { return iterator(path_cmd_stop); }
 
     private:
         conv_gpc(const conv_gpc<VSA, VSB>&);
@@ -356,11 +350,11 @@ namespace agg
 
     //------------------------------------------------------------------------
     template<class VSA, class VSB> 
-    void conv_gpc<VSA, VSB>::rewind(unsigned id)
+    void conv_gpc<VSA, VSB>::rewind(unsigned path_id)
     {
         free_result();
-        m_src_a->rewind(id);
-        m_src_b->rewind(id);
+        m_src_a->rewind(path_id);
+        m_src_b->rewind(path_id);
         add(*m_src_a, m_poly_a);
         add(*m_src_b, m_poly_b);
         switch(m_operation)

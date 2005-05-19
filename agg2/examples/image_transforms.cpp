@@ -6,8 +6,8 @@
 #include "agg_path_storage.h"
 #include "agg_trans_affine.h"
 #include "agg_conv_transform.h"
-#include "agg_pixfmt_rgba32.h"
-#include "agg_span_image_filter_rgba32.h"
+#include "agg_pixfmt_rgba.h"
+#include "agg_span_image_filter_rgba.h"
 #include "agg_span_interpolator_linear.h"
 #include "agg_scanline_u.h"
 #include "agg_renderer_scanline.h"
@@ -23,16 +23,16 @@ enum { flip_y = true };
 
 class the_application : public agg::platform_support
 {
-    agg::slider_ctrl<agg::rgba8> m_polygon_angle;
-    agg::slider_ctrl<agg::rgba8> m_polygon_scale;
+    agg::slider_ctrl<agg::rgba> m_polygon_angle;
+    agg::slider_ctrl<agg::rgba> m_polygon_scale;
 
-    agg::slider_ctrl<agg::rgba8> m_image_angle;
-    agg::slider_ctrl<agg::rgba8> m_image_scale;
+    agg::slider_ctrl<agg::rgba> m_image_angle;
+    agg::slider_ctrl<agg::rgba> m_image_scale;
 
-    agg::cbox_ctrl<agg::rgba8> m_rotate_polygon;
-    agg::cbox_ctrl<agg::rgba8> m_rotate_image;
+    agg::cbox_ctrl<agg::rgba> m_rotate_polygon;
+    agg::cbox_ctrl<agg::rgba> m_rotate_image;
 
-    agg::rbox_ctrl<agg::rgba8> m_example;
+    agg::rbox_ctrl<agg::rgba> m_example;
 
     double m_image_center_x;
     double m_image_center_y;
@@ -146,6 +146,7 @@ public:
     virtual void on_draw()
     {
         typedef agg::pixfmt_bgra32 pixfmt; 
+        typedef pixfmt::color_type color_type; 
         typedef agg::renderer_base<pixfmt> renderer_base;
         typedef agg::renderer_scanline_aa_solid<renderer_base> renderer_solid;
        
@@ -249,7 +250,7 @@ public:
 /*
         // nearest neighbor
         //------------------------------------------
-        typedef agg::span_image_filter_rgba32_nn<agg::order_bgra32, interpolator_type> span_gen_type;
+        typedef agg::span_image_filter_rgba_nn<color_type, agg::order_bgra, interpolator_type> span_gen_type;
         typedef agg::renderer_scanline_aa<renderer_base, span_gen_type> renderer_type;
 
         span_gen_type sg(sa, rbuf_img(0), agg::rgba(1,1,1,0), interpolator);
@@ -261,7 +262,7 @@ public:
 
         // "hardcoded" bilinear filter
         //------------------------------------------
-        typedef agg::span_image_filter_rgba32_bilinear<agg::order_bgra32, interpolator_type> span_gen_type;
+        typedef agg::span_image_filter_rgba_bilinear<color_type, agg::order_bgra, interpolator_type> span_gen_type;
         typedef agg::renderer_scanline_aa<renderer_base, span_gen_type> renderer_type;
 
         span_gen_type sg(sa, rbuf_img(0), agg::rgba(1,1,1,0), interpolator);
@@ -273,7 +274,7 @@ public:
 /*
         // arbitrary filter
         //------------------------------------------
-        typedef agg::span_image_filter_rgba32<agg::order_bgra32, interpolator_type> span_gen_type;
+        typedef agg::span_image_filter_rgba<color_type, agg::order_bgra, interpolator_type> span_gen_type;
         typedef agg::renderer_scanline_aa<renderer_base, span_gen_type> renderer_type;
 
         agg::image_filter<agg::image_filter_spline36> filter;

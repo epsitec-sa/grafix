@@ -1,6 +1,6 @@
 //----------------------------------------------------------------------------
-// Anti-Grain Geometry - Version 2.2
-// Copyright (C) 2002-2004 Maxim Shemanarev (http://www.antigrain.com)
+// Anti-Grain Geometry - Version 2.3
+// Copyright (C) 2002-2005 Maxim Shemanarev (http://www.antigrain.com)
 //
 // Permission to copy, use, modify, sell and distribute this software 
 // is granted provided this copyright notice appears in all copies. 
@@ -18,6 +18,11 @@
 #include "agg_bitset_iterator.h"
 #include "agg_renderer_scanline.h"
 
+#ifdef AGG_WIN9X_COMPLIANT
+#define GetGlyphOutlineX GetGlyphOutline
+#else
+#define GetGlyphOutlineX GetGlyphOutlineW
+#endif
 
 namespace agg
 {
@@ -321,9 +326,7 @@ namespace agg
         m_width(0),
         m_weight(FW_REGULAR),
         m_italic(false),
-        m_underline(false),
-        m_strikeout(false),
-        m_char_set(ANSI_CHARSET),
+        m_char_set(DEFAULT_CHARSET),
         m_pitch_and_family(FF_DONTCARE),
         m_hinting(true),
         m_flip_y(false),
@@ -353,9 +356,9 @@ namespace agg
     {
         m_curves16.approximation_scale(4.0);
         m_curves32.approximation_scale(4.0);
-        memset(&m_mat2, 0, sizeof(m_mat2));
-        m_mat2.eM11.value = 1;
-        m_mat2.eM22.value = 1;
+        memset(&m_matrix, 0, sizeof(m_matrix));
+        m_matrix.eM11.value = 1;
+        m_matrix.eM22.value = 1;
     }
 
 
@@ -400,29 +403,6 @@ namespace agg
 
 
     //------------------------------------------------------------------------
-	void font_engine_win32_tt_base::transform(const trans_affine& mtx)
-    {
-		double m[6];
-		mtx.store_to(m);
- 		m_mat2.eM11 = dbl_to_fx(m[0]);
-		m_mat2.eM12 = dbl_to_fx(m[1]);
-		m_mat2.eM21 = dbl_to_fx(m[2]);
-		m_mat2.eM22 = dbl_to_fx(m[3]);
-    }
-
-
-    //------------------------------------------------------------------------
-    void font_engine_win32_tt_base::transform(double xx, double xy, 
-                                              double yx, double yy)
-    {
-		m_mat2.eM11 = dbl_to_fx(xx);
-		m_mat2.eM12 = dbl_to_fx(xy);
-		m_mat2.eM21 = dbl_to_fx(yx);
-		m_mat2.eM22 = dbl_to_fx(yy);
-    }
-
-
-    //------------------------------------------------------------------------
     bool font_engine_win32_tt_base::create_font(const char* typeface_, 
                                                 glyph_rendering ren_type)
     {
@@ -457,14 +437,6 @@ namespace agg
                 m_cur_font = m_fonts[idx];
                 ::SelectObject(m_dc, m_cur_font);
                 m_num_kerning_pairs = 0;
-				//=== Added by Ted Kapustin. Many thanks
-				m_matrix = m_mat2;
-				if (m_flip_y)
-				{
-					m_matrix.eM21 = negate_fx(m_matrix.eM21);
-					m_matrix.eM22 = negate_fx(m_matrix.eM22);
-				}
-				//===
                 return true;
             }
             else
@@ -475,8 +447,8 @@ namespace agg
                                           0,                      // base-line orientation angle
                                           m_weight,               // font weight
                                           m_italic,               // italic attribute option
-                                          m_underline,            // underline attribute option
-                                          m_strikeout,            // strikeout attribute option
+                                          0,                      // underline attribute option
+                                          0,                      // strikeout attribute option
                                           m_char_set,             // character set identifier
                                           OUT_DEFAULT_PRECIS,     // output precision
                                           CLIP_DEFAULT_PRECIS,    // clipping precision
@@ -499,21 +471,13 @@ namespace agg
                         m_num_fonts = m_max_fonts - 1;
                     }
 
+                    update_signature();
                     m_font_names[m_num_fonts] = new char[strlen(m_signature) + 1];
                     strcpy(m_font_names[m_num_fonts], m_signature);
                     m_fonts[m_num_fonts] = m_cur_font;
                     ++m_num_fonts;
                     ::SelectObject(m_dc, m_cur_font);
                     m_num_kerning_pairs = 0;
-
-                    m_matrix = m_mat2;
-                    if(m_flip_y)
-                    {
-                        m_matrix.eM21 = negate_fx(m_matrix.eM21);
-                        m_matrix.eM22 = negate_fx(m_matrix.eM22);
-                    }
-
-                    update_signature();
                     return true;
                 }
             }
@@ -532,8 +496,6 @@ namespace agg
                                                 double width_,
                                                 int weight_,
                                                 bool italic_,
-                                                bool underline_,
-                                                bool strikeout_,
                                                 DWORD char_set_,
                                                 DWORD pitch_and_family_)
     {
@@ -541,8 +503,6 @@ namespace agg
         width(width_);
         weight(weight_);
         italic(italic_);
-        underline(underline_);
-        strikeout(strikeout_);
         char_set(char_set_);
         pitch_and_family(pitch_and_family_);
         return create_font(typeface_, ren_type);
@@ -571,7 +531,7 @@ namespace agg
             }
       
             sprintf(m_signature, 
-                    "%s,%u,%d,%d:%dx%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%08X", 
+                    "%s,%u,%d,%d:%dx%d,%d,%d,%d,%d,%d,%08X", 
                     m_typeface,
                     m_char_set,
                     int(m_glyph_rendering),
@@ -580,15 +540,9 @@ namespace agg
                     m_width,
                     m_weight,
                     int(m_italic),
-                    int(m_underline),
-                    int(m_strikeout),
                     int(m_hinting),
                     int(m_flip_y),
                     int(m_pitch_and_family),
-                    fx_to_plain_int(m_mat2.eM11),
-                    fx_to_plain_int(m_mat2.eM12),
-                    fx_to_plain_int(m_mat2.eM21),
-                    fx_to_plain_int(m_mat2.eM22),
                     gamma_hash);
             ++m_change_stamp;
         }
@@ -606,7 +560,6 @@ namespace agg
     //------------------------------------------------------------------------
     bool font_engine_win32_tt_base::prepare_glyph(unsigned glyph_code)
     {
-        bool flip = false;
         if(m_dc && m_cur_font)
         {
             int format = GGO_BITMAP;
@@ -630,13 +583,13 @@ namespace agg
             if(!m_hinting) format |= GGO_UNHINTED;
         
             GLYPHMETRICS gm;
-            int total_size = GetGlyphOutline(m_dc,
-                                             glyph_code,
-                                             format,
-                                             &gm,
-                                             buf_size,
-                                             (void*)m_gbuf,
-                                             &m_matrix);
+            int total_size = GetGlyphOutlineX(m_dc,
+                                              glyph_code,
+                                              format,
+                                              &gm,
+                                              buf_size,
+                                              (void*)m_gbuf,
+                                              &m_matrix);
 
             if(total_size < 0) 
             {
@@ -645,13 +598,13 @@ namespace agg
                 // It doesn't even initialize the glyph metrics
                 // structure. So, we have to query the metrics
                 // separately (basically we need gmCellIncX).
-                int total_size = GetGlyphOutline(m_dc,
-                                                 glyph_code,
-                                                 GGO_METRICS,
-                                                 &gm,
-                                                 buf_size,
-                                                 (void*)m_gbuf,
-                                                 &m_matrix);
+                int total_size = GetGlyphOutlineX(m_dc,
+                                                  glyph_code,
+                                                  GGO_METRICS,
+                                                  &gm,
+                                                  buf_size,
+                                                  (void*)m_gbuf,
+                                                  &m_matrix);
 
                 if(total_size < 0) return false;
                 gm.gmBlackBoxX = gm.gmBlackBoxY = 0;
@@ -669,9 +622,9 @@ namespace agg
                                                   gm.gmBlackBoxX,
                                                   gm.gmBlackBoxY,
                                                   gm.gmptGlyphOrigin.x,
-                                                  flip ? -gm.gmptGlyphOrigin.y : 
-                                                          gm.gmptGlyphOrigin.y,
-                                                  flip,
+                                                  m_flip_y ? -gm.gmptGlyphOrigin.y : 
+                                                              gm.gmptGlyphOrigin.y,
+                                                  m_flip_y,
                                                   m_scanline_bin,
                                                   m_scanlines_bin);
                 m_bounds.x1 = m_scanlines_bin.min_x();
@@ -687,9 +640,9 @@ namespace agg
                                                    gm.gmBlackBoxX,
                                                    gm.gmBlackBoxY,
                                                    gm.gmptGlyphOrigin.x,
-                                                   flip ? -gm.gmptGlyphOrigin.y : 
-                                                           gm.gmptGlyphOrigin.y,
-                                                   flip,
+                                                   m_flip_y ? -gm.gmptGlyphOrigin.y : 
+                                                               gm.gmptGlyphOrigin.y,
+                                                   m_flip_y,
                                                    m_rasterizer,
                                                    m_scanline_aa,
                                                    m_scanlines_aa);
@@ -707,7 +660,7 @@ namespace agg
                     m_path32.remove_all();
                     if(decompose_win32_glyph_outline(m_gbuf,
                                                      total_size,
-                                                     flip, 
+                                                     m_flip_y, 
                                                      m_path32,
                                                      fx_to_int))
                     {
@@ -726,7 +679,7 @@ namespace agg
                     m_path16.remove_all();
                     if(decompose_win32_glyph_outline(m_gbuf,
                                                      total_size,
-                                                     flip, 
+                                                     m_flip_y, 
                                                      m_path16,
                                                      fx_to_int))
                     {
@@ -749,7 +702,7 @@ namespace agg
                     m_path32.remove_all();
                     decompose_win32_glyph_outline(m_gbuf,
                                                   total_size,
-                                                  flip, 
+                                                  m_flip_y, 
                                                   m_path32,
                                                   fx_to_int);
                     m_rasterizer.add_path(m_curves32);
@@ -759,7 +712,7 @@ namespace agg
                     m_path16.remove_all();
                     decompose_win32_glyph_outline(m_gbuf,
                                                   total_size,
-                                                  flip, 
+                                                  m_flip_y, 
                                                   m_path16,
                                                   fx_to_int);
                     m_rasterizer.add_path(m_curves16);
@@ -781,7 +734,7 @@ namespace agg
                     m_path32.remove_all();
                     decompose_win32_glyph_outline(m_gbuf,
                                                   total_size,
-                                                  flip, 
+                                                  m_flip_y, 
                                                   m_path32,
                                                   fx_to_int);
                     m_rasterizer.add_path(m_curves32);
@@ -791,7 +744,7 @@ namespace agg
                     m_path16.remove_all();
                     decompose_win32_glyph_outline(m_gbuf,
                                                   total_size,
-                                                  flip, 
+                                                  m_flip_y, 
                                                   m_path16,
                                                   fx_to_int);
                     m_rasterizer.add_path(m_curves16);

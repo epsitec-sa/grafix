@@ -5,7 +5,7 @@
 #include "agg_rasterizer_scanline_aa.h"
 #include "agg_scanline_p.h"
 #include "agg_renderer_scanline.h"
-#include "agg_pixfmt_rgba32.h"
+#include "agg_pixfmt_rgba.h"
 #include "platform/agg_platform_support.h"
 #include "ctrl/agg_slider_ctrl.h"
 #include "agg_svg_parser.h"

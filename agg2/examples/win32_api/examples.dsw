@@ -111,6 +111,18 @@ Package=<4>
 
 ###############################################################################
 
+Project: "compositing"=.\compositing\compositing.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
 Project: "conv_contour"=.\conv_contour\conv_contour.dsp - Package Owner=<4>
 
 Package=<5>
@@ -279,6 +291,18 @@ Package=<4>
 
 ###############################################################################
 
+Project: "image_filters2"=.\image_filters2\image_filters2.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
 Project: "image_fltr_graph"=.\image_fltr_graph\image_fltr_graph.dsp - Package Owner=<4>
 
 Package=<5>
@@ -292,6 +316,18 @@ Package=<4>
 ###############################################################################
 
 Project: "image_perspective"=.\image_perspective\image_perspective.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "image_resample"=.\image_resample\image_resample.dsp - Package Owner=<4>
 
 Package=<5>
 {{{

@@ -1,6 +1,6 @@
 # autogen.sh
 #
-# invoke the auto* tools to create the configureation system
+# invoke the auto* tools to create the configuration/build system
 
 # build aclocal.m4
 aclocal

@@ -172,22 +172,10 @@ SOURCE=..\..\..\include\agg_pattern_attr.h
 
 SOURCE=..\..\..\include\agg_span_pattern.h
 # End Source File
-# Begin Source File
-
-SOURCE=..\..\..\include\agg_span_pattern_rgb24.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\..\include\agg_span_pattern_rgba32.h
-# End Source File
 # End Group
 # Begin Group "Resource Files"
 
 # PROP Default_Filter "ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe"
 # End Group
-# Begin Source File
-
-SOURCE=..\..\..\include\agg_gouraud_attr.h
-# End Source File
 # End Target
 # End Project

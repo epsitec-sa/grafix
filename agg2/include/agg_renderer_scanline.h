@@ -1,6 +1,6 @@
 //----------------------------------------------------------------------------
-// Anti-Grain Geometry - Version 2.2
-// Copyright (C) 2002-2004 Maxim Shemanarev (http://www.antigrain.com)
+// Anti-Grain Geometry - Version 2.3
+// Copyright (C) 2002-2005 Maxim Shemanarev (http://www.antigrain.com)
 //
 // Permission to copy, use, modify, sell and distribute this software 
 // is granted provided this copyright notice appears in all copies. 
@@ -27,13 +27,19 @@ namespace agg
     template<class BaseRenderer, class SpanGenerator> class renderer_scanline_aa
     {
     public:
-        typedef BaseRenderer base_ren_type;
+        typedef BaseRenderer  base_ren_type;
+        typedef SpanGenerator span_gen_type;
 
         //--------------------------------------------------------------------
-        renderer_scanline_aa(base_ren_type& ren, SpanGenerator& span_gen) :
+        renderer_scanline_aa() : m_ren(0), m_span_gen(0) {}
+        renderer_scanline_aa(base_ren_type& ren, span_gen_type& span_gen) :
             m_ren(&ren),
             m_span_gen(&span_gen)
+        {}
+        void attach(base_ren_type& ren, span_gen_type& span_gen)
         {
+            m_ren = ren;
+            m_span_gen = span_gen;
         }
         
         //--------------------------------------------------------------------
@@ -117,9 +123,13 @@ namespace agg
         typedef typename base_ren_type::color_type color_type;
 
         //--------------------------------------------------------------------
+        renderer_scanline_aa_solid() : m_ren(0) {}
         renderer_scanline_aa_solid(base_ren_type& ren) :
             m_ren(&ren)
+        {}
+        void attach(base_ren_type& ren)
         {
+            m_ren = &ren;
         }
         
         //--------------------------------------------------------------------
@@ -171,13 +181,19 @@ namespace agg
     template<class BaseRenderer, class SpanGenerator> class renderer_scanline_bin
     {
     public:
-        typedef BaseRenderer base_ren_type;
+        typedef BaseRenderer  base_ren_type;
+        typedef SpanGenerator span_gen_type;
 
         //--------------------------------------------------------------------
-        renderer_scanline_bin(base_ren_type& ren, SpanGenerator& span_gen) :
+        renderer_scanline_bin() : m_ren(0), m_span_gen(0) {}
+        renderer_scanline_bin(base_ren_type& ren, span_gen_type& span_gen) :
             m_ren(&ren),
             m_span_gen(&span_gen)
+        {}
+        void attach(base_ren_type& ren, span_gen_type& span_gen)
         {
+            m_ren = ren;
+            m_span_gen = span_gen;
         }
         
         //--------------------------------------------------------------------
@@ -240,6 +256,170 @@ namespace agg
 
 
 
+
+
+    //================================================renderer_scanline_direct
+    template<class BaseRenderer, class SpanGenerator> class renderer_scanline_direct
+    {
+    public:
+        typedef BaseRenderer  base_ren_type;
+        typedef SpanGenerator span_gen_type;
+        typedef typename base_ren_type::span_data span_data;
+
+        //--------------------------------------------------------------------
+        renderer_scanline_direct() : m_ren(0), m_span_gen(0) {}
+        renderer_scanline_direct(base_ren_type& ren, span_gen_type& span_gen) :
+            m_ren(&ren),
+            m_span_gen(&span_gen)
+        {}
+        void attach(base_ren_type& ren, span_gen_type& span_gen)
+        {
+            m_ren = ren;
+            m_span_gen = span_gen;
+        }
+
+        //--------------------------------------------------------------------
+        void prepare(unsigned max_span_len) 
+        { 
+            m_span_gen->prepare(max_span_len); 
+        }
+
+        //--------------------------------------------------------------------
+        template<class Scanline> void render(const Scanline& sl)
+        {
+            int y = sl.y();
+            m_ren->first_clip_box();
+            do
+            {
+                int xmin = m_ren->xmin();
+                int xmax = m_ren->xmax();
+
+                if(y >= m_ren->ymin() && y <= m_ren->ymax())
+                {
+                    unsigned num_spans = sl.num_spans();
+                    typename Scanline::const_iterator span = sl.begin();
+                    do
+                    {
+                        int x = span->x;
+                        int len = span->len;
+
+                        if(len < 0) len = -len;
+                        if(x < xmin)
+                        {
+                            len -= xmin - x;
+                            x = xmin;
+                        }
+                        if(len > 0)
+                        {
+                            if(x + len > xmax)
+                            {
+                                len = xmax - x + 1;
+                            }
+                            if(len > 0)
+                            {
+                                span_data span = m_ren->span(x, y, len);
+                                if(span.ptr)
+                                {
+                                    m_span_gen->generate(span.x, y, span.len, span.ptr);
+                                }
+                            }
+                        }
+                        ++span;
+                    }
+                    while(--num_spans);
+                }
+            }
+            while(m_ren->next_clip_box());
+        }
+        
+    private:
+        base_ren_type* m_ren;
+        SpanGenerator* m_span_gen;
+    };
+
+
+
+
+
+
+    //===============================================renderer_scanline_bin_copy
+    template<class BaseRenderer, class SpanGenerator> class renderer_scanline_bin_copy
+    {
+    public:
+        typedef BaseRenderer  base_ren_type;
+        typedef SpanGenerator span_gen_type;
+
+        //--------------------------------------------------------------------
+        renderer_scanline_bin_copy() : m_ren(0), m_span_gen(0) {}
+        renderer_scanline_bin_copy(base_ren_type& ren, span_gen_type& span_gen) :
+            m_ren(&ren),
+            m_span_gen(&span_gen)
+        {}
+        void attach(base_ren_type& ren, span_gen_type& span_gen)
+        {
+            m_ren = ren;
+            m_span_gen = span_gen;
+        }
+        
+        //--------------------------------------------------------------------
+        void prepare(unsigned max_span_len) 
+        { 
+            m_span_gen->prepare(max_span_len); 
+        }
+
+        //--------------------------------------------------------------------
+        template<class Scanline> void render(const Scanline& sl)
+        {
+            int y = sl.y();
+            m_ren->first_clip_box();
+            do
+            {
+                int xmin = m_ren->xmin();
+                int xmax = m_ren->xmax();
+
+                if(y >= m_ren->ymin() && y <= m_ren->ymax())
+                {
+                    unsigned num_spans = sl.num_spans();
+                    typename Scanline::const_iterator span = sl.begin();
+                    do
+                    {
+                        int x = span->x;
+                        int len = span->len;
+
+                        if(len < 0) len = -len;
+                        if(x < xmin)
+                        {
+                            len -= xmin - x;
+                            x = xmin;
+                        }
+                        if(len > 0)
+                        {
+                            if(x + len > xmax)
+                            {
+                                len = xmax - x + 1;
+                            }
+                            if(len > 0)
+                            {
+                                m_ren->copy_color_hspan_no_clip(
+                                    x, y, len, 
+                                    m_span_gen->generate(x, y, len));
+                            }
+                        }
+                        ++span;
+                    }
+                    while(--num_spans);
+                }
+            }
+            while(m_ren->next_clip_box());
+        }
+        
+    private:
+        base_ren_type* m_ren;
+        SpanGenerator* m_span_gen;
+    };
+
+
+
     //=============================================renderer_scanline_bin_solid
     template<class BaseRenderer> class renderer_scanline_bin_solid
     {
@@ -248,9 +428,13 @@ namespace agg
         typedef typename base_ren_type::color_type color_type;
 
         //--------------------------------------------------------------------
+        renderer_scanline_bin_solid() : m_ren(0) {}
         renderer_scanline_bin_solid(base_ren_type& ren) :
             m_ren(&ren)
+        {}
+        void attach(base_ren_type& ren)
         {
+            m_ren = &ren;
         }
         
         //--------------------------------------------------------------------

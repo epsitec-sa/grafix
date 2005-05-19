@@ -18,7 +18,7 @@ static char THIS_FILE[] = __FILE__;
 #include "agg_trans_affine.h"
 #include "agg_path_storage.h"
 #include "agg_conv_transform.h"
-#include "agg_color_rgba8.h"
+#include "agg_color_rgba.h"
 #include "agg_bounding_rect.h"
 #include "ctrl/agg_slider_ctrl.h"
 
@@ -126,13 +126,13 @@ public:
 
     //------------------------------------------------------------------------
     template<class VertexSource>
-    void add_path(VertexSource& vs, unsigned id=0)
+    void add_path(VertexSource& vs, unsigned path_id=0)
     {
         double x;
         double y;
 
         unsigned flag;
-        vs.rewind(id);
+        vs.rewind(path_id);
         while(!agg::is_stop(flag = vs.vertex(&x, &y)))
         {
             if(agg::is_vertex(flag))
@@ -153,13 +153,13 @@ public:
     template<class VertexSource, class ColorStorage, class PathId>
     void render_all_paths(VertexSource& vs, 
                           const ColorStorage& colors, 
-                          const PathId& id,
+                          const PathId& path_id,
                           unsigned num_paths)
     {
         for(unsigned i = 0; i < num_paths; i++)
         {
             reset();
-            add_path(vs, id[i]);
+            add_path(vs, path_id[i]);
             color(colors[i]);
             render();
         }

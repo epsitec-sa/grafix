@@ -8,7 +8,7 @@ PROGNAME=gpc_test
 OUTNAME=$(PROGNAME)
 PLATFORM=win32
 
-CXXFLAGS= $(AGGCXXFLAGS) -I../../../include \
+CXXFLAGS= $(AGGCXXFLAGS) -I../../../include -I../../../gpc \
 -I/usr/X11R6/include \
 -L/usr/X11R6/lib \
 -L../../../src \

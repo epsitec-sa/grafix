@@ -6,9 +6,10 @@
 #include "agg_ellipse.h"
 #include "agg_trans_affine.h"
 #include "agg_conv_transform.h"
-#include "agg_span_image_filter_rgba32.h"
-#include "agg_pixfmt_rgba32.h"
-#include "agg_pixfmt_rgba32_pre.h"
+#include "agg_span_image_filter_rgb.h"
+#include "agg_span_image_filter_rgba.h"
+#include "agg_span_image_filter_gray.h"
+#include "agg_pixfmt_rgba.h"
 #include "agg_scanline_u.h"
 #include "agg_renderer_scanline.h"
 #include "agg_span_interpolator_linear.h"
@@ -17,6 +18,8 @@
 
 enum { flip_y = true };
 
+#define AGG_BGR24
+#include "pixel_formats.h"
 
 
 class the_application : public agg::platform_support
@@ -46,8 +49,6 @@ public:
 
     virtual void on_draw()
     {
-        typedef agg::pixfmt_bgra32                             pixfmt; 
-        typedef agg::pixfmt_bgra32_pre                         pixfmt_pre; 
         typedef agg::renderer_base<pixfmt>                     renderer_base;
         typedef agg::renderer_base<pixfmt_pre>                 renderer_base_pre;
         typedef agg::renderer_scanline_aa_solid<renderer_base> renderer_solid;
@@ -75,7 +76,7 @@ public:
         img_mtx *= trans_affine_resizing();
         img_mtx.invert();
 
-        typedef agg::span_allocator<agg::rgba8> span_alloc_type;
+        typedef agg::span_allocator<color_type> span_alloc_type;
 
         span_alloc_type sa;
         typedef agg::span_interpolator_linear<> interpolator_type;
@@ -85,8 +86,8 @@ public:
 /*
         // Version without filtering (nearest neighbor)
         //------------------------------------------
-        typedef agg::span_image_filter_rgba32_nn<agg::order_bgra32, 
-                                                 interpolator_type> span_gen_type;
+        typedef agg::span_image_filter_rgb_nn<color_type, component_order, 
+                                               interpolator_type> span_gen_type;
         typedef agg::renderer_scanline_aa<renderer_base_pre, span_gen_type> renderer_type;
 
         span_gen_type sg(sa, 
@@ -100,8 +101,8 @@ public:
 
         // Version with "hardcoded" bilinear filter
         //------------------------------------------
-        typedef agg::span_image_filter_rgba32_bilinear<agg::order_bgra32, 
-                                                       interpolator_type> span_gen_type;
+        typedef agg::span_image_filter_rgb_bilinear<color_type, component_order, 
+                                                    interpolator_type> span_gen_type;
         typedef agg::renderer_scanline_aa<renderer_base_pre, span_gen_type> renderer_type;
 
         span_gen_type sg(sa, 
@@ -115,8 +116,8 @@ public:
 /*
         // Version with arbitrary filter
         //------------------------------------------
-        typedef agg::span_image_filter_rgba32<agg::order_bgra32, 
-                                              interpolator_type> span_gen_type;
+        typedef agg::span_image_filter_rgb<color_type, component_order, 
+                                            interpolator_type> span_gen_type;
         typedef agg::renderer_scanline_aa<renderer_base_pre, span_gen_type> renderer_type;
 
         agg::image_filter<agg::image_filter_spline36> filter;
@@ -159,7 +160,7 @@ public:
 
 int agg_main(int argc, char* argv[])
 {
-    the_application app(agg::pix_format_bgra32, flip_y);
+    the_application app(pix_format, flip_y);
     app.caption("Image Affine Transformations with filtering");
 
     const char* img_name = "spheres";
@@ -193,11 +194,11 @@ int agg_main(int argc, char* argv[])
 //for(unsigned i = 0; i < app.rbuf_img(0).height(); i += 2)
 //{
 //    // Fully transparent
-//    rb.copy_hline(0, i, app.rbuf_img(0).width(), agg::rgba8(0, 0, 0, 0));  
+//    rb.copy_hline(0, i, app.rbuf_img(0).width(), agg::rgba(0, 0, 0, 0));  
 //    if(i + 1 < app.rbuf_img(0).height())
 //    {
 //        // Fully opaque white
-//        rb.copy_hline(0, i + 1, app.rbuf_img(0).width(), agg::rgba8(255, 255, 255, 255));  
+//        rb.copy_hline(0, i + 1, app.rbuf_img(0).width(), agg::rgba(1, 1, 1, 1));  
 //    }
 //}
 
@@ -207,3 +208,16 @@ int agg_main(int argc, char* argv[])
 }
 
 
+
+/*
+E:\agg23\examples\image1.cpp(111) : error C2664: 
+
+  '__thiscall agg::span_image_filter_gray_bilinear<struct agg::gray8,
+                                                   struct agg::order_bgra,
+                                                   class agg::span_interpolator_linear<class agg::trans_affine,8> >::agg::span_image_filter_gray_bilinear<struct agg::gray8,struct agg::order_bgra,class agg::span_interpolator_linear<class agg::trans_affine,8> >(class agg::span_interpolator_linear<class agg::trans_affine,8> &,const class agg::row_ptr_cache<unsigned char> &,const struct agg::gray8 &,struct agg::order_bgra &)' : 
+
+cannot convert parameter 1 from 
+
+'class agg::span_allocator<struct agg::gray8>' to 
+'class agg::span_interpolator_linear<class agg::trans_affine,8> &'
+*/

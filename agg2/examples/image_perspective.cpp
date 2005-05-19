@@ -13,9 +13,9 @@
 #include "agg_trans_perspective.h"
 #include "agg_span_interpolator_linear.h"
 #include "agg_span_interpolator_trans.h"
-#include "agg_pixfmt_rgba32.h"
-#include "agg_pixfmt_rgba32_pre.h"
-#include "agg_span_image_filter_rgba32.h"
+#include "agg_span_subdiv_adaptor.h"
+#include "agg_pixfmt_rgba.h"
+#include "agg_span_image_filter_rgba.h"
 #include "ctrl/agg_rbox_ctrl.h"
 #include "platform/agg_platform_support.h"
 #include "interactive_polygon.h"
@@ -36,6 +36,7 @@ class the_application : public agg::platform_support
 {
 public:
     typedef agg::pixfmt_bgra32                             pixfmt;
+    typedef pixfmt::color_type                             color_type;
     typedef agg::renderer_base<pixfmt>                     renderer_base;
     typedef agg::renderer_scanline_aa_solid<renderer_base> renderer_solid;
 
@@ -65,16 +66,21 @@ public:
         g_x2 = rbuf_img(0).width();
         g_y2 = rbuf_img(0).height();
 
-        double dx = width()  / 2.0 - (g_x2 - g_x1) / 2.0;
-        double dy = height() / 2.0 - (g_y2 - g_y1) / 2.0;
-        m_quad.xn(0) = floor(g_x1 + dx);
-        m_quad.yn(0) = floor(g_y1 + dy);
-        m_quad.xn(1) = floor(g_x2 + dx);
-        m_quad.yn(1) = floor(g_y1 + dy);
-        m_quad.xn(2) = floor(g_x2 + dx);
-        m_quad.yn(2) = floor(g_y2 + dy);
-        m_quad.xn(3) = floor(g_x1 + dx);
-        m_quad.yn(3) = floor(g_y2 + dy);
+        double x1 = g_x1;// * 100.0;
+        double y1 = g_y1;// * 100.0;
+        double x2 = g_x2;// * 100.0;
+        double y2 = g_y2;// * 100.0;
+
+        double dx = width()  / 2.0 - (x2 - x1) / 2.0;
+        double dy = height() / 2.0 - (y2 - y1) / 2.0;
+        m_quad.xn(0) = floor(x1 + dx);
+        m_quad.yn(0) = floor(y1 + dy);
+        m_quad.xn(1) = floor(x2 + dx);
+        m_quad.yn(1) = floor(y1 + dy);
+        m_quad.xn(2) = floor(x2 + dx);
+        m_quad.yn(2) = floor(y2 + dy);
+        m_quad.xn(3) = floor(x1 + dx);
+        m_quad.yn(3) = floor(y2 + dy);
     }
 
     virtual void on_draw()
@@ -115,7 +121,10 @@ public:
 
         typedef agg::span_allocator<agg::rgba8> span_alloc_type;
         span_alloc_type sa;
+        agg::image_filter_hermite filter_kernel;
+        agg::image_filter_lut filter(filter_kernel, false);
 
+        start_timer();
         switch(m_trans_type.cur_item())
         {
             case 0:
@@ -134,16 +143,16 @@ public:
                 typedef agg::span_interpolator_linear<agg::trans_affine> interpolator_type;
                 interpolator_type interpolator(tr);
 
-                // "hardcoded" bilinear filter
-                //------------------------------------------
-                typedef agg::span_image_filter_rgba32_bilinear<agg::order_bgra32, 
-                                                               interpolator_type> span_gen_type;
+                typedef agg::span_image_filter_rgba_nn<color_type, 
+                                                        agg::order_bgra, 
+                                                        interpolator_type> span_gen_type;
                 typedef agg::renderer_scanline_aa<renderer_base_pre, span_gen_type> renderer_type;
 
                 span_gen_type sg(sa, 
                                  rbuf_img(0), 
                                  agg::rgba_pre(0, 0, 0, 0),
                                  interpolator);
+//                                 filter);
 
                 renderer_type ri(rb_pre, sg);
                 agg::render_scanlines(g_rasterizer, g_scanline, ri);
@@ -155,19 +164,19 @@ public:
                 agg::trans_bilinear tr(m_quad.polygon(), g_x1, g_y1, g_x2, g_y2);
                 if(tr.is_valid())
                 {
-                    typedef agg::span_interpolator_trans<agg::trans_bilinear> interpolator_type;
+                    typedef agg::span_interpolator_linear<agg::trans_bilinear> interpolator_type;
                     interpolator_type interpolator(tr);
 
-                    // "hardcoded" bilinear filter
-                    //------------------------------------------
-                    typedef agg::span_image_filter_rgba32_bilinear<agg::order_bgra32, 
-                                                                   interpolator_type> span_gen_type;
+                    typedef agg::span_image_filter_rgba_2x2<color_type,
+                                                            agg::order_bgra, 
+                                                            interpolator_type> span_gen_type;
                     typedef agg::renderer_scanline_aa<renderer_base_pre, span_gen_type> renderer_type;
 
                     span_gen_type sg(sa, 
                                      rbuf_img(0), 
                                      agg::rgba_pre(0, 0, 0, 0),
-                                     interpolator);
+                                     interpolator,
+                                     filter);
 
                     renderer_type ri(rb_pre, sg);
                     agg::render_scanlines(g_rasterizer, g_scanline, ri);
@@ -180,19 +189,21 @@ public:
                 agg::trans_perspective tr(m_quad.polygon(), g_x1, g_y1, g_x2, g_y2);
                 if(tr.is_valid())
                 {
-                    typedef agg::span_interpolator_trans<agg::trans_perspective> interpolator_type;
+                    typedef agg::span_interpolator_linear<agg::trans_perspective> interpolator_type;
+                    typedef agg::span_subdiv_adaptor<interpolator_type> subdiv_adaptor_type;
                     interpolator_type interpolator(tr);
+                    subdiv_adaptor_type subdiv_adaptor(interpolator);
 
-                    // "hardcoded" bilinear filter
-                    //------------------------------------------
-                    typedef agg::span_image_filter_rgba32_bilinear<agg::order_bgra32, 
-                                                                   interpolator_type> span_gen_type;
+                    typedef agg::span_image_filter_rgba_2x2<color_type,
+                                                            agg::order_bgra, 
+                                                            subdiv_adaptor_type> span_gen_type;
                     typedef agg::renderer_scanline_aa<renderer_base_pre, span_gen_type> renderer_type;
 
                     span_gen_type sg(sa, 
                                      rbuf_img(0), 
                                      agg::rgba_pre(0, 0, 0, 0),
-                                     interpolator);
+                                     subdiv_adaptor,
+                                     filter);
 
                     renderer_type ri(rb_pre, sg);
                     agg::render_scanlines(g_rasterizer, g_scanline, ri);
@@ -200,6 +211,22 @@ public:
                 break;
             }
         }
+        double tm = elapsed_time();
+
+        char buf[64]; 
+        agg::gsv_text t;
+        t.size(10.0);
+
+        agg::conv_stroke<agg::gsv_text> pt(t);
+        pt.width(1.5);
+
+        sprintf(buf, "%3.2f ms", tm);
+        t.start_point(10.0, 10.0);
+        t.text(buf);
+
+        g_rasterizer.add_path(pt);
+        r.color(agg::rgba(0,0,0));
+        agg::render_scanlines(g_rasterizer, g_scanline, r);
 
 
         //--------------------------

@@ -1,5 +1,5 @@
 #
-# This makefile can be used to build a Win32 application under Cygwin
+# This makefile can be used to build a Win32 application under Cygwin or MinGW
 #
 
 include ../../../Makefile.in.$(shell uname)
@@ -34,7 +34,6 @@ clean:
 	rm -f gamma.bin
 
 %.o:	%.cpp
-	@echo \< $*.cpp \>
 	$(CXX) -c $(CXXFLAGS) $*.cpp -o $@
 
 

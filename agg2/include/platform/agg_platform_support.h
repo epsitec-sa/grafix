@@ -1,6 +1,6 @@
 //----------------------------------------------------------------------------
-// Anti-Grain Geometry - Version 2.2
-// Copyright (C) 2002-2004 Maxim Shemanarev (http://www.antigrain.com)
+// Anti-Grain Geometry - Version 2.3
+// Copyright (C) 2002-2005 Maxim Shemanarev (http://www.antigrain.com)
 //
 // Permission to copy, use, modify, sell and distribute this software 
 // is granted provided this copyright notice appears in all copies. 
@@ -58,7 +58,7 @@
 
 #include "agg_basics.h"
 #include "agg_rendering_buffer.h"
-#include "agg_trans_affine.h"
+#include "agg_trans_viewport.h"
 #include "ctrl/agg_ctrl.h"
 
 namespace agg
@@ -73,7 +73,8 @@ namespace agg
     {
         window_resize            = 1,
         window_hw_buffer         = 2,
-        window_keep_aspect_ratio = 4
+        window_keep_aspect_ratio = 4,
+        window_process_all_keys  = 8
     };
 
     //-----------------------------------------------------------pix_format_e
@@ -102,15 +103,27 @@ namespace agg
     enum pix_format_e
     {
         pix_format_undefined = 0,  // By default. No conversions are applied 
+        pix_format_bw,             // 1 bit per color B/W
         pix_format_gray8,          // Simple 256 level grayscale
+        pix_format_gray16,         // Simple 65535 level grayscale
         pix_format_rgb555,         // 15 bit rgb. Depends on the byte ordering!
         pix_format_rgb565,         // 16 bit rgb. Depends on the byte ordering!
+        pix_format_rgbAAA,         // 30 bit rgb. Depends on the byte ordering!
+        pix_format_rgbBBA,         // 32 bit rgb. Depends on the byte ordering!
+        pix_format_bgrAAA,         // 30 bit bgr. Depends on the byte ordering!
+        pix_format_bgrABB,         // 32 bit bgr. Depends on the byte ordering!
         pix_format_rgb24,          // R-G-B, one byte per color component
         pix_format_bgr24,          // B-G-R, native win32 BMP format.
         pix_format_rgba32,         // R-G-B-A, one byte per color component
         pix_format_argb32,         // A-R-G-B, native MAC format
         pix_format_abgr32,         // A-B-G-R, one byte per color component
         pix_format_bgra32,         // B-G-R-A, native win32 BMP format
+        pix_format_rgb48,          // R-G-B, 16 bits per color component
+        pix_format_bgr48,          // B-G-R, native win32 BMP format.
+        pix_format_rgba64,         // R-G-B-A, 16 bits byte per color component
+        pix_format_argb64,         // A-R-G-B, native MAC format
+        pix_format_abgr64,         // A-B-G-R, one byte per color component
+        pix_format_bgra64,         // B-G-R-A, native win32 BMP format
   
         end_of_pix_formats
     };
@@ -562,10 +575,15 @@ namespace agg
         {
             if(m_window_flags & window_keep_aspect_ratio)
             {
-                double sx = double(width) / double(m_initial_width);
-                double sy = double(height) / double(m_initial_height);
-                if(sy < sx) sx = sy;
-                m_resize_mtx = trans_affine_scaling(sx, sx);
+                //double sx = double(width) / double(m_initial_width);
+                //double sy = double(height) / double(m_initial_height);
+                //if(sy < sx) sx = sy;
+                //m_resize_mtx = trans_affine_scaling(sx, sx);
+                trans_viewport vp;
+                vp.preserve_aspect_ratio(0.5, 0.5, aspect_ratio_meet);
+                vp.device_viewport(0, 0, width, height);
+                vp.world_viewport(0, 0, m_initial_width, m_initial_height);
+                m_resize_mtx = vp.to_affine();
             }
             else
             {
@@ -574,11 +592,12 @@ namespace agg
                     double(height) / double(m_initial_height));
             }
         }
-        const trans_affine& trans_affine_resizing() const { return m_resize_mtx; }
-        double width()  const { return m_rbuf_window.width(); }
-        double height() const { return m_rbuf_window.height(); }
-        double initial_width()  const { return m_initial_width; }
-        double initial_height() const { return m_initial_height; }
+        const    trans_affine& trans_affine_resizing() const { return m_resize_mtx; }
+        double   width()  const { return m_rbuf_window.width(); }
+        double   height() const { return m_rbuf_window.height(); }
+        double   initial_width()  const { return m_initial_width; }
+        double   initial_height() const { return m_initial_height; }
+        unsigned window_flags() const { return m_window_flags; }
 
         //--------------------------------------------------------------------
         // Get raw display handler depending on the system. 

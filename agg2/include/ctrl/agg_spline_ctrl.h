@@ -1,6 +1,6 @@
 //----------------------------------------------------------------------------
-// Anti-Grain Geometry - Version 2.2
-// Copyright (C) 2002-2004 Maxim Shemanarev (http://www.antigrain.com)
+// Anti-Grain Geometry - Version 2.3
+// Copyright (C) 2002-2005 Maxim Shemanarev (http://www.antigrain.com)
 //
 // Permission to copy, use, modify, sell and distribute this software 
 // is granted provided this copyright notice appears in all copies. 
@@ -71,7 +71,7 @@ namespace agg
 
         // Vertex soutce interface
         unsigned num_paths() { return 5; }
-        void     rewind(unsigned id);
+        void     rewind(unsigned path_id);
         unsigned vertex(double* x, double* y);
 
     private:

@@ -214,13 +214,19 @@ namespace agg
             case  8:
                      break;
 
-            case 16: n = n << 1;
+            case 16: n *= 2;
                      break;
 
-            case 24: n = (n << 1) + n; 
+            case 24: n *= 3; 
                      break;
 
-            case 32: n = n << 2;
+            case 32: n *= 4;
+                     break;
+
+            case 48: n *= 6; 
+                     break;
+
+            case 64: n *= 8; 
                      break;
 
             default: n = 0;

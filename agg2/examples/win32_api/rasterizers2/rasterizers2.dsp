@@ -188,10 +188,6 @@ SOURCE=..\..\..\include\agg_line_aa_basics.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\..\include\agg_pattern_filters_rgba8.h
-# End Source File
-# Begin Source File
-
 SOURCE=..\..\..\include\agg_renderer_markers.h
 # End Source File
 # Begin Source File

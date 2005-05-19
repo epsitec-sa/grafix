@@ -1,6 +1,6 @@
 //----------------------------------------------------------------------------
-// Anti-Grain Geometry - Version 2.2
-// Copyright (C) 2002-2004 Maxim Shemanarev (http://www.antigrain.com)
+// Anti-Grain Geometry - Version 2.3
+// Copyright (C) 2002-2005 Maxim Shemanarev (http://www.antigrain.com)
 //
 // Permission to copy, use, modify, sell and distribute this software 
 // is granted provided this copyright notice appears in all copies. 
@@ -16,16 +16,76 @@
 #ifndef AGG_BASICS_INCLUDED
 #define AGG_BASICS_INCLUDED
 
+#include "agg_config.h"
+
+//-------------------------------------------------------- Default basic types
+//
+// If the compiler has different capacity of the basic types you can redefine
+// them via the compiler command line or by generating agg_config.h that is
+// empty by default.
+//
+#ifndef AGG_INT8
+#define AGG_INT8 signed char
+#endif
+
+#ifndef AGG_INT8U
+#define AGG_INT8U unsigned char
+#endif
+
+#ifndef AGG_INT16
+#define AGG_INT16 short
+#endif
+
+#ifndef AGG_INT16U
+#define AGG_INT16U unsigned short
+#endif
+
+#ifndef AGG_INT32
+#define AGG_INT32 int
+#endif
+
+#ifndef AGG_INT32U
+#define AGG_INT32U unsigned
+#endif
+
+#ifndef AGG_INT64
+#if defined(_MSC_VER)
+#define AGG_INT64 signed __int64
+#else
+#define AGG_INT64 signed long long
+#endif
+#endif
+
+#ifndef AGG_INT64U
+#if defined(_MSC_VER)
+#define AGG_INT64U unsigned __int64
+#else
+#define AGG_INT64U unsigned long long
+#endif
+#endif
+
+//------------------------------------------------ Some fixes for MS Visual C++
+#if defined(_MSC_VER)
+#pragma warning(disable:4786) // Identifier was truncated...
+#endif
+
+#if defined(_MSC_VER)
+#define AGG_INLINE __forceinline
+#else
+#define AGG_INLINE inline
+#endif
+
 namespace agg
 {
     //-------------------------------------------------------------------------
-    typedef signed char    int8;         //----int8
-    typedef unsigned char  int8u;        //----int8u
-    typedef signed short   int16;        //----int16
-    typedef unsigned short int16u;       //----int16u
-    typedef signed int     int32;        //----int32
-    typedef unsigned int   int32u;       //----int32u
-
+    typedef AGG_INT8   int8;         //----int8
+    typedef AGG_INT8U  int8u;        //----int8u
+    typedef AGG_INT16  int16;        //----int16
+    typedef AGG_INT16U int16u;       //----int16u
+    typedef AGG_INT32  int32;        //----int32
+    typedef AGG_INT32U int32u;       //----int32u
+    typedef AGG_INT64  int64;        //----int64
+    typedef AGG_INT64U int64u;       //----int64u
 
     //-------------------------------------------------------------------------
     typedef unsigned char cover_type;    //----cover_type
@@ -132,7 +192,10 @@ namespace agg
         path_cmd_line_to  = 2,        //----path_cmd_line_to 
         path_cmd_curve3   = 3,        //----path_cmd_curve3  
         path_cmd_curve4   = 4,        //----path_cmd_curve4  
-        path_cmd_end_poly = 6,        //----path_cmd_end_poly
+        path_cmd_curveN   = 5,        //----path_cmd_curveN
+        path_cmd_catrom   = 6,        //----path_cmd_catrom
+        path_cmd_ubspline = 7,        //----path_cmd_ubspline
+        path_cmd_end_poly = 0x0F,     //----path_cmd_end_poly
         path_cmd_mask     = 0x0F      //----path_cmd_mask    
     };
 

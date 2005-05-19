@@ -7,15 +7,16 @@
 #include "agg_scanline_p.h"
 #include "agg_renderer_scanline.h"
 #include "agg_path_storage.h"
-#include "agg_vertex_iterator.h"
 #include "agg_conv_transform.h"
 #include "agg_bounding_rect.h"
 #include "ctrl/agg_slider_ctrl.h"
 #include "platform/agg_platform_support.h"
 
-#define AGG_BGR24 
-//#define AGG_RGB24
-//#define AGG_BGRA32 
+//#define AGG_GRAY16
+//#define AGG_BGR24
+//#define AGG_BGR48 
+//#define AGG_RGB_AAA
+#define AGG_BGRA32 
 //#define AGG_RGBA32 
 //#define AGG_ARGB32 
 //#define AGG_ABGR32
@@ -64,12 +65,13 @@ public:
 
     the_application(agg::pix_format_e format, bool flip_y) :
         agg::platform_support(format, flip_y),
-        m_alpha_slider(5, 5, 150, 12, !flip_y)
+        m_alpha_slider(5, 5, 512-5, 12, !flip_y)
     {
         parse_lion();
         add_ctrl(m_alpha_slider);
         m_alpha_slider.no_transform();
-        m_alpha_slider.label("Alpha%3.2f");
+        m_alpha_slider.label("Alpha%3.3f");
+        m_alpha_slider.value(0.1);
     }
 
     virtual void on_resize(int cx, int cy)
@@ -85,10 +87,9 @@ public:
         int height = rbuf_window().height();
 
         unsigned i;
-        unsigned alpha = unsigned(m_alpha_slider.value() * 255.0);
         for(i = 0; i < g_npaths; i++)
         {
-           g_colors[i].a = (agg::int8u)alpha;
+            g_colors[i].a = agg::int8u(m_alpha_slider.value() * 255);
         }
 
         pixfmt pixf(rbuf_window());
@@ -103,22 +104,10 @@ public:
         mtx *= agg::trans_affine_translation(width/2, height/2);
 
         // This code renders the lion:
-
-        // Variant with template converter classes - static pipeline
-        //-------------------------------
         agg::conv_transform<agg::path_storage, agg::trans_affine> trans(g_path, mtx);
-        //-------------------------------
-
-
-        // Variant with static pipeline and the vertex source adaptor that
-        // uses path_storage::const_iterator. 
-        //-------------------------------
-        //typedef agg::vertex_source_adaptor_with_id<agg::path_storage> source;
-        //source src(g_path);
-        //typedef agg::conv_transform<source, agg::trans_affine> transform;
-        //transform trans(src, mtx);
-
         agg::render_all_paths(g_rasterizer, g_scanline, r, trans, g_colors, g_path_idx, g_npaths);
+
+        // Render the control
         agg::render_ctrl(g_rasterizer, g_scanline, r, m_alpha_slider);
     }
 

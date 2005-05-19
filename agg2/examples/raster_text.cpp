@@ -4,7 +4,7 @@
 #include "agg_rasterizer_scanline_aa.h"
 #include "agg_scanline_u.h"
 #include "agg_renderer_scanline.h"
-#include "agg_pixfmt_rgb24.h"
+#include "agg_pixfmt_rgb.h"
 #include "agg_span_gradient.h"
 #include "agg_span_interpolator_linear.h"
 #include "agg_glyph_raster_bin.h"

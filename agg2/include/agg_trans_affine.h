@@ -1,6 +1,6 @@
 //----------------------------------------------------------------------------
-// Anti-Grain Geometry - Version 2.2
-// Copyright (C) 2002-2004 Maxim Shemanarev (http://www.antigrain.com)
+// Anti-Grain Geometry - Version 2.3
+// Copyright (C) 2002-2005 Maxim Shemanarev (http://www.antigrain.com)
 //
 // Permission to copy, use, modify, sell and distribute this software 
 // is granted provided this copyright notice appears in all copies. 
@@ -238,6 +238,11 @@ namespace agg
         double rotation() const;
         void   translation(double* dx, double* dy) const;
         void   scaling(double* sx, double* sy) const;
+        void   scaling_abs(double* sx, double* sy) const
+        {
+            *sx = sqrt(m0*m0 + m2*m2);
+            *sy = sqrt(m1*m1 + m3*m3);
+        }
 
     private:
         double m0;
@@ -330,6 +335,26 @@ namespace agg
         {}
     };
 
+
+    //===============================================trans_affine_line_segment
+    // Rotate, Scale and Translate, associating 0...dist with line segment 
+    // x1,y1,x2,y2
+    class trans_affine_line_segment : public trans_affine
+    {
+    public:
+        trans_affine_line_segment(double x1, double y1, double x2, double y2, 
+                                  double dist)
+        {
+            double dx = x2 - x1;
+            double dy = y2 - y1;
+            if(dist > 0.0)
+            {
+                multiply(trans_affine_scaling(sqrt(dx * dx + dy * dy) / dist));
+            }
+            multiply(trans_affine_rotation(atan2(dy, dx)));
+            multiply(trans_affine_translation(x1, y1));
+        }
+    };
 
 
 }

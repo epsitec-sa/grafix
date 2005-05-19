@@ -8,7 +8,8 @@
 #include "agg_rasterizer_scanline_aa.h"
 #include "agg_conv_curve.h"
 #include "agg_conv_contour.h"
-#include "agg_pixfmt_rgb24.h"
+#include "agg_pixfmt_rgb.h"
+#include "agg_gamma_lut.h"
 #include "agg_font_win32_tt.h"
 #include "platform/agg_platform_support.h"
 
@@ -17,11 +18,11 @@
 #include "ctrl/agg_rbox_ctrl.h"
 
 
-enum { flip_y = true };
+enum { flip = true };
 
+typedef char char_type;
 
-
-static char text[] = 
+static char_type text[] = 
 //"0123456789ABCDEFGHIJKLMNOPRSTUVWXYZabcdefghijklmnoprstuvwxyz "
 "Anti-Grain Geometry is designed as a set of loosely coupled "
 "algorithms and class templates united with a common idea, "
@@ -133,18 +134,17 @@ static char text[] =
 "processing, you still can use the rasterizers with their "
 "integer interfaces. Although, you won't be able to use the "
 "floating point coordinate pipelines in this case. ";
- 
 
 
 
 
-
-
+bool text_flip = false;
 
 
 class the_application : public agg::platform_support
 {
-    typedef agg::pixfmt_bgr24 pixfmt_type;
+    typedef agg::gamma_lut<agg::int8u, agg::int16u, 8, 16> gamma_type;
+    typedef agg::pixfmt_bgr24_gamma<gamma_type> pixfmt_type;
     typedef agg::renderer_base<pixfmt_type> base_ren_type;
     typedef agg::renderer_scanline_aa_solid<base_ren_type> renderer_solid;
     typedef agg::renderer_scanline_bin_solid<base_ren_type> renderer_bin;
@@ -162,22 +162,23 @@ class the_application : public agg::platform_support
     font_engine_type             m_feng;
     font_manager_type            m_fman;
     double                       m_old_height;
+    gamma_type                   m_gamma_lut;
 
     // Pipeline to process the vectors glyph paths (curves + contour)
     agg::conv_curve<font_manager_type::path_adaptor_type> m_curves;
     agg::conv_contour<agg::conv_curve<font_manager_type::path_adaptor_type> > m_contour;
 
 public:
-    the_application(HDC dc, agg::pix_format_e format, bool flip_y) :
-        agg::platform_support(format, flip_y),
-        m_ren_type     (5.0, 5.0, 5.0+150.0,   110.0,  !flip_y),
-        m_height       (160, 10.0, 640-5.0,    18.0,   !flip_y),
-        m_width        (160, 30.0, 640-5.0,    38.0,   !flip_y),
-        m_weight       (160, 50.0, 640-5.0,    58.0,   !flip_y),
-        m_gamma        (260, 70.0, 640-5.0,    78.0,   !flip_y),
-        m_hinting      (160, 65.0, "Hinting", !flip_y),
-        m_kerning      (160, 80.0, "Kerning", !flip_y),
-        m_performance  (160, 95.0, "Test Performance", !flip_y),
+    the_application(HDC dc, agg::pix_format_e format, bool flip) :
+        agg::platform_support(format, flip),
+        m_ren_type     (5.0, 5.0, 5.0+150.0,   110.0,  !flip),
+        m_height       (160, 10.0, 640-5.0,    18.0,   !flip),
+        m_width        (160, 30.0, 640-5.0,    38.0,   !flip),
+        m_weight       (160, 50.0, 640-5.0,    58.0,   !flip),
+        m_gamma        (260, 70.0, 640-5.0,    78.0,   !flip),
+        m_hinting      (160, 65.0, "Hinting", !flip),
+        m_kerning      (160, 80.0, "Kerning", !flip),
+        m_performance  (160, 95.0, "Test Performance", !flip),
         m_feng(dc),
         m_fman(m_feng),
         m_old_height(0.0),
@@ -269,9 +270,8 @@ public:
         // in practice.
         //-------------------------
         m_feng.width((m_width.value() == m_height.value()) ? 0.0 : m_width.value() / 2.4);
-        //m_feng.italic(true);
-//m_feng.transform(agg::trans_affine_rotation(agg::deg2rad(40.0)));
-//m_feng.flip_y(false);
+        m_feng.italic(true);
+        m_feng.flip_y(text_flip);
 
         if(m_feng.create_font("Arial", gren))
         {
@@ -280,7 +280,7 @@ public:
             double x = 10.0;
             double y0 = height() - m_height.value() - 10.0;
             double y = y0;
-            const char* p = text;
+            const char_type* p = text;
 
             while(*p)
             {
@@ -351,7 +351,7 @@ public:
 
     virtual void on_draw()
     {
-        agg::pixfmt_bgr24 pf(rbuf_window());
+        pixfmt_type pf(rbuf_window(), m_gamma_lut);
         base_ren_type ren_base(pf);
         renderer_solid ren_solid(ren_base);
         renderer_bin ren_bin(ren_base);
@@ -374,15 +374,10 @@ public:
         }
         else
         {
-            m_feng.gamma(agg::gamma_power(m_gamma.value()));
+            m_feng.gamma(agg::gamma_none());
+            m_gamma_lut.gamma(m_gamma.value());
         }
 
-        if(m_ren_type.cur_item() == 2)
-        {
-            // For outline cache set gamma for the rasterizer
-            //-------------------
-            ras.gamma(agg::gamma_power(m_gamma.value()));
-        }
 
         draw_text(ras, sl, ren_solid, ren_bin);
 
@@ -400,12 +395,13 @@ public:
     }
 
 
+    
 
     virtual void on_ctrl_change()
     {
         if(m_performance.status())
         {
-            agg::pixfmt_bgr24 pf(rbuf_window());
+            pixfmt_type pf(rbuf_window(), m_gamma_lut);
             base_ren_type ren_base(pf);
             renderer_solid ren_solid(ren_base);
             renderer_bin ren_bin(ren_base);
@@ -435,6 +431,13 @@ public:
         }
     }
 
+    virtual void on_key(int x, int y, unsigned key, unsigned flags)
+    {
+        text_flip = !text_flip;
+        force_redraw();
+    }
+
+
 };
 
 
@@ -442,7 +445,7 @@ public:
 int agg_main(int argc, char* argv[])
 {
     HDC dc = ::GetDC(0);
-    the_application app(dc, agg::pix_format_bgr24, flip_y);
+    the_application app(dc, agg::pix_format_bgr24, flip);
     app.caption("AGG Example. Rendering TrueType Fonts with WinAPI");
 
     if(app.init(640, 520, agg::window_resize))

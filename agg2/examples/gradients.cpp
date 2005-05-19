@@ -5,8 +5,8 @@
 #include "agg_scanline_u.h"
 #include "agg_scanline_p.h"
 #include "agg_conv_transform.h"
-#include "agg_color_rgba8.h"
-#include "agg_gray8.h"
+#include "agg_color_rgba.h"
+#include "agg_color_gray.h"
 #include "agg_span_gradient.h"
 #include "agg_span_interpolator_linear.h"
 #include "agg_renderer_scanline.h"
@@ -16,21 +16,13 @@
 #include "platform/agg_platform_support.h"
 
 
-//#define AGG_GRAY8
-#define AGG_BGR24 
+//#define AGG_GRAY16
+#define AGG_BGR24
 //#define AGG_RGB24
-//#define AGG_BGRA32 
+//#define AGG_RGB_AAA
 //#define AGG_RGBA32 
 //#define AGG_ARGB32 
 //#define AGG_ABGR32
-//#define AGG_BGRA32_PRE
-//#define AGG_RGBA32_PRE
-//#define AGG_ARGB32_PRE
-//#define AGG_ABGR32_PRE
-//#define AGG_BGRA32_PLAIN
-//#define AGG_RGBA32_PLAIN
-//#define AGG_ARGB32_PLAIN
-//#define AGG_ABGR32_PLAIN
 //#define AGG_RGB565
 //#define AGG_RGB555
 #include "pixel_formats.h"
@@ -71,6 +63,7 @@ struct color_function_profile
     color_function_profile(const color_type* colors, const agg::int8u* profile) :
         m_colors(colors), m_profile(profile) {}
 
+    static unsigned size() { return 256; }
     const color_type& operator [] (unsigned v) const
     { 
         return m_colors[m_profile[v]]; 
@@ -79,7 +72,6 @@ struct color_function_profile
     const color_type* m_colors;
     const agg::int8u* m_profile;
 };
-
 
 
 class the_application : public agg::platform_support
@@ -335,7 +327,7 @@ public:
 
         typedef agg::renderer_base<pixfmt> renderer_base;
         typedef agg::renderer_scanline_aa_solid<renderer_base> renderer_solid;
-        agg::scanline_p8 sl;
+        agg::scanline_u8 sl;
             
 
         pixfmt pixf(rbuf_window());
@@ -505,7 +497,17 @@ public:
                 fprintf(fd, "    %3d, %3d, %3d, %3d,\n", c.r, c.g, c.b, c.a);
             }
             fclose(fd);
+
+            fd = fopen(full_file_name("profile.dat"), "w");
+            for(i = 0; i < 256; i++)
+            {
+                fprintf(fd, "%3d, ", unsigned(m_profile.gamma()[i]));
+                if((i & 0xF) == 0xF) fprintf(fd, "\n");
+            }
+            fclose(fd);
         }
+
+
     }
 
 };

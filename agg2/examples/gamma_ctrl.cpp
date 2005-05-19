@@ -6,7 +6,6 @@
 #include "agg_renderer_scanline.h"
 #include "agg_gsv_text.h"
 #include "agg_conv_stroke.h"
-#include "agg_color_rgba8.h"
 #include "agg_path_storage.h"
 #include "ctrl/agg_gamma_ctrl.h"
 #include "platform/agg_platform_support.h"
@@ -129,7 +128,7 @@ public:
         agg::conv_transform<agg::conv_stroke<agg::ellipse> > tpoly(poly, trans_affine_resizing());
         r.color(agg::rgba8(0, 0, 0));
 
-        ellipse.init(ecenter, 220, ewidth, 15.5, 100);
+        ellipse.init(ecenter, 220, ewidth, 15, 100);
         poly.width(2.0);
         ras.add_path(tpoly, 0);
         agg::render_scanlines(ras, sl, r);
@@ -141,7 +140,7 @@ public:
 
         r.color(agg::rgba8(127, 127, 127));
 
-        ellipse.init(ecenter, 260, ewidth, 15.5, 100);
+        ellipse.init(ecenter, 260, ewidth, 15, 100);
         poly.width(2.0);
         ras.add_path(tpoly, 0);
         agg::render_scanlines(ras, sl, r);
@@ -153,7 +152,7 @@ public:
 
         r.color(agg::rgba8(192, 192, 192));
 
-        ellipse.init(ecenter, 300, ewidth, 15.5, 100);
+        ellipse.init(ecenter, 300, ewidth, 15, 100);
         poly.width(2.0);
         ras.add_path(tpoly, 0);
         agg::render_scanlines(ras, sl, r);
@@ -170,7 +169,7 @@ public:
         ras.add_path(tpoly, 0);
         agg::render_scanlines(ras, sl, r);
 
-        ellipse.init(ecenter, 340, 11, 11, 100);
+        ellipse.init(ecenter, 340, 10.5, 10.5, 100);
         poly.width(1.0);
         ras.add_path(tpoly, 0);
         agg::render_scanlines(ras, sl, r);
@@ -180,7 +179,7 @@ public:
         ras.add_path(tpoly, 0);
         agg::render_scanlines(ras, sl, r);
 
-        ellipse.init(ecenter, 380, 11, 11, 100);
+        ellipse.init(ecenter, 380, 10.5, 10.5, 100);
         poly.width(0.4);
         ras.add_path(tpoly, 0);
         agg::render_scanlines(ras, sl, r);
@@ -190,7 +189,7 @@ public:
         ras.add_path(tpoly, 0);
         agg::render_scanlines(ras, sl, r);
 
-        ellipse.init(ecenter, 420, 11, 11, 100);
+        ellipse.init(ecenter, 420, 10.5, 10.5, 100);
         poly.width(0.1);
         ras.add_path(tpoly, 0);
         agg::render_scanlines(ras, sl, r);

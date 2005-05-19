@@ -1,6 +1,6 @@
 //----------------------------------------------------------------------------
-// Anti-Grain Geometry - Version 2.2
-// Copyright (C) 2002-2004 Maxim Shemanarev (http://www.antigrain.com)
+// Anti-Grain Geometry - Version 2.3
+// Copyright (C) 2002-2005 Maxim Shemanarev (http://www.antigrain.com)
 //
 // Permission to copy, use, modify, sell and distribute this software 
 // is granted provided this copyright notice appears in all copies. 
@@ -33,7 +33,7 @@ namespace agg
     // and curve4. Curve3 is a conic Bezier curve with 2 endpoints and 1 control
     // point. Curve4 has 2 control points (4 points in total) and can be used
     // to interpolate more complicated curves. Curve4, unlike curve3 can be used 
-    // to approximate arcs, both curcular and elliptical. Curves are approximated 
+    // to approximate arcs, both circular and elliptical. Curves are approximated 
     // with straight lines and one of the approaches is just to store the whole 
     // sequence of vertices that approximate our curve. It takes additional 
     // memory, and at the same time the consecutive vertices can be calculated 
@@ -70,13 +70,8 @@ namespace agg
             return m_curve3.approximation_scale();  
         }
 
-        void     rewind(unsigned id); 
+        void     rewind(unsigned path_id); 
         unsigned vertex(double* x, double* y);
-
-        typedef conv_curve<VertexSource> source_type;
-        typedef vertex_iterator<source_type> iterator;
-        iterator begin(unsigned id) { return iterator(*this, id); }
-        iterator end() { return iterator(path_cmd_stop); }
 
     private:
         conv_curve(const conv_curve<VertexSource>&);
@@ -94,9 +89,9 @@ namespace agg
 
     //------------------------------------------------------------------------
     template<class VertexSource>
-    void conv_curve<VertexSource>::rewind(unsigned id)
+    void conv_curve<VertexSource>::rewind(unsigned path_id)
     {
-        m_source->rewind(id);
+        m_source->rewind(path_id);
         m_last_x = 0.0;
         m_last_y = 0.0;
         m_curve3.reset();

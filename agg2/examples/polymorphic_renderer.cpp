@@ -10,10 +10,9 @@
 #include "agg_renderer_scanline.h"
 #include "platform/agg_platform_support.h"
 
-#include "agg_pixfmt_rgb555.h"
-#include "agg_pixfmt_rgb565.h"
-#include "agg_pixfmt_rgb24.h"
-#include "agg_pixfmt_rgba32.h"
+#include "agg_pixfmt_rgb.h"
+#include "agg_pixfmt_rgb_packed.h"
+#include "agg_pixfmt_rgba.h"
 
 static int pix_fmt = agg::pix_format_rgb555;
 //static int pix_fmt = agg::pix_format_rgb565;

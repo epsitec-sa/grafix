@@ -1,6 +1,6 @@
 //----------------------------------------------------------------------------
-// Anti-Grain Geometry - Version 2.2
-// Copyright (C) 2002-2004 Maxim Shemanarev (http://www.antigrain.com)
+// Anti-Grain Geometry - Version 2.3
+// Copyright (C) 2002-2005 Maxim Shemanarev (http://www.antigrain.com)
 //
 // Permission to copy, use, modify, sell and distribute this software 
 // is granted provided this copyright notice appears in all copies. 
@@ -24,7 +24,7 @@
 #include "agg_conv_stroke.h"
 #include "agg_conv_contour.h"
 #include "agg_conv_curve.h"
-#include "agg_color_rgba8.h"
+#include "agg_color_rgba.h"
 #include "agg_array.h"
 #include "agg_bounding_rect.h"
 #include "agg_rasterizer_scanline_aa.h"

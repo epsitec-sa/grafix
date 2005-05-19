@@ -3,7 +3,7 @@
 #include "agg_rasterizer_scanline_aa.h"
 #include "agg_scanline_u.h"
 #include "agg_renderer_scanline.h"
-#include "agg_pixfmt_rgb24.h"
+#include "agg_pixfmt_rgb.h"
 #include "agg_trans_affine.h"
 #include "agg_conv_transform.h"
 #include "agg_conv_segmentator.h"
@@ -28,7 +28,7 @@ namespace agg
         {}
            
         unsigned num_paths() { return m_ctrl.num_paths(); }
-        void     rewind(unsigned id) { m_pipeline.rewind(id); }
+        void     rewind(unsigned path_id) { m_pipeline.rewind(path_id); }
         unsigned vertex(double* x, double* y) { return m_pipeline.vertex(x, y); }
         const ColorT& color(unsigned i) const { return m_ctrl.color(i); } 
 

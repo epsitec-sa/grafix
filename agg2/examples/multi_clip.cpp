@@ -5,11 +5,10 @@
 #include "agg_rendering_buffer.h"
 #include "agg_rasterizer_scanline_aa.h"
 #include "agg_scanline_u.h"
-#include "agg_gray8.h"
+#include "agg_color_gray.h"
 #include "agg_renderer_mclip.h"
 #include "agg_renderer_scanline.h"
 #include "agg_path_storage.h"
-#include "agg_vertex_iterator.h"
 #include "agg_conv_transform.h"
 #include "agg_bounding_rect.h"
 #include "agg_renderer_outline_aa.h"
@@ -71,7 +70,7 @@ namespace agg
     // color types. Only for the sake of performance.
 
     //========================================================================
-    template<> struct gradient_linear_color<rgba8, 8>
+    template<> struct gradient_linear_color<rgba8>
     {
         typedef rgba8 color_type;
 
@@ -79,6 +78,7 @@ namespace agg
         gradient_linear_color(const color_type& c1, const color_type& c2) :
             m_c1(c1), m_c2(c2) {}
 
+        static unsigned size() { return 256; }
         color_type operator [] (unsigned v) const 
         {
             color_type c;
@@ -101,7 +101,7 @@ namespace agg
 
 
     //========================================================================
-    template<> struct gradient_linear_color<gray8, 8>
+    template<> struct gradient_linear_color<gray8>
     {
         typedef gray8 color_type;
 
@@ -109,6 +109,7 @@ namespace agg
         gradient_linear_color(const color_type& c1, const color_type& c2) :
             m_c1(c1), m_c2(c2) {}
 
+        static unsigned size() { return 256; }
         color_type operator [] (unsigned v) const 
         {
             color_type c;

@@ -1,6 +1,6 @@
 //----------------------------------------------------------------------------
-// Anti-Grain Geometry - Version 2.2
-// Copyright (C) 2002-2004 Maxim Shemanarev (http://www.antigrain.com)
+// Anti-Grain Geometry - Version 2.3
+// Copyright (C) 2002-2005 Maxim Shemanarev (http://www.antigrain.com)
 //
 // Permission to copy, use, modify, sell and distribute this software 
 // is granted provided this copyright notice appears in all copies. 
@@ -36,6 +36,7 @@ namespace agg
         typedef ColorT color_type;
         typedef Allocator alloc_type;
         typedef Interpolator interpolator_type;
+        typedef span_generator<color_type, alloc_type> base_type;
 
         //----------------------------------------------------------------
         span_image_filter(alloc_type& alloc) : 
@@ -47,7 +48,7 @@ namespace agg
                           const rendering_buffer& src, 
                           const color_type& back_color,
                           interpolator_type& interpolator,
-                          const image_filter_base* filter) : 
+                          const image_filter_lut* filter) : 
             span_generator<color_type, alloc_type>(alloc),
             m_src(&src),
             m_back_color(back_color),
@@ -62,7 +63,7 @@ namespace agg
         //----------------------------------------------------------------
         const  rendering_buffer& source_image() const { return *m_src; }
         const  color_type& background_color()   const { return m_back_color; }
-        const  image_filter_base& filter()      const { return *m_filter; }
+        const  image_filter_lut& filter()       const { return *m_filter; }
         int    filter_dx_int()                  const { return m_dx_int; }
         int    filter_dy_int()                  const { return m_dy_int; }
         double filter_dx_dbl()                  const { return m_dx_dbl; }
@@ -72,7 +73,7 @@ namespace agg
         void source_image(const rendering_buffer& v) { m_src = &v; }
         void background_color(const color_type& v)   { m_back_color = v; }
         void interpolator(interpolator_type& v)      { m_interpolator = &v; }
-        void filter(const image_filter_base& v)      { m_filter = &v; }
+        void filter(const image_filter_lut& v)       { m_filter = &v; }
         void filter_offset(double dx, double dy)
         {
             m_dx_dbl = dx;
@@ -85,75 +86,22 @@ namespace agg
         //----------------------------------------------------------------
         interpolator_type& interpolator() { return *m_interpolator; }
 
+        //--------------------------------------------------------------------
+        void prepare(unsigned max_span_len) 
+        {
+            base_type::prepare(max_span_len);
+        }
+
         //----------------------------------------------------------------
     private:
-        const rendering_buffer*  m_src;
-        color_type               m_back_color;
-        interpolator_type*       m_interpolator;
-        const image_filter_base* m_filter;
+        const rendering_buffer* m_src;
+        color_type              m_back_color;
+        interpolator_type*      m_interpolator;
+        const image_filter_lut* m_filter;
         double   m_dx_dbl;
         double   m_dy_dbl;
         unsigned m_dx_int;
         unsigned m_dy_int;
-    };
-
-
-
-    //-------------------------------------------------remainder_unsigned
-    class remainder_unsigned
-    {
-    public:
-        remainder_unsigned(unsigned size) : 
-            m_size(size), 
-            m_add(size * (0x3FFFFFFF / size)) 
-        {}
-
-        unsigned operator () (int v) const 
-        { 
-            return (unsigned(v) + m_add) % m_size; 
-        }
-    private:
-        unsigned m_size;
-        unsigned m_add;
-    };
-
-
-    //----------------------------------------------------remainder_pow2
-    class remainder_pow2
-    {
-    public:
-        remainder_pow2(unsigned size) 
-        {
-            m_mask = 1;
-            while(m_mask < size) m_mask = (m_mask << 1) | 1;
-            m_mask >>= 1;
-        }
-        unsigned operator () (int v) const { return unsigned(v) & m_mask; }
-    private:
-        unsigned m_mask;
-    };
-
-
-    //-----------------------------------------------remainder_auto_pow2
-    class remainder_auto_pow2
-    {
-    public:
-        remainder_auto_pow2(unsigned size) :
-            m_size(size),
-            m_add(size * (0x3FFFFFFF / size)),
-            m_mask((m_size & (m_size-1)) ? 0 : m_size-1)
-        {}
-
-        unsigned operator () (int v) const 
-        { 
-            if(m_mask) return unsigned(v) & m_mask;
-            return (unsigned(v) + m_add) % m_size;
-        }
-
-    private:
-        unsigned m_size;
-        unsigned m_add;
-        unsigned m_mask;
     };
 
 

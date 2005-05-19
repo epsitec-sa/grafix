@@ -21,7 +21,7 @@
 #include "agg_span_allocator.h"
 #include "agg_span_gradient.h"
 #include "agg_span_interpolator_linear.h"
-#include "agg_pixfmt_rgb24.h"
+#include "agg_pixfmt_rgb.h"
 #include "ctrl/agg_slider_ctrl.h"
 #include "ctrl/agg_rbox_ctrl.h"
 #include "ctrl/agg_cbox_ctrl.h"
@@ -31,6 +31,7 @@ enum { flip_y = true };
 
 
 typedef agg::pixfmt_bgr24 pixfmt;
+typedef pixfmt::color_type color_type;
 typedef agg::renderer_base<pixfmt> base_renderer;
 typedef agg::renderer_primitives<base_renderer> primitives_renderer;
 
@@ -39,11 +40,12 @@ typedef agg::renderer_scanline_bin_solid<base_renderer> draft_renderer;
 
 typedef agg::gradient_circle gradient_function;
 typedef agg::span_interpolator_linear<> interpolator;
-typedef agg::span_gradient<agg::rgba8, 
+typedef agg::pod_auto_array<color_type, 256> color_array_type;
+typedef agg::span_gradient<color_type, 
                            interpolator, 
                            gradient_function, 
-                           const agg::rgba8*> gradient_span_gen;
-typedef agg::span_allocator<agg::rgba8> gradient_span_alloc;
+                           color_array_type> gradient_span_gen;
+typedef agg::span_allocator<color_type> gradient_span_alloc;
 
 typedef agg::renderer_scanline_aa<base_renderer, 
                                   gradient_span_gen> gradient_renderer;
@@ -171,17 +173,18 @@ struct curve
 {
     agg::curve4 c;
 
-    curve(double x1, double y1, double x2, double y2, double k=0.5) :
-        c(x1, y1, 
-          x1 - (y2 - y1) * k,
-          y1 + (x2 - x1) * k,
-          x2 + (y2 - y1) * k,
-          y2 - (x2 - x1) * k,
-          x2, y2)
+    curve(double x1, double y1, double x2, double y2, double k=0.5)
     {
+        c.approximation_scale(0.25);
+        c.init(x1, y1, 
+               x1 - (y2 - y1) * k,
+               y1 + (x2 - x1) * k,
+               x2 + (y2 - y1) * k,
+               y2 - (x2 - x1) * k,
+               x2, y2);
     }
 
-    void rewind(unsigned id) { c.rewind(id); }
+    void rewind(unsigned path_id) { c.rewind(path_id); }
     unsigned vertex(double* x, double* y) { return c.vertex(x, y); }
 };
 
@@ -196,7 +199,7 @@ template<class Source> struct stroke_draft_simple
     {
     }
 
-    void rewind(unsigned id) { s.rewind(id); }
+    void rewind(unsigned path_id) { s.rewind(path_id); }
     unsigned vertex(double* x, double* y) { return s.vertex(x, y); }
 };
 
@@ -223,7 +226,7 @@ template<class Source> struct stroke_draft_arrow
         s.shorten(10.0);
     }
 
-    void rewind(unsigned id) { c.rewind(id); }
+    void rewind(unsigned path_id) { c.rewind(path_id); }
     unsigned vertex(double* x, double* y) { return c.vertex(x, y); }
 };
 
@@ -241,7 +244,7 @@ template<class Source> struct stroke_fine_simple
     {
         s.width(w); 
     }
-    void rewind(unsigned id) { s.rewind(id); }
+    void rewind(unsigned path_id) { s.rewind(path_id); }
     unsigned vertex(double* x, double* y) { return s.vertex(x, y); }
 };
 
@@ -270,7 +273,7 @@ template<class Source> struct stroke_fine_arrow
         s.shorten(w * 2.0);
     }
 
-    void rewind(unsigned id) { c.rewind(id); }
+    void rewind(unsigned path_id) { c.rewind(path_id); }
     unsigned vertex(double* x, double* y) { return c.vertex(x, y); }
 };
 
@@ -292,7 +295,7 @@ template<class Source> struct dash_stroke_draft_simple
         d.add_dash(dash_len, gap_len);
     }
 
-    void rewind(unsigned id) { d.rewind(id); }
+    void rewind(unsigned path_id) { d.rewind(path_id); }
     unsigned vertex(double* x, double* y) { return d.vertex(x, y); }
 };
 
@@ -321,7 +324,7 @@ template<class Source> struct dash_stroke_draft_arrow
         d.shorten(10.0);
     }
 
-    void rewind(unsigned id) { c.rewind(id); }
+    void rewind(unsigned path_id) { c.rewind(path_id); }
     unsigned vertex(double* x, double* y) { return c.vertex(x, y); }
 };
 
@@ -346,7 +349,7 @@ template<class Source> struct dash_stroke_fine_simple
         s.width(w);
     }
 
-    void rewind(unsigned id) { s.rewind(id); }
+    void rewind(unsigned path_id) { s.rewind(path_id); }
     unsigned vertex(double* x, double* y) { return s.vertex(x, y); }
 };
 
@@ -383,7 +386,7 @@ template<class Source> struct dash_stroke_fine_arrow
         d.shorten(w * 2.0);
     }
 
-    void rewind(unsigned id) { c.rewind(id); }
+    void rewind(unsigned path_id) { c.rewind(path_id); }
     unsigned vertex(double* x, double* y) { return c.vertex(x, y); }
 };
 
@@ -405,17 +408,17 @@ template<class Source> struct dash_stroke_fine_arrow
 
 class the_application : public agg::platform_support
 {
-    agg::rbox_ctrl<agg::rgba8>   m_type;
-    agg::slider_ctrl<agg::rgba8> m_width;
-    agg::cbox_ctrl<agg::rgba8>   m_benchmark;
-    agg::cbox_ctrl<agg::rgba8>   m_draw_nodes;
-    agg::cbox_ctrl<agg::rgba8>   m_draw_edges;
-    agg::cbox_ctrl<agg::rgba8>   m_draft;
-    agg::cbox_ctrl<agg::rgba8>   m_translucent;
-    graph                        m_graph;
-    agg::rgba8                   m_color_profile[256];
-    int                          m_draw;
-    agg::scanline_p8             m_sl;
+    agg::rbox_ctrl<agg::rgba>   m_type;
+    agg::slider_ctrl<agg::rgba> m_width;
+    agg::cbox_ctrl<agg::rgba>   m_benchmark;
+    agg::cbox_ctrl<agg::rgba>   m_draw_nodes;
+    agg::cbox_ctrl<agg::rgba>   m_draw_edges;
+    agg::cbox_ctrl<agg::rgba>   m_draft;
+    agg::cbox_ctrl<agg::rgba>   m_translucent;
+    graph                       m_graph;
+    color_array_type            m_gradient_colors;
+    int                         m_draw;
+    agg::scanline_p8            m_sl;
 
 
 public:
@@ -429,6 +432,7 @@ public:
         m_draft(200+200+80+8, 8.0-2.0, "Draft Mode", !flip_y),
         m_translucent(110+80, 8.0-2.0+15.0, "Translucent Mode", !flip_y),
         m_graph(200, 100),
+        m_gradient_colors(),
         m_draw(3)
     {
         add_ctrl(m_type);
@@ -457,13 +461,13 @@ public:
         add_ctrl(m_draft);
         add_ctrl(m_translucent);
 
-        agg::rgba8 c1(255, 255, 0,   50);
-        agg::rgba8 c2(0,   0,   255);
+        agg::rgba c1(1, 1, 0, 0.25);
+        agg::rgba c2(0, 0, 1);
 
         int i;
         for(i = 0; i < 256; i++)
         {
-            m_color_profile[i] = c1.gradient(c2, double(i) / 255.0);
+            m_gradient_colors[i] = c1.gradient(c2, double(i) / 255.0);
         }
     }
 
@@ -482,10 +486,10 @@ public:
         for(i = 0; i < m_graph.get_num_nodes(); i++)
         {
             graph::node n = m_graph.get_node(i, width(), height());
-            prim.fill_color(m_color_profile[147]);
-            prim.line_color(m_color_profile[255]);
+            prim.fill_color(m_gradient_colors[147]);
+            prim.line_color(m_gradient_colors[255]);
             prim.outlined_ellipse(int(n.x), int(n.y), 10, 10);
-            prim.fill_color(m_color_profile[50]);
+            prim.fill_color(m_gradient_colors[50]);
             prim.solid_ellipse(int(n.x), int(n.y), 4, 4);
         }
     }
@@ -532,7 +536,7 @@ public:
                     mtx *= agg::trans_affine_translation(n.x, n.y);
                     mtx.invert();
                     interpolator inter(mtx);
-                    gradient_span_gen sg(sa, inter, gf, m_color_profile, 0.0, 10.0);
+                    gradient_span_gen sg(sa, inter, gf, m_gradient_colors, 0.0, 10.0);
                     gradient_renderer ren(rb, sg);
                     ras.add_path(ell);
                     agg::render_scanlines(ras, sl, ren);

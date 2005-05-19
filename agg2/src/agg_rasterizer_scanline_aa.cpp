@@ -1,6 +1,6 @@
 //----------------------------------------------------------------------------
-// Anti-Grain Geometry - Version 2.2
-// Copyright (C) 2002-2004 Maxim Shemanarev (http://www.antigrain.com)
+// Anti-Grain Geometry - Version 2.3
+// Copyright (C) 2002-2005 Maxim Shemanarev (http://www.antigrain.com)
 //
 // Permission to copy, use, modify, sell and distribute this software 
 // is granted provided this copyright notice appears in all copies. 
@@ -40,33 +40,31 @@ namespace agg
 {
 
     //------------------------------------------------------------------------
-    inline void cell_aa::set_cover(int c, int a)
+    AGG_INLINE void cell_aa::set_cover(int c, int a)
     {
         cover = c;
         area = a;
     }
 
     //------------------------------------------------------------------------
-    inline void cell_aa::add_cover(int c, int a)
+    AGG_INLINE void cell_aa::add_cover(int c, int a)
     {
         cover += c;
         area += a;
     }
 
     //------------------------------------------------------------------------
-    inline void cell_aa::set_coord(int cx, int cy)
+    AGG_INLINE void cell_aa::set_coord(int cx, int cy)
     {
-        x = int16(cx);
-        y = int16(cy);
-        packed_coord = (cy << 16) + cx;
+        x = cx;
+        y = cy;
     }
 
     //------------------------------------------------------------------------
-    inline void cell_aa::set(int cx, int cy, int c, int a)
+    AGG_INLINE void cell_aa::set(int cx, int cy, int c, int a)
     {
-        x = int16(cx);
-        y = int16(cy);
-        packed_coord = (cy << 16) + cx;
+        x = cx;
+        y = cy;
         cover = c;
         area = a;
     }
@@ -74,7 +72,6 @@ namespace agg
     //------------------------------------------------------------------------
     outline_aa::~outline_aa()
     {
-        delete [] m_sorted_cells;
         if(m_num_blocks)
         {
             cell_aa** ptr = m_cells + m_num_blocks - 1;
@@ -96,8 +93,6 @@ namespace agg
         m_num_cells(0),
         m_cells(0),
         m_cur_cell_ptr(0),
-        m_sorted_cells(0),
-        m_sorted_size(0),
         m_cur_x(0),
         m_cur_y(0),
         m_min_x(0x7FFFFFFF),
@@ -148,7 +143,7 @@ namespace agg
 
 
     //------------------------------------------------------------------------
-    inline void outline_aa::add_cur_cell()
+    AGG_INLINE void outline_aa::add_cur_cell()
     {
         if(m_cur_cell.area | m_cur_cell.cover)
         {
@@ -161,15 +156,17 @@ namespace agg
             ++m_num_cells;
             if(m_cur_cell.x < m_min_x) m_min_x = m_cur_cell.x;
             if(m_cur_cell.x > m_max_x) m_max_x = m_cur_cell.x;
+            if(m_cur_cell.y < m_min_y) m_min_y = m_cur_cell.y;
+            if(m_cur_cell.y > m_max_y) m_max_y = m_cur_cell.y;
         }
     }
 
 
 
     //------------------------------------------------------------------------
-    inline void outline_aa::set_cur_cell(int x, int y)
+    AGG_INLINE void outline_aa::set_cur_cell(int x, int y)
     {
-        if(m_cur_cell.packed_coord != (y << 16) + x)
+        if(m_cur_cell.x != x || m_cur_cell.y != y)
         {
             add_cur_cell();
             m_cur_cell.set(x, y, 0, 0);
@@ -179,7 +176,7 @@ namespace agg
 
 
     //------------------------------------------------------------------------
-    inline void outline_aa::render_hline(int ey, int x1, int y1, int x2, int y2)
+    AGG_INLINE void outline_aa::render_hline(int ey, int x1, int y1, int x2, int y2)
     {
         int ex1 = x1 >> poly_base_shift;
         int ex2 = x2 >> poly_base_shift;
@@ -277,16 +274,26 @@ namespace agg
     //------------------------------------------------------------------------
     void outline_aa::render_line(int x1, int y1, int x2, int y2)
     {
+        enum { dx_limit = 16384 << poly_base_shift };
+
+        int dx = x2 - x1;
+
+        if(dx >= dx_limit || dx <= -dx_limit)
+        {
+            int cx = (x1 + x2) >> 1;
+            int cy = (y1 + y2) >> 1;
+            render_line(x1, y1, cx, cy);
+            render_line(cx, cy, x2, y2);
+        }
+
+        int dy = y2 - y1;
         int ey1 = y1 >> poly_base_shift;
         int ey2 = y2 >> poly_base_shift;
         int fy1 = y1 & poly_base_mask;
         int fy2 = y2 & poly_base_mask;
 
-        int dx, dy, x_from, x_to;
+        int x_from, x_to;
         int p, rem, mod, lift, delta, first, incr;
-
-        dx = x2 - x1;
-        dy = y2 - y1;
 
         //everything is on a single hline
         if(ey1 == ey2)
@@ -419,7 +426,16 @@ namespace agg
         m_sorted = false;
     }
 
-    
+
+    //------------------------------------------------------------------------
+    template <class T> static AGG_INLINE void swap_cells(T* a, T* b)
+    {
+        T temp = *a;
+        *a = *b;
+        *b = temp;
+    }
+
+
     //------------------------------------------------------------------------
     enum
     {
@@ -428,23 +444,7 @@ namespace agg
 
 
     //------------------------------------------------------------------------
-    template <class T> static inline void swap_cells(T* a, T* b)
-    {
-        T temp = *a;
-        *a = *b;
-        *b = temp;
-    }
-
-    //------------------------------------------------------------------------
-    template <class T> static inline bool less_than(T* a, T* b)
-    {
-        return (*a)->packed_coord < (*b)->packed_coord;
-    }
-
-
-
-    //------------------------------------------------------------------------
-    void outline_aa::qsort_cells(cell_aa** start, unsigned num)
+    static void qsort_cells(cell_aa** start, unsigned num)
     {
         cell_aa**  stack[80];
         cell_aa*** top; 
@@ -473,27 +473,28 @@ namespace agg
                 j = limit - 1;
 
                 // now ensure that *i <= *base <= *j 
-                if(less_than(j, i))
+                if((*j)->x < (*i)->x)
                 {
                     swap_cells(i, j);
                 }
 
-                if(less_than(base, i))
+                if((*base)->x < (*i)->x)
                 {
                     swap_cells(base, i);
                 }
 
-                if(less_than(j, base))
+                if((*j)->x < (*base)->x)
                 {
                     swap_cells(base, j);
                 }
 
                 for(;;)
                 {
-                    do i++; while( less_than(i, base) );
-                    do j--; while( less_than(base, j) );
+                    int x = (*base)->x;
+                    do i++; while( (*i)->x < x );
+                    do j--; while( x < (*j)->x );
 
-                    if ( i > j )
+                    if(i > j)
                     {
                         break;
                     }
@@ -526,7 +527,7 @@ namespace agg
 
                 for(; i < limit; j = i, i++)
                 {
-                    for(; less_than(j + 1, j); j--)
+                    for(; j[1]->x < (*j)->x; j--)
                     {
                         swap_cells(j + 1, j);
                         if (j == base)
@@ -535,6 +536,7 @@ namespace agg
                         }
                     }
                 }
+
                 if(top > stack)
                 {
                     top  -= 2;
@@ -552,32 +554,35 @@ namespace agg
 
 
 
-
     //------------------------------------------------------------------------
     void outline_aa::sort_cells()
     {
-        if(m_num_cells == 0) return;
-        if(m_num_cells > m_sorted_size)
-        {
-            delete [] m_sorted_cells;
-            m_sorted_size = m_num_cells;
-            m_sorted_cells = new cell_aa* [m_num_cells + 1];
-        }
+        if(m_sorted) return; //Perform sort only the first time.
 
-        cell_aa** sorted_ptr = m_sorted_cells;
+        add_cur_cell();
+
+        if(m_num_cells == 0) return;
+
+        // Allocate the array of cell pointers
+        m_sorted_cells.allocate(m_num_cells, 16);
+
+        // Allocate and zero the Y array
+        m_sorted_y.allocate(m_max_y - m_min_y + 1, 16);
+        m_sorted_y.zero();
+
+        // Create the Y-histogram (count the numbers of cells for each Y)
         cell_aa** block_ptr = m_cells;
         cell_aa*  cell_ptr;
-
         unsigned nb = m_num_cells >> cell_block_shift;
         unsigned i;
-
         while(nb--)
         {
             cell_ptr = *block_ptr++;
             i = cell_block_size;
             while(i--) 
             {
-                *sorted_ptr++ = cell_ptr++;
+                m_sorted_y[cell_ptr->y - m_min_y].start++;
+                ++cell_ptr;
             }
         }
 
@@ -585,37 +590,58 @@ namespace agg
         i = m_num_cells & cell_block_mask;
         while(i--) 
         {
-            *sorted_ptr++ = cell_ptr++;
+            m_sorted_y[cell_ptr->y - m_min_y].start++;
+            ++cell_ptr;
         }
-        m_sorted_cells[m_num_cells] = 0;
-        qsort_cells(m_sorted_cells, m_num_cells);
-        m_min_y = m_sorted_cells[0]->y;
-        m_max_y = m_sorted_cells[m_num_cells - 1]->y;
-    }
 
 
-
-
-    //------------------------------------------------------------------------
-    const cell_aa* const* outline_aa::cells()
-    {
-        //Perform sort only the first time.
-        if(!m_sorted)
+        // Convert the Y-histogram into the array of starting indexes
+        unsigned start = 0;
+        for(i = 0; i < m_sorted_y.size(); i++)
         {
-            add_cur_cell();
-            sort_cells();
-            m_sorted = true;
+            unsigned v = m_sorted_y[i].start;
+            m_sorted_y[i].start = start;
+            start += v;
         }
-        return m_sorted_cells;
+
+
+        // Fill the cell pointer array sorted by Y
+        block_ptr = m_cells;
+        nb = m_num_cells >> cell_block_shift;
+        while(nb--)
+        {
+            cell_ptr = *block_ptr++;
+            i = cell_block_size;
+            while(i--) 
+            {
+                sorted_y& cur_y = m_sorted_y[cell_ptr->y - m_min_y];
+                m_sorted_cells[cur_y.start + cur_y.num] = cell_ptr;
+                ++cur_y.num;
+                ++cell_ptr;
+            }
+        }
+        
+        cell_ptr = *block_ptr++;
+        i = m_num_cells & cell_block_mask;
+        while(i--) 
+        {
+            sorted_y& cur_y = m_sorted_y[cell_ptr->y - m_min_y];
+            m_sorted_cells[cur_y.start + cur_y.num] = cell_ptr;
+            ++cur_y.num;
+            ++cell_ptr;
+        }
+
+
+        // Finally arrange the X-arrays
+        for(i = 0; i < m_sorted_y.size(); i++)
+        {
+            const sorted_y& cur_y = m_sorted_y[i];
+            if(cur_y.num)
+            {
+                qsort_cells(m_sorted_cells.data() + cur_y.start, cur_y.num);
+            }
+        }
+        m_sorted = true;
     }
-
-
-
-
 
 }
-
-
-
-
-

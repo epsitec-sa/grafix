@@ -1,6 +1,6 @@
 //----------------------------------------------------------------------------
-// Anti-Grain Geometry - Version 2.2
-// Copyright (C) 2002-2004 Maxim Shemanarev (http://www.antigrain.com)
+// Anti-Grain Geometry - Version 2.3
+// Copyright (C) 2002-2005 Maxim Shemanarev (http://www.antigrain.com)
 //
 // Permission to copy, use, modify, sell and distribute this software 
 // is granted provided this copyright notice appears in all copies. 
@@ -41,6 +41,18 @@ namespace agg
             int8u*   ptr;
             int      x1;
             int      x2;
+        };
+
+        //--------------------------------------------------------------------
+        struct span_data
+        {
+            int x;
+            unsigned len;
+            int8u* ptr;
+            span_data() {}
+            span_data(int) : x(0), len(0), ptr(0) {}
+            span_data(int x_, unsigned len_, int8u* ptr_) : 
+                x(x_), len(len_), ptr(ptr_) {}
         };
 
         //-------------------------------------------------------------------
@@ -109,16 +121,16 @@ namespace agg
             return m_rows[y].ptr;
         }
 
-        // Get the Y-th span. The pointer r.ptr is automatically adjusted
-        // to the actual beginning of the span. Use this function as follows:
+        // Get the Y-th row. The pointer r.ptr is automatically adjusted
+        // to the actual beginning of the row. Use this function as follows:
         //
-        // rendering_buffer_dynarow::row_data r = rbuf.span(x, y);
+        // rendering_buffer_dynarow::row_data r = rbuf.row(x, y);
         // if(r.ptr)
         // {
         //    do { blend(r.ptr); r.ptr += PixWidth } while(++r.x1 < r.x2);
         // }
         //--------------------------------------------------------------------
-        row_data span(int x, int y) const 
+        row_data row(int x, int y) const 
         { 
             row_data r = m_rows[y];
             if(r.ptr)
@@ -161,6 +173,12 @@ namespace agg
             return r->ptr ? r->ptr + x * PixWidth : 0;
         }
 
+        // Pre-allocate (if neccesary) and return span.
+        //--------------------------------------------------------------------
+        span_data span(int x, int y, unsigned len)
+        {
+            return span_data(x, len, span_ptr(x, y, len));
+        }
 
 
     private:

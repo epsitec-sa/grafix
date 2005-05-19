@@ -1,6 +1,6 @@
 //----------------------------------------------------------------------------
-// Anti-Grain Geometry - Version 2.2
-// Copyright (C) 2002-2004 Maxim Shemanarev (http://www.antigrain.com)
+// Anti-Grain Geometry - Version 2.3
+// Copyright (C) 2002-2005 Maxim Shemanarev (http://www.antigrain.com)
 //
 // Permission to copy, use, modify, sell and distribute this software 
 // is granted provided this copyright notice appears in all copies. 
@@ -220,6 +220,7 @@ namespace agg
             --m_step;
             return path_cmd_move_to;
         }
+
         if(m_step == 0)
         {
             *x = m_end_x;
@@ -227,6 +228,7 @@ namespace agg
             --m_step;
             return path_cmd_line_to;
         }
+
         m_fx   += m_dfx; 
         m_fy   += m_dfy;
         m_dfx  += m_ddfx; 

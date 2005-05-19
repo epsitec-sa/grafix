@@ -160,6 +160,18 @@ SOURCE=..\..\image_filters.cpp
 # Begin Group "Header Files"
 
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
+# Begin Source File
+
+SOURCE=..\..\..\include\agg_span_image_filter_gray.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\include\agg_span_image_filter_rgb.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\include\agg_span_image_filter_rgba.h
+# End Source File
 # End Group
 # Begin Group "Resource Files"
 

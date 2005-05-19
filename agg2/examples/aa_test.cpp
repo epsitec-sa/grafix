@@ -4,12 +4,13 @@
 #include "agg_rasterizer_scanline_aa.h"
 #include "agg_scanline_u.h"
 #include "agg_renderer_scanline.h"
-#include "agg_pixfmt_rgb24.h"
+#include "agg_pixfmt_rgb.h"
+#include "agg_gamma_lut.h"
 #include "agg_conv_dash.h"
 #include "agg_conv_stroke.h"
 #include "agg_span_gradient.h"
 #include "agg_span_interpolator_linear.h"
-#include "agg_span_gouraud_rgba8.h"
+#include "agg_span_gouraud_rgba.h"
 #include "platform/agg_platform_support.h"
 #include "ctrl/agg_slider_ctrl.h"
 #include "ctrl/agg_cbox_ctrl.h"
@@ -19,10 +20,9 @@ enum { flip_y = false };
 
 
 
-
-
-
-typedef agg::pixfmt_bgr24                                   pixfmt_type;
+typedef agg::gamma_lut<agg::int8u, agg::int8u, 8, 8>        gamma_lut_type;
+typedef agg::pixfmt_bgr24_gamma<gamma_lut_type>             pixfmt_type;
+typedef pixfmt_type::color_type                             color_type;
 typedef agg::renderer_base<pixfmt_type>                     renderer_base_type;
 typedef agg::renderer_scanline_aa_solid<renderer_base_type> renderer_scanline_type;
 typedef agg::scanline_u8                                    scanline_type;
@@ -186,9 +186,10 @@ void calc_linear_gradient_transform(double x1, double y1, double x2, double y2,
 // A simple function to form the gradient color array 
 // consisting of 3 colors, "begin", "middle", "end"
 //---------------------------------------------------
-void fill_color_array(agg::rgba8* array, 
-                      agg::rgba8 begin, 
-                      agg::rgba8 end)
+template<class ColorArrayT>
+void fill_color_array(ColorArrayT& array, 
+                      color_type begin, 
+                      color_type end)
 {
     unsigned i;
     for(i = 0; i < 256; ++i)
@@ -204,16 +205,18 @@ void fill_color_array(agg::rgba8* array,
 
 class the_application : public agg::platform_support
 {
-    agg::slider_ctrl<agg::rgba8> m_slider_gamma;
+    gamma_lut_type              m_gamma;
+    agg::slider_ctrl<agg::rgba> m_slider_gamma;
 
 public:
     the_application(agg::pix_format_e format, bool flip_y) :
         agg::platform_support(format, flip_y),
+        m_gamma(1.0),
         m_slider_gamma(3, 3,    480-3, 8,    !flip_y)
     {
         add_ctrl(m_slider_gamma);
         m_slider_gamma.range(0.1, 3.0);
-        m_slider_gamma.value(0.6);
+        m_slider_gamma.value(1.6);
         m_slider_gamma.label("Gamma=%4.3f");
     }
 
@@ -230,7 +233,7 @@ public:
 
     virtual void on_draw()
     {
-        pixfmt_type pixf(rbuf_window());
+        pixfmt_type pixf(rbuf_window(), m_gamma);
         renderer_base_type ren_base(pixf);
         renderer_scanline_type ren_sl(ren_base);
         scanline_type sl;
@@ -239,8 +242,9 @@ public:
         ren_base.clear(agg::rgba(0,0,0));
 
 
-        // Set AA gamma correction
-        ras.gamma(agg::gamma_power(m_slider_gamma.value()));
+        // gamma correction
+        //ras.gamma(agg::gamma_power());
+        m_gamma.gamma(m_slider_gamma.value());
 
         int i;
 
@@ -266,11 +270,12 @@ public:
 
         typedef agg::gradient_x gradient_func_type;
         typedef agg::span_interpolator_linear<> interpolator_type;
-        typedef agg::span_allocator<agg::rgba8> span_allocator_type;
-        typedef agg::span_gradient<agg::rgba8, 
+        typedef agg::span_allocator<color_type> span_allocator_type;
+        typedef agg::pod_auto_array<color_type, 256> color_array_type;
+        typedef agg::span_gradient<color_type, 
                                    interpolator_type, 
                                    gradient_func_type, 
-                                   const agg::rgba8*,
+                                   color_array_type,
                                    span_allocator_type> span_gradient_type;
         typedef agg::renderer_scanline_aa<renderer_base_type, 
                                           span_gradient_type> renderer_gradient_type;
@@ -279,11 +284,11 @@ public:
         agg::trans_affine   gradient_mtx;                    // Affine transformer
         interpolator_type   span_interpolator(gradient_mtx); // Span interpolator
         span_allocator_type span_allocator;                  // Span Allocator
-        agg::rgba8          color_array[256];                // The gradient colors
+        color_array_type    gradient_colors;                 // The gradient colors
         span_gradient_type  span_gradient(span_allocator, 
                                           span_interpolator, 
                                           gradient_func, 
-                                          color_array, 
+                                          gradient_colors, 
                                           0, 100);
         renderer_gradient_type ren_gradient(ren_base, span_gradient);
         dashed_line<rasterizer_type, 
@@ -332,7 +337,7 @@ public:
 
             // integral line widths 1..20
             //----------------
-            fill_color_array(color_array, 
+            fill_color_array(gradient_colors, 
                              agg::rgba(1,1,1), 
                              agg::rgba(i % 2, (i % 3) * 0.5, (i % 5) * 0.25));
 
@@ -344,7 +349,7 @@ public:
             dash_gradient.draw(x1, y1, x2, y2, i, 0);
 
 
-            fill_color_array(color_array, 
+            fill_color_array(gradient_colors, 
                              agg::rgba(1,0,0), 
                              agg::rgba(0,0,1));
 
@@ -369,7 +374,7 @@ public:
 
             // fractional line positioning (red)
             //---------------
-            fill_color_array(color_array, 
+            fill_color_array(gradient_colors, 
                              agg::rgba(1,0,0), 
                              agg::rgba(1,1,1));
             x1 = 21.5;
@@ -381,7 +386,7 @@ public:
 
 
             // fractional line width 2..0 (green)
-            fill_color_array(color_array, 
+            fill_color_array(gradient_colors, 
                              agg::rgba(0,1,0), 
                              agg::rgba(1,1,1));
             x1 = 52.5;
@@ -392,7 +397,7 @@ public:
             dash_gradient.draw(x1, y1, x2, y2, 2.0 - (i - 1) / 10.0, 0);
 
             // stippled fractional width 2..0 (blue)
-            fill_color_array(color_array, 
+            fill_color_array(gradient_colors, 
                              agg::rgba(0,0,1), 
                              agg::rgba(1,1,1));
             x1 = 83.5;
@@ -429,7 +434,7 @@ public:
         //---------------
         for (i = 1; i <= 13; i++) 
         {
-            fill_color_array(color_array, 
+            fill_color_array(gradient_colors, 
                              agg::rgba(1,1,1), 
                              agg::rgba(i % 2, (i % 3) * 0.5, (i % 5) * 0.25));
             calc_linear_gradient_transform(width()  - 150, 
@@ -454,7 +459,7 @@ public:
 
     virtual void on_mouse_button_down(int x, int y, unsigned flags)
     {
-        pixfmt_type pixf(rbuf_window());
+        pixfmt_type pixf(rbuf_window(), m_gamma);
         renderer_base_type ren_base(pixf);
         renderer_scanline_type ren_sl(ren_base);
         scanline_type sl;
@@ -483,11 +488,12 @@ public:
 
         typedef agg::gradient_x gradient_func_type;
         typedef agg::span_interpolator_linear<> interpolator_type;
-        typedef agg::span_allocator<agg::rgba8> span_allocator_type;
-        typedef agg::span_gradient<agg::rgba8, 
+        typedef agg::span_allocator<color_type> span_allocator_type;
+        typedef agg::pod_auto_array<color_type, 256> color_array_type;
+        typedef agg::span_gradient<color_type, 
                                    interpolator_type, 
                                    gradient_func_type, 
-                                   const agg::rgba8*,
+                                   color_array_type,
                                    span_allocator_type> span_gradient_type;
         typedef agg::renderer_scanline_aa<renderer_base_type, 
                                           span_gradient_type> renderer_gradient_type;
@@ -496,11 +502,11 @@ public:
         agg::trans_affine   gradient_mtx;                    // Affine transformer
         interpolator_type   span_interpolator(gradient_mtx); // Span interpolator
         span_allocator_type span_allocator;                  // Span Allocator
-        agg::rgba8          color_array[256];                // The gradient colors
+        color_array_type    gradient_colors;
         span_gradient_type  span_gradient(span_allocator, 
                                           span_interpolator, 
                                           gradient_func, 
-                                          color_array, 
+                                          gradient_colors, 
                                           0, 100);
         renderer_gradient_type ren_gradient(ren_base, span_gradient);
         dashed_line<rasterizer_type, 
@@ -517,7 +523,7 @@ public:
             x2 = x1 + frand(w * 0.5) - w * 0.25;
             y2 = y1 + frand(h * 0.5) - h * 0.25;
 
-            fill_color_array(color_array, 
+            fill_color_array(gradient_colors, 
                              agg::rgba(frand(1.0), frand(1.0), frand(1.0), 0.5+frand(0.5)), 
                              agg::rgba(frand(1.0), frand(1.0), frand(1.0), frand(1.0)));
             calc_linear_gradient_transform(x1, y1, x2, y2, gradient_mtx);
@@ -527,7 +533,7 @@ public:
 
 
 
-        typedef agg::span_gouraud_rgba8<> gouraud_span_gen_type;
+        typedef agg::span_gouraud_rgba<color_type> gouraud_span_gen_type;
         typedef agg::renderer_scanline_aa<renderer_base_type, 
                                           gouraud_span_gen_type> renderer_gouraud_type;
         

@@ -1,6 +1,6 @@
 //----------------------------------------------------------------------------
-// Anti-Grain Geometry - Version 2.2
-// Copyright (C) 2002-2004 Maxim Shemanarev (http://www.antigrain.com)
+// Anti-Grain Geometry - Version 2.3
+// Copyright (C) 2002-2005 Maxim Shemanarev (http://www.antigrain.com)
 //
 // Permission to copy, use, modify, sell and distribute this software 
 // is granted provided this copyright notice appears in all copies. 
@@ -37,6 +37,18 @@ namespace agg
             row_data() {}
             row_data(int x1_, int x2_, const int8u* ptr_) : 
                 x1(x1_), x2(x2_), ptr(ptr_) {}
+        };
+
+        //--------------------------------------------------------------------
+        struct span_data
+        {
+            int x;
+            unsigned len;
+            int8u* ptr;
+            span_data() {}
+            span_data(int) : x(0), len(0), ptr(0) {}
+            span_data(int x_, unsigned len_, int8u* ptr_) : 
+                x(x_), len(len_), ptr(ptr_) {}
         };
 
         //-------------------------------------------------------------------
@@ -98,6 +110,7 @@ namespace agg
         }
 
         //--------------------------------------------------------------------
+        T* buf() { return m_buf; }
         const T* buf()    const { return m_buf;    }
         unsigned width()  const { return m_width;  }
         unsigned height() const { return m_height; }
@@ -112,6 +125,10 @@ namespace agg
         //--------------------------------------------------------------------
         T* row(unsigned y) { return m_rows[y]; }
         const T* row(unsigned y) const { return m_rows[y]; }
+
+        T* next_row(void* p) { return (T*)p + m_stride; }
+        const T* next_row(const void* p) const { return (T*)p + m_stride; }
+
         T const* const* rows() const { return m_rows; }
 
         //--------------------------------------------------------------------

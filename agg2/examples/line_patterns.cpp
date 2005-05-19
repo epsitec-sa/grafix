@@ -10,10 +10,10 @@
 #include "agg_renderer_scanline.h"
 #include "agg_rasterizer_outline_aa.h"
 #include "agg_rasterizer_scanline_aa.h"
-#include "agg_pattern_filters_rgba8.h"
+#include "agg_pattern_filters_rgba.h"
 #include "agg_renderer_outline_aa.h"
 #include "agg_renderer_outline_image.h"
-#include "agg_pixfmt_rgb24.h"
+#include "agg_pixfmt_rgb.h"
 #include "ctrl/agg_slider_ctrl.h"
 #include "ctrl/agg_bezier_ctrl.h"
 #include "platform/agg_platform_support.h"
@@ -235,7 +235,7 @@ public:
         // faster than agg::line_image_pattern (because of using simple masking instead 
         // of expensive '%' operation). 
         typedef agg::line_image_pattern<agg::pattern_filter_bilinear_rgba8> pattern_type;
-        typedef agg::renderer_base<agg::pixfmt_bgr24> base_ren_type;
+        typedef agg::renderer_base<pixfmt> base_ren_type;
         typedef agg::renderer_outline_image<base_ren_type, pattern_type> renderer_type;
         typedef agg::rasterizer_outline_aa<renderer_type>                rasterizer_type;
 

@@ -8,7 +8,7 @@
 #include "agg_rasterizer_scanline_aa.h"
 #include "agg_conv_curve.h"
 #include "agg_conv_contour.h"
-#include "agg_pixfmt_rgb555.h"
+#include "agg_pixfmt_rgb.h"
 #include "agg_font_freetype.h"
 #include "platform/agg_platform_support.h"
 
@@ -17,11 +17,12 @@
 #include "ctrl/agg_rbox_ctrl.h"
 
 
-enum { flip_y = false };
+enum { flip_y = true };
+bool font_flip_y = !flip_y;
 
 
-#define pix_format agg::pix_format_rgb555
-typedef agg::pixfmt_rgb555 pixfmt_type;
+#define pix_format agg::pix_format_bgr24
+typedef agg::pixfmt_bgr24 pixfmt_type;
 
 
 static char text[] = 
@@ -260,13 +261,13 @@ public:
 
         m_contour.width(-m_weight.value() * m_height.value() * 0.05);
 
-        if(m_feng.load_font(full_file_name("times.ttf"), 0, gren))
+        if(m_feng.load_font(full_file_name("timesi.ttf"), 0, gren))
         {
             m_feng.hinting(m_hinting.status());
             m_feng.height(m_height.value());
             m_feng.width(m_width.value());
-//m_feng.transform(agg::trans_affine_rotation(agg::deg2rad(10.0)));
-            m_feng.flip_y(!::flip_y);
+//m_feng.transform(agg::trans_affine_rotation(agg::deg2rad(1.0)));
+            m_feng.flip_y(font_flip_y);
 
 //m_feng.transform(agg::trans_affine_rotation(agg::deg2rad(20.0)));
 //m_feng.flip_y(true);
@@ -432,6 +433,16 @@ public:
             message(buf);
 
             m_performance.status(false);
+            force_redraw();
+        }
+    }
+
+
+    virtual void on_key(int x, int y, unsigned key, unsigned flags)
+    {
+        if(key == ' ')
+        {
+            font_flip_y = !font_flip_y;
             force_redraw();
         }
     }

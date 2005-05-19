@@ -1,6 +1,6 @@
 //----------------------------------------------------------------------------
-// Anti-Grain Geometry - Version 2.2
-// Copyright (C) 2002-2004 Maxim Shemanarev (http://www.antigrain.com)
+// Anti-Grain Geometry - Version 2.3
+// Copyright (C) 2002-2005 Maxim Shemanarev (http://www.antigrain.com)
 //
 // Permission to copy, use, modify, sell and distribute this software 
 // is granted provided this copyright notice appears in all copies. 
@@ -45,13 +45,13 @@ namespace agg
                           Renderer& r, 
                           VertexSource& vs, 
                           const ColorStorage& as, 
-                          const PathId& id,
+                          const PathId& path_id,
                           unsigned num_paths)
     {
         for(unsigned i = 0; i < num_paths; i++)
         {
             ras.reset();
-            ras.add_path(vs, id[i]);
+            ras.add_path(vs, path_id[i]);
             r.color(as[i]);
             render_scanlines(ras, sl, r);
         }

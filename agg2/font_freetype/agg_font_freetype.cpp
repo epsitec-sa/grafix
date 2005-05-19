@@ -1,6 +1,6 @@
 //----------------------------------------------------------------------------
-// Anti-Grain Geometry - Version 2.2
-// Copyright (C) 2002-2004 Maxim Shemanarev (http://www.antigrain.com)
+// Anti-Grain Geometry - Version 2.3
+// Copyright (C) 2002-2005 Maxim Shemanarev (http://www.antigrain.com)
 //
 // Permission to copy, use, modify, sell and distribute this software 
 // is granted provided this copyright notice appears in all copies. 
@@ -466,10 +466,6 @@ namespace agg
         m_scanlines_bin(),
         m_rasterizer()
     {
-        m_matrix.xx = 0x10000L;
-        m_matrix.xy = 0;
-        m_matrix.yx = 0;
-        m_matrix.yy = 0x10000L;
         m_curves16.approximation_scale(4.0);
         m_curves32.approximation_scale(4.0);
         m_last_error = FT_Init_FreeType(&m_library);
@@ -499,9 +495,32 @@ namespace agg
 
 
     //------------------------------------------------------------------------
+    double font_engine_freetype_base::ascender() const
+    {
+        if(m_cur_face)
+        {
+            return m_cur_face->ascender * height() / m_cur_face->height;
+        }
+        return 0.0;
+    }
+
+    //------------------------------------------------------------------------
+    double font_engine_freetype_base::descender() const
+    {
+        if(m_cur_face)
+        {
+            return m_cur_face->descender * height() / m_cur_face->height;
+        }
+        return 0.0;
+    }
+
+
+    //------------------------------------------------------------------------
     bool font_engine_freetype_base::load_font(const char* font_name, 
                                               unsigned face_index,
-                                              glyph_rendering ren_type)
+                                              glyph_rendering ren_type,
+                                              const char* font_mem, 
+                                              const long font_mem_size)
     {
         bool ret = false;
 
@@ -530,10 +549,22 @@ namespace agg
                     m_num_faces = m_max_faces - 1;
                 }
 
-                m_last_error = FT_New_Face(m_library,
-                                           font_name,
-                                           face_index,
-                                           &m_faces[m_num_faces]);
+                if (font_mem && font_mem_size)
+                {
+                    m_last_error = FT_New_Memory_Face(m_library, 
+                                                      (const FT_Byte*)font_mem, 
+                                                      font_mem_size, 
+                                                      face_index, 
+                                                      &m_faces[m_num_faces]);
+                }
+                else
+                {
+                    m_last_error = FT_New_Face(m_library,
+                                               font_name,
+                                               face_index,
+                                               &m_faces[m_num_faces]);
+                }
+
                 if(m_last_error == 0)
                 {
                     m_face_names[m_num_faces] = new char [strlen(font_name) + 1];
@@ -554,7 +585,7 @@ namespace agg
             if(m_last_error == 0)
             {
                 ret = true;
-
+                
                 switch(ren_type)
                 {
                 case glyph_ren_native_mono:
@@ -598,8 +629,7 @@ namespace agg
                     }
                     break;
                 }
-
-                update_transform();
+                update_signature();
             }
         }
         return ret;
@@ -666,55 +696,6 @@ namespace agg
         return false;
     }
 
-
-    //------------------------------------------------------------------------
-	void font_engine_freetype_base::update_transform()
-    {
-        FT_Matrix mtx = m_matrix;
-
-        if(m_flip_y)
-        {
-            mtx.xy = -mtx.xy;
-		    mtx.yy = -mtx.yy;
-        }
-
-        if(m_cur_face)
-        {
-			FT_Vector pen;
-			pen.x = 0;
-			pen.y = 0;
- 			FT_Set_Transform(m_cur_face, &mtx, &pen);
-            update_signature();
-        }
-    }
-
-
-    //------------------------------------------------------------------------
-	void font_engine_freetype_base::transform(const trans_affine& mtx)
-    {
-		double m[6];
-		mtx.store_to(m);
-
- 		m_matrix.xx = long( m[0] * 0x10000L);
-		m_matrix.xy = long(-m[1] * 0x10000L);
-		m_matrix.yx = long(-m[2] * 0x10000L);
-		m_matrix.yy = long( m[3] * 0x10000L);
-        update_transform();
-    }
-
-
-    //------------------------------------------------------------------------
-    void font_engine_freetype_base::transform(double xx, double xy, 
-                                              double yx, double yy)
-    {
-		m_matrix.xx = long( xx * 0x10000L);
-		m_matrix.xy = long(-xy * 0x10000L);
-		m_matrix.yx = long(-yx * 0x10000L);
-		m_matrix.yy = long( yy * 0x10000L);
-        update_transform();
-    }
-
-
     //------------------------------------------------------------------------
     void font_engine_freetype_base::hinting(bool h)
     { 
@@ -731,7 +712,7 @@ namespace agg
         m_flip_y = f; 
         if(m_cur_face)
         {
-            update_transform();
+            update_signature();
         }
     }
 
@@ -763,7 +744,7 @@ namespace agg
             }
 
             sprintf(m_signature, 
-                    "%s,%u,%d,%d,%d:%dx%d,%d,%d,%d,%d,%d,%d,%08X", 
+                    "%s,%u,%d,%d,%d:%dx%d,%d,%d,%08X", 
                     m_name,
                     m_char_map,
                     m_face_index,
@@ -771,10 +752,6 @@ namespace agg
                     m_resolution,
                     m_height,
                     m_width,
-                    int(m_matrix.xx),
-                    int(m_matrix.xy),
-                    int(m_matrix.yx),
-                    int(m_matrix.yy),
                     int(m_hinting),
                     int(m_flip_y),
                     gamma_hash);
@@ -813,28 +790,24 @@ namespace agg
     //------------------------------------------------------------------------
     bool font_engine_freetype_base::prepare_glyph(unsigned glyph_code)
     {
-        bool flip = false;
-
-
         m_glyph_index = FT_Get_Char_Index(m_cur_face, glyph_code);
         m_last_error = FT_Load_Glyph(m_cur_face, 
                                      m_glyph_index, 
-//                                     m_hinting ? FT_LOAD_DEFAULT : FT_LOAD_NO_HINTING);
-                                     m_hinting ? FT_LOAD_FORCE_AUTOHINT : FT_LOAD_NO_HINTING);
+                                     m_hinting ? FT_LOAD_DEFAULT : FT_LOAD_NO_HINTING);
+//                                     m_hinting ? FT_LOAD_FORCE_AUTOHINT : FT_LOAD_NO_HINTING);
         if(m_last_error == 0)
         {
             switch(m_glyph_rendering)
             {
             case glyph_ren_native_mono:
                 m_last_error = FT_Render_Glyph(m_cur_face->glyph, FT_RENDER_MODE_MONO);
-//printf("%i\n", m_last_error);
                 if(m_last_error == 0)
                 {
                     decompose_ft_bitmap_mono(m_cur_face->glyph->bitmap, 
                                              m_cur_face->glyph->bitmap_left,
-                                             flip ? -m_cur_face->glyph->bitmap_top : 
-                                                     m_cur_face->glyph->bitmap_top,
-                                             flip,
+                                             m_flip_y ? -m_cur_face->glyph->bitmap_top : 
+                                                         m_cur_face->glyph->bitmap_top,
+                                             m_flip_y,
                                              m_scanline_bin,
                                              m_scanlines_bin);
                     m_bounds.x1 = m_scanlines_bin.min_x();
@@ -856,9 +829,9 @@ namespace agg
                 {
                     decompose_ft_bitmap_gray8(m_cur_face->glyph->bitmap, 
                                               m_cur_face->glyph->bitmap_left,
-                                              flip ? -m_cur_face->glyph->bitmap_top : 
-                                                      m_cur_face->glyph->bitmap_top,
-                                              flip,
+                                              m_flip_y ? -m_cur_face->glyph->bitmap_top : 
+                                                          m_cur_face->glyph->bitmap_top,
+                                              m_flip_y,
                                               m_rasterizer,
                                               m_scanline_aa,
                                               m_scanlines_aa);
@@ -882,7 +855,7 @@ namespace agg
                     {
                         m_path32.remove_all();
                         if(decompose_ft_outline(m_cur_face->glyph->outline,
-                                                flip, 
+                                                m_flip_y, 
                                                 m_path32, 
                                                 conv_coord_none))
                         {
@@ -902,7 +875,7 @@ namespace agg
                     {
                         m_path16.remove_all();
                         if(decompose_ft_outline(m_cur_face->glyph->outline,
-                                                flip, 
+                                                m_flip_y, 
                                                 m_path16, 
                                                 conv_coord_none))
                         {
@@ -929,7 +902,7 @@ namespace agg
                     {
                         m_path32.remove_all();
                         decompose_ft_outline(m_cur_face->glyph->outline,
-                                             flip, 
+                                             m_flip_y, 
                                              m_path32, 
                                              conv_coord_none);
                         m_rasterizer.add_path(m_curves32);
@@ -938,7 +911,7 @@ namespace agg
                     {
                         m_path16.remove_all();
                         decompose_ft_outline(m_cur_face->glyph->outline,
-                                             flip, 
+                                             m_flip_y, 
                                              m_path16, 
                                              conv_coord_none);
                         m_rasterizer.add_path(m_curves16);
@@ -966,7 +939,7 @@ namespace agg
                     {
                         m_path32.remove_all();
                         decompose_ft_outline(m_cur_face->glyph->outline,
-                                             flip, 
+                                             m_flip_y, 
                                              m_path32, 
                                              conv_coord_none);
                         m_rasterizer.add_path(m_curves32);
@@ -975,7 +948,7 @@ namespace agg
                     {
                         m_path16.remove_all();
                         decompose_ft_outline(m_cur_face->glyph->outline,
-                                             flip, 
+                                             m_flip_y, 
                                              m_path16, 
                                              conv_coord_none);
                         m_rasterizer.add_path(m_curves16);
@@ -1037,7 +1010,6 @@ namespace agg
             FT_Vector delta;
             FT_Get_Kerning(m_cur_face, first, second,
                            FT_KERNING_DEFAULT, &delta);
-            FT_Vector_Transform(&delta, &m_matrix);
             *x += double(delta.x) / 64.0;
             *y += double(delta.y) / 64.0;
             return true;

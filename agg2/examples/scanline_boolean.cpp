@@ -85,7 +85,7 @@ public:
         agg::platform_support(format, flip_y),
         m_quad1(4, 5.0),
         m_quad2(4, 5.0),
-        m_trans_type(420, 5.0, 420+130.0, 125.0, !flip_y),
+        m_trans_type(420, 5.0, 420+130.0, 145.0, !flip_y),
         m_reset     (350, 5.0,  "Reset", !flip_y),
         m_mul1      (5.0,  5.0, 340.0, 12.0, !flip_y),
         m_mul2      (5.0, 20.0, 340.0, 27.0, !flip_y)
@@ -94,6 +94,7 @@ public:
         m_trans_type.add_item("Intersection");
         m_trans_type.add_item("Linear XOR");
         m_trans_type.add_item("Saddle XOR");
+        m_trans_type.add_item("Abs Diff XOR");
         m_trans_type.add_item("A-B");
         m_trans_type.add_item("B-A");
         m_trans_type.cur_item(0);

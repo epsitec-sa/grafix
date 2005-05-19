@@ -1,6 +1,6 @@
 //----------------------------------------------------------------------------
-// Anti-Grain Geometry - Version 2.2
-// Copyright (C) 2002-2004 Maxim Shemanarev (http://www.antigrain.com)
+// Anti-Grain Geometry - Version 2.3
+// Copyright (C) 2002-2005 Maxim Shemanarev (http://www.antigrain.com)
 //
 // Permission to copy, use, modify, sell and distribute this software 
 // is granted provided this copyright notice appears in all copies. 
@@ -28,6 +28,7 @@
 #include <math.h>
 #include "agg_basics.h"
 #include "agg_math.h"
+#include "agg_array.h"
 #include "agg_gamma_functions.h"
 #include "agg_clip_liang_barsky.h"
 #include "agg_render_scanlines.h"
@@ -61,11 +62,10 @@ namespace agg
     // array of cells.
     struct cell_aa
     {
-        int16 x;
-        int16 y;
-        int   packed_coord;
-        int   cover;
-        int   area;
+        int x;
+        int y;
+        int cover;
+        int area;
 
         void set(int x, int y, int c, int a);
         void set_coord(int x, int y);
@@ -88,8 +88,13 @@ namespace agg
             cell_block_limit = 1024
         };
 
-    public:
+        struct sorted_y
+        {
+            unsigned start;
+            unsigned num;
+        };
 
+    public:
         ~outline_aa();
         outline_aa();
 
@@ -103,8 +108,23 @@ namespace agg
         int max_x() const { return m_max_x; }
         int max_y() const { return m_max_y; }
 
-        const cell_aa* const* cells();
-        unsigned num_cells() { cells(); return m_num_cells; }
+        void sort_cells();
+
+        unsigned total_cells() const 
+        {
+            return m_num_cells;
+        }
+
+        unsigned scanline_num_cells(unsigned y) const 
+        { 
+            return m_sorted_y[y - m_min_y].num; 
+        }
+
+        const cell_aa* const* scanline_cells(unsigned y) const
+        { 
+            return m_sorted_cells.data() + m_sorted_y[y - m_min_y].start; 
+        }
+
         bool sorted() const { return m_sorted; }
 
     private:
@@ -113,13 +133,10 @@ namespace agg
 
         void set_cur_cell(int x, int y);
         void add_cur_cell();
-        void sort_cells();
         void render_hline(int ey, int x1, int y1, int x2, int y2);
         void render_line(int x1, int y1, int x2, int y2);
         void allocate_block();
         
-        static void qsort_cells(cell_aa** start, unsigned num);
-
     private:
         unsigned  m_num_blocks;
         unsigned  m_max_blocks;
@@ -127,8 +144,8 @@ namespace agg
         unsigned  m_num_cells;
         cell_aa** m_cells;
         cell_aa*  m_cur_cell_ptr;
-        cell_aa** m_sorted_cells;
-        unsigned  m_sorted_size;
+        pod_array<cell_aa*> m_sorted_cells;
+        pod_array<sorted_y> m_sorted_y;
         cell_aa   m_cur_cell;
         int       m_cur_x;
         int       m_cur_y;
@@ -138,6 +155,32 @@ namespace agg
         int       m_max_y;
         bool      m_sorted;
     };
+
+
+    //------------------------------------------------------scanline_hit_test
+    class scanline_hit_test
+    {
+    public:
+        scanline_hit_test(int x) : m_x(x), m_hit(false) {}
+
+        void reset_spans() {}
+        void finalize(int) {}
+        void add_cell(int x, int)
+        {
+            if(m_x == x) m_hit = true;
+        }
+        void add_span(int x, int len, int)
+        {
+            if(m_x >= x && m_x < x+len) m_hit = true;
+        }
+        unsigned num_spans() const { return 1; }
+        bool hit() const { return m_hit; }
+
+    private:
+        int  m_x;
+        bool m_hit;
+    };
+
 
 
     //----------------------------------------------------------filling_rule_e
@@ -186,13 +229,6 @@ namespace agg
             status_initial,
             status_line_to,
             status_closed
-        };
-
-        struct iterator
-        {
-            const cell_aa* const* cells;
-            int                   cover;
-            int                   last_y;
         };
 
     public:
@@ -276,7 +312,7 @@ namespace agg
         int max_y() const { return m_outline.max_y(); }
 
         //--------------------------------------------------------------------
-        unsigned calculate_alpha(int area) const
+        AGG_INLINE unsigned calculate_alpha(int area) const
         {
             int cover = area >> (poly_base_shift*2 + 1 - aa_shift);
 
@@ -294,23 +330,37 @@ namespace agg
         }
 
         //--------------------------------------------------------------------
-        void sort()
+        AGG_INLINE void sort()
         {
-            m_outline.cells();
+            m_outline.sort_cells();
+        }
+
+        //--------------------------------------------------------------------
+        AGG_INLINE bool rewind_scanlines()
+        {
+            close_polygon();
+            m_outline.sort_cells();
+            if(m_outline.total_cells() == 0) 
+            {
+                return false;
+            }
+            m_cur_y = m_outline.min_y();
+            return true;
         }
 
 
         //--------------------------------------------------------------------
-        bool rewind_scanlines()
+        AGG_INLINE bool navigate_scanline(int y)
         {
             close_polygon();
-            m_iterator.cells = m_outline.cells();
-            if(m_outline.num_cells() == 0) 
+            m_outline.sort_cells();
+            if(m_outline.total_cells() == 0 || 
+               y < m_outline.min_y() || 
+               y > m_outline.max_y()) 
             {
                 return false;
             }
-            m_iterator.cover  = 0;
-            m_iterator.last_y = (*m_iterator.cells)->y;
+            m_cur_y = y;
             return true;
         }
 
@@ -318,79 +368,70 @@ namespace agg
         //--------------------------------------------------------------------
         template<class Scanline> bool sweep_scanline(Scanline& sl)
         {
-            sl.reset_spans();
             for(;;)
             {
-                const cell_aa* cur_cell = *m_iterator.cells;
-                if(cur_cell == 0) return false;
-                ++m_iterator.cells;
-                m_iterator.last_y = cur_cell->y;
+                if(m_cur_y > m_outline.max_y()) return false;
+                sl.reset_spans();
+                unsigned num_cells = m_outline.scanline_num_cells(m_cur_y);
+                const cell_aa* const* cells = m_outline.scanline_cells(m_cur_y);
+                int cover = 0;
 
-                for(;;)
+                while(num_cells)
                 {
-                    int coord  = cur_cell->packed_coord;
-                    int area   = cur_cell->area; 
-                    int last_x = cur_cell->x;
+                    const cell_aa* cur_cell = *cells;
+                    int x    = cur_cell->x;
+                    int area = cur_cell->area;
+                    unsigned alpha;
 
-                    m_iterator.cover += cur_cell->cover;
+                    cover += cur_cell->cover;
 
-                    //accumulate all cells with the same coordinates
-                    for(; (cur_cell = *m_iterator.cells) != 0; ++m_iterator.cells)
+                    //accumulate all cells with the same X
+                    while(--num_cells)
                     {
-                        if(cur_cell->packed_coord != coord) break;
-                        area             += cur_cell->area;
-                        m_iterator.cover += cur_cell->cover;
+                        cur_cell = *++cells;
+                        if(cur_cell->x != x) break;
+                        area  += cur_cell->area;
+                        cover += cur_cell->cover;
                     }
-
-                    int alpha;
-                    if(cur_cell == 0 || cur_cell->y != m_iterator.last_y)
-                    {
-
-                        if(area)
-                        {
-                            alpha = calculate_alpha((m_iterator.cover << (poly_base_shift + 1)) - area);
-                            if(alpha)
-                            {
-                                sl.add_cell(last_x, alpha);
-                            }
-                            ++last_x;
-                        }
-                        break;
-                    }
-
-                    ++m_iterator.cells;
 
                     if(area)
                     {
-                        alpha = calculate_alpha((m_iterator.cover << (poly_base_shift + 1)) - area);
+                        alpha = calculate_alpha((cover << (poly_base_shift + 1)) - area);
                         if(alpha)
                         {
-                            sl.add_cell(last_x, alpha);
+                            sl.add_cell(x, alpha);
                         }
-                        ++last_x;
+                        x++;
                     }
 
-                    if(cur_cell->x > last_x)
+                    if(num_cells && cur_cell->x > x)
                     {
-                        alpha = calculate_alpha(m_iterator.cover << (poly_base_shift + 1));
+                        alpha = calculate_alpha(cover << (poly_base_shift + 1));
                         if(alpha)
                         {
-                            sl.add_span(last_x, cur_cell->x - last_x, alpha);
+                            sl.add_span(x, cur_cell->x - x, alpha);
                         }
                     }
                 }
-                if(sl.num_spans()) 
-                {
-                    sl.finalize(m_iterator.last_y);
-                    break;
-                }
+        
+                if(sl.num_spans()) break;
+                ++m_cur_y;
             }
+
+            sl.finalize(m_cur_y);
+            ++m_cur_y;
             return true;
         }
 
 
         //--------------------------------------------------------------------
-        bool hit_test(int tx, int ty);
+        bool hit_test(int tx, int ty)
+        {
+            if(!navigate_scanline(ty)) return false;
+            scanline_hit_test sl(tx);
+            sweep_scanline(sl);
+            return sl.hit();
+        }
 
 
         //--------------------------------------------------------------------
@@ -410,13 +451,13 @@ namespace agg
 
         //-------------------------------------------------------------------
         template<class VertexSource>
-        void add_path(VertexSource& vs, unsigned id=0)
+        void add_path(VertexSource& vs, unsigned path_id=0)
         {
             double x;
             double y;
 
             unsigned cmd;
-            vs.rewind(id);
+            vs.rewind(path_id);
             while(!is_stop(cmd = vs.vertex(&x, &y)))
             {
                 add_vertex(x, y, cmd);
@@ -451,7 +492,7 @@ namespace agg
         unsigned       m_status;
         rect           m_clip_box;
         bool           m_clipping;
-        iterator       m_iterator;
+        int            m_cur_y;
     };
 
 
@@ -678,61 +719,6 @@ namespace agg
     void rasterizer_scanline_aa<XScale, AA_Shift>::line_to_d(double x, double y) 
     { 
         line_to(poly_coord(x), poly_coord(y)); 
-    }
-
-
-    //------------------------------------------------------------------------
-    template<unsigned XScale, unsigned AA_Shift> 
-    bool rasterizer_scanline_aa<XScale, AA_Shift>::hit_test(int tx, int ty)
-    {
-        close_polygon();
-        const cell_aa* const* cells = m_outline.cells();
-        if(m_outline.num_cells() == 0) return false;
-
-        int cover = 0;
-
-        const cell_aa* cur_cell = *cells++;
-        for(;;)
-        {
-            int alpha;
-            int coord  = cur_cell->packed_coord;
-            int x = cur_cell->x;
-            int y = cur_cell->y;
-
-            if(y > ty) return false;
-
-            int area   = cur_cell->area;
-            cover     += cur_cell->cover;
-
-            while((cur_cell = *cells++) != 0)
-            {
-                if(cur_cell->packed_coord != coord) break;
-                area  += cur_cell->area;
-                cover += cur_cell->cover;
-            }
-
-            if(area)
-            {
-                alpha = calculate_alpha((cover << (poly_base_shift + 1)) - area);
-                if(alpha)
-                {
-                    if(tx == x && ty == y) return true;
-                }
-                x++;
-            }
-
-            if(!cur_cell) break;
-
-            if(cur_cell->x > x)
-            {
-                alpha = calculate_alpha(cover << (poly_base_shift + 1));
-                if(alpha)
-                {
-                    if(ty == y && tx >= x && tx <= cur_cell->x) return true;
-                }
-            }
-        }
-        return false;
     }
 
 }

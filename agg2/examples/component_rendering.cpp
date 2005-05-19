@@ -4,8 +4,8 @@
 #include "agg_scanline_p.h"
 #include "agg_renderer_scanline.h"
 #include "agg_ellipse.h"
-#include "agg_pixfmt_gray8.h"
-#include "agg_pixfmt_rgb24.h"
+#include "agg_pixfmt_gray.h"
+#include "agg_pixfmt_rgb.h"
 #include "ctrl/agg_slider_ctrl.h"
 #include "platform/agg_platform_support.h"
 

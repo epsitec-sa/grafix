@@ -1,6 +1,6 @@
 //----------------------------------------------------------------------------
-// Anti-Grain Geometry - Version 2.2
-// Copyright (C) 2002-2004 Maxim Shemanarev (http://www.antigrain.com)
+// Anti-Grain Geometry - Version 2.3
+// Copyright (C) 2002-2005 Maxim Shemanarev (http://www.antigrain.com)
 //
 // Permission to copy, use, modify, sell and distribute this software 
 // is granted provided this copyright notice appears in all copies. 
@@ -99,16 +99,18 @@ namespace agg
     // are better, because switching between two different areas of memory 
     // (that can be very large) occures less frequently.
     //------------------------------------------------------------------------
-    template<class T> class scanline_u
+    template<class CoverT, class CoordT=int16> class scanline_u
     {
     public:
-        typedef T cover_type;
+        typedef scanline_u<CoverT, CoordT> self_type;
+        typedef CoverT cover_type;
+        typedef CoordT coord_type;
 
         //--------------------------------------------------------------------
         struct span
         {
-            int16 x;
-            int16 len;
+            coord_type  x;
+            coord_type  len;
             cover_type* covers;
         };
 
@@ -121,7 +123,7 @@ namespace agg
 
         void     reset(int min_x, int max_x);
         void     add_cell(int x, unsigned cover);
-        void     add_cells(int x, unsigned len, const T* covers);
+        void     add_cells(int x, unsigned len, const CoverT* covers);
         void     add_span(int x, unsigned len, unsigned cover);
         void     finalize(int y) { m_y = y; }
         void     reset_spans();
@@ -132,8 +134,8 @@ namespace agg
         iterator       begin()       { return m_spans + 1; }
 
     private:
-        scanline_u<T>(const scanline_u<T>&);
-        const scanline_u<T>& operator = (const scanline_u<T>&);
+        scanline_u(const self_type&);
+        const self_type& operator = (const self_type&);
 
     private:
         int           m_min_x;
@@ -148,7 +150,8 @@ namespace agg
 
 
     //------------------------------------------------------------------------
-    template<class T> scanline_u<T>::~scanline_u()
+    template<class CoverT, class CoordT> 
+    scanline_u<CoverT, CoordT>::~scanline_u()
     {
         delete [] m_spans;
         delete [] m_covers;
@@ -156,7 +159,7 @@ namespace agg
 
 
     //------------------------------------------------------------------------
-    template<class T> scanline_u<T>::scanline_u() :
+    template<class CoverT, class CoordT> scanline_u<CoverT, CoordT>::scanline_u() :
         m_min_x(0),
         m_max_len(0),
         m_last_x(0x7FFFFFF0),
@@ -168,7 +171,8 @@ namespace agg
 
 
     //------------------------------------------------------------------------
-    template<class T> void scanline_u<T>::reset(int min_x, int max_x)
+    template<class CoverT, class CoordT> 
+    void scanline_u<CoverT, CoordT>::reset(int min_x, int max_x)
     {
         unsigned max_len = max_x - min_x + 2;
         if(max_len > m_max_len)
@@ -186,7 +190,8 @@ namespace agg
 
 
     //------------------------------------------------------------------------
-    template<class T> inline void scanline_u<T>::reset_spans()
+    template<class CoverT, class CoordT> 
+    inline void scanline_u<CoverT, CoordT>::reset_spans()
     {
         m_last_x    = 0x7FFFFFF0;
         m_cur_span  = m_spans;
@@ -194,7 +199,8 @@ namespace agg
 
 
     //------------------------------------------------------------------------
-    template<class T> inline void scanline_u<T>::add_cell(int x, unsigned cover)
+    template<class CoverT, class CoordT> 
+    inline void scanline_u<CoverT, CoordT>::add_cell(int x, unsigned cover)
     {
         x -= m_min_x;
         m_covers[x] = (unsigned char)cover;
@@ -205,7 +211,7 @@ namespace agg
         else
         {
             m_cur_span++;
-            m_cur_span->x      = (int16)(x + m_min_x);
+            m_cur_span->x      = (coord_type)(x + m_min_x);
             m_cur_span->len    = 1;
             m_cur_span->covers = m_covers + x;
         }
@@ -214,19 +220,20 @@ namespace agg
 
 
     //------------------------------------------------------------------------
-    template<class T> void scanline_u<T>::add_cells(int x, unsigned len, const T* covers)
+    template<class CoverT, class CoordT> 
+    void scanline_u<CoverT, CoordT>::add_cells(int x, unsigned len, const CoverT* covers)
     {
         x -= m_min_x;
-        memcpy(m_covers + x, covers, len * sizeof(T));
+        memcpy(m_covers + x, covers, len * sizeof(CoverT));
         if(x == m_last_x+1)
         {
-            m_cur_span->len += (int16)len;
+            m_cur_span->len += (coord_type)len;
         }
         else
         {
             m_cur_span++;
-            m_cur_span->x      = (int16)(x + m_min_x);
-            m_cur_span->len    = (int16)len;
+            m_cur_span->x      = (coord_type)(x + m_min_x);
+            m_cur_span->len    = (coord_type)len;
             m_cur_span->covers = m_covers + x;
         }
         m_last_x = x + len - 1;
@@ -234,19 +241,20 @@ namespace agg
 
 
     //------------------------------------------------------------------------
-    template<class T> void scanline_u<T>::add_span(int x, unsigned len, unsigned cover)
+    template<class CoverT, class CoordT> 
+    void scanline_u<CoverT, CoordT>::add_span(int x, unsigned len, unsigned cover)
     {
         x -= m_min_x;
         memset(m_covers + x, cover, len);
         if(x == m_last_x+1)
         {
-            m_cur_span->len += (int16)len;
+            m_cur_span->len += (coord_type)len;
         }
         else
         {
             m_cur_span++;
-            m_cur_span->x      = (int16)(x + m_min_x);
-            m_cur_span->len    = (int16)len;
+            m_cur_span->x      = (coord_type)(x + m_min_x);
+            m_cur_span->len    = (coord_type)len;
             m_cur_span->covers = m_covers + x;
         }
         m_last_x = x + len - 1;
@@ -254,13 +262,13 @@ namespace agg
 
 
     //=============================================================scanline_u8
-    typedef scanline_u<int8u> scanline_u8;
+    typedef scanline_u<int8u, int16> scanline_u8;
 
     //============================================================scanline_u16
-    typedef scanline_u<int16u> scanline_u16;
+    typedef scanline_u<int16u, int16> scanline_u16;
 
     //============================================================scanline_u32
-    typedef scanline_u<int32u> scanline_u32;
+    typedef scanline_u<int32u, int16> scanline_u32;
 
 
     //=============================================================scanline_am
@@ -268,13 +276,14 @@ namespace agg
     // The scanline container with alpha-masking
     // 
     //------------------------------------------------------------------------
-    template<class AlphaMask, class CoverT> 
-    class scanline_am : public scanline_u<CoverT>
+    template<class AlphaMask, class CoverT, class CoordT=int16> 
+    class scanline_am : public scanline_u<CoverT, CoordT>
     {
     public:
         typedef AlphaMask alpha_mask_type;
         typedef CoverT cover_type;
-        typedef scanline_u<CoverT> scanline_type;
+        typedef CoordT coord_type;
+        typedef scanline_u<CoverT, CoordT> scanline_type;
 
         scanline_am() : scanline_type(), m_alpha_mask(0) {}
         scanline_am(const AlphaMask& am) : scanline_type(), m_alpha_mask(&am) {}
@@ -282,7 +291,7 @@ namespace agg
         //--------------------------------------------------------------------
         void finalize(int span_y)
         {
-            scanline_u<CoverT>::finalize(span_y);
+            scanline_type::finalize(span_y);
             if(m_alpha_mask)
             {
                 typename scanline_type::iterator span = scanline_type::begin();
@@ -306,7 +315,7 @@ namespace agg
 
     //==========================================================scanline_u8_am
     template<class AlphaMask> 
-    class scanline_u8_am : public scanline_am<AlphaMask, int8u>
+    class scanline_u8_am : public scanline_am<AlphaMask, int8u, int16>
     {
     public:
         typedef AlphaMask alpha_mask_type;

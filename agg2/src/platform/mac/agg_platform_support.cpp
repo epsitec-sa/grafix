@@ -1,6 +1,6 @@
 //----------------------------------------------------------------------------
-// Anti-Grain Geometry - Version 2.0 
-// Copyright (C) 2002 Maxim Shemanarev (McSeem)
+// Anti-Grain Geometry - Version 2.3 
+// Copyright (C) 2002-2005 Maxim Shemanarev (McSeem)
 // Copyright (C) 2003 Hansruedi Baer (MacOS support)
 //
 // Permission to copy, use, modify, sell and distribute this software 

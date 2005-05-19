@@ -1,6 +1,6 @@
 //----------------------------------------------------------------------------
-// Anti-Grain Geometry - Version 2.2
-// Copyright (C) 2002-2004 Maxim Shemanarev (http://www.antigrain.com)
+// Anti-Grain Geometry - Version 2.3
+// Copyright (C) 2002-2005 Maxim Shemanarev (http://www.antigrain.com)
 //
 // Permission to copy, use, modify, sell and distribute this software 
 // is granted provided this copyright notice appears in all copies. 
@@ -20,6 +20,7 @@
 #include "platform/agg_platform_support.h"
 #include "util/agg_color_conv_rgb8.h"
 
+#include <sys/time.h>
 #include <cstring>
 
 #include <classes/requester.h>
@@ -32,26 +33,22 @@
 #include <proto/intuition.h>
 #include <proto/keymap.h>
 #include <proto/Picasso96API.h>
-#include <proto/requester.h>
 #include <proto/utility.h>
-#include <proto/window.h>
-
 
 Library* DataTypesBase = 0;
 Library* GraphicsBase = 0;
 Library* IntuitionBase = 0;
 Library* KeymapBase = 0;
 Library* P96Base = 0;
-Library* RequesterBase = 0;
-Library* WindowBase = 0;
 
 DataTypesIFace* IDataTypes = 0;
 GraphicsIFace* IGraphics = 0;
 IntuitionIFace* IIntuition = 0;
 KeymapIFace* IKeymap = 0;
 P96IFace* IP96 = 0;
-RequesterIFace* IRequester = 0;
-WindowIFace* IWindow = 0;
+
+Class* RequesterClass = 0;
+Class* WindowClass = 0;
 
 
 namespace agg
@@ -69,6 +66,7 @@ namespace agg
 		bool load_img(const char* file, unsigned idx, rendering_buffer* rbuf);
 		bool create_img(unsigned idx, rendering_buffer* rbuf, unsigned width,
 			unsigned height);
+		bool make_bitmap();
 	public:
 		platform_support& m_support;
 		RGBFTYPE m_ftype;
@@ -189,6 +187,14 @@ namespace agg
 				if ( !m_support.wait_mode() )
 				{
 					m_support.on_idle();
+				}
+				break;
+			case WMHI_NEWSIZE:
+				if ( make_bitmap() )
+				{
+					m_support.trans_affine_resizing(m_width, m_height);
+					m_support.on_resize(m_width, m_height);
+					m_support.force_redraw();
 				}
 				break;
 			}
@@ -348,6 +354,43 @@ namespace agg
 	}
 
 	//------------------------------------------------------------------------
+	bool platform_specific::make_bitmap()
+	{
+		uint32 width = 0;
+		uint32 height = 0;
+		IIntuition->GetWindowAttrs(m_window,
+			WA_InnerWidth, &width,
+			WA_InnerHeight, &height,
+			TAG_END);
+
+		BitMap* bm = IP96->p96AllocBitMap(width, height, m_bpp,
+			BMF_USERPRIVATE|BMF_CLEAR, 0, m_ftype);
+		if ( bm == 0 )
+		{
+			return false;
+		}
+
+		int8u* buf = reinterpret_cast<int8u*>(
+			IP96->p96GetBitMapAttr(bm, P96BMA_MEMORY));
+		int bpr = IP96->p96GetBitMapAttr(bm, P96BMA_BYTESPERROW);
+		int stride = (m_flip_y) ? -bpr : bpr;
+
+		m_support.rbuf_window().attach(buf, width, height, stride);
+
+		if ( m_bitmap != 0 )
+		{
+			IP96->p96FreeBitMap(m_bitmap);
+			m_bitmap = 0;
+		}
+
+		m_bitmap = bm;
+		m_width = width;
+		m_height = height;
+
+		return true;
+	}
+
+	//------------------------------------------------------------------------
 	platform_support::platform_support(pix_format_e format, bool flip_y) :
 		m_specific(new platform_specific(*this, format, flip_y)),
 		m_format(format),
@@ -374,27 +417,25 @@ namespace agg
 		if ( m_specific->m_window != 0 )
 		{
 			const char* ignore = reinterpret_cast<const char*>(-1);
-			IIntuition->SetWindowTitles(m_specific->m_window,
-				m_caption, ignore);
+			IIntuition->SetWindowAttr(m_specific->m_window,
+				WA_Title, m_caption, sizeof(char*));
 		}
 	}
 
 	//------------------------------------------------------------------------
 	void platform_support::start_timer()
 	{
-		uint32 seconds;
-		uint32 micros;
-		IIntuition->CurrentTime(&seconds, &micros);
-		m_specific->m_start_time = seconds + micros/1e6;
+		timeval tv;
+		gettimeofday(&tv, 0);
+		m_specific->m_start_time = tv.tv_secs + tv.tv_micro/1e6;
 	}
 
 	//------------------------------------------------------------------------
 	double platform_support::elapsed_time() const
 	{
-		uint32 seconds = 0;
-		uint32 micros = 0;
-		IIntuition->CurrentTime(&seconds, &micros);
-		double end_time = seconds + micros/1e6;
+		timeval tv;
+		gettimeofday(&tv, 0);
+		double end_time = tv.tv_secs + tv.tv_micro/1e6;
 
 		double elasped_seconds = end_time - m_specific->m_start_time;
 		double elasped_millis = elasped_seconds*1e3;
@@ -411,7 +452,7 @@ namespace agg
 	//------------------------------------------------------------------------
 	void platform_support::message(const char* msg)
 	{
-		APTR req = IIntuition->NewObject(IRequester->REQUESTER_GetClass(), 0,
+		APTR req = IIntuition->NewObject(RequesterClass, 0,
 			REQ_TitleText, "Anti-Grain Geometry",
 			REQ_Image, REQIMAGE_INFO,
 			REQ_BodyText, msg,
@@ -456,8 +497,7 @@ namespace agg
 			return false;
 		}
 
-		m_specific->m_window_obj = IIntuition->NewObject(
-			IWindow->WINDOW_GetClass(), 0,
+		m_specific->m_window_obj = IIntuition->NewObject(WindowClass, 0,
 				WA_Title, m_caption,
 				WA_AutoAdjustDClip, TRUE,
 				WA_InnerWidth, width,
@@ -467,12 +507,14 @@ namespace agg
 				WA_NoCareRefresh, TRUE,
 				WA_CloseGadget, TRUE,
 				WA_DepthGadget, TRUE,
+				WA_SizeGadget, (flags & agg::window_resize) ? TRUE : FALSE,
 				WA_DragBar, TRUE,
 				WA_AutoAdjust, TRUE,
 				WA_ReportMouse, TRUE,
 				WA_RMBTrap, TRUE,
 				WA_MouseQueue, 1,
 				WA_IDCMP,
+					IDCMP_NEWSIZE |
 					IDCMP_MOUSEBUTTONS |
 					IDCMP_MOUSEMOVE |
 					IDCMP_RAWKEY |
@@ -501,6 +543,7 @@ namespace agg
 
 		switch ( ftype )
 		{
+		case RGBFB_A8R8G8B8:
 		case RGBFB_B8G8R8A8:
 		case RGBFB_R5G6B5PC:
 			break;
@@ -509,24 +552,10 @@ namespace agg
 			return false;
 		}
 
-		m_specific->m_bitmap = IP96->p96AllocBitMap(width, height,
-			m_specific->m_bpp, BMF_USERPRIVATE|BMF_CLEAR, 0,
-			m_specific->m_ftype);
-		if ( m_specific->m_bitmap == 0 )
+		if ( !m_specific->make_bitmap() )
 		{
 			return false;
 		}
-
-		int8u* buf = reinterpret_cast<int8u*>(
-			IP96->p96GetBitMapAttr(m_specific->m_bitmap, P96BMA_MEMORY));
-		int bpr = IP96->p96GetBitMapAttr(m_specific->m_bitmap,
-			P96BMA_BYTESPERROW);
-		int stride = (m_flip_y) ? -bpr : bpr;
-
-		m_rbuf_window.attach(buf, width, height, stride);
-
-		m_specific->m_width = width;
-		m_specific->m_height = height;
 
 		m_initial_width = width;
 		m_initial_height = height;
@@ -631,7 +660,6 @@ namespace agg
 		on_draw();
 		update_window();
 	}
-
 
 	//------------------------------------------------------------------------
 	void platform_support::update_window()
@@ -862,21 +890,19 @@ namespace agg
 	}
 }
 
-
 //----------------------------------------------------------------------------
 int agg_main(int argc, char* argv[]);
-
+bool open_libs();
+void close_libs();
 
 //----------------------------------------------------------------------------
-int main(int argc, char* argv[])
+bool open_libs()
 {
 	DataTypesBase = IExec->OpenLibrary("datatypes.library", 51);
 	GraphicsBase = IExec->OpenLibrary("graphics.library", 51);
 	IntuitionBase = IExec->OpenLibrary("intuition.library", 51);
 	KeymapBase = IExec->OpenLibrary("keymap.library", 51);
 	P96Base = IExec->OpenLibrary("Picasso96API.library", 2);
-	RequesterBase = IExec->OpenLibrary("requester.class", 51);
-	WindowBase = IExec->OpenLibrary("window.class", 51);
 
 	IDataTypes = reinterpret_cast<DataTypesIFace*>(
 		IExec->GetInterface(DataTypesBase, "main", 1, 0));
@@ -888,40 +914,64 @@ int main(int argc, char* argv[])
 		IExec->GetInterface(KeymapBase, "main", 1, 0));
 	IP96 = reinterpret_cast<P96IFace*>(
 		IExec->GetInterface(P96Base, "main", 1, 0));
-	IRequester = reinterpret_cast<RequesterIFace*>(
-		IExec->GetInterface(RequesterBase, "main", 1, 0));
-	IWindow = reinterpret_cast<WindowIFace*>(
-		IExec->GetInterface(WindowBase, "main", 1, 0));
 
 	if ( IDataTypes == 0 ||
 		 IGraphics == 0 ||
 		 IIntuition == 0 ||
 		 IKeymap == 0 ||
-		 IP96 == 0 ||
-		 IRequester == 0 ||
-		 IWindow == 0 )
+		 IP96 == 0 )
 	{
-		IDOS->Printf("Can't open libraries.\n");
-		return -1;
+		close_libs();
+		return false;
 	}
+	else
+	{
+		return true;
+	}
+}
 
-	int rc = agg_main(argc, argv);
-
-	IExec->DropInterface(reinterpret_cast<Interface*>(IWindow));
-	IExec->DropInterface(reinterpret_cast<Interface*>(IRequester));
+//----------------------------------------------------------------------------
+void close_libs()
+{
 	IExec->DropInterface(reinterpret_cast<Interface*>(IP96));
 	IExec->DropInterface(reinterpret_cast<Interface*>(IKeymap));
 	IExec->DropInterface(reinterpret_cast<Interface*>(IIntuition));
 	IExec->DropInterface(reinterpret_cast<Interface*>(IGraphics));
 	IExec->DropInterface(reinterpret_cast<Interface*>(IDataTypes));
 
-	IExec->CloseLibrary(WindowBase);
-	IExec->CloseLibrary(RequesterBase);
 	IExec->CloseLibrary(P96Base);
 	IExec->CloseLibrary(KeymapBase);
 	IExec->CloseLibrary(IntuitionBase);
 	IExec->CloseLibrary(GraphicsBase);
 	IExec->CloseLibrary(DataTypesBase);
+}
+
+//----------------------------------------------------------------------------
+int main(int argc, char* argv[])
+{
+	if ( !open_libs() )  {
+		IDOS->Printf("Can't open libraries.\n");
+		return -1;
+	}
+
+	ClassLibrary* requester =
+		IIntuition->OpenClass("requester.class", 51, &RequesterClass);
+	ClassLibrary* window =
+		IIntuition->OpenClass("window.class", 51, &WindowClass);
+	if ( requester == 0 || window == 0 )
+	{
+		IDOS->Printf("Can't open classes.\n");
+		IIntuition->CloseClass(requester);
+		IIntuition->CloseClass(window);
+		close_libs();
+		return -1;
+	}
+
+	int rc = agg_main(argc, argv);
+
+	IIntuition->CloseClass(window);
+	IIntuition->CloseClass(requester);
+	close_libs();
 
 	return rc;
 }

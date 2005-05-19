@@ -1,6 +1,6 @@
 //----------------------------------------------------------------------------
-// Anti-Grain Geometry - Version 2.2
-// Copyright (C) 2002-2004 Maxim Shemanarev (http://www.antigrain.com)
+// Anti-Grain Geometry - Version 2.3
+// Copyright (C) 2002-2005 Maxim Shemanarev (http://www.antigrain.com)
 //
 // Permission to copy, use, modify, sell and distribute this software 
 // is granted provided this copyright notice appears in all copies. 
@@ -46,60 +46,30 @@ namespace agg
         };
 
     public:
-
         //--------------------------------------------------------------------
-        class const_iterator
+        class vertex_source
         {
-            void vertex()
-            {
-                if(m_vertex_idx < m_path->total_vertices()) 
-                {
-                    m_vertex.cmd = m_path->vertex(m_vertex_idx, &m_vertex.x, &m_vertex.y);
-                }
-                else
-                {
-                    m_vertex.cmd = path_cmd_stop;
-                    m_vertex.x = m_vertex.y = 0.0;
-                }
-            }
-
         public:
-            const_iterator() {}
-            const_iterator(unsigned cmd) { m_vertex.cmd = cmd; }
-            const_iterator(const const_iterator& i) : 
-                m_path(i.m_path),
-                m_vertex_idx(i.m_vertex_idx),
-                m_vertex(i.m_vertex) 
+            vertex_source() {}
+            vertex_source(const path_storage& p) : m_path(&p), m_vertex_idx(0) {}
+
+            void rewind(unsigned path_id)
             {
+                m_vertex_idx = path_id;
             }
 
-            const_iterator(const path_storage& p, unsigned id) : 
-                m_path(&p),
-                m_vertex_idx(id)
+            unsigned vertex(double* x, double* y)
             {
-                vertex();
-            }
-
-            const_iterator& operator++() 
-            {
-                ++m_vertex_idx;
-                vertex();
-                return *this;
-            }
-
-            const vertex_type& operator*() const { return m_vertex; }
-            const vertex_type* operator->() const { return &m_vertex; }
-
-            bool operator != (const const_iterator& i) 
-            { 
-                return m_vertex.cmd != i.m_vertex.cmd; 
+                return (m_vertex_idx < m_path->total_vertices())? 
+                    m_path->vertex(m_vertex_idx++, x, y):
+                    path_cmd_stop;
             }
 
         private:
             const path_storage* m_path;
             unsigned            m_vertex_idx;
-            vertex_type         m_vertex;
         };
+
 
         ~path_storage();
         path_storage();
@@ -110,6 +80,9 @@ namespace agg
         unsigned last_vertex(double* x, double* y) const;
         unsigned prev_vertex(double* x, double* y) const;
 
+        double last_x() const;
+        double last_y() const;
+
         void rel_to_abs(double* x, double* y) const;
 
         void move_to(double x, double y);
@@ -117,6 +90,12 @@ namespace agg
 
         void line_to(double x, double y);
         void line_rel(double dx, double dy);
+
+        void hline_to(double x);
+        void hline_rel(double dx);
+
+        void vline_to(double y);
+        void vline_rel(double dy);
 
         void arc_to(double rx, double ry,
                     double angle,
@@ -211,10 +190,6 @@ namespace agg
         void     rewind(unsigned path_id);
         unsigned vertex(double* x, double* y);
 
-        const_iterator begin(unsigned id) const { return const_iterator(*this, id); }
-        const_iterator begin()            const { return const_iterator(*this, 0); }
-        const_iterator end()              const { return const_iterator(path_cmd_stop); }
-
         // Arrange the orientation of all the polygons. After calling this
         // method all the polygons will have the same orientation
         // determined by the new_orientation flag, i.e., 
@@ -294,6 +269,28 @@ namespace agg
     }
 
     //------------------------------------------------------------------------
+    inline double path_storage::last_x() const
+    {
+        if(m_total_vertices)
+        {
+            unsigned idx = m_total_vertices - 1;
+            return m_coord_blocks[idx >> block_shift][(idx & block_mask) << 1];
+        }
+        return 0.0;
+    }
+
+    //------------------------------------------------------------------------
+    inline double path_storage::last_y() const
+    {
+        if(m_total_vertices)
+        {
+            unsigned idx = m_total_vertices - 1;
+            return m_coord_blocks[idx >> block_shift][((idx & block_mask) << 1) + 1];
+        }
+        return 0.0;
+    }
+
+    //------------------------------------------------------------------------
     inline void path_storage::rel_to_abs(double* x, double* y) const
     {
         if(m_total_vertices)
@@ -357,6 +354,35 @@ namespace agg
         rel_to_abs(&dx, &dy);
         add_vertex(dx, dy, path_cmd_line_to);
     }
+
+    //------------------------------------------------------------------------
+    inline void path_storage::hline_to(double x)
+    {
+        add_vertex(x, last_y(), path_cmd_line_to);
+    }
+
+    //------------------------------------------------------------------------
+    inline void path_storage::hline_rel(double dx)
+    {
+        double dy = 0;
+        rel_to_abs(&dx, &dy);
+        add_vertex(dx, dy, path_cmd_line_to);
+    }
+
+    //------------------------------------------------------------------------
+    inline void path_storage::vline_to(double y)
+    {
+        add_vertex(last_x(), y, path_cmd_line_to);
+    }
+
+    //------------------------------------------------------------------------
+    inline void path_storage::vline_rel(double dy)
+    {
+        double dx = 0;
+        rel_to_abs(&dx, &dy);
+        add_vertex(dx, dy, path_cmd_line_to);
+    }
+
 }
 
 

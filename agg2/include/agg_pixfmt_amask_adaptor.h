@@ -1,6 +1,6 @@
 //----------------------------------------------------------------------------
-// Anti-Grain Geometry - Version 2.2
-// Copyright (C) 2002-2004 Maxim Shemanarev (http://www.antigrain.com)
+// Anti-Grain Geometry - Version 2.3
+// Copyright (C) 2002-2005 Maxim Shemanarev (http://www.antigrain.com)
 //
 // Permission to copy, use, modify, sell and distribute this software 
 // is granted provided this copyright notice appears in all copies. 
@@ -29,6 +29,8 @@ namespace agg
     public:
         typedef PixFmt pixfmt_type;
         typedef typename pixfmt_type::color_type color_type;
+        typedef typename pixfmt_type::row_data row_data;
+        typedef typename pixfmt_type::span_data span_data;
         typedef AlphaMask amask_type;
         typedef typename amask_type::cover_type cover_type;
 
@@ -164,6 +166,15 @@ namespace agg
             init_span(len, covers);
             m_mask->combine_vspan(x, y, m_span, len);
             m_pixf->blend_solid_vspan(x, y, len, c, m_span);
+        }
+
+
+        //--------------------------------------------------------------------
+        void copy_color_hspan(int x, int y, unsigned len, const color_type* colors)
+        {
+            realloc_span(len);
+            m_mask->fill_hspan(x, y, m_span, len);
+            m_pixf->blend_color_hspan(x, y, len, colors, m_span, cover_full);
         }
 
 

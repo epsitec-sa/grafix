@@ -13,7 +13,7 @@
 #include "agg_vcgen_markers_term.h"
 #include "agg_scanline_p.h"
 #include "agg_renderer_scanline.h"
-#include "agg_pixfmt_rgb24.h"
+#include "agg_pixfmt_rgb.h"
 #include "platform/agg_platform_support.h"
 #include "ctrl/agg_slider_ctrl.h"
 #include "ctrl/agg_rbox_ctrl.h"

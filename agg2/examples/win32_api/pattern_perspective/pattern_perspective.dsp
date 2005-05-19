@@ -132,16 +132,44 @@ SOURCE=..\..\..\src\platform\win32\agg_win32_bmp.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\pattern_perspective.cpp
+SOURCE=..\..\interactive_polygon.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\interactive_polygon.cpp
+SOURCE=..\..\pattern_perspective.cpp
 # End Source File
 # End Group
 # Begin Group "Header Files"
 
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
+# Begin Source File
+
+SOURCE=..\..\..\include\agg_span_allocator.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\include\agg_span_generator.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\include\agg_span_image_filter.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\include\agg_span_image_filter_rgba.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\include\agg_span_pattern_filter_gray.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\include\agg_span_pattern_filter_rgb.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\include\agg_span_pattern_filter_rgba.h
+# End Source File
 # End Group
 # Begin Group "Resource Files"
 

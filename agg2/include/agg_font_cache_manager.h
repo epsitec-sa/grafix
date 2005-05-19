@@ -1,6 +1,6 @@
 //----------------------------------------------------------------------------
-// Anti-Grain Geometry - Version 2.2
-// Copyright (C) 2002-2004 Maxim Shemanarev (http://www.antigrain.com)
+// Anti-Grain Geometry - Version 2.3
+// Copyright (C) 2002-2005 Maxim Shemanarev (http://www.antigrain.com)
 //
 // Permission to copy, use, modify, sell and distribute this software 
 // is granted provided this copyright notice appears in all copies. 
@@ -101,7 +101,7 @@ namespace agg
 
             glyph_cache* glyph = 
                 (glyph_cache*)m_allocator.allocate(sizeof(glyph_cache),
-                                                   sizeof(int8u*));
+                                                   sizeof(double));
 
             glyph->glyph_index = glyph_index;
             glyph->data        = m_allocator.allocate(data_size);

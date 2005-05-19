@@ -9,7 +9,7 @@
 #include "agg_conv_smooth_poly1.h"
 #include "agg_scanline_p.h"
 #include "agg_renderer_scanline.h"
-#include "agg_span_pattern_rgba32.h"
+#include "agg_span_pattern_rgba.h"
 #include "ctrl/agg_slider_ctrl.h"
 #include "ctrl/agg_rbox_ctrl.h"
 #include "ctrl/agg_cbox_ctrl.h"
@@ -18,9 +18,9 @@
 enum { flip_y = true };
 
 //#define AGG_GRAY8 
-#define AGG_BGR24 
+//#define AGG_BGR24 
 //#define AGG_RGB24
-//#define AGG_BGRA32 
+#define AGG_BGRA32 
 //#define AGG_RGBA32 
 //#define AGG_ARGB32 
 //#define AGG_ABGR32
@@ -33,17 +33,17 @@ enum { flip_y = true };
 
 class the_application : public agg::platform_support
 {
-    agg::slider_ctrl<agg::rgba8> m_polygon_angle;
-    agg::slider_ctrl<agg::rgba8> m_polygon_scale;
+    agg::slider_ctrl<agg::rgba> m_polygon_angle;
+    agg::slider_ctrl<agg::rgba> m_polygon_scale;
 
-    agg::slider_ctrl<agg::rgba8> m_pattern_angle;
-    agg::slider_ctrl<agg::rgba8> m_pattern_size;
+    agg::slider_ctrl<agg::rgba> m_pattern_angle;
+    agg::slider_ctrl<agg::rgba> m_pattern_size;
 
-    agg::slider_ctrl<agg::rgba8> m_pattern_alpha;
+    agg::slider_ctrl<agg::rgba> m_pattern_alpha;
 
-    agg::cbox_ctrl<agg::rgba8> m_rotate_polygon;
-    agg::cbox_ctrl<agg::rgba8> m_rotate_pattern;
-    agg::cbox_ctrl<agg::rgba8> m_tie_pattern;
+    agg::cbox_ctrl<agg::rgba> m_rotate_polygon;
+    agg::cbox_ctrl<agg::rgba> m_rotate_pattern;
+    agg::cbox_ctrl<agg::rgba> m_tie_pattern;
 
     double m_polygon_cx;
     double m_polygon_cy;
@@ -165,7 +165,6 @@ public:
         agg::renderer_base<agg::pixfmt_rgba32> rb(pixf);
         agg::renderer_scanline_aa_solid<agg::renderer_base<agg::pixfmt_rgba32> > rs(rb);
 
-
         rb.clear(agg::rgba(0.4, 0.0, 0.1, m_pattern_alpha.value())); // Pattern background color
 
         m_ras.add_path(smooth);
@@ -214,7 +213,12 @@ public:
 
         agg::conv_transform<agg::path_storage> tr(m_ps, polygon_mtx);
 
-        typedef agg::span_pattern_rgba32<agg::order_rgba32> span_gen_type;
+        typedef agg::wrap_mode_reflect_auto_pow2 wrap_x_type;
+        typedef agg::wrap_mode_reflect_auto_pow2 wrap_y_type;
+        typedef agg::span_pattern_rgba<agg::rgba8, 
+                                       agg::order_rgba,
+                                       wrap_x_type,
+                                       wrap_y_type> span_gen_type;
         typedef agg::renderer_scanline_aa<renderer_base, span_gen_type> renderer_type;
 
         unsigned offset_x = 0;
@@ -229,7 +233,7 @@ public:
         agg::span_allocator<agg::rgba8> sa;
         span_gen_type sg(sa, m_pattern_rbuf, offset_x, offset_y);
 
-        sg.alpha(span_gen_type::alpha_type(m_pattern_alpha.value() * 255.0)); // Alpha is meaningful
+        sg.alpha(span_gen_type::value_type(m_pattern_alpha.value() * 255.0)); // Alpha is meaningful
                                                         // for RGB only because
                                                         // RGBA has its own
         renderer_type rp(rb, sg);

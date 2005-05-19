@@ -4,7 +4,8 @@
 #include "agg_rasterizer_scanline_aa.h"
 #include "agg_scanline_p.h"
 #include "agg_renderer_scanline.h"
-#include "agg_pixfmt_rgb24.h"
+#include "agg_pixfmt_rgb.h"
+#include "agg_gamma_lut.h"
 #include "agg_ellipse.h"
 #include "agg_rounded_rect.h"
 #include "agg_conv_stroke.h"
@@ -45,7 +46,8 @@ public:
         add_ctrl(m_offset);
         add_ctrl(m_white_on_black);
         m_gamma.label("gamma=%4.3f");
-        m_gamma.range(0.0, 2.0);
+        m_gamma.range(0.0, 3.0);
+        m_gamma.value(1.8);
 
         m_radius.label("radius=%4.3f");
         m_radius.range(0.0, 50.0);
@@ -61,11 +63,13 @@ public:
 
     virtual void on_draw()
     {
-        typedef agg::pixfmt_bgr24 pixfmt;
+        typedef agg::gamma_lut<agg::int8u, agg::int8u, 8, 8> gamma_lut_type;
+        typedef agg::pixfmt_bgr24_gamma<gamma_lut_type> pixfmt;
         typedef agg::renderer_base<pixfmt> renderer_base;
         typedef agg::renderer_scanline_aa_solid<renderer_base> renderer_solid;
-        
-        pixfmt pixf(rbuf_window());
+
+        gamma_lut_type gamma(m_gamma.value());
+        pixfmt pixf(rbuf_window(), gamma);
         renderer_base rb(pixf);
         renderer_solid ren(rb);
 
@@ -73,7 +77,6 @@ public:
 
         agg::rasterizer_scanline_aa<> ras;
         agg::scanline_p8 sl;
-        ras.gamma(agg::gamma_power(m_gamma.value()));
 
         agg::ellipse e;
 

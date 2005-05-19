@@ -3,8 +3,9 @@
 #include "agg_conv_stroke.h"
 #include "agg_rasterizer_scanline_aa.h"
 #include "agg_rendering_buffer.h"
-#include "agg_scanline_p.h"
+#include "agg_scanline_u.h"
 #include "agg_renderer_scanline.h"
+#include "agg_gamma_lut.h"
 #include "ctrl/agg_slider_ctrl.h"
 #include "platform/agg_platform_support.h"
 
@@ -44,7 +45,7 @@ public:
         m_contrast.label("Contrast");
 
         m_thickness.range(0.0, 3.0);
-        m_gamma.range(0.5, 2.0);
+        m_gamma.range(0.5, 3.0);
         m_contrast.range(0.0, 1.0);
 
         m_thickness.value(1.0);
@@ -60,10 +61,14 @@ public:
 
     virtual void on_draw()
     {
-        typedef agg::renderer_base<pixfmt> ren_base;
+        typedef agg::gamma_lut<agg::int8u, agg::int8u, 8, 8> gamma_type;
+        typedef pixfmt_gamma<gamma_type> pixfmt_type;
+        typedef agg::renderer_base<pixfmt_type> ren_base;
         typedef agg::renderer_scanline_aa_solid<ren_base> renderer;
 
-        pixfmt pixf(rbuf_window());
+        double g = m_gamma.value();
+        gamma_type gamma(g);
+        pixfmt_type pixf(rbuf_window(), gamma);
         ren_base renb(pixf);
         renderer ren(renb);
         renb.clear(agg::rgba(1, 1, 1));
@@ -72,22 +77,12 @@ public:
         double dark = 1.0 - m_contrast.value();
         double light = m_contrast.value();
 
-        renb.copy_bar(0,0,int(width())/2, int(height()),               agg::rgba(dark,dark,dark));
-        renb.copy_bar(int(width())/2+1,0, int(width()), int(height()), agg::rgba(light,light,light));
+        renb.copy_bar(0,0,int(width())/2, int(height()),                agg::rgba(dark,dark,dark));
+        renb.copy_bar(int(width())/2+1,0, int(width()), int(height()),  agg::rgba(light,light,light));
+        renb.copy_bar(0,int(height())/2+1, int(width()), int(height()), agg::rgba(1.0,dark,dark));
 
         agg::rasterizer_scanline_aa<> ras;
-        agg::scanline_p8 sl;
-
-        double g = m_gamma.value();
-
-        agg::trans_affine mtx;
-        agg::gsv_text txt;
-        agg::gsv_text_outline<> txto(txt, mtx);
-        txto.width(1.6);
-        txt.size(12.0, 10.0);
-
-        ras.gamma(agg::gamma_power(g));
-
+        agg::scanline_u8 sl;
         agg::path_storage path;
 
 

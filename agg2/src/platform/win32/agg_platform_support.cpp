@@ -1,6 +1,6 @@
 //----------------------------------------------------------------------------
-// Anti-Grain Geometry - Version 2.2
-// Copyright (C) 2002-2004 Maxim Shemanarev (http://www.antigrain.com)
+// Anti-Grain Geometry - Version 2.3
+// Copyright (C) 2002-2005 Maxim Shemanarev (http://www.antigrain.com)
 //
 // Permission to copy, use, modify, sell and distribute this software 
 // is granted provided this copyright notice appears in all copies. 
@@ -22,6 +22,7 @@
 #include "platform/agg_platform_support.h"
 #include "platform/win32/agg_win32_bmp.h"
 #include "util/agg_color_conv_rgb8.h"
+#include "util/agg_color_conv_rgb16.h"
 
 
 namespace agg
@@ -140,9 +141,21 @@ namespace agg
 
         switch(m_format)
         {
+        case pix_format_bw:
+            m_sys_format = pix_format_bw;
+            m_bpp = 1;
+            m_sys_bpp = 1;
+            break;
+
         case pix_format_gray8:
             m_sys_format = pix_format_gray8;
             m_bpp = 8;
+            m_sys_bpp = 8;
+            break;
+
+        case pix_format_gray16:
+            m_sys_format = pix_format_gray8;
+            m_bpp = 16;
             m_sys_bpp = 8;
             break;
 
@@ -153,10 +166,26 @@ namespace agg
             m_sys_bpp = 16;
             break;
 
+        case pix_format_rgbAAA:
+        case pix_format_bgrAAA:
+        case pix_format_rgbBBA:
+        case pix_format_bgrABB:
+            m_sys_format = pix_format_bgr24;
+            m_bpp = 32;
+            m_sys_bpp = 24;
+            break;
+
         case pix_format_rgb24:
         case pix_format_bgr24:
             m_sys_format = pix_format_bgr24;
             m_bpp = 24;
+            m_sys_bpp = 24;
+            break;
+
+        case pix_format_rgb48:
+        case pix_format_bgr48:
+            m_sys_format = pix_format_bgr24;
+            m_bpp = 48;
             m_sys_bpp = 24;
             break;
 
@@ -166,6 +195,15 @@ namespace agg
         case pix_format_rgba32:
             m_sys_format = pix_format_bgra32;
             m_bpp = 32;
+            m_sys_bpp = 32;
+            break;
+
+        case pix_format_bgra64:
+        case pix_format_abgr64:
+        case pix_format_argb64:
+        case pix_format_rgba64:
+            m_sys_format = pix_format_bgra32;
+            m_bpp = 64;
             m_sys_bpp = 32;
             break;
         }
@@ -186,6 +224,83 @@ namespace agg
                       m_flip_y ?
                       m_pmap_window.stride() :
                      -m_pmap_window.stride());
+    }
+
+
+    //------------------------------------------------------------------------
+    static void convert_pmap(rendering_buffer* dst, 
+                             const rendering_buffer* src, 
+                             pix_format_e format)
+    {
+        switch(format)
+        {
+        case pix_format_gray8:
+            break;
+
+        case pix_format_gray16:
+            color_conv(dst, src, color_conv_gray16_to_gray8());
+            break;
+
+        case pix_format_rgb565:
+            color_conv(dst, src, color_conv_rgb565_to_rgb555());
+            break;
+
+        case pix_format_rgbAAA:
+            color_conv(dst, src, color_conv_rgbAAA_to_bgr24());
+            break;
+
+        case pix_format_bgrAAA:
+            color_conv(dst, src, color_conv_bgrAAA_to_bgr24());
+            break;
+
+        case pix_format_rgbBBA:
+            color_conv(dst, src, color_conv_rgbBBA_to_bgr24());
+            break;
+
+        case pix_format_bgrABB:
+            color_conv(dst, src, color_conv_bgrABB_to_bgr24());
+            break;
+
+        case pix_format_rgb24:
+            color_conv(dst, src, color_conv_rgb24_to_bgr24());
+            break;
+
+        case pix_format_rgb48:
+            color_conv(dst, src, color_conv_rgb48_to_bgr24());
+            break;
+
+        case pix_format_bgr48:
+            color_conv(dst, src, color_conv_bgr48_to_bgr24());
+            break;
+
+        case pix_format_abgr32:
+            color_conv(dst, src, color_conv_abgr32_to_bgra32());
+            break;
+
+        case pix_format_argb32:
+            color_conv(dst, src, color_conv_argb32_to_bgra32());
+            break;
+
+        case pix_format_rgba32:
+            color_conv(dst, src, color_conv_rgba32_to_bgra32());
+            break;
+
+        case pix_format_bgra64:
+            color_conv(dst, src, color_conv_bgra64_to_bgra32());
+            break;
+
+        case pix_format_abgr64:
+            color_conv(dst, src, color_conv_abgr64_to_bgra32());
+            break;
+
+        case pix_format_argb64:
+            color_conv(dst, src, color_conv_argb64_to_bgra32());
+            break;
+
+        case pix_format_rgba64:
+            color_conv(dst, src, color_conv_rgba64_to_bgra32());
+            break;
+        }
     }
 
 
@@ -211,31 +326,7 @@ namespace agg
                               pmap_tmp.stride() :
                              -pmap_tmp.stride());
 
-            switch(m_format)
-            {
-            case pix_format_gray8:
-                return;
-
-            case pix_format_rgb565:
-                color_conv(&rbuf_tmp, src, color_conv_rgb565_to_rgb555());
-                break;
-
-            case pix_format_rgb24:
-                color_conv(&rbuf_tmp, src, color_conv_rgb24_to_bgr24());
-                break;
-
-            case pix_format_abgr32:
-                color_conv(&rbuf_tmp, src, color_conv_abgr32_to_bgra32());
-                break;
-
-            case pix_format_argb32:
-                color_conv(&rbuf_tmp, src, color_conv_argb32_to_bgra32());
-                break;
-
-            case pix_format_rgba32:
-                color_conv(&rbuf_tmp, src, color_conv_rgba32_to_bgra32());
-                break;
-            }
+            convert_pmap(&rbuf_tmp, src, m_format);
             pmap_tmp.draw(dc);
         }
     }
@@ -263,31 +354,8 @@ namespace agg
                           m_flip_y ?
                           pmap_tmp.stride() :
                           -pmap_tmp.stride());
-        switch(m_format)
-        {
-        case pix_format_gray8:
-              return false;
 
-        case pix_format_rgb565:
-              color_conv(&rbuf_tmp, src, color_conv_rgb565_to_rgb555());
-              break;
-
-        case pix_format_rgb24:
-              color_conv(&rbuf_tmp, src, color_conv_rgb24_to_bgr24());
-              break;
-
-        case pix_format_abgr32:
-              color_conv(&rbuf_tmp, src, color_conv_abgr32_to_bgra32());
-              break;
-
-        case pix_format_argb32:
-              color_conv(&rbuf_tmp, src, color_conv_argb32_to_bgra32());
-              break;
-
-        case pix_format_rgba32:
-              color_conv(&rbuf_tmp, src, color_conv_rgba32_to_bgra32());
-              break;
-        }
+        convert_pmap(&rbuf_tmp, src, m_format);
         return pmap_tmp.save_as_bmp(fn);
     }
 
@@ -323,7 +391,21 @@ namespace agg
         switch(m_format)
         {
         case pix_format_gray8:
-            return false;
+            switch(pmap_tmp.bpp())
+            {
+            //case 16: color_conv(dst, &rbuf_tmp, color_conv_rgb555_to_gray8()); break;
+            case 24: color_conv(dst, &rbuf_tmp, color_conv_bgr24_to_gray8()); break;
+            //case 32: color_conv(dst, &rbuf_tmp, color_conv_bgra32_to_gray8()); break;
+            }
+            break;
+
+        case pix_format_gray16:
+            switch(pmap_tmp.bpp())
+            {
+            //case 16: color_conv(dst, &rbuf_tmp, color_conv_rgb555_to_gray16()); break;
+            case 24: color_conv(dst, &rbuf_tmp, color_conv_bgr24_to_gray16()); break;
+            //case 32: color_conv(dst, &rbuf_tmp, color_conv_bgra32_to_gray16()); break;
+            }
             break;
 
         case pix_format_rgb555:
@@ -362,6 +444,24 @@ namespace agg
             }
             break;
 
+        case pix_format_rgb48:
+            switch(pmap_tmp.bpp())
+            {
+            //case 16: color_conv(dst, &rbuf_tmp, color_conv_rgb555_to_rgb48()); break;
+            case 24: color_conv(dst, &rbuf_tmp, color_conv_bgr24_to_rgb48()); break;
+            //case 32: color_conv(dst, &rbuf_tmp, color_conv_bgra32_to_rgb48()); break;
+            }
+            break;
+
+        case pix_format_bgr48:
+            switch(pmap_tmp.bpp())
+            {
+            //case 16: color_conv(dst, &rbuf_tmp, color_conv_rgb555_to_bgr48()); break;
+            case 24: color_conv(dst, &rbuf_tmp, color_conv_bgr24_to_bgr48()); break;
+            //case 32: color_conv(dst, &rbuf_tmp, color_conv_bgra32_to_bgr48()); break;
+            }
+            break;
+
         case pix_format_abgr32:
             switch(pmap_tmp.bpp())
             {
@@ -397,6 +497,43 @@ namespace agg
             case 32: color_conv(dst, &rbuf_tmp, color_conv_bgra32_to_rgba32()); break;
             }
             break;
+
+        case pix_format_abgr64:
+            switch(pmap_tmp.bpp())
+            {
+            //case 16: color_conv(dst, &rbuf_tmp, color_conv_rgb555_to_abgr64()); break;
+            case 24: color_conv(dst, &rbuf_tmp, color_conv_bgr24_to_abgr64()); break;
+            //case 32: color_conv(dst, &rbuf_tmp, color_conv_bgra32_to_abgr64()); break;
+            }
+            break;
+
+        case pix_format_argb64:
+            switch(pmap_tmp.bpp())
+            {
+            //case 16: color_conv(dst, &rbuf_tmp, color_conv_rgb555_to_argb64()); break;
+            case 24: color_conv(dst, &rbuf_tmp, color_conv_bgr24_to_argb64()); break;
+            //case 32: color_conv(dst, &rbuf_tmp, color_conv_bgra32_to_argb64()); break;
+            }
+            break;
+
+        case pix_format_bgra64:
+            switch(pmap_tmp.bpp())
+            {
+            //case 16: color_conv(dst, &rbuf_tmp, color_conv_rgb555_to_bgra64()); break;
+            case 24: color_conv(dst, &rbuf_tmp, color_conv_bgr24_to_bgra64()); break;
+            //case 32: color_conv(dst, &rbuf_tmp, color_conv_bgra32_to_bgra64()); break;
+            }
+            break;
+
+        case pix_format_rgba64:
+            switch(pmap_tmp.bpp())
+            {
+            //case 16: color_conv(dst, &rbuf_tmp, color_conv_rgb555_to_rgba64()); break;
+            case 24: color_conv(dst, &rbuf_tmp, color_conv_bgr24_to_rgba64()); break;
+            //case 32: color_conv(dst, &rbuf_tmp, color_conv_bgra32_to_rgba64()); break;
+            }
+            break;
+
         }
 
         return true;
@@ -466,39 +603,6 @@ namespace agg
                       double(m_specific->m_sw_freq.QuadPart);
     }
 
-    
-/*
-    //------------------------------------------------------------------------
-    static char* unicode_to_ansi(LPCWSTR pszW) 
-    {
-        ULONG cbAnsi, cCharacters;
-        char* pszA = 0;
-
-        if (pszW == 0)
-        {
-            return 0;
-        }
-
-        cCharacters = wcslen(pszW)+1;
-        cbAnsi = cCharacters * 2;
-        pszA = new char[cbAnsi];
-
-        if(::WideCharToMultiByte(CP_ACP, 
-                                 0, 
-                                 pszW, 
-                                 cCharacters, 
-                                 pszA, 
-                                 cbAnsi, 
-                                 0, 
-                                 0) == 0)
-        {
-            delete [] pszA;
-            return 0;
-        }
-        return pszA;
-    } 
-*/
-
 
 
     //------------------------------------------------------------------------
@@ -546,6 +650,7 @@ namespace agg
 
         HDC dc = ::GetDC(app->m_specific->m_hwnd);
         app->m_specific->m_current_dc = dc;
+        LRESULT ret = 0;
 
         switch(msg) 
         {
@@ -570,14 +675,15 @@ namespace agg
         
         //--------------------------------------------------------------------
         case WM_LBUTTONDOWN:
-            app->m_specific->m_cur_x = LOWORD(lParam);
+            ::SetCapture(app->m_specific->m_hwnd);
+            app->m_specific->m_cur_x = int16(LOWORD(lParam));
             if(app->flip_y())
             {
-                app->m_specific->m_cur_y = app->rbuf_window().height() - HIWORD(lParam);
+                app->m_specific->m_cur_y = app->rbuf_window().height() - int16(HIWORD(lParam));
             }
             else
             {
-                app->m_specific->m_cur_y = HIWORD(lParam);
+                app->m_specific->m_cur_y = int16(HIWORD(lParam));
             }
             app->m_specific->m_input_flags = mouse_left | get_key_flags(wParam);
             
@@ -608,18 +714,25 @@ namespace agg
                                               app->m_specific->m_input_flags);
                 }
             }
+/*
+            if(!app->wait_mode())
+            {
+                app->on_idle();
+            }
+*/
             break;
 
         //--------------------------------------------------------------------
         case WM_LBUTTONUP:
-            app->m_specific->m_cur_x = LOWORD(lParam);
+            ::ReleaseCapture();
+            app->m_specific->m_cur_x = int16(LOWORD(lParam));
             if(app->flip_y())
             {
-                app->m_specific->m_cur_y = app->rbuf_window().height() - HIWORD(lParam);
+                app->m_specific->m_cur_y = app->rbuf_window().height() - int16(HIWORD(lParam));
             }
             else
             {
-                app->m_specific->m_cur_y = HIWORD(lParam);
+                app->m_specific->m_cur_y = int16(HIWORD(lParam));
             }
             app->m_specific->m_input_flags = mouse_left | get_key_flags(wParam);
 
@@ -632,53 +745,73 @@ namespace agg
             app->on_mouse_button_up(app->m_specific->m_cur_x, 
                                     app->m_specific->m_cur_y, 
                                     app->m_specific->m_input_flags);
+/*
+            if(!app->wait_mode())
+            {
+                app->on_idle();
+            }
+*/
             break;
 
 
         //--------------------------------------------------------------------
         case WM_RBUTTONDOWN:
-            app->m_specific->m_cur_x = LOWORD(lParam);
+            ::SetCapture(app->m_specific->m_hwnd);
+            app->m_specific->m_cur_x = int16(LOWORD(lParam));
             if(app->flip_y())
             {
-                app->m_specific->m_cur_y = app->rbuf_window().height() - HIWORD(lParam);
+                app->m_specific->m_cur_y = app->rbuf_window().height() - int16(HIWORD(lParam));
             }
             else
             {
-                app->m_specific->m_cur_y = HIWORD(lParam);
+                app->m_specific->m_cur_y = int16(HIWORD(lParam));
             }
             app->m_specific->m_input_flags = mouse_right | get_key_flags(wParam);
             app->on_mouse_button_down(app->m_specific->m_cur_x, 
                                       app->m_specific->m_cur_y, 
                                       app->m_specific->m_input_flags);
+/*
+            if(!app->wait_mode())
+            {
+                app->on_idle();
+            }
+*/
             break;
 
         //--------------------------------------------------------------------
         case WM_RBUTTONUP:
-            app->m_specific->m_cur_x = LOWORD(lParam);
+            ::ReleaseCapture();
+            app->m_specific->m_cur_x = int16(LOWORD(lParam));
             if(app->flip_y())
             {
-                app->m_specific->m_cur_y = app->rbuf_window().height() - HIWORD(lParam);
+                app->m_specific->m_cur_y = app->rbuf_window().height() - int16(HIWORD(lParam));
             }
             else
             {
-                app->m_specific->m_cur_y = HIWORD(lParam);
+                app->m_specific->m_cur_y = int16(HIWORD(lParam));
             }
             app->m_specific->m_input_flags = mouse_right | get_key_flags(wParam);
             app->on_mouse_button_up(app->m_specific->m_cur_x, 
                                     app->m_specific->m_cur_y, 
                                     app->m_specific->m_input_flags);
+/*
+            if(!app->wait_mode())
+            {
+                app->on_idle();
+            }
+*/
             break;
 
         //--------------------------------------------------------------------
         case WM_MOUSEMOVE:
-            app->m_specific->m_cur_x = LOWORD(lParam);
+            app->m_specific->m_cur_x = int16(LOWORD(lParam));
             if(app->flip_y())
             {
-                app->m_specific->m_cur_y = app->rbuf_window().height() - HIWORD(lParam);
+                app->m_specific->m_cur_y = app->rbuf_window().height() - int16(HIWORD(lParam));
             }
             else
             {
-                app->m_specific->m_cur_y = HIWORD(lParam);
+                app->m_specific->m_cur_y = int16(HIWORD(lParam));
             }
             app->m_specific->m_input_flags = get_key_flags(wParam);
 
@@ -701,6 +834,12 @@ namespace agg
                                        app->m_specific->m_input_flags);
                 }
             }
+/*
+            if(!app->wait_mode())
+            {
+                app->on_idle();
+            }
+*/
             break;
 
         //--------------------------------------------------------------------
@@ -753,20 +892,35 @@ namespace agg
                     break;
                 }
 
-
-                if(app->m_ctrls.on_arrow_keys(left, right, down, up))
-                {
-                    app->on_ctrl_change();
-                    app->force_redraw();
-                }
-                else
+                if(app->window_flags() & window_process_all_keys)
                 {
                     app->on_key(app->m_specific->m_cur_x,
                                 app->m_specific->m_cur_y,
                                 app->m_specific->m_last_translated_key,
                                 app->m_specific->m_input_flags);
                 }
+                else
+                {
+                    if(app->m_ctrls.on_arrow_keys(left, right, down, up))
+                    {
+                        app->on_ctrl_change();
+                        app->force_redraw();
+                    }
+                    else
+                    {
+                        app->on_key(app->m_specific->m_cur_x,
+                                    app->m_specific->m_cur_y,
+                                    app->m_specific->m_last_translated_key,
+                                    app->m_specific->m_input_flags);
+                    }
+                }
             }
+/*
+            if(!app->wait_mode())
+            {
+                app->on_idle();
+            }
+*/
             break;
 
         //--------------------------------------------------------------------
@@ -823,11 +977,12 @@ namespace agg
         
         //--------------------------------------------------------------------
         default:
-            return ::DefWindowProc(hWnd, msg, wParam, lParam);
+            ret = ::DefWindowProc(hWnd, msg, wParam, lParam);
+            break;
         }
         app->m_specific->m_current_dc = 0;
         ::ReleaseDC(app->m_specific->m_hwnd, dc);
-        return 0;
+        return ret;
     }
 
 

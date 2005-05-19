@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <stdio.h>
-#include "agg_color_rgba8.h"
+#include "agg_color_rgba.h"
 #include "agg_path_storage.h"
 #include "agg_bounding_rect.h"
 
@@ -171,7 +171,7 @@ unsigned parse_lion(agg::path_storage& path, agg::rgba8* colors, unsigned* path_
 
             // New color. Every new color creates new path in the path object.
             path.close_polygon();
-            colors[npaths] = agg::rgba8(c, agg::rgba8::rgb);
+            colors[npaths] = agg::rgb8_packed(c);
             path_idx[npaths] = path.start_new_path();
             npaths++;
             while(*ptr && *ptr != '\n') ptr++;

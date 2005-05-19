@@ -6,8 +6,8 @@
 #include "agg_scanline_p.h"
 #include "agg_renderer_scanline.h"
 #include "agg_span_allocator.h"
-#include "agg_span_gouraud_rgba8.h"
-#include "agg_span_gouraud_gray8.h"
+#include "agg_span_gouraud_rgba.h"
+#include "agg_span_gouraud_gray.h"
 #include "agg_span_solid.h"
 #include "platform/agg_platform_support.h"
 
@@ -15,7 +15,7 @@
 
 
 //#define AGG_GRAY8
-#define AGG_BGR24 
+#define AGG_BGR24
 //#define AGG_RGB24
 //#define AGG_BGRA32 
 //#define AGG_RGBA32 
@@ -40,9 +40,9 @@ class the_application : public agg::platform_support
     double m_dy;
     int    m_idx;
 
-    agg::slider_ctrl<agg::rgba8> m_dilation;
-    agg::slider_ctrl<agg::rgba8> m_gamma;
-    agg::slider_ctrl<agg::rgba8> m_alpha;
+    agg::slider_ctrl<agg::rgba> m_dilation;
+    agg::slider_ctrl<agg::rgba> m_gamma;
+    agg::slider_ctrl<agg::rgba> m_alpha;
 
 
 public:
@@ -75,14 +75,14 @@ public:
     template<class Scanline, class Ras> 
     void render_gouraud(Scanline& sl, Ras& ras)
     {
-        unsigned alpha = int(m_alpha.value() * 255.0);
-        unsigned brc = 255;
+        double alpha = m_alpha.value();
+        double brc = 1;
 
         typedef agg::renderer_base<pixfmt> base_ren_type;
 #ifdef AGG_GRAY8
-        typedef agg::span_gouraud_gray8<> gouraud_span_gen_type;
+        typedef agg::span_gouraud_gray<color_type> gouraud_span_gen_type;
 #else
-        typedef agg::span_gouraud_rgba8<> gouraud_span_gen_type;
+        typedef agg::span_gouraud_rgba<color_type> gouraud_span_gen_type;
 #endif
         typedef agg::span_allocator<gouraud_span_gen_type::color_type> gouraud_span_alloc_type;
         typedef agg::renderer_scanline_aa<base_ren_type, gouraud_span_gen_type> renderer_gouraud;
@@ -99,9 +99,9 @@ public:
         double d = m_dilation.value();
 
         // Single triangle
-        //span_gen.colors(agg::rgba8(255,   0,   0,  alpha),
-        //                agg::rgba8(0,   255,   0,  alpha),
-        //                agg::rgba8(0,     0, 255,  alpha));
+        //span_gen.colors(agg::rgba(1,   0,   0,  alpha),
+        //                agg::rgba(0,   1,   0,  alpha),
+        //                agg::rgba(0,   0,   1,  alpha));
         //span_gen.triangle(m_x[0], m_y[0], m_x[1], m_y[1], m_x[2], m_y[2], d);
         //ras.add_path(span_gen);
         //ras.render(sl, ren_gouraud);
@@ -120,50 +120,50 @@ public:
         double x3 = (m_x[0] + m_x[2]) / 2 - (xc - (m_x[0] + m_x[2]) / 2);
         double y3 = (m_y[0] + m_y[2]) / 2 - (yc - (m_y[0] + m_y[2]) / 2);
 
-        span_gen.colors(agg::rgba8(255,   0,   0,  alpha),
-                        agg::rgba8(0,   255,   0,  alpha),
-                        agg::rgba8(brc, brc, brc,  alpha));
+        span_gen.colors(agg::rgba(1,   0,   0,    alpha),
+                        agg::rgba(0,   1,   0,    alpha),
+                        agg::rgba(brc, brc, brc,  alpha));
         span_gen.triangle(m_x[0], m_y[0], m_x[1], m_y[1], xc, yc, d);
         ras.add_path(span_gen);
         agg::render_scanlines(ras, sl, ren_gouraud);
 
 
-        span_gen.colors(agg::rgba8(0,   255,   0,  alpha),
-                        agg::rgba8(0,   0,   255,  alpha),
-                        agg::rgba8(brc, brc, brc,  alpha));
+        span_gen.colors(agg::rgba(0,   1,   0,    alpha),
+                        agg::rgba(0,   0,   1,    alpha),
+                        agg::rgba(brc, brc, brc,  alpha));
         span_gen.triangle(m_x[1], m_y[1], m_x[2], m_y[2], xc, yc, d);
         ras.add_path(span_gen);
         agg::render_scanlines(ras, sl, ren_gouraud);
 
 
-        span_gen.colors(agg::rgba8(0,   0,   255, alpha),
-                        agg::rgba8(255, 0,   0,   alpha),
-                        agg::rgba8(brc, brc, brc, alpha));
+        span_gen.colors(agg::rgba(0,   0,   1,   alpha),
+                        agg::rgba(1,   0,   0,   alpha),
+                        agg::rgba(brc, brc, brc, alpha));
         span_gen.triangle(m_x[2], m_y[2], m_x[0], m_y[0], xc, yc, d);
         ras.add_path(span_gen);
         agg::render_scanlines(ras, sl, ren_gouraud);
 
 
-        brc = 255-brc;
-        span_gen.colors(agg::rgba8(255,   0,   0,  alpha),
-                        agg::rgba8(0,   255,   0,  alpha),
-                        agg::rgba8(brc, brc, brc,  alpha));
+        brc = 1-brc;
+        span_gen.colors(agg::rgba(1,   0,   0,    alpha),
+                        agg::rgba(0,   1,   0,    alpha),
+                        agg::rgba(brc, brc, brc,  alpha));
         span_gen.triangle(m_x[0], m_y[0], m_x[1], m_y[1], x1, y1, d);
         ras.add_path(span_gen);
         agg::render_scanlines(ras, sl, ren_gouraud);
 
 
-        span_gen.colors(agg::rgba8(0,   255,   0,  alpha),
-                        agg::rgba8(0,     0, 255,  alpha),
-                        agg::rgba8(brc, brc, brc,  alpha));
+        span_gen.colors(agg::rgba(0,   1,   0,    alpha),
+                        agg::rgba(0,   0,   1,    alpha),
+                        agg::rgba(brc, brc, brc,  alpha));
         span_gen.triangle(m_x[1], m_y[1], m_x[2], m_y[2], x2, y2, d);
         ras.add_path(span_gen);
         agg::render_scanlines(ras, sl, ren_gouraud);
 
 
-        span_gen.colors(agg::rgba8(0,     0, 255,  alpha),
-                        agg::rgba8(255,   0,   0,  alpha),
-                        agg::rgba8(brc, brc, brc,  alpha));
+        span_gen.colors(agg::rgba(0,   0,   1,    alpha),
+                        agg::rgba(1,   0,   0,    alpha),
+                        agg::rgba(brc, brc, brc,  alpha));
         span_gen.triangle(m_x[2], m_y[2], m_x[0], m_y[0], x3, y3, d);
         ras.add_path(span_gen);
         agg::render_scanlines(ras, sl, ren_gouraud);

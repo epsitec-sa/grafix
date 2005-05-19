@@ -7,7 +7,7 @@
 #include "agg_rasterizer_scanline_aa.h"
 #include "agg_scanline_p.h"
 #include "agg_renderer_scanline.h"
-#include "agg_pixfmt_rgb24.h"
+#include "agg_pixfmt_rgb.h"
 
 
 

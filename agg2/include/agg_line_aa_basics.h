@@ -1,6 +1,6 @@
 //----------------------------------------------------------------------------
-// Anti-Grain Geometry - Version 2.2
-// Copyright (C) 2002-2004 Maxim Shemanarev (http://www.antigrain.com)
+// Anti-Grain Geometry - Version 2.3
+// Copyright (C) 2002-2005 Maxim Shemanarev (http://www.antigrain.com)
 //
 // Permission to copy, use, modify, sell and distribute this software 
 // is granted provided this copyright notice appears in all copies. 
@@ -117,6 +117,35 @@ namespace agg
     void bisectrix(const line_parameters& l1, 
                    const line_parameters& l2, 
                    int* x, int* y);
+
+
+    //-------------------------------------------fix_degenerate_bisectrix_start
+    void inline fix_degenerate_bisectrix_start(const line_parameters& lp, 
+                                               int* x, int* y)
+    {
+        int d = int((double(*x - lp.x2) * double(lp.y2 - lp.y1) - 
+                     double(*y - lp.y2) * double(lp.x2 - lp.x1)) / lp.len);
+        if(d < line_subpixel_size)
+        {
+            *x = lp.x1 + (lp.y2 - lp.y1);
+            *y = lp.y1 - (lp.x2 - lp.x1);
+        }
+    }
+
+
+    //---------------------------------------------fix_degenerate_bisectrix_end
+    void inline fix_degenerate_bisectrix_end(const line_parameters& lp, 
+                                             int* x, int* y)
+    {
+        int d = int((double(*x - lp.x2) * double(lp.y2 - lp.y1) - 
+                     double(*y - lp.y2) * double(lp.x2 - lp.x1)) / lp.len);
+        if(d < line_subpixel_size)
+        {
+            *x = lp.x2 + (lp.y2 - lp.y1);
+            *y = lp.y2 - (lp.x2 - lp.x1);
+        }
+    }
+
 
 }
 

@@ -1,6 +1,6 @@
 //----------------------------------------------------------------------------
-// Anti-Grain Geometry - Version 2.2
-// Copyright (C) 2002-2004 Maxim Shemanarev (http://www.antigrain.com)
+// Anti-Grain Geometry - Version 2.3
+// Copyright (C) 2002-2005 Maxim Shemanarev (http://www.antigrain.com)
 //
 // Permission to copy, use, modify, sell and distribute this software 
 // is granted provided this copyright notice appears in all copies. 
@@ -22,6 +22,106 @@
 namespace agg
 {
 
+
+
+    //-------------------------------------------------------pod_array_adaptor
+    template<class T> class pod_array_adaptor
+    {
+    public:
+        typedef T value_type;
+        pod_array_adaptor(T* array, unsigned size) : 
+            m_array(array), m_size(size) {}
+
+        unsigned size() const { return m_size; }
+        const T& operator [] (unsigned i) const { return m_array[i]; }
+              T& operator [] (unsigned i)       { return m_array[i]; }
+        const T& at(unsigned i) const           { return m_array[i]; }
+              T& at(unsigned i)                 { return m_array[i]; }
+        T  value_at(unsigned i) const           { return m_array[i]; }
+
+    private:
+        T*       m_array;
+        unsigned m_size;
+    };
+
+
+
+    //---------------------------------------------------------pod_auto_array
+    template<class T, unsigned Size> class pod_auto_array
+    {
+    public:
+        typedef T value_type;
+        typedef pod_auto_array<T, Size> self_type;
+
+        pod_auto_array() {}
+        explicit pod_auto_array(const T* c)
+        {
+            memcpy(m_array, c, sizeof(T) * Size);
+        }
+
+        const self_type& operator = (const T* c)
+        {
+            memcpy(m_array, c, sizeof(T) * Size);
+            return *this;
+        }
+
+        static unsigned size() { return Size; }
+        const T& operator [] (unsigned i) const { return m_array[i]; }
+              T& operator [] (unsigned i)       { return m_array[i]; }
+        const T& at(unsigned i) const           { return m_array[i]; }
+              T& at(unsigned i)                 { return m_array[i]; }
+        T  value_at(unsigned i) const           { return m_array[i]; }
+
+    private:
+        T m_array[Size];
+    };
+
+
+
+    //---------------------------------------------------------pod_heap_array
+    template<class T> class pod_heap_array
+    {
+    public:
+        typedef T value_type;
+        typedef pod_heap_array<T> self_type;
+
+        ~pod_heap_array() { delete [] m_array; }
+        pod_heap_array() : m_array(0), m_size(0) {}
+        pod_heap_array(unsigned size) : m_array(new T[size]), m_size(size) {}
+        pod_heap_array(const self_type& v) : 
+            m_array(new T[v.m_size]), m_size(v.m_size) 
+        {
+            memcpy(m_array, v.m_array, sizeof(T) * m_size);
+        }
+        void resize(unsigned size)
+        {
+           delete [] m_array;
+           m_array = new T[m_size = size];
+        }
+        const self_type& operator = (const self_type& v)
+        {
+            resize(v.size());
+            memcpy(m_array, v.m_array, sizeof(T) * m_size);
+            return *this;
+        }
+
+        unsigned size() const { return m_size; }
+        const T& operator [] (unsigned i) const { return m_array[i]; }
+              T& operator [] (unsigned i)       { return m_array[i]; }
+        const T& at(unsigned i) const           { return m_array[i]; }
+              T& at(unsigned i)                 { return m_array[i]; }
+        T  value_at(unsigned i) const           { return m_array[i]; }
+
+        const T* data() const { return m_array; }
+              T* data()       { return m_array; }
+    private:
+        T*       m_array;
+        unsigned m_size;
+    };
+
+
+
+
     //---------------------------------------------------------------pod_array
     // A simple class template to store Plain Old Data, a vector
     // of a fixed size. The data is continous in memory
@@ -39,10 +139,21 @@ namespace agg
         pod_array(const pod_array<T>&);
         const pod_array<T>& operator = (const pod_array<T>&);
 
-        unsigned capacity() const { return m_capacity; }
+        // Set new capacity. All data is lost, size is set to zero.
         void capacity(unsigned cap, unsigned extra_tail=0);
+        unsigned capacity() const { return m_capacity; }
 
+        // Allocate n elements. All data is lost, 
+        // but elements can be accessed in range 0...size-1. 
+        void allocate(unsigned size, unsigned extra_tail=0);
+
+        // Resize keeping the content.
         void resize(unsigned new_size);
+
+        void zero()
+        {
+            memset(m_array, 0, sizeof(T) * m_size);
+        }
 
         void add(const T& v)  { m_array[m_size++] = v; }
         void inc_size(unsigned size) { m_size += size; } 
@@ -50,8 +161,14 @@ namespace agg
         unsigned byte_size() const { return m_size * sizeof(T); }
         void serialize(int8u* ptr) const;
         void deserialize(const int8u* data, unsigned byte_size);
-        const T& operator [] (unsigned idx) const { return m_array[idx]; }
-              T& operator [] (unsigned idx)       { return m_array[idx]; }
+        const T& operator [] (unsigned i) const { return m_array[i]; }
+              T& operator [] (unsigned i)       { return m_array[i]; }
+        const T& at(unsigned i) const           { return m_array[i]; }
+              T& at(unsigned i)                 { return m_array[i]; }
+        T  value_at(unsigned i) const           { return m_array[i]; }
+
+        const T* data() const { return m_array; }
+              T* data()       { return m_array; }
 
         void remove_all()         { m_size = 0; }
         void cut_at(unsigned num) { if(num < m_size) m_size = num; }
@@ -77,6 +194,15 @@ namespace agg
 
     //------------------------------------------------------------------------
     template<class T> 
+    void pod_array<T>::allocate(unsigned size, unsigned extra_tail)
+    {
+        capacity(size, extra_tail);
+        m_size = size;
+    }
+
+
+    //------------------------------------------------------------------------
+    template<class T> 
     void pod_array<T>::resize(unsigned new_size)
     {
         if(new_size > m_size)
@@ -97,10 +223,7 @@ namespace agg
 
     //------------------------------------------------------------------------
     template<class T> pod_array<T>::pod_array(unsigned cap, unsigned extra_tail) :
-        m_size(0), m_capacity(0), m_array(0)
-    {
-        capacity(cap, extra_tail);
-    }
+        m_size(cap), m_capacity(cap + extra_tail), m_array(new T[m_capacity]) {}
 
     //------------------------------------------------------------------------
     template<class T> pod_array<T>::pod_array(const pod_array<T>& v) :
@@ -135,23 +258,6 @@ namespace agg
         if(byte_size) memcpy(m_array, data, byte_size * sizeof(T));
     }
 
-    //------------------------------------------------------------------------
-    template<class T> class pod_array_adaptor
-    {
-    public:
-        typedef T value_type;
-        pod_array_adaptor(T* array, unsigned size) : 
-            m_array(array), m_size(size) {}
-
-        unsigned size() const { return m_size; }
-        const T& operator [] (unsigned idx) const { return m_array[idx]; }
-              T& operator [] (unsigned idx)       { return m_array[idx]; }
-    private:
-        T*       m_array;
-        unsigned m_size;
-    };
-
-
 
 
 
@@ -159,11 +265,11 @@ namespace agg
     //---------------------------------------------------------------pod_deque
     // A simple class template to store Plain Old Data, similar to std::deque
     // It doesn't reallocate memory but instead, uses blocks of data of size 
-    // of (1 << S), that is, power of two. The data is NOT continuous in memory, 
+    // of (1 << S), that is, power of two. The data is NOT contiguous in memory, 
     // so the only valid access method is operator [] or curr(), prev(), next()
     // 
     // There reallocs occure only when the pool of pointers to blocks needs 
-    // to be extended (it happens very rear). You can control the value 
+    // to be extended (it happens very rarely). You can control the value 
     // of increment to reallocate the pointer buffer. See the second constructor.
     // By default, the incremeent value equals (1 << S), i.e., the block size.
     //------------------------------------------------------------------------
@@ -220,14 +326,29 @@ namespace agg
 
         unsigned size() const { return m_size; }
 
-        const T& operator [] (unsigned idx) const
+        const T& operator [] (unsigned i) const
         {
-            return m_blocks[idx >> block_shift][idx & block_mask];
+            return m_blocks[i >> block_shift][i & block_mask];
         }
 
-        T& operator [] (unsigned idx)
+        T& operator [] (unsigned i)
         {
-            return m_blocks[idx >> block_shift][idx & block_mask];
+            return m_blocks[i >> block_shift][i & block_mask];
+        }
+
+        const T& at(unsigned i) const
+        { 
+            return m_blocks[i >> block_shift][i & block_mask];
+        }
+
+        T& at(unsigned i) 
+        { 
+            return m_blocks[i >> block_shift][i & block_mask];
+        }
+
+        T value_at(unsigned i) const
+        { 
+            return m_blocks[i >> block_shift][i & block_mask];
         }
 
         const T& curr(unsigned idx) const

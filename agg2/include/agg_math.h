@@ -1,6 +1,6 @@
 //----------------------------------------------------------------------------
-// Anti-Grain Geometry - Version 2.2
-// Copyright (C) 2002-2004 Maxim Shemanarev (http://www.antigrain.com)
+// Anti-Grain Geometry - Version 2.3
+// Copyright (C) 2002-2005 Maxim Shemanarev (http://www.antigrain.com)
 //
 // Permission to copy, use, modify, sell and distribute this software 
 // is granted provided this copyright notice appears in all copies. 
@@ -22,22 +22,22 @@
 namespace agg
 {
 
-    const double intersection_epsilon = 1.0e-8;
+    const double intersection_epsilon = 1.0e-30;
 
     //------------------------------------------------------calc_point_location
-    inline double calc_point_location(double x1, double y1, 
-                                      double x2, double y2, 
-                                      double x,  double y)
+    AGG_INLINE double calc_point_location(double x1, double y1, 
+                                          double x2, double y2, 
+                                          double x,  double y)
     {
         return (x - x2) * (y2 - y1) - (y - y2) * (x2 - x1);
     }
 
 
     //--------------------------------------------------------point_in_triangle
-    inline bool point_in_triangle(double x1, double y1, 
-                                  double x2, double y2, 
-                                  double x3, double y3, 
-                                  double x,  double y)
+    AGG_INLINE bool point_in_triangle(double x1, double y1, 
+                                      double x2, double y2, 
+                                      double x3, double y3, 
+                                      double x,  double y)
     {
         bool cp1 = calc_point_location(x1, y1, x2, y2, x, y) < 0.0;
         bool cp2 = calc_point_location(x2, y2, x3, y3, x, y) < 0.0;
@@ -47,7 +47,7 @@ namespace agg
 
 
     //-----------------------------------------------------------calc_distance
-    inline double calc_distance(double x1, double y1, double x2, double y2)
+    AGG_INLINE double calc_distance(double x1, double y1, double x2, double y2)
     {
         double dx = x2-x1;
         double dy = y2-y1;
@@ -56,9 +56,9 @@ namespace agg
 
 
     //------------------------------------------------calc_point_line_distance
-    inline double calc_point_line_distance(double x1, double y1, 
-                                           double x2, double y2, 
-                                           double x,  double y)
+    AGG_INLINE double calc_point_line_distance(double x1, double y1, 
+                                               double x2, double y2, 
+                                               double x,  double y)
     {
         double dx = x2-x1;
         double dy = y2-y1;
@@ -67,9 +67,9 @@ namespace agg
 
 
     //-------------------------------------------------------calc_intersection
-    inline bool calc_intersection(double ax, double ay, double bx, double by,
-                                  double cx, double cy, double dx, double dy,
-                                  double* x, double* y)
+    AGG_INLINE bool calc_intersection(double ax, double ay, double bx, double by,
+                                      double cx, double cy, double dx, double dy,
+                                      double* x, double* y)
     {
         double num = (ay-cy) * (dx-cx) - (ax-cx) * (dy-cy);
         double den = (bx-ax) * (dy-cy) - (by-ay) * (dx-cx);
@@ -82,10 +82,10 @@ namespace agg
 
 
     //--------------------------------------------------------calc_orthogonal
-    inline void calc_orthogonal(double thickness,
-                                double x1, double y1,
-                                double x2, double y2,
-                                double* x, double* y)
+    AGG_INLINE void calc_orthogonal(double thickness,
+                                    double x1, double y1,
+                                    double x2, double y2,
+                                    double* x, double* y)
     {
         double dx = x2 - x1;
         double dy = y2 - y1;
@@ -96,11 +96,11 @@ namespace agg
 
 
     //--------------------------------------------------------dilate_triangle
-    inline void dilate_triangle(double x1, double y1,
-                                double x2, double y2,
-                                double x3, double y3,
-                                double *x, double* y,
-                                double d)
+    AGG_INLINE void dilate_triangle(double x1, double y1,
+                                    double x2, double y2,
+                                    double x3, double y3,
+                                    double *x, double* y,
+                                    double d)
     {
         double dx1=0.0;
         double dy1=0.0; 
@@ -159,7 +159,7 @@ namespace agg
     #pragma warning(push)
     #pragma warning(disable : 4035) //Disable warning "no return value"
     #endif
-    inline unsigned fast_sqrt(unsigned val)
+    AGG_INLINE unsigned fast_sqrt(unsigned val)
     {
     #if defined(_M_IX86) && defined(_MSC_VER) && !defined(AGG_NO_ASM)
         //For Ix86 family processors this assembler code is used. 

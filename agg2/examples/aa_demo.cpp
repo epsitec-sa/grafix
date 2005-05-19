@@ -3,7 +3,7 @@
 #include "agg_rasterizer_scanline_aa.h"
 #include "agg_scanline_u.h"
 #include "agg_renderer_scanline.h"
-#include "agg_pixfmt_rgb24.h"
+#include "agg_pixfmt_rgb.h"
 #include "platform/agg_platform_support.h"
 #include "ctrl/agg_slider_ctrl.h"
 #include "ctrl/agg_cbox_ctrl.h"
@@ -122,8 +122,8 @@ class the_application : public agg::platform_support
 public:
     the_application(agg::pix_format_e format, bool flip_y) :
         agg::platform_support(format, flip_y),
-        m_slider1(10, 10,    600-10, 19,    !flip_y),
-        m_slider2(10, 10+20, 600-10, 19+20, !flip_y)
+        m_slider1(80, 10,    600-10, 19,    !flip_y),
+        m_slider2(80, 10+20, 600-10, 19+20, !flip_y)
     {
         m_idx = -1;
         m_x[0] = 57;    m_y[0] = 100;

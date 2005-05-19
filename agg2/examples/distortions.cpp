@@ -6,8 +6,8 @@
 #include "agg_ellipse.h"
 #include "agg_trans_affine.h"
 #include "agg_conv_transform.h"
-#include "agg_pixfmt_rgb24.h"
-#include "agg_span_image_filter_rgb24.h"
+#include "agg_pixfmt_rgb.h"
+#include "agg_span_image_filter_rgb.h"
 #include "agg_scanline_u.h"
 #include "agg_renderer_scanline.h"
 #include "agg_span_interpolator_linear.h"
@@ -400,7 +400,8 @@ class the_application : public agg::platform_support
     double m_center_y;
     double m_phase;
 
-    agg::rgba8 m_gradient_colors[256];
+    typedef agg::pod_auto_array<agg::rgba8, 256> color_array_type;
+    color_array_type m_gradient_colors;
 
 public:
     the_application(agg::pix_format_e format, bool flip_y) :
@@ -523,8 +524,9 @@ public:
 /*
         // Version without filtering (nearest neighbor)
         //------------------------------------------
-        typedef agg::span_image_filter_rgb24_nn<agg::order_bgr24, 
-                                                interpolator_type> span_gen_type;
+        typedef agg::span_image_filter_rgb_nn<agg::rgba8,
+                                              agg::order_bgr, 
+                                              interpolator_type> span_gen_type;
         typedef agg::renderer_scanline_aa<renderer_base, span_gen_type> renderer_type;
 
         span_gen_type sg(sa, 
@@ -538,8 +540,9 @@ public:
 
         // Version with "hardcoded" bilinear filter
         //------------------------------------------
-        typedef agg::span_image_filter_rgb24_bilinear<agg::order_bgr24, 
-                                                      interpolator_type> span_gen_type;
+        typedef agg::span_image_filter_rgb_bilinear<agg::rgba8,
+                                                    agg::order_bgr, 
+                                                    interpolator_type> span_gen_type;
         typedef agg::renderer_scanline_aa<renderer_base, span_gen_type> renderer_type;
 
         span_gen_type sg(sa, 
@@ -553,8 +556,9 @@ public:
 /*
         // Version with arbitrary filter
         //------------------------------------------
-        typedef agg::span_image_filter_rgb24<agg::order_bgr24, 
-                                             interpolator_type> span_gen_type;
+        typedef agg::span_image_filter_rgb<agg::rgba8,
+                                           agg::order_bgr, 
+                                           interpolator_type> span_gen_type;
         typedef agg::renderer_scanline_aa<renderer_base, span_gen_type> renderer_type;
 
         agg::image_filter<agg::image_filter_spline36> filter;
@@ -596,14 +600,15 @@ public:
         typedef agg::span_gradient<agg::rgba8, 
                                    interpolator_type,
                                    agg::gradient_circle,
-                                   const agg::rgba8*> gradient_span_gen;
+                                   color_array_type> gradient_span_gen;
 
         agg::gradient_circle gradient_function;
 
+        color_array_type gradient_colors(m_gradient_colors);
         gradient_span_gen span_gradient(sa, 
                                         interpolator, 
                                         gradient_function, 
-                                        m_gradient_colors, 
+                                        gradient_colors, 
                                         0, 180);
 
         agg::renderer_scanline_aa<renderer_base, gradient_span_gen> rg(rb, span_gradient);

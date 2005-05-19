@@ -1,6 +1,6 @@
 //----------------------------------------------------------------------------
-// Anti-Grain Geometry - Version 2.2
-// Copyright (C) 2002-2004 Maxim Shemanarev (http://www.antigrain.com)
+// Anti-Grain Geometry - Version 2.3
+// Copyright (C) 2002-2005 Maxim Shemanarev (http://www.antigrain.com)
 //
 // Permission to copy, use, modify, sell and distribute this software 
 // is granted provided this copyright notice appears in all copies. 
@@ -53,14 +53,10 @@ namespace agg
         void width(double w)          { m_width = unsigned(w);   }
         void weight(int w)            { m_weight = w;            }
         void italic(bool it)          { m_italic = it;           }
-        void underline(bool u)        { m_underline = u;         }
-        void strikeout(bool s)        { m_strikeout = s;         }
         void char_set(DWORD c)        { m_char_set = c;          }
         void pitch_and_family(DWORD p){ m_pitch_and_family = p; }
         void flip_y(bool flip)        { m_flip_y = flip;         }
         void hinting(bool h)          { m_hinting = h;           }
-		void transform(const trans_affine& mtx);
-        void transform(double xx, double xy, double yx, double yy);
         bool create_font(const char* typeface_, glyph_rendering ren_type);
 
         bool create_font(const char* typeface_, 
@@ -69,8 +65,6 @@ namespace agg
                          double width_=0.0,
                          int weight_=FW_REGULAR,
                          bool italic_=false,
-                         bool underline_=false,
-                         bool strikeout_=false,
                          DWORD char_set_=ANSI_CHARSET,
                          DWORD pitch_and_family_=FF_DONTCARE);
 
@@ -89,8 +83,6 @@ namespace agg
         double      width()        const { return m_width;      }
         int         weight()       const { return m_weight;     }
         bool        italic()       const { return m_italic;     }
-        bool        underline()    const { return m_underline;  }
-        bool        strikeout()    const { return m_strikeout;  }
         DWORD       char_set()     const { return m_char_set;   }
         DWORD       pitch_and_family() const { return m_pitch_and_family; }
         bool        hinting()      const { return m_hinting;    }
@@ -140,8 +132,6 @@ namespace agg
         unsigned        m_width;
         int             m_weight;
         bool            m_italic;
-        bool            m_underline;
-        bool            m_strikeout;
         DWORD           m_char_set;
         DWORD           m_pitch_and_family;
         bool            m_hinting;
@@ -156,7 +146,6 @@ namespace agg
         rect            m_bounds;
         double          m_advance_x;
         double          m_advance_y;
-        MAT2            m_mat2;
         MAT2            m_matrix;
         char*           m_gbuf;
         KERNINGPAIR*    m_kerning_pairs;

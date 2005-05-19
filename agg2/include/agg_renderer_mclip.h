@@ -1,6 +1,6 @@
 //----------------------------------------------------------------------------
-// Anti-Grain Geometry - Version 2.2
-// Copyright (C) 2002-2004 Maxim Shemanarev (http://www.antigrain.com)
+// Anti-Grain Geometry - Version 2.3
+// Copyright (C) 2002-2005 Maxim Shemanarev (http://www.antigrain.com)
 //
 // Permission to copy, use, modify, sell and distribute this software 
 // is granted provided this copyright notice appears in all copies. 
@@ -33,7 +33,10 @@ namespace agg
     public:
         typedef PixelFormat pixfmt_type;
         typedef typename pixfmt_type::color_type color_type;
+        typedef typename pixfmt_type::row_data row_data;
+        typedef typename pixfmt_type::span_data span_data;
         typedef renderer_base<pixfmt_type> base_ren_type;
+
 
         //--------------------------------------------------------------------
         renderer_mclip(pixfmt_type& ren) :
@@ -232,6 +235,11 @@ namespace agg
             while(next_clip_box());
         }
 
+        //--------------------------------------------------------------------
+        span_data span(int x, int y, unsigned len)
+        {
+            return m_ren.span(x, y, len);
+        }
 
         //--------------------------------------------------------------------
         void blend_solid_hspan(int x, int y, int len, 
@@ -253,6 +261,18 @@ namespace agg
             do
             {
                 m_ren.blend_solid_vspan(x, y, len, c, covers);
+            }
+            while(next_clip_box());
+        }
+
+
+        //--------------------------------------------------------------------
+        void copy_color_hspan(int x, int y, int len, const color_type* colors)
+        {
+            first_clip_box();
+            do
+            {
+                m_ren.copy_color_hspan(x, y, len, colors);
             }
             while(next_clip_box());
         }
@@ -285,6 +305,15 @@ namespace agg
             while(next_clip_box());
         }
 
+
+        //--------------------------------------------------------------------
+        void copy_color_hspan_no_clip(int x, int y, int len, 
+                                      const color_type* colors)
+        {
+            m_ren.copy_color_hspan_no_clip(x, y, len, colors);
+        }
+
+
         //--------------------------------------------------------------------
         void blend_color_hspan_no_clip(int x, int y, int len, 
                                        const color_type* colors, 
@@ -294,6 +323,7 @@ namespace agg
             m_ren.blend_color_hspan_no_clip(x, y, len, colors, covers, cover);
         }
 
+
         //--------------------------------------------------------------------
         void blend_color_vspan_no_clip(int x, int y, int len, 
                                        const color_type* colors, 
@@ -302,6 +332,7 @@ namespace agg
         {
             m_ren.blend_color_vspan_no_clip(x, y, len, colors, covers, cover);
         }
+
 
         //--------------------------------------------------------------------
         void copy_from(const rendering_buffer& from, 

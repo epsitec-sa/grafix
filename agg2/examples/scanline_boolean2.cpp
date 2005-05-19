@@ -11,7 +11,7 @@
 #include "agg_conv_curve.h"
 #include "agg_conv_stroke.h"
 #include "agg_gsv_text.h"
-#include "agg_pixfmt_rgb24.h"
+#include "agg_pixfmt_rgb.h"
 #include "agg_scanline_boolean_algebra.h"
 #include "agg_scanline_storage_aa.h"
 #include "agg_scanline_storage_bin.h"
@@ -43,7 +43,7 @@ public:
     {
     }
 
-    void rewind(unsigned id) 
+    void rewind(unsigned) 
     { 
         m_angle = m_start_angle; 
         m_curr_r = m_r1; 

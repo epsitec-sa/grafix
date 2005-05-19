@@ -9,8 +9,8 @@
 #include "agg_span_interpolator_linear.h"
 #include "agg_span_converter.h"
 #include "agg_ellipse.h"
+#include "agg_pixfmt_rgb.h"
 #include "agg_vcgen_stroke.h"
-#include "agg_pixfmt_rgb24.h"
 #include "platform/agg_platform_support.h"
 
 #include "ctrl/agg_spline_ctrl.h"
@@ -18,8 +18,10 @@
 enum { flip_y = true };
 
 
-#include "agg_math.h"
-#include "agg_dda_line.h"
+#define pix_format agg::pix_format_bgr24
+typedef agg::pixfmt_bgr24 pixfmt_type;
+typedef pixfmt_type::color_type color_type;
+typedef color_type::value_type color_value_type;
 
 
 class the_application : public agg::platform_support
@@ -29,7 +31,7 @@ class the_application : public agg::platform_support
     double m_dx;
     double m_dy;
     int    m_idx;
-    agg::spline_ctrl<agg::rgba8> m_alpha;
+    agg::spline_ctrl<color_type> m_alpha;
 
 
 public:
@@ -57,10 +59,11 @@ public:
     // A simple function to form the gradient color array 
     // consisting of 3 colors, "begin", "middle", "end"
     //---------------------------------------------------
-    static void fill_color_array(agg::rgba8* array, 
-                                 agg::rgba8 begin, 
-                                 agg::rgba8 middle, 
-                                 agg::rgba8 end)
+    template<class ColorArrayT>
+    static void fill_color_array(ColorArrayT& array, 
+                                 color_type begin, 
+                                 color_type middle, 
+                                 color_type end)
     {
         unsigned i;
         for(i = 0; i < 128; ++i)
@@ -75,14 +78,12 @@ public:
 
 
 
-
     virtual void on_draw()
     {
-        typedef agg::pixfmt_bgr24 pixfmt;
-        typedef agg::renderer_base<pixfmt> base_ren_type;
+        typedef agg::renderer_base<pixfmt_type> base_ren_type;
         typedef agg::renderer_scanline_aa_solid<base_ren_type> renderer_solid;
 
-        pixfmt pf(rbuf_window());
+        pixfmt_type pf(rbuf_window());
         base_ren_type ren_base(pf);
         renderer_solid ren_solid(ren_base);
         ren_base.clear(agg::rgba(1,1,1));
@@ -100,7 +101,10 @@ public:
         for(i = 0; i < 100; i++)
         {
             ell.init(rand() % w, rand() % h, rand() % 60 + 5, rand() % 60 + 5, 50);
-            ren_solid.color(agg::rgba8(rand() & 0xFF, rand() & 0xFF, rand() & 0xFF, rand() & 0x7F));
+            ren_solid.color(agg::rgba(rand() / double(RAND_MAX), 
+                                      rand() / double(RAND_MAX), 
+                                      rand() / double(RAND_MAX), 
+                                      rand() / double(RAND_MAX) / 2.0));
             ras.add_path(ell);
             agg::render_scanlines(ras, sl, ren_solid);
         }
@@ -136,32 +140,35 @@ public:
         // color spans. One object can be shared between different 
         // span generators.
         //-----------------
-        typedef agg::span_allocator<agg::rgba8> span_allocator_type;
+        typedef agg::span_allocator<color_type> span_allocator_type;
 
 
-        // Finally, the gradient span generator working with the agg::rgba8 
-        // color type. 
-        // The 4-th argument is the color function that should have 
-        // the [] operator returning the color in range of [0...255].
-        // In our case it will be a simple look-up table of 256 colors.
+        // Gradient colors array adaptor
         //-----------------
-        typedef agg::span_gradient<agg::rgba8, 
+        typedef agg::pod_auto_array<color_type, 256> gradient_colors_type;
+
+
+        // Finally, the gradient span generator working with the color_type 
+        // color type. 
+        //-----------------
+        typedef agg::span_gradient<color_type, 
                                    interpolator_type, 
                                    gradient_func_type, 
-                                   const agg::rgba8*,
+                                   gradient_colors_type,
                                    span_allocator_type> span_gradient_type;
 
 
-        // The alpha gradient span converter working with the agg::rgba8 
-        // color type. 
-        // The 4-th argument is the alpha function that should have 
-        // the [] operator returning the alpha in range of [0...255].
-        // In our case it will be a simple look-up table of 256 unsigned chars.
+        // Gradient alpha array adaptor
         //-----------------
-        typedef agg::span_gradient_alpha<agg::rgba8, 
+        typedef agg::pod_auto_array<color_value_type, 256> gradient_alpha_type;
+
+        // The alpha gradient span converter working with the color_type 
+        // color type. 
+        //-----------------
+        typedef agg::span_gradient_alpha<color_type, 
                                          interpolator_type, 
                                          gradient_alpha_func_type, 
-                                         const agg::int8u*> span_gradient_alpha_type;
+                                         gradient_alpha_type> span_gradient_alpha_type;
 
 
         // Span converter type
@@ -186,7 +193,7 @@ public:
         interpolator_type        span_interpolator(gradient_mtx);    // Span gradient interpolator
         interpolator_type        span_interpolator_alpha(alpha_mtx); // Span alpha interpolator
         span_allocator_type      span_allocator;                     // Span Allocator
-        agg::rgba8               color_array[256];                   // The gradient colors
+        gradient_colors_type     color_array;                        // The gradient colors
 
         // Declare the gradient span itself. 
         // The last two arguments are so called "d1" and "d2" 
@@ -206,9 +213,10 @@ public:
         // and where it ends. The actual meaning of "d1" and "d2" depands
         // on the gradient function.
         //----------------
+        gradient_alpha_type alpha_array;
         span_gradient_alpha_type span_gradient_alpha(span_interpolator_alpha, 
                                                      alpha_func, 
-                                                     m_alpha.spline8(), 
+                                                     alpha_array, 
                                                      0, 100);
 
         // Span converter declaration
@@ -227,9 +235,16 @@ public:
         gradient_mtx.invert();
         alpha_mtx.parl_to_rect(parallelogram, -100, -100, 100, 100);
         fill_color_array(color_array, 
-                         agg::rgba8(0,50,50), 
-                         agg::rgba8(180, 180, 50),
-                         agg::rgba8(80, 0, 0));
+                         agg::rgba(0,    0.19, 0.19), 
+                         agg::rgba(0.7,  0.7,  0.19),
+                         agg::rgba(0.31, 0,    0));
+
+        // Fill Alpha array
+        //----------------
+        for(i = 0; i < 256; i++)
+        {
+            alpha_array[i] = color_value_type(m_alpha.value(i / 255.0) * double(color_type::base_mask));
+        }
 
         ell.init(width()/2, height()/2, 150, 150, 100);
         ras.add_path(ell);
@@ -237,11 +252,9 @@ public:
         agg::render_scanlines(ras, sl, ren_gradient);
 
 
-
-
         // Draw the control points and the parallelogram
         //-----------------
-        ren_solid.color(agg::rgba8(0, 100, 100, 80));
+        ren_solid.color(agg::rgba(0, 0.4, 0.4, 0.31));
         ell.init(m_x[0], m_y[0], 5, 5, 20);
         ras.add_path(ell);
         agg::render_scanlines(ras, sl, ren_solid);
@@ -258,7 +271,7 @@ public:
         stroke.add_vertex(m_x[2], m_y[2], agg::path_cmd_line_to);
         stroke.add_vertex(m_x[0]+m_x[2]-m_x[1], m_y[0]+m_y[2]-m_y[1], agg::path_cmd_line_to);
         stroke.add_vertex(0, 0, agg::path_cmd_end_poly | agg::path_flags_close);
-        ren_solid.color(agg::rgba8(0, 0, 0));
+        ren_solid.color(color_type(0, 0, 0));
         ras.add_path(stroke);
         agg::render_scanlines(ras, sl, ren_solid);
 
@@ -362,7 +375,7 @@ public:
 
 int agg_main(int argc, char* argv[])
 {
-    the_application app(agg::pix_format_bgr24, flip_y);
+    the_application app(pix_format, flip_y);
     app.caption("AGG Example. Alpha channel gradient");
 
     if(app.init(400, 320, agg::window_resize))

@@ -19,7 +19,7 @@ static char THIS_FILE[] = __FILE__;
 #include "agg_trans_affine.h"
 #include "agg_path_storage.h"
 #include "agg_conv_transform.h"
-#include "agg_color_rgba8.h"
+#include "agg_color_rgba.h"
 #include "agg_bounding_rect.h"
 #include "ctrl/agg_slider_ctrl.h"
 
@@ -180,7 +180,7 @@ void hdc_renderer::draw_solid_span(int x, int y, int len) const
 // Drawing an Alpha-Blended pixel.
 void hdc_renderer::blend_pixel(int x, int y, unsigned alpha) const
 {
-    agg::rgba8 c = agg::rgba8(::GetPixel(m_dc, x, y), agg::rgba8::bgr);
+    agg::rgba8 c = agg::bgr8_packed(::GetPixel(m_dc, x, y));
     int r = (((int(m_rgb.r) - c.r) * alpha) + (c.r << 8)) >> 8;
     int g = (((int(m_rgb.g) - c.g) * alpha) + (c.g << 8)) >> 8;
     int b = (((int(m_rgb.b) - c.b) * alpha) + (c.b << 8)) >> 8;

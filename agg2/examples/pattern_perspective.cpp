@@ -13,12 +13,22 @@
 #include "agg_trans_perspective.h"
 #include "agg_span_interpolator_linear.h"
 #include "agg_span_interpolator_trans.h"
-#include "agg_pixfmt_rgba32.h"
-#include "agg_pixfmt_rgba32_pre.h"
-#include "agg_span_pattern_filter_rgba32.h"
 #include "ctrl/agg_rbox_ctrl.h"
 #include "platform/agg_platform_support.h"
 #include "interactive_polygon.h"
+
+
+#include "agg_pixfmt_rgb.h"
+#include "agg_span_pattern_filter_rgb.h"
+#define span_pattern_filter_2x2 agg::span_pattern_filter_rgb_2x2
+#define span_pattern_filter_nn  agg::span_pattern_filter_rgb_nn
+#define pix_format agg::pix_format_bgr24
+typedef agg::pixfmt_bgr24 pixfmt;
+typedef agg::pixfmt_bgr24_pre pixfmt_pre;
+typedef agg::rgba8 color_type;
+typedef agg::order_bgr component_order;
+#define AGG_COMPONENT_ORDER
+
 
 
 enum { flip_y = true };
@@ -39,28 +49,25 @@ double            g_y2 = 0;
 class the_application : public agg::platform_support
 {
 public:
-    typedef agg::pixfmt_bgra32                             pixfmt;
     typedef agg::renderer_base<pixfmt>                     renderer_base;
     typedef agg::renderer_scanline_aa_solid<renderer_base> renderer_solid;
-
-    typedef agg::pixfmt_bgra32_pre         pixfmt_pre;
     typedef agg::renderer_base<pixfmt_pre> renderer_base_pre;
 
-    agg::interactive_polygon   m_quad;
-    agg::rbox_ctrl<agg::rgba8> m_trans_type;
+    agg::interactive_polygon  m_quad;
+    agg::rbox_ctrl<agg::rgba> m_trans_type;
     bool m_test_flag;
 
     the_application(agg::pix_format_e format, bool flip_y) :
         agg::platform_support(format, flip_y),
         m_quad(4, 5.0),
-        m_trans_type(410, 5.0, 420+170.0, 60.0, !flip_y),
+        m_trans_type(460, 5.0, 420+170.0, 60.0, !flip_y),
         m_test_flag(false)
     {
-        m_trans_type.text_size(7);
+        m_trans_type.text_size(8);
         m_trans_type.text_thickness(1);
-        m_trans_type.add_item("Affine & No filtering");
-        m_trans_type.add_item("Bilinear & Spline16 filter");
-        m_trans_type.add_item("Perspective & Bilinear filter");
+        m_trans_type.add_item("Affine");
+        m_trans_type.add_item("Bilinear");
+        m_trans_type.add_item("Perspective");
         m_trans_type.cur_item(2);
         add_ctrl(m_trans_type);
     }
@@ -134,17 +141,18 @@ public:
         g_rasterizer.line_to_d(m_quad.xn(3), m_quad.yn(3));
 
 
-        typedef agg::span_allocator<agg::rgba8> span_alloc_type;
+        typedef agg::span_allocator<color_type> span_alloc_type;
         span_alloc_type sa;
-
+        agg::image_filter<agg::image_filter_hanning> filter;
     
-        typedef agg::remainder_auto_pow2 remainder_type;
+        typedef agg::wrap_mode_reflect_auto_pow2 remainder_type;
+
+        enum { subdiv_shift = 2 };
          
         switch(m_trans_type.cur_item())
         {
             case 0:
             {
-
                 // Note that we consruct an affine matrix that transforms
                 // a parallelogram to a rectangle, i.e., it's inverted.
                 // It's actually the same as:
@@ -158,17 +166,19 @@ public:
                 typedef agg::span_interpolator_linear<agg::trans_affine> interpolator_type;
                 interpolator_type interpolator(tr);
 
-                // "hardcoded" nearest neighbor filter
-                //------------------------------------------
-                typedef agg::span_pattern_filter_rgba32_nn<agg::order_bgra32, 
-                                                           interpolator_type,
-                                                           remainder_type,
-                                                           remainder_type> span_gen_type;
+                typedef span_pattern_filter_2x2<color_type,
+#ifdef AGG_COMPONENT_ORDER
+                                                component_order, 
+#endif
+                                                interpolator_type,
+                                                remainder_type,
+                                                remainder_type> span_gen_type;
                 typedef agg::renderer_scanline_aa<renderer_base_pre, span_gen_type> renderer_type;
 
                 span_gen_type sg(sa, 
                                  rbuf_img(0), 
-                                 interpolator);
+                                 interpolator,
+                                 filter);
 
                 renderer_type ri(rb_pre, sg);
                 agg::render_scanlines(g_rasterizer, g_scanline, ri);
@@ -180,16 +190,16 @@ public:
                 agg::trans_bilinear tr(m_quad.polygon(), g_x1, g_y1, g_x2, g_y2);
                 if(tr.is_valid())
                 {
-                    typedef agg::span_interpolator_trans<agg::trans_bilinear> interpolator_type;
+                    typedef agg::span_interpolator_linear<agg::trans_bilinear> interpolator_type;
                     interpolator_type interpolator(tr);
 
-                    // Use spline16 filter
-                    //------------------------------------------
-                    agg::image_filter<agg::image_filter_spline16> filter;
-                    typedef agg::span_pattern_filter_rgba32<agg::order_bgra32, 
-                                                            interpolator_type,
-                                                            remainder_type,
-                                                            remainder_type> span_gen_type;
+                    typedef span_pattern_filter_2x2<color_type,
+#ifdef AGG_COMPONENT_ORDER
+                                                    component_order, 
+#endif
+                                                    interpolator_type,
+                                                    remainder_type,
+                                                    remainder_type> span_gen_type;
                     typedef agg::renderer_scanline_aa<renderer_base_pre, span_gen_type> renderer_type;
 
                     span_gen_type sg(sa, 
@@ -208,20 +218,22 @@ public:
                 agg::trans_perspective tr(m_quad.polygon(), g_x1, g_y1, g_x2, g_y2);
                 if(tr.is_valid())
                 {
-                    typedef agg::span_interpolator_trans<agg::trans_perspective> interpolator_type;
+                    typedef agg::span_interpolator_linear_subdiv<agg::trans_perspective, 8> interpolator_type;
                     interpolator_type interpolator(tr);
 
-                    // "hardcoded" bilinear filter
-                    //------------------------------------------
-                    typedef agg::span_pattern_filter_rgba32_bilinear<agg::order_bgra32, 
-                                                                     interpolator_type,
-                                                                     remainder_type,
-                                                                     remainder_type> span_gen_type;
+                    typedef span_pattern_filter_2x2<color_type,
+#ifdef AGG_COMPONENT_ORDER
+                                                    component_order, 
+#endif
+                                                    interpolator_type,
+                                                    remainder_type,
+                                                    remainder_type> span_gen_type;
                     typedef agg::renderer_scanline_aa<renderer_base_pre, span_gen_type> renderer_type;
 
                     span_gen_type sg(sa, 
                                      rbuf_img(0), 
-                                     interpolator);
+                                     interpolator,
+                                     filter);
 
                     renderer_type ri(rb_pre, sg);
                     agg::render_scanlines(g_rasterizer, g_scanline, ri);
@@ -294,7 +306,7 @@ public:
 
 int agg_main(int argc, char* argv[])
 {
-    the_application app(agg::pix_format_bgra32, flip_y);
+    the_application app(pix_format, flip_y);
     app.caption("AGG Example. Pattern Perspective Transformations");
 
     const char* img_name = "agg";
@@ -316,30 +328,6 @@ int agg_main(int argc, char* argv[])
         return 1;
     }
     
-/*
-    // Testing the "black border" issue with alpha channel
-    //----------------------------------------
-    the_application::pixfmt pixf(app.rbuf_img(0));
-    the_application::renderer_base rbase(pixf);
-    the_application::renderer_solid ren(rbase);
-    rbase.clear(agg::rgba8(0,0,0,0));
-    unsigned i;
-    for(i = 0; i < 50; i++)
-    {
-        agg::ellipse ell(rand() % rbase.width(), 
-                         rand() % rbase.height(),
-                         rand() % 20 + 5,
-                         rand() % 20 + 5,
-                         100);
-        g_rasterizer.add_path(ell);
-        ren.color(agg::rgba8((rand() & 0x7F) + 127, 
-                             (rand() & 0x7F) + 127, 
-                             (rand() & 0x7F) + 127, 
-                             255));
-        agg::render_scanlines(g_rasterizer, g_scanline, ren);
-    }
-*/
-
     if(app.init(600, 600, agg::window_resize))
     {
         return app.run();

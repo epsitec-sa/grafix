@@ -1,6 +1,6 @@
 //----------------------------------------------------------------------------
-// Anti-Grain Geometry - Version 2.2
-// Copyright (C) 2002-2004 Maxim Shemanarev (http://www.antigrain.com)
+// Anti-Grain Geometry - Version 2.3
+// Copyright (C) 2002-2005 Maxim Shemanarev (http://www.antigrain.com)
 //
 // Permission to copy, use, modify, sell and distribute this software 
 // is granted provided this copyright notice appears in all copies. 
@@ -41,13 +41,12 @@ namespace agg
 
         color_type pixel(int x, int y) const 
         { 
-            //double src_y = (y + 0.5) * m_scale - 0.5;
-            double src_y = y * m_scale;
+            double src_y = (y + 0.5) * m_scale - 0.5;
             int h = int(m_source.height()) - 1;
             int y1 = int(floor(src_y));
             int y2 = y1 + 1;
-            color_type pix1 = (y1 < 0) ? m_source.pixel(x, 0).transparent() : m_source.pixel(x, y1);
-            color_type pix2 = (y2 > h) ? m_source.pixel(x, h).transparent() : m_source.pixel(x, y2);
+            color_type pix1 = (y1 < 0) ? color_type::no_color() : m_source.pixel(x, y1);
+            color_type pix2 = (y2 > h) ? color_type::no_color() : m_source.pixel(x, y2);
             return pix1.gradient(pix2, src_y - y1);
         }
 
@@ -139,14 +138,16 @@ namespace agg
             const color_type* s2;
             for(y = 0; y < m_dilation; y++)
             {
-                s1 = m_buf.row(m_height + m_dilation - 1) + m_dilation;
-                s2 = m_buf.row(m_dilation) + m_dilation;
+                //s1 = m_buf.row(m_height + m_dilation - 1) + m_dilation;
+                //s2 = m_buf.row(m_dilation) + m_dilation;
                 d1 = m_buf.row(m_dilation + m_height + y) + m_dilation;
                 d2 = m_buf.row(m_dilation - y - 1) + m_dilation;
                 for(x = 0; x < m_width; x++)
                 {
-                    *d1++ = color_type(*s1++, 0);
-                    *d2++ = color_type(*s2++, 0);
+                    //*d1++ = color_type(*s1++, 0);
+                    //*d2++ = color_type(*s2++, 0);
+                    *d1++ = color_type::no_color();
+                    *d2++ = color_type::no_color();
                 }
             }
 
@@ -888,6 +889,8 @@ namespace agg
         void line3(const line_parameters& lp, 
                    int sx, int sy, int ex, int ey)
         {
+            fix_degenerate_bisectrix_start(lp, &sx, &sy);
+            fix_degenerate_bisectrix_end(lp, &ex, &ey);
             line_interpolator_image<self_type> li(*this, lp, 
                                                   sx, sy, 
                                                   ex, ey, 

@@ -1,6 +1,6 @@
 //----------------------------------------------------------------------------
-// Anti-Grain Geometry - Version 2.2
-// Copyright (C) 2002-2004 Maxim Shemanarev (http://www.antigrain.com)
+// Anti-Grain Geometry - Version 2.3
+// Copyright (C) 2002-2005 Maxim Shemanarev (http://www.antigrain.com)
 //
 // Permission to copy, use, modify, sell and distribute this software 
 // is granted provided this copyright notice appears in all copies. 
@@ -55,8 +55,8 @@ namespace agg
 
     //---------------------------------------------------------color_conv_row
     template<class CopyRow> 
-    void color_conv_row(unsigned char* dst, 
-                        const unsigned char* src,
+    void color_conv_row(int8u* dst, 
+                        const int8u* src,
                         unsigned width,
                         CopyRow copy_row_functor)
     {
@@ -68,8 +68,8 @@ namespace agg
     template<int BPP> class color_conv_same
     {
     public:
-        void operator () (unsigned char* dst, 
-                          const unsigned char* src,
+        void operator () (int8u* dst, 
+                          const int8u* src,
                           unsigned width) const
         {
             memmove(dst, src, width*BPP);

@@ -12,7 +12,7 @@
 #include "agg_renderer_primitives.h"
 #include "agg_rasterizer_outline.h"
 #include "agg_rasterizer_outline_aa.h"
-#include "agg_pattern_filters_rgba8.h"
+#include "agg_pattern_filters_rgba.h"
 #include "agg_renderer_outline_aa.h"
 #include "agg_renderer_outline_image.h"
 #include "ctrl/agg_slider_ctrl.h"
@@ -34,7 +34,8 @@ enum { flip_y = true };
 
 static const agg::int32u pixmap_chain[] = 
 {
-    16, 6,
+    16, 7,
+    0x00ffffff, 0x00ffffff, 0x00ffffff, 0x00ffffff, 0xb4c29999, 0xff9a5757, 0xff9a5757, 0xff9a5757, 0xff9a5757, 0xff9a5757, 0xff9a5757, 0xb4c29999, 0x00ffffff, 0x00ffffff, 0x00ffffff, 0x00ffffff,
     0x00ffffff, 0x00ffffff, 0x0cfbf9f9, 0xff9a5757, 0xff660000, 0xff660000, 0xff660000, 0xff660000, 0xff660000, 0xff660000, 0xff660000, 0xff660000, 0xb4c29999, 0x00ffffff, 0x00ffffff, 0x00ffffff, 
     0x00ffffff, 0x5ae0cccc, 0xffa46767, 0xff660000, 0xff975252, 0x7ed4b8b8, 0x5ae0cccc, 0x5ae0cccc, 0x5ae0cccc, 0x5ae0cccc, 0xa8c6a0a0, 0xff7f2929, 0xff670202, 0x9ecaa6a6, 0x5ae0cccc, 0x00ffffff, 
     0xff660000, 0xff660000, 0xff660000, 0xff660000, 0xff660000, 0xff660000, 0xa4c7a2a2, 0x3affff00, 0x3affff00, 0xff975151, 0xff660000, 0xff660000, 0xff660000, 0xff660000, 0xff660000, 0xff660000, 
@@ -85,7 +86,7 @@ public:
     {
     }
 
-    void rewind(unsigned id) 
+    void rewind(unsigned) 
     { 
         m_angle = m_start_angle; 
         m_curr_r = m_r1; 
@@ -329,7 +330,7 @@ public:
 //
 
 // Includes:
-//#include "agg_pixfmt_rgb24.h"           // or another
+//#include "agg_pixfmt_rgb.h"           // or another
 //#include "agg_renderer_outline_aa.h"
 //#include "agg_rasterizer_outline_aa.h"
 
@@ -377,8 +378,8 @@ ras.render(false);     //false means "don't close
 //
 
 // Includes:
-//#include "agg_pixfmt_rgb24.h"           // or another
-//#include "agg_pattern_filters_rgba8.h"  // for all rgba-8-bit color formats
+//#include "agg_pixfmt_rgb.h"           // or another
+//#include "agg_pattern_filters_rgba.h"  // for all rgba-8-bit color formats
 //#include "agg_renderer_outline_image.h"
 //#include "agg_rasterizer_outline_aa.h"
 
@@ -527,8 +528,6 @@ ras.render(false);     //false means "don't close
     }
 };
 
-
-#include "agg_gray8.h"
 
 int agg_main(int argc, char* argv[])
 {

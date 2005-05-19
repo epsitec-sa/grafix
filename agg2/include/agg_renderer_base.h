@@ -1,6 +1,6 @@
 //----------------------------------------------------------------------------
-// Anti-Grain Geometry - Version 2.2
-// Copyright (C) 2002-2004 Maxim Shemanarev (http://www.antigrain.com)
+// Anti-Grain Geometry - Version 2.3
+// Copyright (C) 2002-2005 Maxim Shemanarev (http://www.antigrain.com)
 //
 // Permission to copy, use, modify, sell and distribute this software 
 // is granted provided this copyright notice appears in all copies. 
@@ -32,12 +32,19 @@ namespace agg
     public:
         typedef PixelFormat pixfmt_type;
         typedef typename pixfmt_type::color_type color_type;
+        typedef typename pixfmt_type::row_data row_data;
+        typedef typename pixfmt_type::span_data span_data;
 
         //--------------------------------------------------------------------
+        renderer_base() : m_ren(0), m_clip_box(1, 1, 0, 0) {}
         renderer_base(pixfmt_type& ren) :
             m_ren(&ren),
             m_clip_box(0, 0, ren.width() - 1, ren.height() - 1)
+        {}
+        void attach(pixfmt_type& ren)
         {
+            m_ren = &ren;
+            m_clip_box = rect(0, 0, ren.width() - 1, ren.height() - 1);
         }
 
         //--------------------------------------------------------------------
@@ -131,6 +138,7 @@ namespace agg
             }
         }
           
+
         //--------------------------------------------------------------------
         void copy_pixel(int x, int y, const color_type& c)
         {
@@ -257,6 +265,24 @@ namespace agg
 
 
         //--------------------------------------------------------------------
+        span_data span(int x, int y, unsigned len)
+        {
+            int x1 = x;
+            int x2 = x + int(len) - 1;
+            
+            if(y  >= ymin() && y  <= ymax() &&
+               x1 <= xmax() && x2 >= xmin())
+            {
+                if(x1 < xmin()) x1 = xmin();
+                if(x2 > xmax()) x2 = xmax();
+                return m_ren->span(x1, y, x2 - x1 + 1);
+            }
+            return span_data(0);
+
+        }
+
+
+        //--------------------------------------------------------------------
         void blend_solid_hspan(int x, int y, int len, 
                                const color_type& c, 
                                const cover_type* covers)
@@ -300,6 +326,29 @@ namespace agg
                 if(len <= 0) return;
             }
             m_ren->blend_solid_vspan(x, y, len, c, covers);
+        }
+
+
+        //--------------------------------------------------------------------
+        void copy_color_hspan(int x, int y, int len, const color_type* colors)
+        {
+            if(y > ymax()) return;
+            if(y < ymin()) return;
+
+            if(x < xmin())
+            {
+                int d = xmin() - x;
+                len -= d;
+                if(len <= 0) return;
+                colors += d;
+                x = xmin();
+            }
+            if(x + len > xmax())
+            {
+                len = xmax() - x + 1;
+                if(len <= 0) return;
+            }
+            m_ren->copy_color_hspan(x, y, len, colors);
         }
 
         //--------------------------------------------------------------------
@@ -354,6 +403,15 @@ namespace agg
             m_ren->blend_color_vspan(x, y, len, colors, covers, cover);
         }
 
+
+        //--------------------------------------------------------------------
+        void copy_color_hspan_no_clip(int x, int y, int len, 
+                                      const color_type* colors)
+        {
+            m_ren->copy_color_hspan(x, y, len, colors);
+        }
+
+
         //--------------------------------------------------------------------
         void blend_color_hspan_no_clip(int x, int y, int len, 
                                        const color_type* colors, 
@@ -362,6 +420,7 @@ namespace agg
         {
             m_ren->blend_color_hspan(x, y, len, colors, covers, cover);
         }
+
 
         //--------------------------------------------------------------------
         void blend_color_vspan_no_clip(int x, int y, int len, 
@@ -468,9 +527,10 @@ namespace agg
         //--------------------------------------------------------------------
         template<class SrcPixelFormatRenderer>
         void blend_from(const SrcPixelFormatRenderer& src, 
-                       const rect* rect_src_ptr = 0, 
-                       int dx = 0, 
-                       int dy = 0)
+                        const rect* rect_src_ptr = 0, 
+                        int dx = 0, 
+                        int dy = 0,
+                        cover_type cover = cover_full)
         {
             rect rsrc(0, 0, src.width(), src.height());
             if(rect_src_ptr)
@@ -500,30 +560,31 @@ namespace agg
                 }
                 while(rc.y2 > 0)
                 {
-                    typename SrcPixelFormatRenderer::row_data span = src.span(rsrc.x1, rsrc.y1);
-                    if(span.ptr)
+                    typename SrcPixelFormatRenderer::row_data rw = src.row(rsrc.x1, rsrc.y1);
+                    if(rw.ptr)
                     {
                         int x1src = rsrc.x1;
                         int x1dst = rdst.x1;
                         int len   = rc.x2;
-                        if(span.x1 > x1src)
+                        if(rw.x1 > x1src)
                         {
-                            x1dst += span.x1 - x1src;
-                            len   -= span.x1 - x1src;
-                            x1src = span.x1;
+                            x1dst += rw.x1 - x1src;
+                            len   -= rw.x1 - x1src;
+                            x1src  = rw.x1;
                         }
                         if(len > 0)
                         {
-                            if(x1src + len-1 > span.x2)
+                            if(x1src + len-1 > rw.x2)
                             {
-                                len -= x1src + len - span.x2 - 1;
+                                len -= x1src + len - rw.x2 - 1;
                             }
                             if(len > 0)
                             {
-                                m_ren->blend_from(src, span.ptr,
+                                m_ren->blend_from(src, rw.ptr,
                                                   x1dst, rdst.y1,
                                                   x1src, rsrc.y1,
-                                                  len);
+                                                  len,
+                                                  cover);
                             }
                         }
                     }

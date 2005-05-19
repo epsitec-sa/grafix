@@ -1,6 +1,6 @@
 //----------------------------------------------------------------------------
-// Anti-Grain Geometry - Version 2.2
-// Copyright (C) 2002-2004 Maxim Shemanarev (http://www.antigrain.com)
+// Anti-Grain Geometry - Version 2.3
+// Copyright (C) 2002-2005 Maxim Shemanarev (http://www.antigrain.com)
 //
 // Permission to copy, use, modify, sell and distribute this software 
 // is granted provided this copyright notice appears in all copies. 
@@ -31,7 +31,9 @@ namespace agg
         org_mono8   = 8,
         org_color16 = 16,
         org_color24 = 24,
-        org_color32 = 32
+        org_color32 = 32,
+        org_color48 = 48,
+        org_color64 = 64
     };
 
     class pixel_map

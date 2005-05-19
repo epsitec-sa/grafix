@@ -1,6 +1,6 @@
 //----------------------------------------------------------------------------
-// Anti-Grain Geometry - Version 2.2
-// Copyright (C) 2002-2004 Maxim Shemanarev (http://www.antigrain.com)
+// Anti-Grain Geometry - Version 2.3
+// Copyright (C) 2002-2005 Maxim Shemanarev (http://www.antigrain.com)
 //
 // Permission to copy, use, modify, sell and distribute this software 
 // is granted provided this copyright notice appears in all copies. 
@@ -22,7 +22,7 @@
 #define AGG_TRANS_VIEWPORT_INCLUDED
 
 #include <string.h>
-#include "agg_basics.h"
+#include "agg_trans_affine.h"
 
 
 namespace agg
@@ -159,6 +159,14 @@ namespace agg
             return (m_kx + m_ky) * 0.5;
         }
 
+        //-------------------------------------------------------------------
+        trans_affine to_affine() const
+        {
+            trans_affine mtx = trans_affine_translation(-m_wx1, -m_wy1);
+            mtx *= trans_affine_scaling(m_kx, m_ky);
+            mtx *= trans_affine_translation(m_dx1, m_dy1);
+            return mtx;
+        }
 
         //-------------------------------------------------------------------
         unsigned byte_size() const

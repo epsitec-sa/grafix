@@ -1,6 +1,6 @@
 //----------------------------------------------------------------------------
-// Anti-Grain Geometry - Version 2.2
-// Copyright (C) 2002-2004 Maxim Shemanarev (http://www.antigrain.com)
+// Anti-Grain Geometry - Version 2.3
+// Copyright (C) 2002-2005 Maxim Shemanarev (http://www.antigrain.com)
 //
 // Permission to copy, use, modify, sell and distribute this software 
 // is granted provided this copyright notice appears in all copies. 
@@ -1349,10 +1349,6 @@ namespace agg
     };
 
 
-
-
-
-
     //======================================================renderer_outline_aa
     template<class BaseRenderer> class renderer_outline_aa
     {
@@ -1492,6 +1488,7 @@ namespace agg
         //-------------------------------------------------------------------------
         void line1(const line_parameters& lp, int sx, int sy)
         {
+            fix_degenerate_bisectrix_start(lp, &sx, &sy);
             line_interpolator_aa1<self_type> li(*this, lp, sx, sy);
             if(li.vertical())
             {
@@ -1506,6 +1503,7 @@ namespace agg
         //-------------------------------------------------------------------------
         void line2(const line_parameters& lp, int ex, int ey)
         {
+            fix_degenerate_bisectrix_end(lp, &ex, &ey);
             line_interpolator_aa2<self_type> li(*this, lp, ex, ey);
             if(li.vertical())
             {
@@ -1521,6 +1519,8 @@ namespace agg
         void line3(const line_parameters& lp, 
                    int sx, int sy, int ex, int ey)
         {
+            fix_degenerate_bisectrix_start(lp, &sx, &sy);
+            fix_degenerate_bisectrix_end(lp, &ex, &ey);
             line_interpolator_aa3<self_type> li(*this, lp, sx, sy, ex, ey);
             if(li.vertical())
             {

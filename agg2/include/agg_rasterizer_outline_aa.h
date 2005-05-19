@@ -1,6 +1,6 @@
 //----------------------------------------------------------------------------
-// Anti-Grain Geometry - Version 2.2
-// Copyright (C) 2002-2004 Maxim Shemanarev (http://www.antigrain.com)
+// Anti-Grain Geometry - Version 2.3
+// Copyright (C) 2002-2005 Maxim Shemanarev (http://www.antigrain.com)
 //
 // Permission to copy, use, modify, sell and distribute this software 
 // is granted provided this copyright notice appears in all copies. 
@@ -152,13 +152,13 @@ namespace agg
 
         //------------------------------------------------------------------------
         template<class VertexSource>
-        void add_path(VertexSource& vs, unsigned id=0)
+        void add_path(VertexSource& vs, unsigned path_id=0)
         {
             double x;
             double y;
 
             unsigned cmd;
-            vs.rewind(id);
+            vs.rewind(path_id);
             while(!is_stop(cmd = vs.vertex(&x, &y)))
             {
                 add_vertex(x, y, cmd);
@@ -171,13 +171,13 @@ namespace agg
         template<class VertexSource, class ColorStorage, class PathId>
         void render_all_paths(VertexSource& vs, 
                               const ColorStorage& colors, 
-                              const PathId& id,
+                              const PathId& path_id,
                               unsigned num_paths)
         {
             for(unsigned i = 0; i < num_paths; i++)
             {
                 m_ren.color(colors[i]);
-                add_path(vs, id[i]);
+                add_path(vs, path_id[i]);
             }
         }
 
