@@ -91,6 +91,10 @@ struct AggBuffer
 	agg::rendering_buffer	buffer;
 	AggRendererCommon*		renderer;
 	AggRendererCommonPre*	renderer_pre;
+    
+	HDC						bitmap_dc;
+	HBITMAP                 bitmap;
+	HGDIOBJ					bitmap_old;
 };
 
 struct AggRendererCommon

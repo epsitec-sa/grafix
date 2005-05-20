@@ -23,7 +23,31 @@ AggBuffer* AggBufferNew(unsigned dx, unsigned dy, unsigned bpp)
 	
 	if (buffer)
 	{
+		buffer->bitmap_dc  = 0;
+		buffer->bitmap     = 0;
+		buffer->bitmap_old = 0;
+		
 		buffer->pixmap.create (dx, dy, (agg::org_e) bpp, 0xff);
+		buffer->buffer.attach (buffer->pixmap.buf (), buffer->pixmap.width (), buffer->pixmap.height (), buffer->pixmap.stride ());
+		buffer->renderer = new AggRendererCommon (buffer->buffer);
+		buffer->renderer_pre = new AggRendererCommonPre (buffer->buffer);
+	}
+	
+	return buffer;
+}
+
+AggBuffer* AggBufferNewUsingOS(void* hdc, unsigned dx, unsigned dy, unsigned bpp)
+{
+	InitIPP ();
+	
+	AggBuffer* buffer = new AggBuffer ();
+	
+	if (buffer)
+	{
+		buffer->bitmap_dc  = ::CreateCompatibleDC ((HDC) hdc);
+		buffer->bitmap     = buffer->pixmap.create_dib_section (buffer->bitmap_dc, dx, dy, (agg::org_e) bpp, 0xff);
+		buffer->bitmap_old = ::SelectObject (buffer->bitmap_dc, buffer->bitmap);
+		
 		buffer->buffer.attach (buffer->pixmap.buf (), buffer->pixmap.width (), buffer->pixmap.height (), buffer->pixmap.stride ());
 		buffer->renderer = new AggRendererCommon (buffer->buffer);
 		buffer->renderer_pre = new AggRendererCommonPre (buffer->buffer);
@@ -36,10 +60,37 @@ void AggBufferResize(AggBuffer* buffer, unsigned dx, unsigned dy, unsigned bpp)
 {
 	if (buffer)
 	{
-		buffer->pixmap.create (dx, dy, (agg::org_e) bpp, 0xff);
+		if (buffer->bitmap_dc && buffer->bitmap)
+		{
+			::SelectObject (buffer->bitmap_dc, buffer->bitmap_old);
+			::DeleteObject (buffer->bitmap);
+			
+			buffer->bitmap = 0;
+			buffer->bitmap = buffer->pixmap.create_dib_section (buffer->bitmap_dc, dx, dy, (agg::org_e) bpp, 0xff);
+			
+			buffer->bitmap_old = ::SelectObject (buffer->bitmap_dc, buffer->bitmap);
+		}
+		else
+		{
+			buffer->pixmap.create (dx, dy, (agg::org_e) bpp, 0xff);
+		}
+		
 		buffer->buffer.attach (buffer->pixmap.buf (), buffer->pixmap.width (), buffer->pixmap.height (), buffer->pixmap.stride ());
 		buffer->renderer->ren_base.reset_clipping (true);
 		buffer->renderer_pre->ren_base_pre.reset_clipping (true);
+	}
+}
+
+void AggBufferDrawGlyphs(AggBuffer* buffer, void* hfont, int x, int y, unsigned short* glyphs, int* dx_array, unsigned int count, unsigned int color)
+{
+	if (buffer && buffer->bitmap_dc && buffer->bitmap && hfont)
+	{
+		HGDIOBJ old_hfont = ::SelectObject (buffer->bitmap_dc, (HFONT) hfont);
+		
+		::SetBkMode (buffer->bitmap_dc, TRANSPARENT);
+		::SetTextColor (buffer->bitmap_dc, color);
+		::ExtTextOut (buffer->bitmap_dc, x, y, ETO_GLYPH_INDEX, 0, reinterpret_cast<LPCTSTR> (glyphs), count, dx_array);
+		::SelectObject (buffer->bitmap_dc, old_hfont);
 	}
 }
 
@@ -103,6 +154,16 @@ void AggBufferGetMemoryLayout(AggBuffer* buffer, int & dx, int & dy, int & strid
 	}
 }
 
+void* AggBufferGetMemoryBitmapHandle(AggBuffer* buffer)
+{
+	if (buffer)
+	{
+		return buffer->bitmap;
+	}
+	
+	return 0;
+}
+
 void AggBufferClearRect(AggBuffer* buffer, int x1, int y1, int x2, int y2)
 {
 	if (buffer)
@@ -135,6 +196,17 @@ void AggBufferClearRect(AggBuffer* buffer, int x1, int y1, int x2, int y2)
 
 void AggBufferDelete(AggBuffer* buffer)
 {
+	if (buffer->bitmap_dc && buffer->bitmap)
+	{
+		::SelectObject (buffer->bitmap_dc, buffer->bitmap_old);
+		::DeleteObject (buffer->bitmap);
+		::DeleteDC (buffer->bitmap_dc);
+		
+		buffer->bitmap_dc  = 0;
+		buffer->bitmap     = 0;
+		buffer->bitmap_old = 0;
+	}
+	
 	delete buffer->renderer;
 	delete buffer->renderer_pre;
 	delete buffer;

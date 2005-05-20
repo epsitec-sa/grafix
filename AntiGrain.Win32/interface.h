@@ -46,13 +46,16 @@ extern "C" AGGDLL void				AggNoOp();
 extern "C" AGGDLL void				AggNoOpString(const wchar_t* text);
 
 extern "C" AGGDLL AggBuffer*		AggBufferNew(unsigned dx, unsigned dy, unsigned bpp);
+extern "C" AGGDLL AggBuffer*		AggBufferNewUsingOS(void* hdc, unsigned dx, unsigned dy, unsigned bpp);
 extern "C" AGGDLL void				AggBufferResize(AggBuffer* buffer, unsigned dx, unsigned dy, unsigned bpp);
+extern "C" AGGDLL void				AggBufferDrawGlyphs(AggBuffer* buffer, void* hfont, int x, int y, unsigned short* glyphs, int* dx_array, unsigned int count, unsigned int color);
 extern "C" AGGDLL void				AggBufferPaint(AggBuffer* buffer, void* hdc, int x1, int y1, int x2, int y2);
 extern "C" AGGDLL void				AggBufferPaintOffset(AggBuffer* buffer, void* hdc, int ox, int oy, int x1, int y1, int x2, int y2);
 extern "C" AGGDLL void				AggBufferBlendOffset(AggBuffer* buffer, void* hdc, int ox, int oy, int x1, int y1, int x2, int y2);
 extern "C" AGGDLL void				AggBufferClear(AggBuffer* buffer);
 extern "C" AGGDLL void				AggBufferClearRect(AggBuffer* buffer, int x1, int y1, int x2, int y2);
 extern "C" AGGDLL void				AggBufferGetMemoryLayout(AggBuffer* buffer, int & dx, int & dy, int & stride, void*& memory);
+extern "C" AGGDLL void*             AggBufferGetMemoryBitmapHandle(AggBuffer* buffer);
 extern "C" AGGDLL void				AggBufferDelete(AggBuffer* buffer);
 extern "C" AGGDLL void				AggBufferInfiniteClipping(AggBuffer* buffer);
 extern "C" AGGDLL void				AggBufferEmptyClipping(AggBuffer* buffer);

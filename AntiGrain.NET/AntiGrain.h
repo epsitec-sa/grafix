@@ -78,6 +78,11 @@ namespace AntiGrain
 			return System::IntPtr ((void*) AggBufferNew (dx, dy, bpp));
 		}
 		
+		static System::IntPtr New(System::IntPtr hdc, int dx, int dy, int bpp)
+		{
+			return System::IntPtr ((void*) AggBufferNewUsingOS (hdc.ToPointer (), dx, dy, bpp));
+		}
+		
 		static void Resize(System::IntPtr buffer, int dx, int dy, int bpp)
 		{
 			AggBufferResize (reinterpret_cast<AggBuffer*> (buffer.ToPointer ()), dx, dy, bpp);
@@ -98,6 +103,15 @@ namespace AntiGrain
 			AggBufferAddClipBox (reinterpret_cast<AggBuffer*> (buffer.ToPointer ()), x1, y1, x2, y2);
 		}
 		
+		static void DrawGlyphs(System::IntPtr buffer, System::IntPtr hfont, int x, int y, unsigned short glyphs __gc[], int dx_array __gc[], int count, unsigned int color)
+		{
+			unsigned short __pin * p_glyphs   = & glyphs[0];
+			int __pin *            p_dx_array = (dx_array == 0) ? 0 : & dx_array[0];
+			
+			AggBufferDrawGlyphs(reinterpret_cast<AggBuffer*> (buffer.ToPointer ()), hfont.ToPointer (), x, y, p_glyphs, p_dx_array, (unsigned int) count, color);
+		}
+		
+
 		static void Paint(System::IntPtr buffer, System::IntPtr hdc, int x1, int y1, int x2, int y2)
 		{
 			AggBufferPaint (reinterpret_cast<AggBuffer*> (buffer.ToPointer ()),
@@ -138,6 +152,11 @@ namespace AntiGrain
 			height = nheight;
 			stride = nstride;
 			scan0  = nscan0;
+		}
+		
+		static System::IntPtr GetMemoryBitmapHandle(System::IntPtr buffer)
+		{
+			return System::IntPtr (AggBufferGetMemoryBitmapHandle (reinterpret_cast<AggBuffer*> (buffer.ToPointer ())));
 		}
 		
 		static void BltBuffer(System::IntPtr buffer, int xd, int yd, System::IntPtr source, int xs, int ys, int dx, int dy)
