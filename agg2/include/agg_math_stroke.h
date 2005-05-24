@@ -134,7 +134,7 @@ namespace agg
             //---------------------
             double d1 = calc_distance(v1.x, v1.y, xi, yi);
             double lim = width * miter_limit;
-            if(d1 < lim)
+            if(d1 <= lim)
             {
                 // Inside the miter limit
                 //---------------------
@@ -144,7 +144,7 @@ namespace agg
             {
                 // Miter limit exceeded
                 //------------------------
-                if(revert_flag)
+                if(revert_flag || d1 < intersection_epsilon)
                 {
                     // For the compatibility with SVG, PDF, etc, 
                     // we use a simple bevel join instead of
@@ -247,10 +247,8 @@ namespace agg
                 dx2 = dy1;
                 dy2 = dx1;
             }
-            double dx = dx1 - dx2;
-            double dy = dy1 - dy2;
-            out_vertices.add(coord_type(v0.x - dx, v0.y + dy));
-            out_vertices.add(coord_type(v0.x + dx, v0.y - dy));
+            out_vertices.add(coord_type(v0.x - dx1 - dx2, v0.y + dy1 - dy2));
+            out_vertices.add(coord_type(v0.x + dx1 - dx2, v0.y - dy1 - dy2));
         }
         else
         {
