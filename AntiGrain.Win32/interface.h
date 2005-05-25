@@ -156,6 +156,8 @@ extern "C" AGGDLL const wchar_t*	AggFontFaceBreakIter(BreakContext* context, dou
 extern "C" AGGDLL bool				AggFontFaceBreakHasMore(BreakContext* context);
 extern "C" AGGDLL void				AggFontFaceBreakDelete(BreakContext* context);
 
+extern "C" AGGDLL bool				AggFontGetUnicodeName(int code, wchar_t* max_path_buffer);
+
 extern "C" AGGDLL void				AggDebugGetCycles(unsigned int& h, unsigned int& l);
 extern "C" AGGDLL int				AggDebugGetCycleDelta();
 extern "C" AGGDLL void				AggDebugTrapZeroPointer();

@@ -884,5 +884,17 @@ namespace AntiGrain
 //		{
 //			return AggTextBreakHasMore (reinterpret_cast<agg::text_break*> (text_break.ToPointer ()));
 //		}
+		
+		static System::String* GetUnicodeName(int code)
+		{
+			wchar_t max_path_buffer[260];
+			
+			if (AggFontGetUnicodeName (code, max_path_buffer))
+			{
+				return __gc new System::String (max_path_buffer);
+			}
+			
+			return 0;
+		}
 	};
 }

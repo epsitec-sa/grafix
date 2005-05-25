@@ -836,3 +836,37 @@ _AggFontPixelCacheFill(AggBuffer* buffer,
 #endif
 
 /*****************************************************************************/
+
+typedef __declspec(dllimport) int (FAR WINAPI *GETUNAME_FUNC)(DWORD,LPVOID); 
+
+
+static HMODULE			hUNameDll;
+static GETUNAME_FUNC	pGetUNameFunc;
+
+bool
+AggFontGetUnicodeName(int code, wchar_t* max_path_buffer)
+{
+	if (hUNameDll == 0)
+	{
+		hUNameDll = ::LoadLibrary ("GETUNAME.DLL");
+	}
+	if (hUNameDll == 0)
+	{
+		return false;
+	}
+    
+	if (pGetUNameFunc == 0)
+	{
+		pGetUNameFunc = (GETUNAME_FUNC)GetProcAddress(hUNameDll, "GetUName"); 
+	}
+	if (pGetUNameFunc == 0)
+	{
+		return false;
+	}
+    
+	pGetUNameFunc (code, max_path_buffer);
+	
+	return true;
+}
+
+/*****************************************************************************/
