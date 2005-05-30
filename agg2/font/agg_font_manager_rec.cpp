@@ -160,7 +160,7 @@ again:
 			optical_name++;
 		}
 		
-		static const wchar_t* reserved_names[] = { L"Light", L"Demibold", L"Semibold", L"Demi", L"Semi", 0 };
+		static const wchar_t* reserved_names[] = { L"Light", L"Demibold", L"Semibold", L"Demi", L"Semi", L"Regular", 0 };
 		
 		int i = 0;
 		

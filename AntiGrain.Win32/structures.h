@@ -294,7 +294,7 @@ struct AggRendererGradient : AggRendererBase
     gradient_polymorphic_wrapper<agg::gradient_x>			gr_x;
     gradient_polymorphic_wrapper<agg::gradient_y>			gr_y;
     gradient_polymorphic_wrapper<agg::gradient_xy>			gr_xy;
-	gradient_polymorphic_wrapper<agg::gradient_circle>		gr_circle;
+	gradient_polymorphic_wrapper<agg::gradient_radial_d>	gr_circle;
     gradient_polymorphic_wrapper<agg::gradient_diamond>		gr_diamond;
     gradient_polymorphic_wrapper<agg::gradient_sqrt_xy>		gr_sqrt_xy;
     gradient_polymorphic_wrapper<gradient_full_conic>		gr_conic;

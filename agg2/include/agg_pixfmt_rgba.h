@@ -1362,6 +1362,9 @@ namespace agg
 
 
 
+
+
+
     //====================================================comp_op_adaptor_rgba
     template<class ColorT, class Order> struct comp_op_adaptor_rgba
     {
@@ -1383,6 +1386,32 @@ namespace agg
         }
     };
 
+    //=========================================comp_op_adaptor_clip_to_dst_rgba
+    template<class ColorT, class Order> struct comp_op_adaptor_clip_to_dst_rgba
+    {
+        typedef Order  order_type;
+        typedef ColorT color_type;
+        typedef typename color_type::value_type value_type;
+        enum {  base_shift = color_type::base_shift };
+
+        static AGG_INLINE void blend_pix(unsigned op, value_type* p, 
+                                         unsigned cr, unsigned cg, unsigned cb,
+                                         unsigned ca,
+                                         unsigned cover)
+        {
+            cr = (cr * ca) >> base_shift;
+            cg = (cg * ca) >> base_shift;
+            cb = (cb * ca) >> base_shift;
+            unsigned da = p[Order::A];
+            comp_op_table_rgba<ColorT, Order>::g_comp_op_func[op]
+                (p, (cr * da) >> base_shift, 
+                    (cg * da) >> base_shift, 
+                    (cb * da) >> base_shift, 
+                    (ca * da) >> base_shift, 
+                    cover);
+        }
+    };
+
     //================================================comp_op_adaptor_rgba_pre
     template<class ColorT, class Order> struct comp_op_adaptor_rgba_pre
     {
@@ -1397,6 +1426,29 @@ namespace agg
                                          unsigned cover)
         {
             comp_op_table_rgba<ColorT, Order>::g_comp_op_func[op](p, cr, cg, cb, ca, cover);
+        }
+    };
+
+    //=====================================comp_op_adaptor_clip_to_dst_rgba_pre
+    template<class ColorT, class Order> struct comp_op_adaptor_clip_to_dst_rgba_pre
+    {
+        typedef Order  order_type;
+        typedef ColorT color_type;
+        typedef typename color_type::value_type value_type;
+        enum {  base_shift = color_type::base_shift };
+
+        static AGG_INLINE void blend_pix(unsigned op, value_type* p, 
+                                         unsigned cr, unsigned cg, unsigned cb,
+                                         unsigned ca,
+                                         unsigned cover)
+        {
+            unsigned da = p[Order::A];
+            comp_op_table_rgba<ColorT, Order>::g_comp_op_func[op]
+                (p, (cr * da) >> base_shift, 
+                    (cg * da) >> base_shift, 
+                    (cb * da) >> base_shift, 
+                    (ca * da) >> base_shift, 
+                    cover);
         }
     };
 
@@ -1421,31 +1473,54 @@ namespace agg
         }
     };
 
-    //===========================================comp_adaptor_clip_to_self_rgba
-    template<class Blender> struct comp_adaptor_clip_to_self_rgba
+    //==========================================comp_adaptor_clip_to_dst_rgba
+    template<class BlenderPre> struct comp_adaptor_clip_to_dst_rgba
     {
-        typedef typename Blender::order_type order_type;
-        typedef typename Blender::color_type color_type;
+        typedef typename BlenderPre::order_type order_type;
+        typedef typename BlenderPre::color_type color_type;
         typedef typename color_type::value_type value_type;
+        enum {  base_shift = color_type::base_shift };
 
         static AGG_INLINE void blend_pix(unsigned op, value_type* p, 
                                          unsigned cr, unsigned cg, unsigned cb,
                                          unsigned ca,
                                          unsigned cover)
         {
-            if(ca) Blender::blend_pix(op, p, cr, cg, cb, ca, cover);
+            cr = (cr * ca) >> base_shift;
+            cg = (cg * ca) >> base_shift;
+            cb = (cb * ca) >> base_shift;
+            unsigned da = p[order_type::A];
+            BlenderPre::blend_pix(p, 
+                                  (cr * da) >> base_shift, 
+                                  (cg * da) >> base_shift, 
+                                  (cb * da) >> base_shift, 
+                                  (ca * da) >> base_shift, 
+                                  cover);
         }
     };
 
+    //======================================comp_adaptor_clip_to_dst_rgba_pre
+    template<class BlenderPre> struct comp_adaptor_clip_to_dst_rgba_pre
+    {
+        typedef typename BlenderPre::order_type order_type;
+        typedef typename BlenderPre::color_type color_type;
+        typedef typename color_type::value_type value_type;
+        enum {  base_shift = color_type::base_shift };
 
-
-
-
-
-
-
-
-
+        static AGG_INLINE void blend_pix(unsigned op, value_type* p, 
+                                         unsigned cr, unsigned cg, unsigned cb,
+                                         unsigned ca,
+                                         unsigned cover)
+        {
+            unsigned da = p[order_type::A];
+            BlenderPre::blend_pix(p, 
+                                  (cr * da) >> base_shift, 
+                                  (cg * da) >> base_shift, 
+                                  (cb * da) >> base_shift, 
+                                  (ca * da) >> base_shift, 
+                                  cover);
+        }
+    };
 
 
 
@@ -2783,7 +2858,7 @@ namespace agg
         typedef typename rbuf_type::span_data span_data;
 
         //--------------------------------------------------------------------
-        pixfmt_custom_blend_rbuf_rgba() : m_rbuf(&rb), m_comp_op(3) {}
+        pixfmt_custom_blend_rbuf_rgba() : m_rbuf(0), m_comp_op(3) {}
         pixfmt_custom_blend_rbuf_rgba(rbuf_type& rb, unsigned comp_op=3) : 
             m_rbuf(&rb),
             m_comp_op(comp_op)

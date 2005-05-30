@@ -38,7 +38,7 @@ typedef agg::renderer_primitives<base_renderer> primitives_renderer;
 typedef agg::renderer_scanline_aa_solid<base_renderer>  solid_renderer;
 typedef agg::renderer_scanline_bin_solid<base_renderer> draft_renderer;
 
-typedef agg::gradient_circle gradient_function;
+typedef agg::gradient_radial_d gradient_function;
 typedef agg::span_interpolator_linear<> interpolator;
 typedef agg::pod_auto_array<color_type, 256> color_array_type;
 typedef agg::span_gradient<color_type, 
@@ -418,7 +418,7 @@ class the_application : public agg::platform_support
     graph                       m_graph;
     color_array_type            m_gradient_colors;
     int                         m_draw;
-    agg::scanline_p8            m_sl;
+    agg::scanline_u8            m_sl;
 
 
 public:
@@ -499,7 +499,6 @@ public:
     //------------------------------------------------------------------------
     void draw_nodes_fine(scanline_rasterizer& ras)
     {
-        agg::scanline_u8 sl;
         gradient_span_alloc sa;
         pixfmt pixf(rbuf_window());
         base_renderer rb(pixf);
@@ -539,7 +538,7 @@ public:
                     gradient_span_gen sg(sa, inter, gf, m_gradient_colors, 0.0, 10.0);
                     gradient_renderer ren(rb, sg);
                     ras.add_path(ell);
-                    agg::render_scanlines(ras, sl, ren);
+                    agg::render_scanlines(ras, m_sl, ren);
                 }
                 break;
             }

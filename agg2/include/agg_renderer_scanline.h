@@ -62,7 +62,7 @@ namespace agg
                 {
                     unsigned num_spans = sl.num_spans();
                     typename Scanline::const_iterator span = sl.begin();
-                    do
+                    for(;;)
                     {
                         int x = span->x;
                         int len = span->len;
@@ -100,9 +100,9 @@ namespace agg
                                     *covers);
                             }
                         }
+                        if(--num_spans == 0) break;
                         ++span;
                     }
-                    while(--num_spans);
                 }
             }
             while(m_ren->next_clip_box());
@@ -146,7 +146,7 @@ namespace agg
             unsigned num_spans = sl.num_spans();
             typename Scanline::const_iterator span = sl.begin();
 
-            do
+            for(;;)
             {
                 int x = span->x;
                 if(span->len > 0)
@@ -161,9 +161,9 @@ namespace agg
                                        m_color, 
                                        *(span->covers));
                 }
+                if(--num_spans == 0) break;
                 ++span;
             }
-            while(--num_spans);
         }
         
     private:
@@ -216,7 +216,7 @@ namespace agg
                 {
                     unsigned num_spans = sl.num_spans();
                     typename Scanline::const_iterator span = sl.begin();
-                    do
+                    for(;;)
                     {
                         int x = span->x;
                         int len = span->len;
@@ -241,9 +241,9 @@ namespace agg
                                     0);
                             }
                         }
+                        if(--num_spans == 0) break;
                         ++span;
                     }
-                    while(--num_spans);
                 }
             }
             while(m_ren->next_clip_box());
@@ -298,7 +298,7 @@ namespace agg
                 {
                     unsigned num_spans = sl.num_spans();
                     typename Scanline::const_iterator span = sl.begin();
-                    do
+                    for(;;)
                     {
                         int x = span->x;
                         int len = span->len;
@@ -324,9 +324,9 @@ namespace agg
                                 }
                             }
                         }
+                        if(--num_spans == 0) break;
                         ++span;
                     }
-                    while(--num_spans);
                 }
             }
             while(m_ren->next_clip_box());
@@ -381,7 +381,7 @@ namespace agg
                 {
                     unsigned num_spans = sl.num_spans();
                     typename Scanline::const_iterator span = sl.begin();
-                    do
+                    for(;;)
                     {
                         int x = span->x;
                         int len = span->len;
@@ -405,9 +405,9 @@ namespace agg
                                     m_span_gen->generate(x, y, len));
                             }
                         }
+                        if(--num_spans == 0) break;
                         ++span;
                     }
-                    while(--num_spans);
                 }
             }
             while(m_ren->next_clip_box());
@@ -449,7 +449,7 @@ namespace agg
         {
             unsigned num_spans = sl.num_spans();
             typename Scanline::const_iterator span = sl.begin();
-            do
+            for(;;)
             {
                 m_ren->blend_hline(span->x, 
                                    sl.y(), 
@@ -458,9 +458,9 @@ namespace agg
                                                       span->len), 
                                    m_color, 
                                    cover_full);
+                if(--num_spans == 0) break;
                 ++span;
             }
-            while(--num_spans);
         }
         
     private:
