@@ -313,3 +313,42 @@ void AggTextBreakHyphenate(agg::text_break* tb)
 	}
 }
 
+int AggTextBreakHyphenateWord(const wchar_t* text, int len,
+							  short* breaks, int breaks_length)
+{
+	int  num = 0;
+	
+	//	Find the hyphenation points in the text, by applying the language specific
+	//	hyphenation rules.
+	
+	if ((len > 3) &&
+		(len < 99))
+	{
+		char word[100];
+		int  list[100];
+		
+		for (int j = 0; j < len; j++)
+		{
+			word[j] = reduce_to_upper_ascii (text[j]);
+		}
+		
+		list[0]   = 0;
+		word[len] = 0;
+		
+		//	Call Daniel Roux's COUPE code, which was inherited from the SMAKY computer and
+		//	ported to C for the Virtual Pen project :
+		
+		Break (word, len, list);
+		
+		int* pos = list;
+		
+		while (*pos && (num < breaks_length))
+		{
+			breaks[num++] = static_cast<short> (*pos++);
+		}
+	}
+	
+	return num;
+}
+
+

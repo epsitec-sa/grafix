@@ -181,3 +181,4 @@ extern "C" AGGDLL void				AggTextBreakSetNthFontFace(agg::text_break* tb, int nt
 extern "C" AGGDLL void				AggTextBreakSetRunCount(agg::text_break* tb, int n);
 extern "C" AGGDLL void				AggTextBreakSetNthRun(agg::text_break* tb, int nth, int run_length, int face_index, double scale);
 extern "C" AGGDLL void				AggTextBreakHyphenate(agg::text_break* tb);
+extern "C" AGGDLL int				AggTextBreakHyphenateWord(const wchar_t* text, int text_length, short* breaks, int breaks_length);

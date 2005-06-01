@@ -875,6 +875,16 @@ namespace AntiGrain
 			AggTextBreakHyphenate (reinterpret_cast<agg::text_break*> (text_break.ToPointer ()));
 		}
 		
+		static int HyphenateWord(System::String* text, int text_length, short breaks __gc[])
+		{
+			System::String __pin * pinned_text = text;
+			const wchar_t*         native_text = (const wchar_t*)((char*)(*((void**)&pinned_text)) + Internals::OffsetToStringData);
+			int                    breaks_len  = breaks->Count;
+			short __pin *          breaks_ptr = & breaks[0];
+			
+			return AggTextBreakHyphenateWord (native_text, text_length, breaks_ptr, breaks_len);
+		}
+		
 		static void Delete(System::IntPtr text_break)
 		{
 			AggTextBreakDelete (reinterpret_cast<agg::text_break*> (text_break.ToPointer ()));
