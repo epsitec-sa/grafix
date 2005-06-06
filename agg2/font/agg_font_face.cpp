@@ -826,6 +826,11 @@ font_face::cache_record::FindSizeInfo (int16u glyph)
 		return 0;
 	}
 	
+	if (glyph >= read_big_endian (this->ot_maxp->num_glyphs))
+	{
+		return 0;
+	}
+	
 	size_info_record* info = this->glyph_sizes + glyph;
 	
 	if (info->width_advance)
