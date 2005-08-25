@@ -99,6 +99,11 @@ void AggRendererSolidColor(AggRendererSolid* renderer, double r, double g, doubl
 
 void AggRendererSolidDelete(AggRendererSolid* renderer)
 {
+	if (renderer->fence != 0x5AA55AA5)
+	{
+		::DebugBreak ();
+	}
+	
 	delete renderer;
 }
 
@@ -228,6 +233,11 @@ AggRendererImage* AggRendererImageNew(AggBuffer* buffer)
 
 void AggRendererImageDelete(AggRendererImage* renderer)
 {
+	if (renderer->fence != 0x5AA55AA5)
+	{
+		::DebugBreak ();
+	}
+	
 	delete renderer;
 }
 

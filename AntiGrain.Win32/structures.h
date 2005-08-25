@@ -173,9 +173,11 @@ struct AggRendererSolid : AggRendererBase
 	typedef agg::renderer_scanline_aa_solid<renderer_base> renderer_solid;
 	
 	renderer_solid			ren_solid;
+	unsigned int			fence;
 	
 	AggRendererSolid (AggBuffer* buffer) : AggRendererBase(buffer), ren_solid(renderer->ren_base)
 	{
+		this->fence = 0x5AA55AA5;
 	}
 };
 
@@ -224,6 +226,8 @@ struct AggRendererImage
 	bool						is_source_ok;
 	bool						is_ready;
 	
+	unsigned int				fence;
+	
 	AggRendererImage (AggBuffer* buffer)
 		: renderer(buffer->renderer),
 		  matrix (),
@@ -236,7 +240,9 @@ struct AggRendererImage
 		  is_ready (false)
 	{
 		this->span_gen.filter_offset (0);
+		this->fence = 0x5AA55AA5;
 	}
+	
 	bool Validate ();
 };
 
