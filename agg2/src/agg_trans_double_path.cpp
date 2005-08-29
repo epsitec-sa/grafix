@@ -101,6 +101,7 @@ namespace agg
         double dist;
         double d;
 
+        vertices.close(false);
         if(vertices.size() > 2)
         {
             if(vertices[vertices.size() - 2].dist * 10.0 < 
@@ -118,7 +119,6 @@ namespace agg
         }
 
         dist = 0;
-        vertices.close(false);
         for(i = 0; i < vertices.size(); i++)
         {
             vertex_dist& v = vertices[i];

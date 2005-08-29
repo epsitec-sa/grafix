@@ -32,7 +32,7 @@ namespace agg
     //
     // Unpacked scanline container class
     //
-    // This class is used to transfer data from a scanline rastyerizer 
+    // This class is used to transfer data from a scanline rasterizer 
     // to the rendering buffer. It's organized very simple. The class stores 
     // information of horizontal spans to render it into a pixel-map buffer. 
     // Each span has staring X, length, and an array of bytes that determine the 
@@ -101,10 +101,10 @@ namespace agg
     //
     // The question is: why should we accumulate the whole scanline when we
     // could render just separate spans when they're ready?
-    // That's because using the scaline is generally faster. When is consists 
+    // That's because using the scanline is generally faster. When is consists 
     // of more than one span the conditions for the processor cash system
     // are better, because switching between two different areas of memory 
-    // (that can be very large) occures less frequently.
+    // (that can be very large) occurs less frequently.
     //------------------------------------------------------------------------
     template<class CoverT> class scanline_u
     {

@@ -514,6 +514,7 @@ namespace agg
     //------------------------------------------------------------------------
     void font_engine_win32_tt_base::update_signature()
     {
+        m_signature[0] = 0;
         if(m_dc && m_cur_font)
         {
             unsigned gamma_hash = 0;

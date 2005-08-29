@@ -1,4 +1,4 @@
-AGGLIBS= -lagg 
+AGGLIBS= -lagg -lSDL
 AGGCXXFLAGS = -O3 -I/usr/include/SDL -L/usr/lib
 CXX = g++
 C = gcc

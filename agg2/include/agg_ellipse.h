@@ -30,26 +30,37 @@ namespace agg
     class ellipse
     {
     public:
-        ellipse() : m_x(0.0), m_y(0.0), m_rx(1.0), m_ry(1.0), m_num(4), m_step(0), m_cw(false) {}
-        ellipse(double x, double y, double rx, double ry, unsigned num_steps, bool cw=false) 
-            : m_x(x), m_y(y), m_rx(rx), m_ry(ry), m_num(num_steps), m_step(0), m_cw(cw) {}
+        ellipse() : 
+            m_x(0.0), m_y(0.0), m_rx(1.0), m_ry(1.0), m_scale(1.0), 
+            m_num(4), m_step(0), m_cw(false) {}
 
-        void init(double x, double y, double rx, double ry, unsigned num_steps, 
-                  bool cw=false);
+        ellipse(double x, double y, double rx, double ry, 
+                unsigned num_steps=0, bool cw=false) :
+            m_x(x), m_y(y), m_rx(rx), m_ry(ry), m_scale(1.0), 
+            m_num(num_steps), m_step(0), m_cw(cw) 
+        {
+            if(m_num == 0) calc_num_steps();
+        }
+
+        void init(double x, double y, double rx, double ry, 
+                  unsigned num_steps=0, bool cw=false);
+
         void approximation_scale(double scale);
         void rewind(unsigned path_id);
         unsigned vertex(double* x, double* y);
 
     private:
+        void calc_num_steps();
+
         double m_x;
         double m_y;
         double m_rx;
         double m_ry;
+        double m_scale;
         unsigned m_num;
         unsigned m_step;
         bool m_cw;
     };
-
 
     //------------------------------------------------------------------------
     inline void ellipse::init(double x, double y, double rx, double ry, 
@@ -62,13 +73,22 @@ namespace agg
         m_num = num_steps;
         m_step = 0;
         m_cw = cw;
+        if(m_num == 0) calc_num_steps();
     }
 
     //------------------------------------------------------------------------
     inline void ellipse::approximation_scale(double scale)
     {   
-       m_num = unsigned((fabs(m_rx) + fabs(m_ry) + 6.0) * scale);
-       if(m_num < 6) m_num = 6;
+        m_scale = scale;
+        calc_num_steps();
+    }
+
+    //------------------------------------------------------------------------
+    inline void ellipse::calc_num_steps()
+    {
+        double ra = (fabs(m_rx) + fabs(m_ry)) / 2;
+        double da = acos(ra / (ra + 0.125 / m_scale)) * 2;
+        m_num = int(2*pi / da);
     }
 
     //------------------------------------------------------------------------

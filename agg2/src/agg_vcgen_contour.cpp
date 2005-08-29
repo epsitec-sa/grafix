@@ -29,7 +29,7 @@ namespace agg
         m_out_vertices(),
         m_width(1.0),
         m_line_join(bevel_join),
-        m_inner_line_join(miter_join_revert),
+        m_inner_join(inner_miter),
         m_approx_scale(1.0),
         m_abs_width(1.0),
         m_signed_width(1.0),
@@ -154,7 +154,7 @@ namespace agg
                                  m_src_vertices.curr(m_src_vertex).dist,
                                  m_signed_width, 
                                  m_line_join,
-                                 m_inner_line_join,
+                                 m_inner_join,
                                  m_miter_limit,
                                  m_inner_miter_limit,
                                  m_approx_scale);

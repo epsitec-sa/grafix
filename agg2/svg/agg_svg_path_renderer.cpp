@@ -28,11 +28,12 @@ namespace svg
     //------------------------------------------------------------------------
     path_renderer::path_renderer() :
         m_curved(m_storage),
+        m_curved_count(m_curved),
 
-        m_curved_stroked(m_curved),
+        m_curved_stroked(m_curved_count),
         m_curved_stroked_trans(m_curved_stroked, m_transform),
 
-        m_curved_trans(m_curved, m_transform),
+        m_curved_trans(m_curved_count, m_transform),
         m_curved_trans_contour(m_curved_trans)
     {
         m_curved_trans_contour.auto_detect_orientation(false);
@@ -125,7 +126,14 @@ namespace svg
     //------------------------------------------------------------------------
     void path_renderer::curve3(double x, double y, bool rel)           // T, t
     {
-        throw exception("curve3(x, y) : NOT IMPLEMENTED YET");
+//        throw exception("curve3(x, y) : NOT IMPLEMENTED YET");
+        if(rel) 
+        {
+            m_storage.curve3_rel(x, y);
+        } else 
+        {
+            m_storage.curve3(x, y);
+        }
     }
 
     //------------------------------------------------------------------------
@@ -146,7 +154,14 @@ namespace svg
     void path_renderer::curve4(double x2, double y2,                   // S, s
                                double x,  double y, bool rel)
     {
-        throw exception("curve4(x2, y2, x, y) : NOT IMPLEMENTED YET");
+        //throw exception("curve4(x2, y2, x, y) : NOT IMPLEMENTED YET");
+        if(rel) 
+        {
+            m_storage.curve4_rel(x2, y2, x, y);
+        } else 
+        {
+            m_storage.curve4(x2, y2, x, y);
+        }
     }
 
     //------------------------------------------------------------------------

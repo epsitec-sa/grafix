@@ -27,6 +27,8 @@ namespace agg
              unsigned HiResShift=8> class gamma_lut
     {
     public:
+        typedef gamma_lut<LoResT, HiResT, GammaShift, HiResShift> self_type;
+
         enum
         {
             gamma_shift = GammaShift,
@@ -105,6 +107,9 @@ namespace agg
         }
 
     private:
+        gamma_lut(const self_type&);
+        const self_type& operator = (const self_type&);
+
         double m_gamma;
         HiResT* m_dir_gamma;
         LoResT* m_inv_gamma;

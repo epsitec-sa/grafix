@@ -64,6 +64,9 @@ namespace agg
             if(m_flip_y) *y = m_y1 + m_y2 - *y;
         }
 
+        //--------------------------------------------------------------------
+        double scale() const { return m_mtx ? m_mtx->scale() : 1.0; }
+
     private:
         ctrl(const ctrl&);
         const ctrl& operator = (const ctrl&);

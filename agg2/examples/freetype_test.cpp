@@ -143,6 +143,21 @@ static char text[] =
 
 
 
+template<class VS> void dump_path(VS& path)
+{
+    FILE* fd = fopen("dump_path", "a");
+    fprintf(fd, "-------\n");
+    path.rewind(0);
+    unsigned cmd;
+    double x, y;
+    while(!agg::is_stop(cmd = path.vertex(&x, &y)))
+    {
+        fprintf(fd, "%02X %8.2f %8.2f\n", cmd, x, y);
+    }
+    fclose(fd);
+}
+
+
 
 
 class the_application : public agg::platform_support
@@ -329,6 +344,7 @@ public:
                         }
                         ren_solid.color(agg::rgba8(0, 0, 0));
                         agg::render_scanlines(ras, sl, ren_solid);
+//dump_path(m_fman.path_adaptor());
                         break;
                     }
 

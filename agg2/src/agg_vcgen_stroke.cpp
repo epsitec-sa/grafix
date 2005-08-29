@@ -29,12 +29,12 @@ namespace agg
         m_out_vertices(),
         m_width(0.5),
         m_miter_limit(4.0),
-        m_inner_miter_limit(1.0 + 1.0/64.0),
+        m_inner_miter_limit(1.01),
         m_approx_scale(1.0),
         m_shorten(0.0),
         m_line_cap(butt_cap),
         m_line_join(miter_join),
-        m_inner_line_join(miter_join_revert),
+        m_inner_join(inner_miter),
         m_closed(0),
         m_status(initial),
         m_src_vertex(0),
@@ -80,6 +80,21 @@ namespace agg
         }
     }
 
+
+    //------------------------------------------------------------------------
+    static inline void calc_butt_cap(double* cap,
+                                     const vertex_dist& v0, 
+                                     const vertex_dist& v1, 
+                                     double len,
+                                     double width)
+    {
+        double dx = (v1.y - v0.y) * width / len;
+        double dy = (v1.x - v0.x) * width / len;
+        cap[0] = v0.x - dx; 
+        cap[1] = v0.y + dy;
+        cap[2] = v0.x + dx;
+        cap[3] = v0.y - dy;
+    }
 
     //------------------------------------------------------------------------
     void vcgen_stroke::rewind(unsigned)
@@ -172,7 +187,7 @@ namespace agg
                                  m_src_vertices.curr(m_src_vertex).dist,
                                  m_width, 
                                  m_line_join,
-                                 m_inner_line_join,
+                                 m_inner_join,
                                  m_miter_limit,
                                  m_inner_miter_limit,
                                  m_approx_scale);
@@ -203,7 +218,7 @@ namespace agg
                                  m_src_vertices.prev(m_src_vertex).dist,
                                  m_width, 
                                  m_line_join,
-                                 m_inner_line_join,
+                                 m_inner_join,
                                  m_miter_limit,
                                  m_inner_miter_limit,
                                  m_approx_scale);

@@ -71,7 +71,7 @@ namespace agg
         { 
             base_type::source_image(src);
             m_wrap_mode_x = WrapModeX(src.width());
-            m_wrap_mode_y = WrapModeX(src.height());
+            m_wrap_mode_y = WrapModeY(src.height());
         }
 
         //--------------------------------------------------------------------
@@ -150,7 +150,7 @@ namespace agg
         { 
             base_type::source_image(src);
             m_wrap_mode_x = WrapModeX(src.width());
-            m_wrap_mode_y = WrapModeX(src.height());
+            m_wrap_mode_y = WrapModeY(src.height());
         }
 
         //--------------------------------------------------------------------
@@ -257,7 +257,7 @@ namespace agg
         { 
             base_type::source_image(src);
             m_wrap_mode_x = WrapModeX(src.width());
-            m_wrap_mode_y = WrapModeX(src.height());
+            m_wrap_mode_y = WrapModeY(src.height());
         }
 
         //--------------------------------------------------------------------
@@ -383,7 +383,7 @@ namespace agg
         { 
             base_type::source_image(src);
             m_wrap_mode_x = WrapModeX(src.width());
-            m_wrap_mode_y = WrapModeX(src.height());
+            m_wrap_mode_y = WrapModeY(src.height());
         }
 
         //--------------------------------------------------------------------

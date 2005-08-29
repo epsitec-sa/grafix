@@ -104,7 +104,7 @@ public:
         //                agg::rgba(0,   0,   1,  alpha));
         //span_gen.triangle(m_x[0], m_y[0], m_x[1], m_y[1], m_x[2], m_y[2], d);
         //ras.add_path(span_gen);
-        //ras.render(sl, ren_gouraud);
+        //agg::render_scanlines(ras, sl, ren_gouraud);
 
 
         // Six triangles

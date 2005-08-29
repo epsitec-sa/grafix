@@ -784,7 +784,7 @@ namespace agg
             base_mask  = color_type::base_mask
         };
 
-        // if 2.Dca < Da //!!! McSeem: Corrected, was erroneous "if 2.Sca < Sa"
+        // if 2.Dca < Da
         //   Dca' = 2.Sca.Dca + Sca.(1 - Da) + Dca.(1 - Sa)
         // otherwise
         //   Dca' = Sa.Da - 2.(Da - Dca).(Sa - Sca) + Sca.(1 - Da) + Dca.(1 - Sa)
@@ -809,15 +809,15 @@ namespace agg
             calc_type da   = p[Order::A];
             calc_type sada = sa * p[Order::A];
 
-            p[Order::R] = (value_type)(((2*sr < sa) ? 
+            p[Order::R] = (value_type)(((2*dr < da) ? 
                 2*sr*dr + sr*d1a + dr*s1a : 
                 sada - 2*(da - dr)*(sa - sr) + sr*d1a + dr*s1a) >> base_shift);
 
-            p[Order::G] = (value_type)(((2*sg < sa) ? 
+            p[Order::G] = (value_type)(((2*dg < da) ? 
                 2*sg*dg + sg*d1a + dg*s1a : 
                 sada - 2*(da - dg)*(sa - sg) + sg*d1a + dg*s1a) >> base_shift);
 
-            p[Order::B] = (value_type)(((2*sb < sa) ? 
+            p[Order::B] = (value_type)(((2*db < da) ? 
                 2*sb*db + sb*d1a + db*s1a : 
                 sada - 2*(da - db)*(sa - sb) + sb*d1a + db*s1a) >> base_shift);
 
@@ -1045,7 +1045,7 @@ namespace agg
             base_mask  = color_type::base_mask
         };
 
-        // if 2.Dca < Da //!!! McSeem: Corrected, was erroneous "if 2.Sca < Sa"
+        // if 2.Sca < Sa
         //    Dca' = 2.Sca.Dca + Sca.(1 - Da) + Dca.(1 - Sa)
         // otherwise
         //    Dca' = Sa.Da - 2.(Da - Dca).(Sa - Sca) + Sca.(1 - Da) + Dca.(1 - Sa)
@@ -1070,15 +1070,15 @@ namespace agg
             calc_type da   = p[Order::A];
             calc_type sada = sa * da;
 
-            p[Order::R] = (value_type)(((2*dr < da) ? 
+            p[Order::R] = (value_type)(((2*sr < sa) ? 
                 2*sr*dr + sr*d1a + dr*s1a : 
                 sada - 2*(da - dr)*(sa - sr) + sr*d1a + dr*s1a) >> base_shift);
 
-            p[Order::G] = (value_type)(((2*dg < da) ? 
+            p[Order::G] = (value_type)(((2*sg < sa) ? 
                 2*sg*dg + sg*d1a + dg*s1a : 
                 sada - 2*(da - dg)*(sa - sg) + sg*d1a + dg*s1a) >> base_shift);
 
-            p[Order::B] = (value_type)(((2*db < da) ? 
+            p[Order::B] = (value_type)(((2*sb < sa) ? 
                 2*sb*db + sb*d1a + db*s1a : 
                 sada - 2*(da - db)*(sa - sb) + sb*d1a + db*s1a) >> base_shift);
 
@@ -1100,14 +1100,15 @@ namespace agg
             base_mask  = color_type::base_mask
         };
 
-        // if 2.Dca < Da //!!! McSeem: Corrected, was erroneous "if 2.Sca < Sa"
-        //    Dca' = Dca.(Sa - (1 - Dca/Da).(2.Sca - Sa)) + Sca.(1 - Da) + Dca.(1 - Sa) 
+        // if 2.Sca < Sa
+        //   Dca' = Dca.(Sa + (1 - Dca/Da).(2.Sca - Sa)) + Sca.(1 - Da) + Dca.(1 - Sa)
         // otherwise if 8.Dca <= Da
-        //    Dca' = Dca.(Sa - (1 - Dca/Da).(2.Sca - Sa).(3 - 8.Dca/Da)) + Sca.(1 - Da) + Dca.(1 - Sa)
+        //   Dca' = Dca.(Sa + (1 - Dca/Da).(2.Sca - Sa).(3 - 8.Dca/Da)) + Sca.(1 - Da) + Dca.(1 - Sa)
         // otherwise
-        //    Dca' = (Dca.Sa + ((Dca/Da)^(0.5).Da - Dca).(2.Sca - Sa)) + Sca.(1 - Da) + Dca.(1 - Sa)
+        //   Dca' = (Dca.Sa + ((Dca/Da)^(0.5).Da - Dca).(2.Sca - Sa)) + Sca.(1 - Da) + Dca.(1 - Sa)
         // 
         // Da'  = Sa + Da - Sa.Da 
+
         static AGG_INLINE void blend_pix(value_type* p, 
                                          unsigned r, unsigned g, unsigned b, 
                                          unsigned a, unsigned cover)
@@ -1124,16 +1125,17 @@ namespace agg
             {
                 a = (a * cover) >> 8;
             }
-            if(2*dr < da)       dr = dr*(sa - (1 - dr/da)*(2*sr - sa)) + sr*(1 - da) + dr*(1 - da);
-            else if(8*dr <= da) dr = dr*(sa - (1 - dr/da)*(2*sr - sa)*(3 - 8*dr/da)) + sr*(1 - da) + dr*(1 - sa);
+
+            if(2*sr < sa)       dr = dr*(sa + (1 - dr/da)*(2*sr - sa)) + sr*(1 - da) + dr*(1 - sa);
+            else if(8*dr <= da) dr = dr*(sa + (1 - dr/da)*(2*sr - sa)*(3 - 8*dr/da)) + sr*(1 - da) + dr*(1 - sa);
             else                dr = (dr*sa + (sqrt(dr/da)*da - dr)*(2*sr - sa)) + sr*(1 - da) + dr*(1 - sa);
 
-            if(2*dg < da)       dg = dg*(sa - (1 - dg/da)*(2*sg - sa)) + sg*(1 - da) + dg*(1 - da);
-            else if(8*dg <= da) dg = dg*(sa - (1 - dg/da)*(2*sg - sa)*(3 - 8*dg/da)) + sg*(1 - da) + dg*(1 - sa);
+            if(2*sg < sa)       dg = dg*(sa + (1 - dg/da)*(2*sg - sa)) + sg*(1 - da) + dg*(1 - sa);
+            else if(8*dg <= da) dg = dg*(sa + (1 - dg/da)*(2*sg - sa)*(3 - 8*dg/da)) + sg*(1 - da) + dg*(1 - sa);
             else                dg = (dg*sa + (sqrt(dg/da)*da - dg)*(2*sg - sa)) + sg*(1 - da) + dg*(1 - sa);
 
-            if(2*db < da)       db = db*(sa - (1 - db/da)*(2*sb - sa)) + sb*(1 - da) + db*(1 - da);
-            else if(8*db <= da) db = db*(sa - (1 - db/da)*(2*sb - sa)*(3 - 8*db/da)) + sb*(1 - da) + db*(1 - sa);
+            if(2*sb < sa)       db = db*(sa + (1 - db/da)*(2*sb - sa)) + sb*(1 - da) + db*(1 - sa);
+            else if(8*db <= da) db = db*(sa + (1 - db/da)*(2*sb - sa)*(3 - 8*db/da)) + sb*(1 - da) + db*(1 - sa);
             else                db = (db*sa + (sqrt(db/da)*da - db)*(2*sb - sa)) + sb*(1 - da) + db*(1 - sa);
 
             p[Order::R] = (value_type)(dr * base_mask);

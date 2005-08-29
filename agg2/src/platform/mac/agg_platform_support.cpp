@@ -31,6 +31,7 @@
 #include "console.h"
 #endif
 #include <string.h>
+#include <unistd.h>
 #include "platform/agg_platform_support.h"
 #include "platform/mac/agg_mac_pmap.h"
 #include "util/agg_color_conv_rgb8.h"
@@ -489,7 +490,7 @@ pascal void DoPeriodicTask (EventLoopTimerRef theTimer, void* userData);
 		Str255 p_msg;
 		
 		::CopyCStringToPascal (msg, p_msg);
-		::StandardAlert (kAlertPlainAlert, "\pAGG Message", p_msg, NULL, &item);
+		::StandardAlert (kAlertPlainAlert, (const unsigned char*) "\pAGG Message", p_msg, NULL, &item);
     }
 
 
@@ -637,7 +638,11 @@ pascal void DoPeriodicTask (EventLoopTimerRef theTimer, void* userData);
             char fn[1024];
             strcpy(fn, file);
             int len = strlen(fn);
+#if defined(__MWERKS__)
             if(len < 4 || stricmp(fn + len - 4, ".BMP") != 0)
+#else
+	        if(len < 4 || strncasecmp(fn + len - 4, ".BMP", 4) != 0)
+#endif
             {
                 strcat(fn, ".bmp");
             }
@@ -656,7 +661,11 @@ pascal void DoPeriodicTask (EventLoopTimerRef theTimer, void* userData);
             char fn[1024];
             strcpy(fn, file);
             int len = strlen(fn);
+#if defined(__MWERKS__)
             if(len < 4 || stricmp(fn + len - 4, ".BMP") != 0)
+#else
+	        if(len < 4 || strncasecmp(fn + len - 4, ".BMP", 4) != 0)
+#endif
             {
                 strcat(fn, ".bmp");
             }
@@ -1030,8 +1039,14 @@ int main(int argc, char* argv[])
 #if defined(__MWERKS__)
 	// argc = ccommand (&argv);
 #endif
+    
+    // Check if we are launched by double-clicking under OSX 
+	// Get rid of extra argument, this will confuse the standard argument parsing
+	// calls used in the examples to get the name of the image file to be used
+    if ( argc >= 2 && strncmp (argv[1], "-psn", 4) == 0 ) {
+        argc = 1;
+    } 
+
+launch:
     return agg_main(argc, argv);
 }
-
-
-

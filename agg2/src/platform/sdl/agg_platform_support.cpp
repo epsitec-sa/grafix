@@ -20,6 +20,7 @@
 #include <string.h>
 #include "platform/agg_platform_support.h"
 #include "SDL.h"
+#include "SDL_byteorder.h"
 
 
 namespace agg
@@ -73,7 +74,7 @@ namespace agg
 
         switch(m_format)
         {
-        case pix_format_gray8:
+			case pix_format_gray8:
             m_bpp = 8;
             break;
 
@@ -92,9 +93,10 @@ namespace agg
             m_amask = 0;
             m_bpp = 16;
             break;
-
+			
+#if SDL_BYTEORDER == SDL_LIL_ENDIAN
         case pix_format_rgb24:
-            m_rmask = 0xFF;
+			m_rmask = 0xFF;
             m_gmask = 0xFF00;
             m_bmask = 0xFF0000;
             m_amask = 0;
@@ -140,6 +142,55 @@ namespace agg
             m_amask = 0xFF000000;
             m_bpp = 32;
             break;
+#else //SDL_BIG_ENDIAN (PPC)
+        case pix_format_rgb24:
+			m_rmask = 0xFF0000;
+            m_gmask = 0xFF00;
+            m_bmask = 0xFF;
+            m_amask = 0;
+            m_bpp = 24;
+            break;
+
+        case pix_format_bgr24:
+            m_rmask = 0xFF;
+            m_gmask = 0xFF00;
+            m_bmask = 0xFF0000;
+            m_amask = 0;
+            m_bpp = 24;
+            break;
+
+        case pix_format_bgra32:
+            m_rmask = 0xFF00;
+            m_gmask = 0xFF0000;
+            m_bmask = 0xFF000000;
+            m_amask = 0xFF;
+            m_bpp = 32;
+            break;
+
+        case pix_format_abgr32:
+            m_rmask = 0xFF;
+            m_gmask = 0xFF00;
+            m_bmask = 0xFF0000;
+            m_amask = 0xFF000000;
+            m_bpp = 32;
+            break;
+
+        case pix_format_argb32:
+            m_rmask = 0xFF0000;
+            m_gmask = 0xFF00;
+            m_bmask = 0xFF;
+            m_amask = 0xFF000000;
+            m_bpp = 32;
+            break;
+
+        case pix_format_rgba32:
+            m_rmask = 0xFF000000;
+            m_gmask = 0xFF0000;
+            m_bmask = 0xFF00;
+            m_amask = 0xFF;
+            m_bpp = 32;
+            break;
+#endif
         }
     }
 
@@ -381,8 +432,8 @@ namespace agg
                     m_specific->m_cur_x = event.motion.x;
                     m_specific->m_cur_y = y;
                     flags = 0;
-                    if(event.motion.state & SDL_BUTTON(1)) flags |= mouse_left;
-                    if(event.motion.state & SDL_BUTTON(3)) flags |= mouse_right;
+                    if(event.motion.state & SDL_BUTTON_LMASK) flags |= mouse_left;
+                    if(event.motion.state & SDL_BUTTON_RMASK) flags |= mouse_right;
 
                     if(m_ctrls.on_mouse_move(m_specific->m_cur_x, 
                                              m_specific->m_cur_y,
@@ -401,61 +452,64 @@ namespace agg
 		    while (SDL_PeepEvents(&eventtrash, 1, SDL_GETEVENT, SDL_EVENTMASK(SDL_MOUSEMOTION))!=0){;}
                     break;
 
-                case SDL_MOUSEBUTTONDOWN:
-                    y = m_flip_y ? 
-                        m_rbuf_window.height() - event.motion.y : 
-                        event.motion.y;
+		case SDL_MOUSEBUTTONDOWN:
+                    y = m_flip_y
+                        ? m_rbuf_window.height() - event.button.y
+                        : event.button.y;
 
-                    m_specific->m_cur_x = event.motion.x;
+                    m_specific->m_cur_x = event.button.x;
                     m_specific->m_cur_y = y;
                     flags = 0;
-                    if(event.button.button == SDL_BUTTON_LEFT)  flags = mouse_left;
-                    if(event.button.button == SDL_BUTTON_RIGHT) flags = mouse_right;
-
-                    if(flags & mouse_left)
+                    switch(event.button.button)
                     {
-                        if(m_ctrls.on_mouse_button_down(m_specific->m_cur_x, 
-                                                        m_specific->m_cur_y))
+                    case SDL_BUTTON_LEFT:
                         {
-                            m_ctrls.set_cur(m_specific->m_cur_x, 
-                                            m_specific->m_cur_y);
-                            on_ctrl_change();
-                            force_redraw();
-                        }
-                        else
-                        {
-                            if(m_ctrls.in_rect(m_specific->m_cur_x, 
-                                               m_specific->m_cur_y))
+                            flags = mouse_left;
+
+if(m_ctrls.on_mouse_button_down(m_specific->m_cur_x,
+                                m_specific->m_cur_y))
                             {
-                                if(m_ctrls.set_cur(m_specific->m_cur_x, 
-                                                   m_specific->m_cur_y))
-                                {
-                                    on_ctrl_change();
-                                    force_redraw();
-                                }
+                                m_ctrls.set_cur(m_specific->m_cur_x, 
+                                    m_specific->m_cur_y);
+                                on_ctrl_change();
+                                force_redraw();
                             }
                             else
                             {
-                                on_mouse_button_down(m_specific->m_cur_x, 
-                                                     m_specific->m_cur_y, 
-                                                     flags);
+                                if(m_ctrls.in_rect(m_specific->m_cur_x, 
+                                    m_specific->m_cur_y))
+                                {
+                                    if(m_ctrls.set_cur(m_specific->m_cur_x, 
+                                        m_specific->m_cur_y))
+                                    {
+                                        on_ctrl_change();
+                                        force_redraw();
+                                    }
+                                }
+                                else
+                                {
+                                    on_mouse_button_down(m_specific->m_cur_x, 
+                                        m_specific->m_cur_y, 
+                                        flags);
+                                }
                             }
                         }
-                    }
-                    if(flags & mouse_right)
-                    {
+                        break;
+                    case SDL_BUTTON_RIGHT:
+                        flags = mouse_right;
                         on_mouse_button_down(m_specific->m_cur_x, 
-                                             m_specific->m_cur_y, 
-                                             flags);
-                    }
+                            m_specific->m_cur_y, 
+                            flags);
+                        break;
+                    } //switch(event.button.button)
                     break;
-
+		    
                 case SDL_MOUSEBUTTONUP:
-                    y = m_flip_y ? 
-                        m_rbuf_window.height() - event.motion.y : 
-                        event.motion.y;
+                    y = m_flip_y
+                        ? m_rbuf_window.height() - event.button.y
+                        : event.button.y;
 
-                    m_specific->m_cur_x = event.motion.x;
+                    m_specific->m_cur_x = event.button.x;
                     m_specific->m_cur_y = y;
                     flags = 0;
                     if(m_ctrls.on_mouse_button_up(m_specific->m_cur_x, 

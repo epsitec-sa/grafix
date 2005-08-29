@@ -38,7 +38,7 @@ namespace agg
     {}
 
     //--------------------------------------------------------------------
-    void image_filter_lut::realloc(double radius)
+    void image_filter_lut::realloc_lut(double radius)
     {
         m_radius = radius;
         m_diameter = unsigned(ceil(radius)) * 2;

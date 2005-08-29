@@ -38,8 +38,18 @@ namespace agg
     {
         miter_join,
         miter_join_revert,
+        miter_join_round,
         round_join,
         bevel_join
+    };
+
+    //-----------------------------------------------------------inner_join_e
+    enum inner_join_e
+    {
+        inner_bevel,
+        inner_miter,
+        inner_jag,
+        inner_round
     };
 
     // Minimal angle to calculate round joins, less than 0.1 degree.
@@ -56,37 +66,29 @@ namespace agg
     {
         typedef typename VertexConsumer::value_type coord_type;
 
-        //// Check if we actually need the arc (this optimization works bad)
-        ////-----------------
-        //double dd = calc_distance(dx1, dy1, dx2, dy2);
-        //if(dd < 1.0/approximation_scale)
-        //{
-        //    out_vertices.add(coord_type(x + dx1, y + dy1));
-        //    if(dd > 0.25/approximation_scale)
-        //    {
-        //        out_vertices.add(coord_type(x + dx2, y + dy2));
-        //    }
-        //    return;
-        //}
-
         double a1 = atan2(dy1, dx1);
         double a2 = atan2(dy2, dx2);
         double da = a1 - a2;
 
-        if(fabs(da) < stroke_theta)
-        {
-            out_vertices.add(coord_type((x + x + dx1 + dx2) * 0.5, 
-                                        (y + y + dy1 + dy2) * 0.5));
-            return;
-        }
+        //  Possible optimization. Not important at all; consumes time but happens rarely
+        //if(fabs(da) < stroke_theta)
+        //{
+        //    out_vertices.add(coord_type((x + x + dx1 + dx2) * 0.5, 
+        //                                (y + y + dy1 + dy2) * 0.5));
+        //    return;
+        //}
 
         bool ccw = da > 0.0 && da < pi;
 
         if(width < 0) width = -width;
-        da = fabs(1.0 / (width * approximation_scale));
+        da = acos(width / (width + 0.125 / approximation_scale)) * 2;
+
+        out_vertices.add(coord_type(x + dx1, y + dy1));
         if(!ccw)
         {
             if(a1 > a2) a2 += 2 * pi;
+            a2 -= da / 4;
+            a1 += da;
             while(a1 < a2)
             {
                 out_vertices.add(coord_type(x + cos(a1) * width, y + sin(a1) * width));
@@ -96,6 +98,8 @@ namespace agg
         else
         {
             if(a1 < a2) a2 -= 2 * pi;
+            a2 += da / 4;
+            a1 -= da;
             while(a1 > a2)
             {
                 out_vertices.add(coord_type(x + cos(a1) * width, y + sin(a1) * width));
@@ -116,13 +120,15 @@ namespace agg
                            double dx1, double dy1, 
                            double dx2, double dy2,
                            double width,
-                           bool revert_flag,
-                           double miter_limit)
+                           line_join_e line_join,
+                           double miter_limit,
+                           double approximation_scale)
     {
         typedef typename VertexConsumer::value_type coord_type;
 
         double xi = v1.x;
         double yi = v1.y;
+        bool miter_limit_exceeded = true; // Assume the worst
 
         if(calc_intersection(v0.x + dx1, v0.y - dy1,
                              v1.x + dx1, v1.y - dy1,
@@ -139,47 +145,17 @@ namespace agg
                 // Inside the miter limit
                 //---------------------
                 out_vertices.add(coord_type(xi, yi));
-            }
-            else
-            {
-                // Miter limit exceeded
-                //------------------------
-                if(revert_flag || d1 < intersection_epsilon)
-                {
-                    // For the compatibility with SVG, PDF, etc, 
-                    // we use a simple bevel join instead of
-                    // "smart" bevel
-                    //-------------------
-                    out_vertices.add(coord_type(v1.x + dx1, v1.y - dy1));
-                    out_vertices.add(coord_type(v1.x + dx2, v1.y - dy2));
-                }
-                else
-                {
-                    // Smart bevel that cuts the miter at the limit point
-                    //-------------------
-                    d1  = lim / d1;
-                    double x1 = v1.x + dx1;
-                    double y1 = v1.y - dy1;
-                    double x2 = v1.x + dx2;
-                    double y2 = v1.y - dy2;
-
-                    x1 += (xi - x1) * d1;
-                    y1 += (yi - y1) * d1;
-                    x2 += (xi - x2) * d1;
-                    y2 += (yi - y2) * d1;
-                    out_vertices.add(coord_type(x1, y1));
-                    out_vertices.add(coord_type(x2, y2));
-                }
+                miter_limit_exceeded = false;
             }
         }
         else
         {
-            // Calculation of the intersection failed, most probaly
+            // Calculation of the intersection failed, most probably
             // the three points lie one straight line. 
             // First check if v0 and v2 lie on the opposite sides of vector: 
             // (v1.x, v1.y) -> (v1.x+dx1, v1.y-dy1), that is, the perpendicular
             // to the line determined by vertices v0 and v1.
-            // This condition deternines whether the next line segments continues
+            // This condition determines whether the next line segments continues
             // the previous one or goes back.
             //----------------
             double x2 = v1.x + dx1;
@@ -191,24 +167,39 @@ namespace agg
                 // the previous one (straight line)
                 //-----------------
                 out_vertices.add(coord_type(v1.x + dx1, v1.y - dy1));
+                miter_limit_exceeded = false;
             }
-            else
+        }
+
+        if(miter_limit_exceeded)
+        {
+            // Miter limit exceeded
+            //------------------------
+            switch(line_join)
             {
-                // This case means that the next segment goes back  
-                //-----------------
-                if(revert_flag)
-                {
-                    out_vertices.add(coord_type(v1.x + dx1, v1.y - dy1));
-                    out_vertices.add(coord_type(v1.x + dx2, v1.y - dy2));
-                }
-                else
-                {
-                    // If no miter-revert, calcuate new dx1, dy1, dx2, dy2
-                    out_vertices.add(coord_type(v1.x + dx1 + dy1 * miter_limit, 
-                                                v1.y - dy1 + dx1 * miter_limit));
-                    out_vertices.add(coord_type(v1.x + dx2 - dy2 * miter_limit, 
-                                                v1.y - dy2 - dx2 * miter_limit));
-                }
+            case miter_join_revert:
+                // For the compatibility with SVG, PDF, etc, 
+                // we use a simple bevel join instead of
+                // "smart" bevel
+                //-------------------
+                out_vertices.add(coord_type(v1.x + dx1, v1.y - dy1));
+                out_vertices.add(coord_type(v1.x + dx2, v1.y - dy2));
+                break;
+
+            case miter_join_round:
+                stroke_calc_arc(out_vertices, 
+                                v1.x, v1.y, dx1, -dy1, dx2, -dy2, 
+                                width, approximation_scale);
+                break;
+
+            default:
+                // If no miter-revert, calculate new dx1, dy1, dx2, dy2
+                //----------------
+                out_vertices.add(coord_type(v1.x + dx1 + dy1 * miter_limit, 
+                                            v1.y - dy1 + dx1 * miter_limit));
+                out_vertices.add(coord_type(v1.x + dx2 - dy2 * miter_limit, 
+                                            v1.y - dy2 - dx2 * miter_limit));
+                break;
             }
         }
     }
@@ -254,7 +245,10 @@ namespace agg
         {
             double a1 = atan2(dy1, -dx1);
             double a2 = a1 + pi;
-            double da = fabs(1.0 / (width * approximation_scale));
+            double da = acos(width / (width + 0.125 / approximation_scale)) * 2;
+            out_vertices.add(coord_type(v0.x - dx1, v0.y + dy1));
+            a1 += da;
+            a2 -= da/4;
             while(a1 < a2)
             {
                 out_vertices.add(coord_type(v0.x + cos(a1) * width, 
@@ -277,7 +271,7 @@ namespace agg
                           double len2,
                           double width, 
                           line_join_e line_join,
-                          line_join_e inner_line_join,
+                          inner_join_e inner_join,
                           double miter_limit,
                           double inner_miter_limit,
                           double approximation_scale)
@@ -298,11 +292,57 @@ namespace agg
         {
             // Inner join
             //---------------
-            stroke_calc_miter(out_vertices,
-                              v0, v1, v2, dx1, dy1, dx2, dy2, 
-                              width,                                   
-                              inner_line_join == miter_join_revert, 
-                              inner_miter_limit);
+            switch(inner_join)
+            {
+            default: // inner_bevel
+                out_vertices.add(coord_type(v1.x + dx1, v1.y - dy1));
+                out_vertices.add(coord_type(v1.x + dx2, v1.y - dy2));
+                break;
+
+            case inner_miter:
+                stroke_calc_miter(out_vertices,
+                                  v0, v1, v2, dx1, dy1, dx2, dy2, 
+                                  width,                                   
+                                  miter_join_revert, 
+                                  inner_miter_limit,
+                                  1.0);
+                break;
+
+            case inner_jag:
+            case inner_round:
+                {
+                    double d = (dx1-dx2) * (dx1-dx2) + (dy1-dy2) * (dy1-dy2);
+                    if(d < len1 * len1 && d < len2 * len2)
+                    {
+                        stroke_calc_miter(out_vertices,
+                                          v0, v1, v2, dx1, dy1, dx2, dy2, 
+                                          width,                                   
+                                          miter_join_revert, 
+                                          inner_miter_limit,
+                                          1.0);
+                    }
+                    else
+                    {
+                        if(inner_join == inner_jag)
+                        {
+                            out_vertices.add(coord_type(v1.x + dx1, v1.y - dy1));
+                            out_vertices.add(coord_type(v1.x,       v1.y      ));
+                            out_vertices.add(coord_type(v1.x + dx2, v1.y - dy2));
+                        }
+                        else
+                        {
+                            out_vertices.add(coord_type(v1.x + dx1, v1.y - dy1));
+                            out_vertices.add(coord_type(v1.x,       v1.y      ));
+                            stroke_calc_arc(out_vertices, 
+                                            v1.x, v1.y, dx2, -dy2, dx1, -dy1, 
+                                            width, approximation_scale);
+                            out_vertices.add(coord_type(v1.x,       v1.y      ));
+                            out_vertices.add(coord_type(v1.x + dx2, v1.y - dy2));
+                        }
+                    }
+                }
+                break;
+            }
         }
         else
         {
@@ -311,19 +351,14 @@ namespace agg
             switch(line_join)
             {
             case miter_join:
-                stroke_calc_miter(out_vertices, 
-                                  v0, v1, v2, dx1, dy1, dx2, dy2, 
-                                  width,                                   
-                                  false, 
-                                  miter_limit);
-                break;
-
             case miter_join_revert:
+            case miter_join_round:
                 stroke_calc_miter(out_vertices, 
                                   v0, v1, v2, dx1, dy1, dx2, dy2, 
                                   width,                                   
-                                  true, 
-                                  miter_limit);
+                                  line_join, 
+                                  miter_limit,
+                                  approximation_scale);
                 break;
 
             case round_join:
@@ -334,10 +369,7 @@ namespace agg
 
             default: // Bevel join
                 out_vertices.add(coord_type(v1.x + dx1, v1.y - dy1));
-                if(calc_distance(dx1, dy1, dx2, dy2) > approximation_scale * 0.25)
-                {
-                    out_vertices.add(coord_type(v1.x + dx2, v1.y - dy2));
-                }
+                out_vertices.add(coord_type(v1.x + dx2, v1.y - dy2));
                 break;
             }
         }

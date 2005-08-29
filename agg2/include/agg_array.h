@@ -223,7 +223,7 @@ namespace agg
 
     //------------------------------------------------------------------------
     template<class T> pod_array<T>::pod_array(unsigned cap, unsigned extra_tail) :
-        m_size(cap), m_capacity(cap + extra_tail), m_array(new T[m_capacity]) {}
+        m_size(0), m_capacity(cap + extra_tail), m_array(new T[m_capacity]) {}
 
     //------------------------------------------------------------------------
     template<class T> pod_array<T>::pod_array(const pod_array<T>& v) :
@@ -238,7 +238,7 @@ namespace agg
     template<class T> const pod_array<T>& 
     pod_array<T>::operator = (const pod_array<T>&v)
     {
-        capacity(v.m_capacity);
+        allocate(v.m_size);
         if(v.m_size) memcpy(m_array, v.m_array, sizeof(T) * v.m_size);
         return *this;
     }
@@ -950,7 +950,7 @@ namespace agg
 
 
     //------------------------------------------------------remove_duplicates
-    // Remove duplicates from a sorted array. It doesn't cut the the 
+    // Remove duplicates from a sorted array. It doesn't cut the 
     // tail of the array, it just returns the number of remaining elements.
     //-----------------------------------------------------------------------
     template<class Array, class Equal>

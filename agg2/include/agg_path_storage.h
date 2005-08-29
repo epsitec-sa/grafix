@@ -190,12 +190,13 @@ namespace agg
         void     rewind(unsigned path_id);
         unsigned vertex(double* x, double* y);
 
-        // Arrange the orientation of all the polygons. After calling this
-        // method all the polygons will have the same orientation
-        // determined by the new_orientation flag, i.e., 
-        // path_flags_cw or path_flags_ccw
-        unsigned arrange_orientations(unsigned path_id, path_flags_e new_orientation);
-        void arrange_orientations_all_paths(path_flags_e new_orientation);
+        // Arrange the orientation of a polygon, all polygons in a path, 
+        // or in all paths. After calling arrange_orientations() or 
+        // arrange_orientations_all_paths(), all the polygons will have 
+        // the same orientation, i.e. path_flags_cw or path_flags_ccw
+        unsigned arrange_polygon_orientation(unsigned start, path_flags_e orientation);
+        unsigned arrange_orientations(unsigned path_id, path_flags_e orientation);
+        void     arrange_orientations_all_paths(path_flags_e orientation);
 
         // Flip all the vertices horizontally or vertically
         void flip_x(double x1, double x2);
@@ -226,10 +227,9 @@ namespace agg
     private:
         void allocate_block(unsigned nb);
         unsigned char* storage_ptrs(double** xy_ptr);
-        unsigned perceive_polygon_orientation(unsigned idx, 
-                                              double xs, double ys,
-                                              unsigned* orientation);
-        void reverse_polygon(unsigned start, unsigned end);
+
+        unsigned perceive_polygon_orientation(unsigned start, unsigned end);
+        void     invert_polygon(unsigned start, unsigned end);
 
     private:
         unsigned        m_total_vertices;

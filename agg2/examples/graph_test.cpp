@@ -175,7 +175,6 @@ struct curve
 
     curve(double x1, double y1, double x2, double y2, double k=0.5)
     {
-        c.approximation_scale(0.25);
         c.init(x1, y1, 
                x1 - (y2 - y1) * k,
                y1 + (x2 - x1) * k,
@@ -506,7 +505,7 @@ public:
         for(i = 0; i < m_graph.get_num_nodes(); i++)
         {
             graph::node n = m_graph.get_node(i, width(), height());
-            agg::ellipse ell(n.x, n.y, 5.0 * m_width.value(), 5.0 * m_width.value(), 32);
+            agg::ellipse ell(n.x, n.y, 5.0 * m_width.value(), 5.0 * m_width.value());
 
             double x, y;
             switch(m_draw)

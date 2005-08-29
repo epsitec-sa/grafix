@@ -165,8 +165,11 @@ class the_application : public agg::platform_support
     gamma_type                   m_gamma_lut;
 
     // Pipeline to process the vectors glyph paths (curves + contour)
-    agg::conv_curve<font_manager_type::path_adaptor_type> m_curves;
-    agg::conv_contour<agg::conv_curve<font_manager_type::path_adaptor_type> > m_contour;
+    typedef agg::conv_curve<font_manager_type::path_adaptor_type> conv_curve_type;
+    typedef agg::conv_contour<conv_curve_type> conv_contour_type;
+
+    conv_curve_type m_curves;
+    conv_contour_type m_contour;
 
 public:
     the_application(HDC dc, agg::pix_format_e format, bool flip) :
@@ -234,7 +237,9 @@ public:
         add_ctrl(m_performance);
         m_performance.no_transform();
 
-        m_curves.approximation_scale(2.0);
+//        m_curves.approximation_method(agg::curve_div);
+//        m_curves.approximation_scale(0.5);
+//        m_curves.angle_tolerance(0.3);
         m_contour.auto_detect_orientation(false);
     }
 

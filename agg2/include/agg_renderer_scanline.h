@@ -38,8 +38,8 @@ namespace agg
         {}
         void attach(base_ren_type& ren, span_gen_type& span_gen)
         {
-            m_ren = ren;
-            m_span_gen = span_gen;
+            m_ren = &ren;
+            m_span_gen = &span_gen;
         }
         
         //--------------------------------------------------------------------
@@ -192,8 +192,8 @@ namespace agg
         {}
         void attach(base_ren_type& ren, span_gen_type& span_gen)
         {
-            m_ren = ren;
-            m_span_gen = span_gen;
+            m_ren = &ren;
+            m_span_gen = &span_gen;
         }
         
         //--------------------------------------------------------------------
@@ -274,8 +274,8 @@ namespace agg
         {}
         void attach(base_ren_type& ren, span_gen_type& span_gen)
         {
-            m_ren = ren;
-            m_span_gen = span_gen;
+            m_ren = &ren;
+            m_span_gen = &span_gen;
         }
 
         //--------------------------------------------------------------------
@@ -357,8 +357,8 @@ namespace agg
         {}
         void attach(base_ren_type& ren, span_gen_type& span_gen)
         {
-            m_ren = ren;
-            m_span_gen = span_gen;
+            m_ren = &ren;
+            m_span_gen = &span_gen;
         }
         
         //--------------------------------------------------------------------

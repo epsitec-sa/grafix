@@ -279,7 +279,7 @@ namespace agg
         //---------------------------------------------------------------------
         void update_values()
         {
-            // For use in the quadractic equation
+            // For use in the quadratic equation
             //-------------------------------
             m_radius2 = double(m_radius) * double(m_radius);
 

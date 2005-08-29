@@ -10,7 +10,7 @@ CXXFLAGS= $(AGGCXXFLAGS) -I../../../include \
 -L../../../src \
 $(PIXFMT)
 
-LIBS = $(AGGLIBS) -lm -lSDL
+LIBS = $(AGGLIBS) -lm
 
 SRC=\
 ../../$(PROGNAME).cpp \

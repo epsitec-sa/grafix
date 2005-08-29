@@ -357,39 +357,32 @@ namespace agg
 
 
     //------------------------------------------------------------------------
-    unsigned path_storage::perceive_polygon_orientation(unsigned idx,
-                                                        double xs, double ys,
-                                                        unsigned* orientation)
+    unsigned path_storage::perceive_polygon_orientation(unsigned start, unsigned end)
     {
+        // Calculate signed area (double area to be exact)
+        //---------------------
+        unsigned np = end - start;
+        double area = 0.0;
         unsigned i;
-        double sum = 0.0;
-        double x, y, xn, yn;
-
-        x = xs;
-        y = ys;
-        for(i = idx; i < m_total_vertices; ++i)
+        for(i = 0; i < np; i++)
         {
-            if(is_next_poly(vertex(i, &xn, &yn))) break;
-            sum += x * yn - y * xn;
-            x = xn;
-            y = yn;
+            double x1, y1, x2, y2;
+            vertex(start + i,            &x1, &y1);
+            vertex(start + (i + 1) % np, &x2, &y2);
+            area += x1 * y2 - y1 * x2;
         }
-        if(i > idx) sum += x * ys - y * xs;
-        *orientation = path_flags_none;
-        if(sum != 0.0)
-        {
-            *orientation = (sum < 0.0) ? path_flags_cw : path_flags_ccw;
-        }
-        return i;
+        return (area < 0.0) ? path_flags_cw : path_flags_ccw;
     }
 
 
     //------------------------------------------------------------------------
-    void path_storage::reverse_polygon(unsigned start, unsigned end)
+    void path_storage::invert_polygon(unsigned start, unsigned end)
     {
         unsigned i;
         unsigned tmp_cmd = command(start);
         
+        --end; // Make "end" inclusive
+
         // Shift all commands to one position
         for(i = start; i < end; i++)
         {
@@ -427,66 +420,72 @@ namespace agg
 
 
     //------------------------------------------------------------------------
-    unsigned path_storage::arrange_orientations(unsigned path_id, 
-                                                path_flags_e new_orientation)
+    unsigned path_storage::arrange_polygon_orientation(unsigned start, 
+                                                       path_flags_e orientation)
     {
-        unsigned end = m_total_vertices;
-        if(m_total_vertices && new_orientation != path_flags_none)
-        {
-            unsigned start = path_id;
+        if(orientation == path_flags_none) return start;
+        
+        // Skip all non-vertices at the beginning
+        while(start < m_total_vertices && !is_vertex(command(start))) ++start;
 
-            double xs, ys;
-            unsigned cmd = vertex(start, &xs, &ys);
-            unsigned inc = 0;
-            for(;;)
+        // Skip all insignificant move_to
+        while(start+1 < m_total_vertices && 
+              is_move_to(command(start)) &&
+              is_move_to(command(start+1))) ++start;
+
+        // Find the last vertex
+        unsigned end = start + 1;
+        while(end < m_total_vertices && !is_next_poly(command(end))) ++end;
+
+        if(end - start > 2)
+        {
+            if(perceive_polygon_orientation(start, end) != unsigned(orientation))
             {
-                unsigned orientation;
-                end = perceive_polygon_orientation(start + 1, xs, ys, 
-                                                   &orientation);
-                if(end > start + 2 &&
-                   orientation && 
-                   orientation != unsigned(new_orientation))
+                // Invert polygon, set orientation flag, and skip all end_poly
+                invert_polygon(start, end);
+                unsigned cmd;
+                while(end < m_total_vertices && is_end_poly(cmd = command(end)))
                 {
-                    reverse_polygon(start + inc, end - 1);
+                    modify_command(end++, set_orientation(cmd, orientation));
                 }
-                if(end >= m_total_vertices) break;
-                cmd = command(end);
-                if(is_stop(cmd)) 
-                {
-                    ++end;
-                    break;
-                }
-                if(is_end_poly(cmd))
-                {
-                    inc = 1;
-                    modify_command(end, set_orientation(cmd, new_orientation));
-                }
-                else
-                {
-                    cmd = vertex(++end, &xs, &ys);
-                    inc = 0;
-                }
-                start = end;
             }
         }
         return end;
     }
 
 
+    //------------------------------------------------------------------------
+    unsigned path_storage::arrange_orientations(unsigned start, 
+                                                path_flags_e orientation)
+    {
+        if(orientation != path_flags_none)
+        {
+            while(start < m_total_vertices)
+            {
+                start = arrange_polygon_orientation(start, orientation);
+                if(is_stop(command(start)))
+                {
+                    ++start;
+                    break;
+                }
+            }
+        }
+        return start;
+    }
+
 
     //------------------------------------------------------------------------
-    void path_storage::arrange_orientations_all_paths(path_flags_e new_orientation)
+    void path_storage::arrange_orientations_all_paths(path_flags_e orientation)
     {
-        if(new_orientation != path_flags_none)
+        if(orientation != path_flags_none)
         {
             unsigned start = 0;
             while(start < m_total_vertices)
             {
-                start = arrange_orientations(start, new_orientation);
+                start = arrange_orientations(start, orientation);
             }
         }
     }
-
 
 
     //------------------------------------------------------------------------

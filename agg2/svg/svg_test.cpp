@@ -112,13 +112,34 @@ public:
         mtx *= agg::trans_affine_translation((m_min_x + m_max_x) * 0.5 + m_x, (m_min_y + m_max_y) * 0.5 + m_y + 30);
         
         m_path.expand(m_expand.value());
+        start_timer();
         m_path.render(ras, sl, ren, mtx, rb.clip_box(), 1.0);
+        double tm = elapsed_time();
+        unsigned vertex_count = m_path.vertex_count();
 
         ras.gamma(agg::gamma_none());
         agg::render_ctrl(ras, sl, ren, m_expand);
         agg::render_ctrl(ras, sl, ren, m_gamma);
         agg::render_ctrl(ras, sl, ren, m_scale);
         agg::render_ctrl(ras, sl, ren, m_rotate);
+
+
+        char buf[128]; 
+        agg::gsv_text t;
+        t.size(10.0);
+        t.flip(true);
+
+        agg::conv_stroke<agg::gsv_text> pt(t);
+        pt.width(1.5);
+
+        sprintf(buf, "Vertices=%d Time=%.3f ms", vertex_count, tm);
+
+        t.start_point(10.0, 40.0);
+        t.text(buf);
+
+        ras.add_path(pt);
+        ren.color(agg::rgba(0,0,0));
+        agg::render_scanlines(ras, sl, ren);
 
 
         //agg::gamma_lut<> gl(m_gamma.value());

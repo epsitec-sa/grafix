@@ -49,7 +49,7 @@ namespace agg
                         double dx=0, double dy=0,
                         double scale=1.0) const
         {
-            *x_ = dx + (double(x >> 1) / coord_mult) * scale;
+            *x_ = dx + (double(x >> 1) / coord_mult);// * scale;
             *y_ = dy + (double(y >> 1) / coord_mult) * scale;
             switch(((y & 1) << 1) | (x & 1))
             {

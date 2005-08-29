@@ -20,8 +20,7 @@
 #ifndef AGG_IMAGE_FILTERS_INCLUDED
 #define AGG_IMAGE_FILTERS_INCLUDED
 
-#include <math.h>
-#include "agg_basics.h"
+#include "agg_math.h"
 
 namespace agg
 {
@@ -51,7 +50,7 @@ namespace agg
                                                bool normalization=true)
         {
             double r = filter.radius();
-            realloc(r);
+            realloc_lut(r);
             unsigned i;
             unsigned pivot = diameter() << (image_subpixel_shift - 1);
             for(i = 0; i < pivot; i++)
@@ -84,7 +83,7 @@ namespace agg
         void         normalize();
 
     private:
-        void realloc(double radius);
+        void realloc_lut(double radius);
         image_filter_lut(const image_filter_lut&);
         const image_filter_lut& operator = (const image_filter_lut&);
 
@@ -312,7 +311,7 @@ namespace agg
         static double radius() { return 3.2383; } 
         static double calc_weight(double x)
         {
-            return (x == 0.0) ? pi / 4.0 : j1(pi * x) / (2.0 * x);
+            return (x == 0.0) ? pi / 4.0 : besj(pi * x, 1) / (2.0 * x);
         }
     };
 

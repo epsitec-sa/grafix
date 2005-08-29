@@ -215,6 +215,12 @@ namespace agg
         return c >= path_cmd_move_to && c < path_cmd_end_poly;
     }
 
+    //--------------------------------------------------------------is_drawing
+    inline bool is_drawing(unsigned c)
+    {
+        return c >= path_cmd_line_to && c < path_cmd_end_poly;
+    }
+
     //-----------------------------------------------------------------is_stop
     inline bool is_stop(unsigned c)
     { 

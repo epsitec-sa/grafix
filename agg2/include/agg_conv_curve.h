@@ -40,7 +40,7 @@ namespace agg
     // on demand. 
     //
     // Initially, path storages are not suppose to keep all the vertices of the
-    // curves (although, nothig prevents us from doing so). Instead, path_storage
+    // curves (although, nothing prevents us from doing so). Instead, path_storage
     // keeps only vertices, needed to calculate a curve on demand. Those vertices
     // are marked with special commands. So, if the path_storage contains curves 
     // (which are not real curves yet), and we render this storage directly, 
@@ -51,13 +51,30 @@ namespace agg
     // Class conv_curve recognizes commands path_cmd_curve3 and path_cmd_curve4 
     // and converts these vertices into a move_to/line_to sequence. 
     //-----------------------------------------------------------------------
-    template<class VertexSource> class conv_curve
+    template<class VertexSource, 
+             class Curve3=curve3, 
+             class Curve4=curve4> class conv_curve
     {
     public:
+        typedef Curve3 curve3_type;
+        typedef Curve4 curve4_type;
+        typedef conv_curve<VertexSource, Curve3, Curve4> self_type;
+
         conv_curve(VertexSource& source) :
           m_source(&source), m_last_x(0.0), m_last_y(0.0) {}
 
         void set_source(VertexSource& source) { m_source = &source; }
+
+        void approximation_method(curve_approximation_method_e v) 
+        { 
+            m_curve3.approximation_method(v);
+            m_curve4.approximation_method(v);
+        }
+
+        curve_approximation_method_e approximation_method() const 
+        { 
+            m_curve4.approximation_method();
+        }
 
         void approximation_scale(double s) 
         { 
@@ -67,29 +84,50 @@ namespace agg
 
         double approximation_scale() const 
         { 
-            return m_curve3.approximation_scale();  
+            return m_curve4.approximation_scale();  
+        }
+
+        void angle_tolerance(double v) 
+        { 
+            m_curve3.angle_tolerance(v); 
+            m_curve4.angle_tolerance(v); 
+        }
+
+        double angle_tolerance() const 
+        { 
+            return m_curve4.angle_tolerance();  
+        }
+
+        void cusp_limit(double v) 
+        { 
+            m_curve3.cusp_limit(v); 
+            m_curve4.cusp_limit(v); 
+        }
+
+        double cusp_limit() const 
+        { 
+            return m_curve4.cusp_limit();  
         }
 
         void     rewind(unsigned path_id); 
         unsigned vertex(double* x, double* y);
 
     private:
-        conv_curve(const conv_curve<VertexSource>&);
-        const conv_curve<VertexSource>& 
-           operator = (const conv_curve<VertexSource>&);
+        conv_curve(const self_type&);
+        const self_type& operator = (const self_type&);
 
         VertexSource* m_source;
         double        m_last_x;
         double        m_last_y;
-        curve3        m_curve3;
-        curve4        m_curve4;
+        curve3_type   m_curve3;
+        curve4_type   m_curve4;
     };
 
 
 
     //------------------------------------------------------------------------
-    template<class VertexSource>
-    void conv_curve<VertexSource>::rewind(unsigned path_id)
+    template<class VertexSource, class Curve3, class Curve4>
+    void conv_curve<VertexSource, Curve3, Curve4>::rewind(unsigned path_id)
     {
         m_source->rewind(path_id);
         m_last_x = 0.0;
@@ -100,8 +138,8 @@ namespace agg
 
 
     //------------------------------------------------------------------------
-    template<class VertexSource>
-    unsigned conv_curve<VertexSource>::vertex(double* x, double* y)
+    template<class VertexSource, class Curve3, class Curve4>
+    unsigned conv_curve<VertexSource, Curve3, Curve4>::vertex(double* x, double* y)
     {
         if(!is_stop(m_curve3.vertex(x, y)))
         {

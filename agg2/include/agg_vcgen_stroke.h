@@ -51,13 +51,13 @@ namespace agg
 
         vcgen_stroke();
 
-        void line_cap(line_cap_e lc) { m_line_cap = lc; }
-        void line_join(line_join_e lj) { m_line_join = lj; }
-        void inner_line_join(line_join_e lj) { m_inner_line_join = lj; }
+        void line_cap(line_cap_e lc)     { m_line_cap = lc; }
+        void line_join(line_join_e lj)   { m_line_join = lj; }
+        void inner_join(inner_join_e ij) { m_inner_join = ij; }
 
-        line_cap_e line_cap() const { return m_line_cap; }
-        line_join_e line_join() const { return m_line_join; }
-        line_join_e inner_line_join() const { return m_inner_line_join; }
+        line_cap_e   line_cap()   const { return m_line_cap; }
+        line_join_e  line_join()  const { return m_line_join; }
+        inner_join_e inner_join() const { return m_inner_join; }
 
         void width(double w) { m_width = w * 0.5; }
         void miter_limit(double ml) { m_miter_limit = ml; }
@@ -94,7 +94,7 @@ namespace agg
         double         m_shorten;
         line_cap_e     m_line_cap;
         line_join_e    m_line_join;
-        line_join_e    m_inner_line_join;
+        inner_join_e   m_inner_join;
         unsigned       m_closed;
         status_e       m_status;
         status_e       m_prev_status;

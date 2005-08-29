@@ -31,15 +31,15 @@ double            g_y1 = 0;
 double            g_x2 = 0;
 double            g_y2 = 0;
 
-#include "agg_pixfmt_rgb.h"
-#include "agg_span_image_filter_rgb.h"
-#include "agg_span_image_resample_rgb.h"
-#define pix_format agg::pix_format_bgr24
-typedef agg::pixfmt_bgr24     pixfmt;
-typedef agg::pixfmt_bgr24_pre pixfmt_pre;
-#define span_image_filter_2x2      agg::span_image_filter_rgb_2x2
-#define span_image_resample_affine agg::span_image_resample_rgb_affine
-#define span_image_resample        agg::span_image_resample_rgb
+#include "agg_pixfmt_rgba.h"
+#include "agg_span_image_filter_rgba.h"
+#include "agg_span_image_resample_rgba.h"
+#define pix_format agg::pix_format_bgra32
+typedef agg::pixfmt_bgra32     pixfmt;
+typedef agg::pixfmt_bgra32_pre pixfmt_pre;
+#define span_image_filter_2x2      agg::span_image_filter_rgba_2x2
+#define span_image_resample_affine agg::span_image_resample_rgba_affine
+#define span_image_resample        agg::span_image_resample_rgba
 #define AGG_COMPONENT_ORDER
 
 #ifdef AGG_COMPONENT_ORDER

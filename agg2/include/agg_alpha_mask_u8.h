@@ -85,7 +85,7 @@ namespace agg
                x < (int)m_rbuf->width() && 
                y <= (int)m_rbuf->height())
             {
-                return (cover_type)((val * 
+                return (cover_type)((cover_full + val * 
                                      m_mask_function.calculate(
                                         m_rbuf->row(y) + x * Step + Offset)) >> 
                                      cover_shift);
@@ -187,7 +187,7 @@ namespace agg
             const int8u* mask = m_rbuf->row(y) + x * Step + Offset;
             do
             {
-                *covers = (cover_type)(((*covers) * 
+                *covers = (cover_type)((cover_full + (*covers) * 
                                        m_mask_function.calculate(mask)) >> 
                                        cover_shift);
                 ++covers;
@@ -288,7 +288,7 @@ namespace agg
             const int8u* mask = m_rbuf->row(y) + x * Step + Offset;
             do
             {
-                *covers = (cover_type)(((*covers) * 
+                *covers = (cover_type)((cover_full + (*covers) * 
                                        m_mask_function.calculate(mask)) >> 
                                        cover_shift);
                 ++covers;
@@ -380,7 +380,7 @@ namespace agg
         //--------------------------------------------------------------------
         cover_type combine_pixel(int x, int y, cover_type val) const
         {
-            return (cover_type)((val * 
+            return (cover_type)((cover_full + val * 
                                  m_mask_function.calculate(
                                     m_rbuf->row(y) + x * Step + Offset)) >> 
                                  cover_shift);
@@ -407,7 +407,7 @@ namespace agg
             const int8u* mask = m_rbuf->row(y) + x * Step + Offset;
             do
             {
-                *dst = (cover_type)(((*dst) * 
+                *dst = (cover_type)((cover_full + (*dst) * 
                                     m_mask_function.calculate(mask)) >> 
                                     cover_shift);
                 ++dst;
@@ -436,7 +436,7 @@ namespace agg
             const int8u* mask = m_rbuf->row(y) + x * Step + Offset;
             do
             {
-                *dst = (cover_type)(((*dst) * 
+                *dst = (cover_type)((cover_full + (*dst) * 
                                     m_mask_function.calculate(mask)) >> 
                                     cover_shift);
                 ++dst;

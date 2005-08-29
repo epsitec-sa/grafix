@@ -9,6 +9,7 @@ all:
 	cd alpha_mask; make
 	cd alpha_mask2; make
 	cd alpha_mask3; make
+	cd bezier_div; make
 	cd bspline; make
 	cd circles; make
 	cd compositing; make
@@ -59,6 +60,7 @@ clean:
 	cd alpha_mask; make clean
 	cd alpha_mask2; make clean
 	cd alpha_mask3; make clean
+	cd bezier_div; make clean
 	cd bspline; make clean
 	cd circles; make clean
 	cd compositing; make clean

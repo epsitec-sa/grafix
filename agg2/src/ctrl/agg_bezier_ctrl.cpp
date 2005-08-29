@@ -75,6 +75,7 @@ namespace agg
     {
         m_idx = idx;
 
+        m_curve.approximation_scale(scale());
         switch(idx)
         {
         default:

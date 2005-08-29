@@ -300,7 +300,7 @@ namespace agg
             first_clip_box();
             do
             {
-                m_ren.blend_color_hspan(x, y, len, colors, covers, cover);
+                m_ren.blend_color_vspan(x, y, len, colors, covers, cover);
             }
             while(next_clip_box());
         }

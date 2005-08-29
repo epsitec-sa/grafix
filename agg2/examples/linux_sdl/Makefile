@@ -5,8 +5,10 @@ all:
 	cd alpha_mask; make
 	cd alpha_mask2; make
 	cd alpha_mask3; make
+	cd bspline; make
 	cd circles; make
 	cd component_rendering; make
+	cd compositing; make
 	cd conv_contour; make
 	cd conv_dash_marker; make
 	cd conv_stroke; make
@@ -20,10 +22,13 @@ all:
 	cd idea; make
 	cd image_alpha; make
 	cd image_filters; make
+	cd image_filters2; make
 	cd image_fltr_graph; make
 	cd image_perspective; make
+	cd image_resample; make
 	cd image_transforms; make
 	cd image1; make
+	cd line_patterns; make
 	cd lion; make
 	cd lion_lens; make
 	cd lion_outline; make
@@ -48,8 +53,10 @@ clean:
 	cd alpha_mask; make clean
 	cd alpha_mask2; make clean
 	cd alpha_mask3; make clean
+	cd bsplines; make clean
 	cd circles; make clean
 	cd component_rendering; make clean
+	cd compositing; make clean
 	cd conv_contour; make clean
 	cd conv_dash_marker; make clean
 	cd conv_stroke; make clean
@@ -63,10 +70,13 @@ clean:
 	cd idea; make clean
 	cd image_alpha; make clean
 	cd image_filters; make clean
+	cd image_filters2; make clean
 	cd image_fltr_graph; make clean
 	cd image_perspective; make clean
+	cd image_resample; make clean
 	cd image_transforms; make clean
 	cd image1; make clean
+	cd line_patterns; make clean
 	cd lion; make clean
 	cd lion_lens; make clean
 	cd lion_outline; make clean

@@ -70,6 +70,7 @@ namespace agg
             double dist;
             double d;
 
+            m_src_vertices.close(false);
             if(m_src_vertices.size() > 2)
             {
                 if(m_src_vertices[m_src_vertices.size() - 2].dist * 10.0 < 
@@ -87,7 +88,6 @@ namespace agg
             }
 
             dist = 0.0;
-            m_src_vertices.close(false);
             for(i = 0; i < m_src_vertices.size(); i++)
             {
                 vertex_dist& v = m_src_vertices[i];

@@ -34,6 +34,28 @@ namespace agg
 {
 namespace svg
 {
+    template<class VertexSource> class conv_count
+    {
+    public:
+        conv_count(VertexSource& vs) : m_source(&vs), m_count(0) {}
+
+        void count(unsigned n) { m_count = n; }
+        unsigned count() const { return m_count; }
+
+        void rewind(unsigned path_id) { m_source->rewind(path_id); }
+        unsigned vertex(double* x, double* y) 
+        { 
+            ++m_count; 
+            return m_source->vertex(x, y); 
+        }
+
+    private:
+        VertexSource* m_source;
+        unsigned m_count;
+    };
+
+
+
 
     //============================================================================
     // Basic path attributes
@@ -106,15 +128,16 @@ namespace svg
     class path_renderer
     {
     public:
-        typedef pod_deque<path_attributes>              attr_storage;
+        typedef pod_deque<path_attributes>     attr_storage;
 
-        typedef conv_curve<path_storage>                curved;
+        typedef conv_curve<path_storage>       curved;
+        typedef conv_count<curved>             curved_count;
 
-        typedef conv_stroke<curved>                     curved_stroked;
-        typedef conv_transform<curved_stroked>          curved_stroked_trans;
+        typedef conv_stroke<curved_count>      curved_stroked;
+        typedef conv_transform<curved_stroked> curved_stroked_trans;
 
-        typedef conv_transform<curved>                  curved_trans;
-        typedef conv_contour<curved_trans>              curved_trans_contour;
+        typedef conv_transform<curved_count>   curved_trans;
+        typedef conv_contour<curved_trans>     curved_trans_contour;
 
         path_renderer();
 
@@ -153,6 +176,7 @@ namespace svg
         }
 
 
+        unsigned vertex_count() const { return m_curved_count.count(); }
         
 
         // Call these functions on <g> tag (start_element, end_element respectively)
@@ -193,7 +217,8 @@ namespace svg
 
         void bounding_rect(double* x1, double* y1, double* x2, double* y2)
         {
-            agg::bounding_rect(m_curved_trans, *this, 0, m_attr_storage.size(), x1, y1, x2, y2);
+            agg::conv_transform<agg::path_storage> trans(m_storage, m_transform);
+            agg::bounding_rect(trans, *this, 0, m_attr_storage.size(), x1, y1, x2, y2);
         }
 
         // Rendering. One can specify two additional parameters: 
@@ -210,13 +235,17 @@ namespace svg
             unsigned i;
 
             ras.clip_box(cb.x1, cb.y1, cb.x2, cb.y2);
+            m_curved_count.count(0);
 
             for(i = 0; i < m_attr_storage.size(); i++)
             {
                 const path_attributes& attr = m_attr_storage[i];
                 m_transform = attr.transform;
                 m_transform *= mtx;
-                m_curved.approximation_scale(pow(m_transform.scale(), 0.75));
+                double scl = m_transform.scale();
+                //m_curved.approximation_method(curve_inc);
+                m_curved.approximation_scale(scl);
+                m_curved.angle_tolerance(0.0);
 
                 rgba8 color;
 
@@ -243,9 +272,19 @@ namespace svg
                 if(attr.stroke_flag)
                 {
                     m_curved_stroked.width(attr.stroke_width);
+                    //m_curved_stroked.line_join((attr.line_join == miter_join) ? miter_join_round : attr.line_join);
                     m_curved_stroked.line_join(attr.line_join);
                     m_curved_stroked.line_cap(attr.line_cap);
                     m_curved_stroked.miter_limit(attr.miter_limit);
+                    m_curved_stroked.approximation_scale(scl);
+
+                    // If the *visual* line width is considerable we 
+                    // turn on processing of curve cusps.
+                    //---------------------
+                    if(attr.stroke_width * scl > 1.0)
+                    {
+                        m_curved.angle_tolerance(0.2);
+                    }
                     ras.reset();
                     ras.filling_rule(fill_non_zero);
                     ras.add_path(m_curved_stroked_trans, attr.index);
@@ -266,6 +305,7 @@ namespace svg
         trans_affine   m_transform;
 
         curved                       m_curved;
+        curved_count                 m_curved_count;
 
         curved_stroked               m_curved_stroked;
         curved_stroked_trans         m_curved_stroked_trans;

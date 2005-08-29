@@ -113,8 +113,8 @@ namespace agg
             }
             m_spline_x.prepare();
             m_spline_y.prepare();
-            m_status = ready;
         }
+        m_status = ready;
     }
 
 

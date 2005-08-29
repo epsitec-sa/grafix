@@ -148,6 +148,12 @@ namespace agg
         // Multiply "m" to "this" and assign the result to "this"
         const trans_affine& premultiply(const trans_affine& m);
 
+        // Multiply matrix to inverse of another one
+        const trans_affine& multiply_inv(const trans_affine& m);
+
+        // Multiply inverse of "m" to "this" and assign the result to "this"
+        const trans_affine& premultiply_inv(const trans_affine& m);
+
         // Invert matrix. Do not try to invert degenerate matrices, 
         // there's no check for validity. If you set scale to 0 and 
         // then try to invert matrix, expect unpredictable result.
@@ -181,11 +187,24 @@ namespace agg
             return multiply(m);
         }
 
+        // Multiply current matrix to inverse of another one
+        const trans_affine& operator /= (const trans_affine& m)
+        {
+            return multiply_inv(m);
+        }
+
         // Multiply current matrix to another one and return
         // the result in a separete matrix.
         trans_affine operator * (const trans_affine& m)
         {
             return trans_affine(*this).multiply(m);
+        }
+
+        // Multiply current matrix to inverse of another one 
+        // and return the result in a separete matrix.
+        trans_affine operator / (const trans_affine& m)
+        {
+            return trans_affine(*this).multiply_inv(m);
         }
 
         // Calculate and return the inverse matrix
@@ -287,6 +306,22 @@ namespace agg
         return *this = t.multiply(*this);
     }
 
+    //------------------------------------------------------------------------
+    inline const trans_affine& trans_affine::multiply_inv(const trans_affine& m)
+    {
+        trans_affine t = m;
+        t.invert();
+        multiply(t);
+        return *this;
+    }
+
+    //------------------------------------------------------------------------
+    inline const trans_affine& trans_affine::premultiply_inv(const trans_affine& m)
+    {
+        trans_affine t = m;
+        t.invert();
+        return *this = t.multiply(*this);
+    }
 
     //====================================================trans_affine_rotation
     // Rotation matrix. sin() and cos() are calculated twice for the same angle.
