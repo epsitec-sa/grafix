@@ -136,7 +136,7 @@ void AggPathElemGet(AggPath* path, int max, int* types, double* x, double* y)
 
 void AggPathAppendGlyph(AggPath* path, agg::font_face* face, int glyph, double xx, double xy, double yx, double yy, double tx, double ty, double bold)
 {
-	if (path && path && face->UpdateCache ())
+	if (path && path && face->UpdateCache () && (glyph >= 0) && (glyph < 0xffff))
 	{
 		agg::font_face::cache_record::size_info_record* info = face->FindSizeInfo (glyph);
 		

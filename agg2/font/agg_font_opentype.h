@@ -3,7 +3,7 @@
  *
  *	OpenType definitions.
  *
- *	(C) Copyright 2002-2004, Pierre ARNAUD, OPaC bright ideas, Ch. du Fontenay 6,
+ *	(C) Copyright 2002-2005, Pierre ARNAUD, OPaC bright ideas, Ch. du Fontenay 6,
  *		CH-1400 YVERDON, Switzerland. All rights reserved. 
  *		Contact: pierre.arnaud@opac.ch, http://www.opac.ch
  *
@@ -41,6 +41,14 @@ namespace agg
 			int32u			checksum;
 			int32u			offset;
 			int32u			length;
+		};
+		
+		struct table_ttc_header
+		{
+			char			tag[4];
+			int32u			version;
+			int32u			num_fonts;
+			int32u			offset_table[1];
 		};
 		
 		struct table_directory

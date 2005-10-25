@@ -79,7 +79,8 @@ font_face::RealiseData ()
 	{
 		font_manager::family_record::LoadFontData (this->os_description, this->face_data, this->face_data_size);
 		
-		open_type::table_directory* dir = reinterpret_cast<open_type::table_directory*> (this->face_data);
+		open_type::table_directory* dir = this->FindOpenTypeTableDirectory (this->face_data);
+		
 		int32u end_of_tables = dir->FindMaxTableEnd ();
 		
 		if (end_of_tables > this->face_data_size)
@@ -199,10 +200,28 @@ font_face::FillOpenTypeLigatureSubstArray (const open_type::feature_table* featu
 }
 
 open_type::table_directory*
+font_face::FindOpenTypeTableDirectory (void* base_ptr)
+{
+	open_type::table_ttc_header* ttc = reinterpret_cast<open_type::table_ttc_header*> (base_ptr);
+	
+	int ttf_offset = 0;
+	
+	if ((ttc->tag[0] == 't') &&
+		(ttc->tag[1] == 't') &&
+		(ttc->tag[2] == 'c') &&
+		(ttc->tag[3] == 'f'))
+	{
+		ttf_offset = read_big_endian (ttc->offset_table[0]);
+	}
+	
+	return reinterpret_cast<open_type::table_directory*> (reinterpret_cast<char*> (base_ptr) + ttf_offset);
+}
+
+open_type::table_directory*
 font_face::RetOpenTypeTableDirectory ()
 {
 	this->RealiseData ();
-	return reinterpret_cast<open_type::table_directory*> (this->face_data);
+	return this->FindOpenTypeTableDirectory (this->face_data);
 }
 
 open_type::table_GSUB*

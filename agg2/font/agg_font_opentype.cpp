@@ -103,7 +103,13 @@ open_type::table_cmap::FindTable (int16u platform,
 open_type::table_cmap::EncodingFmt4*
 open_type::table_cmap::FindUnicodeTable ()
 {
-	return reinterpret_cast<EncodingFmt4*> (this->FindTable (3, 1, 4));
+	open_type::table_cmap::EncodingFmt4* fmt4_1 = reinterpret_cast<EncodingFmt4*> (this->FindTable (3, 1, 4));	//	Unicode
+	open_type::table_cmap::EncodingFmt4* fmt4_0 = reinterpret_cast<EncodingFmt4*> (this->FindTable (3, 0, 4));	//	Symbol
+	
+	if (fmt4_1) return fmt4_1;
+	if (fmt4_0) return fmt4_0;
+	
+	return 0;
 }
 
 open_type::table_cmap::EncodingFmt12*

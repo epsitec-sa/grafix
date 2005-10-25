@@ -82,7 +82,9 @@ font_manager::family_record::InsertFace (font_manager* type,
 	size_t ot_font_style_len  = ot_name->RetUnicodeLength (1033, open_type::table_name::NAME_FontSubfamily, open_type::PLATFORM_Microsoft);
 	size_t ot_pref_family_len = ot_name->RetUnicodeLength (1033, open_type::table_name::NAME_PreferredFamily, open_type::PLATFORM_Microsoft);
 	size_t ot_pref_style_len  = ot_name->RetUnicodeLength (1033, open_type::table_name::NAME_PreferredSubfamily, open_type::PLATFORM_Microsoft);
-	size_t ot_unique_name_len = ot_name->RetUnicodeLength (1033, open_type::table_name::NAME_UniqueFontIdentifier, open_type::PLATFORM_Microsoft);
+	
+	size_t ot_unique_name_len_u = ot_name->RetUnicodeLength (1033, open_type::table_name::NAME_UniqueFontIdentifier, open_type::PLATFORM_Microsoft);
+	size_t ot_unique_name_len_a = ot_name->RetLatinLength (0, open_type::table_name::NAME_UniqueFontIdentifier, open_type::PLATFORM_Macintosh);
 	
 	wchar_t ot_family[100] = { 0 };
 	wchar_t ot_style[100]  = { 0 };
@@ -105,9 +107,13 @@ font_manager::family_record::InsertFace (font_manager* type,
 			/**/				 ot_style, 100);
 	}
 	
-	if (ot_unique_name_len)
+	if (ot_unique_name_len_u)
 	{
 		ot_name->GetUnicodeName (1033, open_type::table_name::NAME_UniqueFontIdentifier, open_type::PLATFORM_Microsoft, ot_uname, 100);
+	}
+	else if (ot_unique_name_len_a)
+	{
+		ot_name->GetLatinName (0, open_type::table_name::NAME_UniqueFontIdentifier, open_type::PLATFORM_Macintosh, ot_uname, 100);
 	}
 	
 	if (ot_family[0] == 0)
@@ -325,9 +331,21 @@ font_manager::family_record::LoadFontData (const void* os_description,
 	{
 		HGDIOBJ old_font = SelectObject (dc, new_font);
 		
-		DWORD table_name   = 0;
+		//	Try to load font as a TTC file first (otherwise, we would just
+		//	get a crippled TTF font).
+		
+		DWORD table_name   = 0x66637474;	//	'ttcf'
 		DWORD table_offset = 0;
 		DWORD table_length = GetFontData (dc, table_name, table_offset, 0, 0);
+		
+		if (table_length == GDI_ERROR)
+		{
+			//	This is not a TTC file. Simply load the full TTF file instead:
+			
+			table_name   = 0;
+			table_offset = 0;
+			table_length = GetFontData (dc, table_name, table_offset, 0, 0);
+		}
 		
 		if (table_length != GDI_ERROR)
 		{
