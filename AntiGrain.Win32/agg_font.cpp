@@ -667,12 +667,14 @@ AggFontPixelCacheFill(AggBuffer* buffer, agg::font_face* face, const wchar_t* te
 		int8u  i_ys    = static_cast<int8u> ((oy - (int)(oy)) * 256);
 		
 		agg::font_face::cache_record::size_info_record* info = face->FindSizeInfo (glyph);
-		agg::font_face::cache_record::pix_data_record*  data = face->FindPixData (info, i_size, i_xs, i_ys);
+		agg::font_face::cache_record::pix_data_record*  data = info ? face->FindPixData (info, i_size, i_xs, i_ys) : 0;
 		
-		double advance = face->RetGlyphAdvance (glyph, info) * scale;
+		double advance = info ? face->RetGlyphAdvance (glyph, info) * scale : 0;
 		total_advance += advance;
 		
-		if (data->pixels == 0)
+		if ( (glyph < 0xff00)
+		  && (info) && (data)
+		  && (data->pixels == 0) )
 		{
 			//	The glyph is not yet known, so we will have to fill the cache with its
 			//	image. Instanciate a rasterizer and do everything in here. This is not

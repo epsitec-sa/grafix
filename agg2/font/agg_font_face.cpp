@@ -311,6 +311,43 @@ font_face::RetGlyphIndex (int32u unicode)
 	  && (unicode < 0x0000ffff) )
 	{
 		int16u glyph = unicode_map->FindGlyphIndex (static_cast<int16u> (unicode));
+		
+		if (glyph == 0)
+		{
+			switch (unicode)
+			{
+				case 0x2000: glyph = 0xff01; break;			//	1/2 em
+				case 0x2001: glyph = 0xff00; break;			//	1 em
+				case 0x2002: glyph = 0xff01; break;			//	1/2 em
+				case 0x2003: glyph = 0xff00; break;			//	1 em
+				case 0x2004: glyph = 0xff02; break;			//	1/3 em
+				case 0x2005: glyph = 0xff03; break;			//	1/4 em
+				case 0x2006: glyph = 0xff06; break;			//	1/6 em
+				case 0x2007: glyph = 0xff0a; break;			//	'0' (digit)
+				case 0x2008: glyph = 0xff09; break;			//	'.' (narrow punctuation)
+				case 0x2009: glyph = 0xff05; break;			//	1/5 em
+				case 0x200A: glyph = 0xff07; break;			//	1/16 em
+				case 0x200B: glyph = 0xff08; break;			//	zero width
+				case 0x200C: glyph = 0xff08; break;			//	zero width
+				case 0x200D: glyph = 0xff08; break;			//	zero width
+				
+				case 0x202F: glyph = 0xff0b; break;			//	narrow space
+				case 0x205F: glyph = 0xff04; break;			//	4/18 em
+				case 0x2060: glyph = 0xff08; break;			//	zero width
+				
+				case 0x00A0:
+					glyph = unicode_map->FindGlyphIndex (static_cast<int16u> (' '));
+					break;
+				
+				case 0x2010:		//	Hyphen
+				case 0x2011:		//	Non Breaking Hyphen
+				case 0x00AD:		//	Soft Hyphen
+				case 0x1806:		//	Mongolian Todo Hyphen
+					glyph = unicode_map->FindGlyphIndex (static_cast<int16u> ('-'));
+					break;
+			}
+		}
+		
 		return glyph;
 	}
 	
