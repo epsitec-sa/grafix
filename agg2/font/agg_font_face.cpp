@@ -17,6 +17,10 @@
  *	warranty, and with no claim as to its suitability for any purpose.
  */
 
+#if defined(WIN32)
+#include "win32tempdc.h"
+#endif
+
 #include "agg_font_face.h"
 #include "agg_font_opentype.h"
 #include "agg_strsafe.h"
@@ -121,6 +125,12 @@ font_face::RetOsHandle ()
 {
 	if (this->os_handle == 0)
 	{
+#if defined(WIN32)
+		LOGFONTW* logfont = reinterpret_cast<LOGFONTW*> (this->os_description);
+		logfont->lfHeight = this->RetUnitsPerEM ();
+		logfont->lfWidth  = 0;
+#endif
+		
 		font_manager::family_record::LoadFontAndReturnOsHandle (this->os_description, this->os_handle);
 	}
 	
@@ -202,6 +212,11 @@ font_face::FillOpenTypeLigatureSubstArray (const open_type::feature_table* featu
 open_type::table_directory*
 font_face::FindOpenTypeTableDirectory (void* base_ptr)
 {
+	if (base_ptr == 0)
+	{
+		return 0;
+	}
+	
 	open_type::table_ttc_header* ttc = reinterpret_cast<open_type::table_ttc_header*> (base_ptr);
 	
 	int ttf_offset = 0;
@@ -875,9 +890,9 @@ font_face::cache_record::CheckAndResize (int16u n)
 font_face::cache_record::size_info_record*
 font_face::cache_record::FindSizeInfo (int16u glyph)
 {
-	if ( (this->ot_glyf == 0)
+	if ( /*(this->ot_glyf == 0)
 	  || (this->ot_loca == 0)
-	  || (this->CheckAndResize (glyph) == false) )
+	  || */(this->CheckAndResize (glyph) == false) )
 	{
 		return 0;
 	}
@@ -902,9 +917,9 @@ font_face::cache_record::FindSizeInfo (int16u glyph)
 		return info;
 	}
 	
-	int32u                 glyph_offset = this->ot_loca->FindOffset (glyph, this->ot_head);
-	int32u				   glyph_o_next = this->ot_loca->FindOffset (glyph+1, this->ot_head);
-	open_type::table_glyf* glyph_table  = this->ot_glyf->FindSubTable (glyph_offset);
+	int32u                 glyph_offset = this->ot_loca ? this->ot_loca->FindOffset (glyph, this->ot_head) : 0;
+	int32u				   glyph_o_next = this->ot_loca ? this->ot_loca->FindOffset (glyph+1, this->ot_head) : 0;
+	open_type::table_glyf* glyph_table  = this->ot_glyf ? this->ot_glyf->FindSubTable (glyph_offset) : 0;
 	
 	int16u left_side_bearing  = 0;
 	int16u width_advance      = 0;
@@ -916,10 +931,205 @@ font_face::cache_record::FindSizeInfo (int16u glyph)
 	open_type::GetGlyphWidths (ot_maxp, ot_hhea, ot_hmtx, glyph,
 							   info->left_side_bearing, info->width_advance);
 	
-	info->x_min = read_big_endian (glyph_table->header.x_min);
-	info->x_max = read_big_endian (glyph_table->header.x_max);
-	info->y_min = read_big_endian (glyph_table->header.y_min);
-	info->y_max = read_big_endian (glyph_table->header.y_max);
+	if (glyph_table)
+	{
+		info->x_min = read_big_endian (glyph_table->header.x_min);
+		info->x_max = read_big_endian (glyph_table->header.x_max);
+		info->y_min = read_big_endian (glyph_table->header.y_min);
+		info->y_max = read_big_endian (glyph_table->header.y_max);
+	}
+	else
+	{
+#if defined(WIN32)
+		Win32::TempDC dc;
+		
+		HFONT   os_font  = (HFONT) this->face->RetOsHandle ();
+		HGDIOBJ old_font = SelectObject (dc, os_font);
+		
+		GLYPHMETRICS metrics = { 0 };
+		
+		short em = 1; //this->face->RetUnitsPerEM ();
+		
+		MAT2 mat2;
+		mat2.eM11.value = em; mat2.eM11.fract = 0;
+		mat2.eM12.value = 0;  mat2.eM12.fract = 0;
+		mat2.eM21.value = 0;  mat2.eM21.fract = 0;
+		mat2.eM22.value = em; mat2.eM22.fract = 0;
+		
+		GetGlyphOutline (dc, glyph, GGO_GLYPH_INDEX | GGO_METRICS, & metrics, 0, 0, & mat2);
+		
+		int    inc_x = metrics.gmCellIncX;
+		double scale = 1.0;
+		
+		if (inc_x && info->width_advance)
+		{
+			scale = 1.0 * info->width_advance / inc_x;
+		}
+		
+		info->x_min = static_cast<agg::int16> (metrics.gmptGlyphOrigin.x);
+		info->x_max = static_cast<agg::int16> (metrics.gmptGlyphOrigin.x + metrics.gmBlackBoxX);
+		info->y_min = static_cast<agg::int16> (metrics.gmptGlyphOrigin.y);
+		info->y_max = static_cast<agg::int16> (metrics.gmptGlyphOrigin.y + metrics.gmBlackBoxY);
+
+		info->mtx = 0;
+		info->mty = 0;
+		info->mxx = scale;
+		info->myy = scale;
+		info->mxy = 0.0;
+		info->myx = 0.0;
+		
+#if !defined(GGO_UNHINTED)
+#define  GGO_UNHINTED       0x0100
+#endif
+		
+		int mode = GGO_GLYPH_INDEX | GGO_NATIVE | GGO_UNHINTED;
+		int size = GetGlyphOutline (dc, glyph, mode, & metrics, 0, 0, & mat2);
+		
+		if (size > 0)
+		{
+			agg::int8u* buffer = reinterpret_cast<agg::int8u*> (_alloca (size));
+			const int buf_size = size;
+			
+			GetGlyphOutline (dc, glyph, mode, & metrics, size, buffer, & mat2);
+			
+			TTPOLYGONHEADER* header = reinterpret_cast<TTPOLYGONHEADER*> (buffer);
+			
+			if (header->dwType == TT_POLYGON_TYPE)
+			{
+				int         total_size = buf_size;
+				agg::int8u* ptr        = buffer;
+				agg::int8u* ptr_path   = buffer;
+				
+				int num_coord = 0;
+				
+				while (total_size > 0)
+				{
+					total_size -= header->cb;
+					ptr_path   += header->cb;
+					num_coord  += 1;
+					
+					size  = header->cb;
+					size -= sizeof (TTPOLYGONHEADER);
+					ptr  += sizeof (TTPOLYGONHEADER);
+					
+					while (size > 0)
+					{
+						TTPOLYCURVE* curve = reinterpret_cast<TTPOLYCURVE*> (ptr);
+						
+						num_coord += curve->cpfx;
+						
+						size -= sizeof (TTPOLYCURVE) + sizeof (POINTFX) * (curve->cpfx-1);
+						ptr  += sizeof (TTPOLYCURVE) + sizeof (POINTFX) * (curve->cpfx-1);
+					}
+					
+					header = reinterpret_cast<TTPOLYGONHEADER*> (ptr_path);
+				}
+				
+				int8u* copy_flags = reinterpret_cast<int8u*> (this->TurboAlloc (num_coord * sizeof(int8u)));
+				int16* copy_x     = reinterpret_cast<int16*> (this->TurboAlloc (num_coord * sizeof(int16)));
+				int16* copy_y     = reinterpret_cast<int16*> (this->TurboAlloc (num_coord * sizeof(int16)));
+				
+				info->num_coord   = num_coord;
+				info->glyph_flags = copy_flags;
+				info->glyph_x     = copy_x;
+				info->glyph_y     = copy_y;
+				
+				total_size = buf_size;
+				ptr        = buffer;
+				ptr_path   = buffer;
+				
+				header = reinterpret_cast<TTPOLYGONHEADER*> (ptr_path);
+				
+				int c = 0;
+				
+				while (total_size > 0)
+				{
+					int sx = header->pfxStart.x.value;
+					int sy = header->pfxStart.y.value;
+					
+					total_size -= header->cb;
+					ptr_path   += header->cb;
+					
+					copy_flags[c] = font_face::cache_record::FLAG_ON_CURVE;
+					copy_x[c] = sx;
+					copy_y[c] = sy;
+					
+					c++;
+					
+					size  = header->cb;
+					size -= sizeof (TTPOLYGONHEADER);
+					ptr  += sizeof (TTPOLYGONHEADER);
+					
+					while (size > 0)
+					{
+						TTPOLYCURVE* curve = reinterpret_cast<TTPOLYCURVE*> (ptr);
+						int curve_elements = curve->cpfx;
+						
+						switch (curve->wType)
+						{
+							case TT_PRIM_LINE:
+								for (int i = 0; i < curve_elements; i++)
+								{
+									POINTFX pfx = curve->apfx[i];
+									
+									sx = pfx.x.value;
+									sy = pfx.y.value;
+									
+									copy_flags[c] = font_face::cache_record::FLAG_ON_CURVE;
+									copy_x[c] = sx;
+									copy_y[c] = sy;
+									
+									c++;
+								}
+								break;
+							
+							case TT_PRIM_QSPLINE:
+								for (int i = 0; i < curve_elements; i++)
+								{
+									POINTFX pfx = curve->apfx[i];
+									
+									sx = pfx.x.value;
+									sy = pfx.y.value;
+									
+									copy_flags[c] = (i == curve_elements-1) ? font_face::cache_record::FLAG_ON_CURVE : 0;
+									copy_x[c] = sx;
+									copy_y[c] = sy;
+									
+									c++;
+								}
+								break;
+							
+							case TT_PRIM_CSPLINE:
+								for (int i = 0; i < curve_elements; i++)
+								{
+									POINTFX pfx = curve->apfx[i];
+									
+									//	...pas supporté...
+									
+									__asm int 3;
+									
+									sx = pfx.x.value;
+									sy = pfx.y.value;
+								}
+								break;
+						}
+						
+						size -= sizeof (TTPOLYCURVE) + sizeof (POINTFX) * (curve_elements-1);
+						ptr  += sizeof (TTPOLYCURVE) + sizeof (POINTFX) * (curve_elements-1);
+					}
+					
+					copy_flags[c-1] |= font_face::cache_record::FLAG_CONTOUR_END;
+					
+					header = reinterpret_cast<TTPOLYGONHEADER*> (ptr_path);
+				}
+			}
+		}
+		
+		SelectObject (dc, old_font);
+		
+		return info;
+#endif
+	}
 	
 	info->mtx = 0;
 	info->mty = 0;
@@ -965,6 +1175,7 @@ font_face::cache_record::TurboAlloc (int32u size)
 {
 	return this->heap.alloc (size);
 }
+
 
 
 bool

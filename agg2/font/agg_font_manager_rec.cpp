@@ -310,6 +310,24 @@ font_manager::family_record::RetNthFace (int & nth) const
 #if defined(WIN32)
 #include "win32tempdc.h"
 
+static void
+LoadFontDataInSmallSteps(HDC dc, DWORD table_name, DWORD table_offset, void* ptr, DWORD table_length)
+{
+	agg::int8u* table_data = reinterpret_cast<agg::int8u*> (ptr);
+	
+	while (table_length > 0)
+	{
+		DWORD max    = 100*1024;
+		DWORD length = table_length < max ? table_length : max;
+		
+		GetFontData (dc, table_name, table_offset, table_data, length);
+		
+		table_data   += length;
+		table_offset += length;
+		table_length -= length;
+	}
+}
+
 /*
  *	Load the font data for the specified font, using the OS description
  *	(under Win32, this is a LOGFONT structure; under other platforms,
@@ -352,7 +370,7 @@ font_manager::family_record::LoadFontData (const void* os_description,
 			data      = new int8u[table_length];
 			data_size = data ? table_length : 0;
 			
-			GetFontData (dc, table_name, table_offset, data, table_length);
+			LoadFontDataInSmallSteps (dc, table_name, table_offset, data, table_length);
 			
 			SelectObject (dc, old_font);
 			DeleteObject (new_font);
