@@ -948,13 +948,13 @@ font_face::cache_record::FindSizeInfo (int16u glyph)
 		
 		GLYPHMETRICS metrics = { 0 };
 		
-		short em = 1; //this->face->RetUnitsPerEM ();
+		short em = this->face->RetUnitsPerEM ();
 		
 		MAT2 mat2;
-		mat2.eM11.value = em; mat2.eM11.fract = 0;
-		mat2.eM12.value = 0;  mat2.eM12.fract = 0;
-		mat2.eM21.value = 0;  mat2.eM21.fract = 0;
-		mat2.eM22.value = em; mat2.eM22.fract = 0;
+		mat2.eM11.value = 1; mat2.eM11.fract = 0;
+		mat2.eM12.value = 0; mat2.eM12.fract = 0;
+		mat2.eM21.value = 0; mat2.eM21.fract = 0;
+		mat2.eM22.value = 1; mat2.eM22.fract = 0;
 		
 		GetGlyphOutline (dc, glyph, GGO_GLYPH_INDEX | GGO_METRICS, & metrics, 0, 0, & mat2);
 		
@@ -966,11 +966,11 @@ font_face::cache_record::FindSizeInfo (int16u glyph)
 			scale = 1.0 * info->width_advance / inc_x;
 		}
 		
-		info->x_min = static_cast<agg::int16> (metrics.gmptGlyphOrigin.x);
-		info->x_max = static_cast<agg::int16> (metrics.gmptGlyphOrigin.x + metrics.gmBlackBoxX);
-		info->y_min = static_cast<agg::int16> (metrics.gmptGlyphOrigin.y);
-		info->y_max = static_cast<agg::int16> (metrics.gmptGlyphOrigin.y + metrics.gmBlackBoxY);
-
+		info->x_min = static_cast<agg::int16> (scale * (metrics.gmptGlyphOrigin.x));
+		info->x_max = static_cast<agg::int16> (scale * (metrics.gmptGlyphOrigin.x + static_cast<int> (metrics.gmBlackBoxX)));
+		info->y_max = static_cast<agg::int16> (scale * (metrics.gmptGlyphOrigin.y));
+		info->y_min = static_cast<agg::int16> (scale * (metrics.gmptGlyphOrigin.y - static_cast<int> (metrics.gmBlackBoxY)));
+		
 		info->mtx = 0;
 		info->mty = 0;
 		info->mxx = scale;
