@@ -285,6 +285,87 @@ void AggRasterizerAddGlyph(AggRasterizer* rasterizer, agg::font_face* face,
 	}
 }
 
+void AggRasterizerAddGlyphXY(AggRasterizer* rasterizer, agg::font_face* face,
+						     int glyph,
+						     double x, double y, double scale_x, double scale_y)
+{
+	if ( (rasterizer)
+	  && (face) && (face->UpdateCache ())
+	  && (scale_x) && (scale_y) )
+	{
+		face->RetGlyphAdvance (glyph);
+		
+//		__int64 cycle_t0 = GetCycleCount ();
+		
+		agg::font_face::cache_record::size_info_record* info = face->FindSizeInfo (glyph);
+		
+		if ( (info)
+		  && (info->num_coord) )
+		{
+			if (rasterizer->has_transform)
+			{
+				if (rasterizer->has_clip_box)
+				{
+					agg::font_path_provider font_path = agg::font_path_provider (face, glyph, info, x, y, scale_x, scale_y);
+					agg::conv_transform<agg::font_path_provider, agg::trans_affine> conv (font_path, rasterizer->transform_matrix);
+					agg::conv_curve<agg::conv_transform<agg::font_path_provider, agg::trans_affine> > curve (conv);
+					agg::conv_clip_polygon<agg::conv_curve<agg::conv_transform<agg::font_path_provider, agg::trans_affine> > > clip (curve);
+					
+					curve.approximation_scale (2);
+					
+					double x1 = rasterizer->x1; double y1 = rasterizer->y1;
+					double x2 = rasterizer->x2; double y2 = rasterizer->y2;
+					
+					clip.clip_box (x1, y1, x2, y2);
+					
+					rasterizer->rasterizer.add_path (clip);
+				}
+				else
+				{
+					agg::font_path_provider font_path = agg::font_path_provider (face, glyph, info, x, y, scale_x, scale_y);
+					agg::conv_transform<agg::font_path_provider, agg::trans_affine> conv (font_path, rasterizer->transform_matrix);
+					agg::conv_curve<agg::conv_transform<agg::font_path_provider, agg::trans_affine> > curve (conv);
+					
+					curve.approximation_scale (2);
+					
+					rasterizer->rasterizer.add_path (curve);
+				}
+			}
+			else
+			{
+				if (rasterizer->has_clip_box)
+				{
+					agg::font_path_provider font_path = agg::font_path_provider (face, glyph, info, x, y, scale_x, scale_y);
+					agg::conv_curve<agg::font_path_provider> curve (font_path);
+					agg::conv_clip_polygon<agg::conv_curve<agg::font_path_provider> > clip (curve);
+					
+					curve.approximation_scale (2);
+					
+					double x1 = rasterizer->x1; double y1 = rasterizer->y1;
+					double x2 = rasterizer->x2; double y2 = rasterizer->y2;
+					
+					clip.clip_box (x1, y1, x2, y2);
+					
+					rasterizer->rasterizer.add_path (clip);
+				}
+				else
+				{
+					agg::font_path_provider font_path = agg::font_path_provider (face, glyph, info, x, y, scale_x, scale_y);
+					agg::conv_curve<agg::font_path_provider> curve (font_path);
+					
+					curve.approximation_scale (2);
+					
+					rasterizer->rasterizer.add_path (curve);
+				}
+			}
+		}
+		
+//		__int64 cycle_t1 = GetCycleCount ();
+		
+//		Trace ("AGG Rasterizer AddGlyph took %d cycles\n", (int)(cycle_t1-cycle_t0));
+	}
+}
+
 double AggRasterizerAddText(AggRasterizer* rasterizer, agg::font_face* face, const wchar_t* text, int mode, double xx, double xy, double yx, double yy, double tx, double ty)
 {
 	double width = 0;

@@ -400,6 +400,35 @@ namespace AntiGrain
 								glyph, x, y, scale);
 		}
 		
+		static void AddGlyphs(System::IntPtr rasterizer, System::IntPtr face, double scale, unsigned short glyphs __gc[], double x __gc[], double y __gc[], double sx __gc[])
+		{
+			unsigned short __pin * p_glyphs   = & glyphs[0];
+			double __pin *         p_x        = & x[0];
+			double __pin *         p_y        = & y[0];
+			double __pin *         p_sx       = (sx == 0) ? 0 : & sx[0];
+//			double __pin *         p_sy       = (sy == 0) ? 0 : & sy[0];
+			
+			int n = glyphs->get_Length ();
+			
+			AggRasterizer*  r = reinterpret_cast<AggRasterizer*> (rasterizer.ToPointer ());
+			agg::font_face* f = reinterpret_cast<agg::font_face*> (face.ToPointer ());
+			
+			if (p_sx == 0)
+			{
+				for (int i = 0; i < n; i++)
+				{
+					AggRasterizerAddGlyphXY (r, f, p_glyphs[i], p_x[i], p_y[i], scale, scale);
+				}
+			}
+			else
+			{
+				for (int i = 0; i < n; i++)
+				{
+					AggRasterizerAddGlyphXY (r, f, p_glyphs[i], p_x[i], p_y[i], p_sx[i] * scale, scale);
+				}
+			}
+		}
+		
 		static double AddText(System::IntPtr rasterizer, System::IntPtr face, System::String* text, int mode, double xx, double xy, double yx, double yy, double tx, double ty)
 		{
 			System::Diagnostics::Debug::Assert (Internals::OffsetToStringData != 0);

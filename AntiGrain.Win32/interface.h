@@ -72,6 +72,7 @@ extern "C" AGGDLL void				AggRasterizerSetClipBox(AggRasterizer* rasterizer, dou
 extern "C" AGGDLL void				AggRasterizerResetClipBox(AggRasterizer* rasterizer);
 extern "C" AGGDLL void				AggRasterizerAddPath(AggRasterizer* rasterizer, AggPath* path, bool curved);
 extern "C" AGGDLL void				AggRasterizerAddGlyph(AggRasterizer* rasterizer, agg::font_face* face, int glyph, double x, double y, double scale);
+extern "C" AGGDLL void				AggRasterizerAddGlyphXY(AggRasterizer* rasterizer, agg::font_face* face, int glyph, double x, double y, double scale_x, double scale_y);
 extern "C" AGGDLL double			AggRasterizerAddText(AggRasterizer* rasterizer, agg::font_face* face, const wchar_t* text, int mode, double xx, double xy, double yx, double yy, double tx, double ty);
 extern "C" AGGDLL void				AggRasterizerAddPathStroke1(AggRasterizer* rasterizer, AggPath* path, double width, bool curved);
 extern "C" AGGDLL void				AggRasterizerAddPathStroke2(AggRasterizer* rasterizer, AggPath* path, double width, int cap, int join, double miter_limit, bool curved);
