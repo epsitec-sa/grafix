@@ -210,7 +210,8 @@ void AggRasterizerAddGlyph(AggRasterizer* rasterizer, agg::font_face* face,
 {
 	if ( (rasterizer)
 	  && (face) && (face->UpdateCache ())
-	  && (scale) )
+	  && (scale)
+	  && (glyph < 0xffff) && (glyph >= 0) )
 	{
 		face->RetGlyphAdvance (glyph);
 		
@@ -291,7 +292,8 @@ void AggRasterizerAddGlyphXY(AggRasterizer* rasterizer, agg::font_face* face,
 {
 	if ( (rasterizer)
 	  && (face) && (face->UpdateCache ())
-	  && (scale_x) && (scale_y) )
+	  && (scale_x) && (scale_y)
+	  && (glyph < 0xffff) && (glyph >= 0) )
 	{
 		face->RetGlyphAdvance (glyph);
 		
