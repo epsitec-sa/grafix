@@ -231,6 +231,11 @@ AggRendererImage* AggRendererImageNew(AggBuffer* buffer)
 	return renderer;
 }
 
+void AggRendererImageSetStretchMode(AggRendererImage* renderer, int mode)
+{
+	renderer->use_nn = (mode == 0);
+}
+
 void AggRendererImageDelete(AggRendererImage* renderer)
 {
 	if (renderer->fence != 0x5AA55AA5)

@@ -780,11 +780,61 @@ void AggRasterizerRenderImage(AggRasterizer* rasterizer, AggRendererImage* rende
 		
 		switch (renderer->renderer->active_mask_component)
 		{
-			case 0:  agg::render_scanlines (rasterizer->rasterizer, renderer->renderer->sl_a, renderer->ren_image); break;
-			case 1:  agg::render_scanlines (rasterizer->rasterizer, renderer->renderer->sl_r, renderer->ren_image); break;
-			case 2:  agg::render_scanlines (rasterizer->rasterizer, renderer->renderer->sl_g, renderer->ren_image); break;
-			case 3:  agg::render_scanlines (rasterizer->rasterizer, renderer->renderer->sl_b, renderer->ren_image); break;
-			default: agg::render_scanlines (rasterizer->rasterizer, renderer->renderer->scanline, renderer->ren_image); break;
+			case 0:
+				if (renderer->use_nn)
+				{
+					agg::render_scanlines (rasterizer->rasterizer, renderer->renderer->sl_a, renderer->ren_image_nn);
+				}
+				else
+				{
+					agg::render_scanlines (rasterizer->rasterizer, renderer->renderer->sl_a, renderer->ren_image);
+				}
+				break;
+			
+			case 1:
+				if (renderer->use_nn)
+				{
+					agg::render_scanlines (rasterizer->rasterizer, renderer->renderer->sl_r, renderer->ren_image_nn);
+				}
+				else
+				{
+					agg::render_scanlines (rasterizer->rasterizer, renderer->renderer->sl_r, renderer->ren_image);
+				}
+				break;
+			
+			case 2:
+				if (renderer->use_nn)
+				{
+					agg::render_scanlines (rasterizer->rasterizer, renderer->renderer->sl_g, renderer->ren_image_nn);
+				}
+				else
+				{
+					agg::render_scanlines (rasterizer->rasterizer, renderer->renderer->sl_g, renderer->ren_image);
+				}
+				break;
+			
+			case 3:
+				if (renderer->use_nn)
+				{
+					agg::render_scanlines (rasterizer->rasterizer, renderer->renderer->sl_b, renderer->ren_image_nn);
+				}
+				else
+				{
+					agg::render_scanlines (rasterizer->rasterizer, renderer->renderer->sl_b, renderer->ren_image);
+				}
+				break;
+			
+			default:
+				if (renderer->use_nn)
+				{
+					agg::render_scanlines (rasterizer->rasterizer, renderer->renderer->scanline, renderer->ren_image_nn);
+				}
+				else
+				{
+					agg::render_scanlines (rasterizer->rasterizer, renderer->renderer->scanline, renderer->ren_image);
+				}
+				break;
+			
 		}
 		
 //		__int64 cycle_t1 = GetCycleCount ();
