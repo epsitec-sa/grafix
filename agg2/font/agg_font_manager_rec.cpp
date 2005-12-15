@@ -126,7 +126,6 @@ font_manager::family_record::InsertFace (font_manager* type,
 		string_copy (ot_style, sizeof (ot_style), style_name);
 	}
 	
-	
 	//	Some fonts, such as Adobe's "Warnock Pro" have an additional denomination for designating
 	//	optical size... We need to identify it, remove it from the style name and store it as the
 	//	"optical name".
@@ -166,7 +165,7 @@ again:
 			optical_name++;
 		}
 		
-		static const wchar_t* reserved_names[] = { L"Light", L"Demibold", L"Semibold", L"Demi", L"Semi", L"Regular", 0 };
+		static const wchar_t* reserved_names[] = { L"Light", L"Demibold", L"Semibold", L"Demi", L"Semi", L"Regular", L"Italic", L"Bold", L"Normal", 0 };
 		
 		int i = 0;
 		
