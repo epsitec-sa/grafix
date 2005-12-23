@@ -216,7 +216,9 @@ void AggPathAppendPath(AggPath* path, AggPath* path2, double xx, double xy, doub
 			}
 			else
 			{
-				path->path.add_path (path2->path, 0, false);
+				agg::conv_transform<agg::path_storage, agg::trans_affine> conv (path2->path, matrix);
+				
+				path->path.add_path (conv, 0, false);
 			}
 		}
 	}
