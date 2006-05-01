@@ -367,6 +367,11 @@ namespace AntiGrain
 			AggRasterizerClear (reinterpret_cast<AggRasterizer*> (rasterizer.ToPointer ()));
 		}
 		
+		static bool HitTest(System::IntPtr rasterizer, int x, int y)
+		{
+			return AggRasterizerHitTest (reinterpret_cast<AggRasterizer*> (rasterizer.ToPointer ()), x, y);
+		}
+		
 		static void FillingRule(System::IntPtr rasterizer, int mode)
 		{
 			AggRasterizerFillingRule (reinterpret_cast<AggRasterizer*> (rasterizer.ToPointer ()), mode);

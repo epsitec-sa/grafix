@@ -66,6 +66,7 @@ extern "C" AGGDLL void				AggBufferComposeBuffer(AggBuffer* buffer, int xd, int 
 extern "C" AGGDLL AggRasterizer*	AggRasterizerNew();
 extern "C" AGGDLL void				AggRasterizerClear(AggRasterizer* rasterizer);
 extern "C" AGGDLL void				AggRasterizerFillingRule(AggRasterizer* rasterizer, int rule);
+extern "C" AGGDLL bool				AggRasterizerHitTest(AggRasterizer* rasterizer, int x, int y);
 extern "C" AGGDLL void				AggRasterizerGamma(AggRasterizer* rasterizer, double gamma);
 extern "C" AGGDLL void				AggRasterizerSetTransform(AggRasterizer* rasterizer, double xx, double xy, double yx, double yy, double tx, double ty);
 extern "C" AGGDLL void				AggRasterizerSetClipBox(AggRasterizer* rasterizer, double x1, double y1, double x2, double y2);

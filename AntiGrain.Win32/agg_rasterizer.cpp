@@ -35,6 +35,16 @@ void AggRasterizerFillingRule(AggRasterizer* rasterizer, int rule)
 	}
 }
 
+bool AggRasterizerHitTest(AggRasterizer* rasterizer, int x, int y)
+{
+	if (rasterizer)
+	{
+		return rasterizer->rasterizer.hit_test (x, y);
+	}
+	
+	return false;
+}
+
 void AggRasterizerGamma(AggRasterizer* rasterizer, double gamma)
 {
 	if (rasterizer)
