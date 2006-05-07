@@ -8,14 +8,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AntiGrain.NET", "AntiGrain.
 		{01A5A54B-EEF0-492B-90E0-412DFF1B2657} = {01A5A54B-EEF0-492B-90E0-412DFF1B2657}
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AntiGrain.NET.PInvoke", "AntiGrain.NET.PInvoke\AntiGrain.NET.PInvoke.csproj", "{A075DA41-814F-44C0-99F3-FFCA3F115A64}"
-	ProjectSection(ProjectDependencies) = postProject
-	EndProjectSection
-EndProject
 Global
-	GlobalSection(DPCodeReviewSolutionGUID) = preSolution
-		DPCodeReviewSolutionGUID = {00000000-0000-0000-0000-000000000000}
-	EndGlobalSection
 	GlobalSection(SolutionConfiguration) = preSolution
 		Debug = Debug
 		Release = Release
@@ -29,10 +22,6 @@ Global
 		{5B06F6A2-61B0-4405-9B4A-DB806E199B56}.Debug.Build.0 = Debug|Win32
 		{5B06F6A2-61B0-4405-9B4A-DB806E199B56}.Release.ActiveCfg = Release|Win32
 		{5B06F6A2-61B0-4405-9B4A-DB806E199B56}.Release.Build.0 = Release|Win32
-		{A075DA41-814F-44C0-99F3-FFCA3F115A64}.Debug.ActiveCfg = Debug|.NET
-		{A075DA41-814F-44C0-99F3-FFCA3F115A64}.Debug.Build.0 = Debug|.NET
-		{A075DA41-814F-44C0-99F3-FFCA3F115A64}.Release.ActiveCfg = Release|.NET
-		{A075DA41-814F-44C0-99F3-FFCA3F115A64}.Release.Build.0 = Release|.NET
 	EndGlobalSection
 	GlobalSection(SolutionItems) = postSolution
 		AGGWcopy.bat = AGGWcopy.bat
@@ -41,5 +30,8 @@ Global
 	GlobalSection(ExtensibilityGlobals) = postSolution
 	EndGlobalSection
 	GlobalSection(ExtensibilityAddIns) = postSolution
+	EndGlobalSection
+	GlobalSection(DPCodeReviewSolutionGUID) = preSolution
+		DPCodeReviewSolutionGUID = {00000000-0000-0000-0000-000000000000}
 	EndGlobalSection
 EndGlobal

@@ -1,3 +1,11 @@
+//	glue.cpp
+//
+//	Copyright © 2003-2006, Pierre ARNAUD, OPaC bright ideas, Ch. du Fontenay 6,
+//	                       CH-1400 YVERDON, Switzerland. All rights reserved. 
+//
+//	Contact: pierre.arnaud@opac.ch, http://www.opac.ch
+//	License: see license.txt
+
 #ifdef MANAGED_AGG
 
 #include "interface.h"
@@ -5,6 +13,13 @@
 
 #pragma managed
 #using <mscorlib.dll>
+
+/*
+ *	The "glue" consists of low level functions required to set up and
+ *	tear down the library itself, and to get some stats about it.
+ */
+
+/*****************************************************************************/
 
 static const int OFFSET_TO_STRING_DATA = System::Runtime::CompilerServices::RuntimeHelpers::get_OffsetToStringData ();
 

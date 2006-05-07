@@ -85,7 +85,7 @@
 				AdditionalIncludeDirectories="&quot;$(SolutionDir)ipp\include&quot;;&quot;$(SolutionDir)agg2\include&quot;;&quot;$(SolutionDir)agg2\font&quot;;&quot;$(SolutionDir)agg2\gpc&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;AGGWRAPPER_EXPORTS;AGG_BMP_ALPHA_BLEND"
 				StringPooling="TRUE"
-				RuntimeLibrary="0"
+				RuntimeLibrary="2"
 				BufferSecurityCheck="FALSE"
 				EnableEnhancedInstructionSet="0"
 				TreatWChar_tAsBuiltInType="TRUE"
@@ -163,9 +163,6 @@
 			</File>
 			<File
 				RelativePath=".\DLL.h">
-			</File>
-			<File
-				RelativePath=".\glue.cpp">
 			</File>
 			<File
 				RelativePath=".\interface.cpp">

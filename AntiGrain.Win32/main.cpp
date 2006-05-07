@@ -1,14 +1,32 @@
+//	main.cpp
+//
+//	Copyright © 2003-2006, Pierre ARNAUD, OPaC bright ideas, Ch. du Fontenay 6,
+//	                       CH-1400 YVERDON, Switzerland. All rights reserved. 
+//
+//	Contact: pierre.arnaud@opac.ch, http://www.opac.ch
+//	License: see license.txt
+
 #include "win32.h"
 #include "DLL.h"
 
 #include <stdarg.h>
 #include <stdio.h>
 
+/*
+ *	The "main" body provides the DLL plumbing required by Windows and
+ *	a local wrapper for OutputDebugString, named Trace(), which works
+ *	just like printf().
+ */
+
+/*****************************************************************************/
+
 HANDLE global_dll_handle = 0;
+
+/*****************************************************************************/
 
 /*
  *	Remember the handle to the DLL (HINSTANCE, HMODULE), which is needed
- *	by the AggGetVersion function.
+ *	by the local GetVersionInfo function in "interface".
  */
 
 BOOL WINAPI
@@ -19,6 +37,7 @@ DllMain (HANDLE dll_handle, DWORD reason, LPVOID reserved)
 		case DLL_PROCESS_ATTACH:
 			global_dll_handle = dll_handle;
 			break;
+		
 		case DLL_PROCESS_DETACH:
 			global_dll_handle = NULL;
 			break;
@@ -26,7 +45,6 @@ DllMain (HANDLE dll_handle, DWORD reason, LPVOID reserved)
 	
 	return TRUE;
 }
-
 
 /*****************************************************************************/
 

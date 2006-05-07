@@ -1,17 +1,31 @@
+//	DLL.h
+//
+//	Copyright © 2003-2006, Pierre ARNAUD, OPaC bright ideas, Ch. du Fontenay 6,
+//	                       CH-1400 YVERDON, Switzerland. All rights reserved. 
+//
+//	Contact: pierre.arnaud@opac.ch, http://www.opac.ch
+//	License: see license.txt
+
 #pragma once
 
 #if	defined(AGGWRAPPER_EXPORTS)
-#define	AGGDLL	__declspec(dllexport)
-extern void * global_dll_handle;
-#else
-#define	AGGDLL	__declspec(dllimport)
-#endif
 
+//	If compiling the DLL itself, AGGWRAPPER_EXPORTS is defined and we
+//	mark every API entry as 'dllexport' so they can be easily accessed
+//	by external code.
+
+#define	AGGDLL	__declspec(dllexport)
+
+extern void * global_dll_handle;
 extern void Trace (const char* fmt, ...);
 
-static inline __int64 GetCycleCount()
-{
-	__asm __emit 0x0f
-	__asm __emit 0x31
-}
+#else
 
+//	If just including the *.h files of the DLL, we mark every API entry
+//	as 'dllimport', so that the linker knows that these must be looked
+//	for in an external DLL (in fact the *.lib stubs file associated to
+//	the *.dll).
+
+#define	AGGDLL	__declspec(dllimport)
+
+#endif

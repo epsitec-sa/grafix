@@ -1,6 +1,14 @@
-// wordbreak.cpp
+//	wordbreak.cpp
+//
+//	Copyright © 2002,	   Daniel ROUX, EPSITEC SA, Ch. de la Mouette 5,
+//						   CH-1092 BELMONT, Switzerland. All rights reserved.
+//
+//	Copyright © 2003-2006, Pierre ARNAUD, OPaC bright ideas, Ch. du Fontenay 6,
+//	                       CH-1400 YVERDON, Switzerland. All rights reserved.
+//
+//	Contact: pierre.arnaud@opac.ch, http://www.opac.ch
+//	License: see license.txt
 
-// (c) 2002 - EPSITEC & Daniel Roux
 // Algorithme de césure pour les mots français.
 // Ce système a été inventé en 1985 pour le logiciel
 // Text sur Smaky. Il était initialement programmé en

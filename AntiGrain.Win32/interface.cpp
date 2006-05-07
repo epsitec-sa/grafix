@@ -1,15 +1,29 @@
+//	interface.cpp
+//
+//	Copyright © 2003-2006, Pierre ARNAUD, OPaC bright ideas, Ch. du Fontenay 6,
+//	                       CH-1400 YVERDON, Switzerland. All rights reserved. 
+//
+//	Contact: pierre.arnaud@opac.ch, http://www.opac.ch
+//	License: see license.txt
+
 #include "interface.h"
 #include "structures.h"
 
 #include <windows.h>
 #include <stdio.h>
 
+/*
+ *	The "interface" consists of low level functions required to set up and
+ *	tear down the library itself, and to get some stats about it.
+ */
 
+/*****************************************************************************/
 
-static BYTE* version_data = 0;
-static wchar_t* version_file_version = 0;
-static wchar_t* version_product_name = 0;
+static BYTE*	version_data			= 0;
+static wchar_t* version_file_version	= 0;
+static wchar_t* version_product_name	= 0;
 
+/*****************************************************************************/
 
 bool AggInitialise()
 {
@@ -24,8 +38,11 @@ void AggShutDown()
 		
 		version_data         = 0;
 		version_file_version = 0;
+		version_product_name = 0;
 	}
 }
+
+/*****************************************************************************/
 
 void AggNoOp()
 {
@@ -35,7 +52,14 @@ void AggNoOpString(const wchar_t* text)
 {
 }
 
-const wchar_t* AggGetVersionInfo(const wchar_t* key, wchar_t*& info)
+/*****************************************************************************/
+
+/*
+ *	Internal: retrieve version information for the specified version
+ *	key, using a cache (info).
+ */
+
+static const wchar_t* GetVersionInfo(const wchar_t* key, wchar_t*& info)
 {
 	if ( (version_data == 0)
 	  && (global_dll_handle) )
@@ -86,64 +110,17 @@ const wchar_t* AggGetVersionInfo(const wchar_t* key, wchar_t*& info)
 	return info;
 }
 
+/*****************************************************************************/
 
 const wchar_t* AggGetVersion()
 {
-	return AggGetVersionInfo (L"FileVersion", version_file_version);
+	return GetVersionInfo (L"FileVersion", version_file_version);
 }
 
 
 const wchar_t* AggGetProductName()
 {
-	return AggGetVersionInfo (L"ProductName", version_product_name);
+	return GetVersionInfo (L"ProductName", version_product_name);
 }
 
-void AggDebugGetCycles(unsigned int& h, unsigned int& l)
-{
-	unsigned __int64 c = GetCycleCount ();
-	h = (unsigned int)(c >> 32);
-	l = (unsigned int)(c);
-}
-
-int AggDebugGetCycleDelta()
-{
-	static unsigned __int64 cycles = GetCycleCount ();
-	unsigned __int64 now = GetCycleCount ();
-	unsigned __int64 delta = now - cycles;
-	cycles = now;
-	return static_cast<int> (delta);
-}
-
-
-static int exception_filter(EXCEPTION_POINTERS * pex)
-{
-	char text[10000];
-	sprintf (text, "Ex.code = %08x at %08p - start at %08p\n"
-		/**/	   "EAX=%08X EBX=%08X ECX=%08X EDX=%08X\n"
-		/**/	   "EIP=%08X EBP=%08X ESP=%08X\n",
-		/**/	   pex->ExceptionRecord->ExceptionCode,
-		/**/	   pex->ExceptionRecord->ExceptionAddress,
-		/**/	   & AggDebugTrapZeroPointer,
-		/**/	   pex->ContextRecord->Eax,
-		/**/	   pex->ContextRecord->Ebx,
-		/**/	   pex->ContextRecord->Ecx,
-		/**/	   pex->ContextRecord->Edx,
-		/**/	   pex->ContextRecord->Eip,
-		/**/	   pex->ContextRecord->Ebp,
-		/**/	   pex->ContextRecord->Esp);
-	OutputDebugString (text);
-	
-	return EXCEPTION_CONTINUE_SEARCH;
-}
-
-void AggDebugTrapZeroPointer()
-{
-	__try
-	{
-		int* ptr = (int*)(0);
-		ptr[0] = 0;
-	}
-	__except(exception_filter(GetExceptionInformation()))
-	{
-	}
-}
+/*****************************************************************************/

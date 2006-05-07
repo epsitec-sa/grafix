@@ -73,8 +73,9 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/Zl"
 				PreprocessorDefinitions="WIN32;NDEBUG"
+				StringPooling="TRUE"
 				MinimalRebuild="FALSE"
-				RuntimeLibrary="0"
+				RuntimeLibrary="2"
 				TreatWChar_tAsBuiltInType="TRUE"
 				ForceConformanceInForLoopScope="TRUE"
 				UsePrecompiledHeader="0"
@@ -116,10 +117,6 @@
 			RelativePath="mscorlib.dll"/>
 		<AssemblyReference
 			RelativePath="System.dll"/>
-		<AssemblyReference
-			RelativePath="System.Data.dll"/>
-		<AssemblyReference
-			RelativePath="{ReferencesPath}\System.XML.dll"/>
 	</References>
 	<Files>
 		<Filter
@@ -161,9 +158,6 @@
 				RelativePath=".\app.rc">
 			</File>
 		</Filter>
-		<File
-			RelativePath=".\ReadMe.txt">
-		</File>
 	</Files>
 	<Globals>
 	</Globals>

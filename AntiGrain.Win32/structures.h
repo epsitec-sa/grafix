@@ -1,3 +1,11 @@
+//	structures.h
+//
+//	Copyright © 2003-2006, Pierre ARNAUD, OPaC bright ideas, Ch. du Fontenay 6,
+//	                       CH-1400 YVERDON, Switzerland. All rights reserved. 
+//
+//	Contact: pierre.arnaud@opac.ch, http://www.opac.ch
+//	License: see license.txt
+
 #pragma once
 
 #include "agg_alpha_mask_u8.h"
@@ -26,9 +34,19 @@
 #include "agg_span_gradient.h"
 
 #include "agg_ellipse.h"
-#include "ctrl/agg_gamma_spline.h"
 
 #include "agg_pixfmt_rgba.h"
+
+#include "ctrl/agg_gamma_spline.h"
+
+#include "platform/win32/agg_win32_bmp.h"
+
+/*****************************************************************************/
+
+/*
+ *	We work internally with a B-G-R-A 32-bit pixel format (this is what is
+ *	expected on Windows machines: blue/green/red + alpha, little endian).
+ */
 
 typedef agg::pixfmt_bgra32				pixfmt;
 typedef agg::pixfmt_bgra32_pre			pixfmt_pre;
@@ -37,18 +55,22 @@ typedef agg::order_bgra					component_order;
 typedef agg::renderer_mclip<pixfmt>		renderer_base;
 typedef agg::renderer_mclip<pixfmt_pre>	renderer_base_pre;
 
-#include "platform/win32/agg_win32_bmp.h"
+/*****************************************************************************/
 
 namespace agg
 {
 	class font_face;
 }
 
+/*****************************************************************************/
+
 class gradient_polymorphic_wrapper_base
 {
 public:
     virtual int calculate(int x, int y, int) const = 0;
 };
+
+/*****************************************************************************/
 
 class gradient_full_conic
 {
@@ -58,6 +80,8 @@ public:
 		return int((atan2(double(y), double(x))+agg::pi) * double(d) / (agg::pi*2));
 	}
 };
+
+/*****************************************************************************/
 
 template<class GradientF> 
 class gradient_polymorphic_wrapper : public gradient_polymorphic_wrapper_base
@@ -71,7 +95,7 @@ private:
     GradientF m_gradient;
 };
 
-
+/*****************************************************************************/
 
 struct AggRasterizer
 {
@@ -82,8 +106,12 @@ struct AggRasterizer
 	double							x1, y1, x2, y2;
 };
 
+/*****************************************************************************/
+
 struct AggRendererCommon;
 struct AggRendererCommonPre;
+
+/*****************************************************************************/
 
 struct AggBuffer
 {
@@ -96,6 +124,8 @@ struct AggBuffer
 	HBITMAP                 bitmap;
 	HGDIOBJ					bitmap_old;
 };
+
+/*****************************************************************************/
 
 struct AggRendererCommon
 {
@@ -128,6 +158,8 @@ struct AggRendererCommon
 	}
 };
 
+/*****************************************************************************/
+
 struct AggRendererCommonPre
 {
 	agg::scanline_u8		scanline;
@@ -159,6 +191,8 @@ struct AggRendererCommonPre
 	}
 };
 
+/*****************************************************************************/
+
 struct AggRendererBase
 {
 	AggRendererCommon*		renderer;
@@ -167,6 +201,8 @@ struct AggRendererBase
 	{
 	}
 };
+
+/*****************************************************************************/
 
 struct AggRendererSolid : AggRendererBase
 {
@@ -180,6 +216,8 @@ struct AggRendererSolid : AggRendererBase
 		this->fence = 0x5AA55AA5;
 	}
 };
+
+/*****************************************************************************/
 
 struct AggRendererSmooth : AggRendererBase
 {
@@ -201,10 +239,11 @@ struct AggRendererSmooth : AggRendererBase
 	}
 };
 
+/*****************************************************************************/
 
 /*
- *	The image renderer manipulates pixels stored in a source buffer. This source buffer
- *	may not move once it has been attached to the renderer.
+ *	The image renderer manipulates pixels stored in a source buffer. This
+ *	source buffer may not move once it has been attached to the renderer.
  */
 
 struct AggRendererImage
@@ -253,6 +292,8 @@ struct AggRendererImage
 	
 	bool Validate ();
 };
+
+/*****************************************************************************/
 
 struct AggRendererGradient : AggRendererBase
 {
@@ -334,6 +375,7 @@ struct AggRendererGradient : AggRendererBase
 	bool Validate();
 };
 
+/*****************************************************************************/
 
 struct AggPath
 {
@@ -349,6 +391,8 @@ struct AggPath
 	}
 };
 
+/*****************************************************************************/
+
 enum TextBreakMode
 {
 	TEXT_BREAK_NONE					= 0x0000,
@@ -359,6 +403,8 @@ enum TextBreakMode
 	
 	TEXT_BREAK_SINGLE_LINE			= 0x0100,		//	force tout sur une ligne (utile avec ELLIPSIS, OVERHANG et SPLIT)
 };
+
+/*****************************************************************************/
 
 struct BreakContext
 {
@@ -407,3 +453,5 @@ struct BreakContext
 		return this->check_id == 0xfaceb000;
 	}
 };
+
+/*****************************************************************************/

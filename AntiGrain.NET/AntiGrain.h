@@ -1,9 +1,10 @@
 //	AntiGrain.h
 //
-//	Copyright © 2003-2005, Pierre ARNAUD, OPaC bright ideas, Ch. du Fontenay 6,
+//	Copyright © 2003-2006, Pierre ARNAUD, OPaC bright ideas, Ch. du Fontenay 6,
 //	                       CH-1400 YVERDON, Switzerland. All rights reserved. 
 //
 //	Contact: pierre.arnaud@opac.ch, http://www.opac.ch
+//	License: see license.txt
 
 #pragma once
 
@@ -52,21 +53,6 @@ namespace AntiGrain
 		static System::String* GetProductName()
 		{
 			return __gc new System::String (AggGetProductName ());
-		}
-		
-		static System::Int64 DebugGetCycles()
-		{
-			return GetCycleCount ();
-		}
-		
-		static int DebugGetCycleDelta()
-		{
-			return AggDebugGetCycleDelta ();
-		}
-		
-		static void DebugTrapZeroPointer()
-		{
-			AggDebugTrapZeroPointer();
 		}
 	};
 	
@@ -928,11 +914,6 @@ namespace AntiGrain
 		{
 			AggTextBreakDelete (reinterpret_cast<agg::text_break*> (text_break.ToPointer ()));
 		}
-//		
-//		static bool HasMore(System::IntPtr text_break)
-//		{
-//			return AggTextBreakHasMore (reinterpret_cast<agg::text_break*> (text_break.ToPointer ()));
-//		}
 		
 		static System::String* GetUnicodeName(int code)
 		{
