@@ -1,3 +1,11 @@
+//	agg_font.cpp
+//
+//	Copyright © 2003-2006, Pierre ARNAUD, OPaC bright ideas, Ch. du Fontenay 6,
+//	                       CH-1400 YVERDON, Switzerland. All rights reserved. 
+//
+//	Contact: pierre.arnaud@opac.ch, http://www.opac.ch
+//	License: see license.txt
+
 #include "interface.h"
 #include "structures.h"
 #include "agg_font_manager.h"
@@ -16,50 +24,36 @@
 #include "agg_renderer_scanline.h"
 #include "agg_renderer_mclip.h"
 
-extern void Trace (const char* fmt, ...);
+/*****************************************************************************/
 
 using namespace agg;
+
+/*****************************************************************************/
 
 static agg::font_manager global_font_manager;
 
 #define	EMULATE_CLEARTYPE_INTERPOLATE	0
 #define	EMULATE_CLEARTYPE_X3			0
 
-class DebugTraceMessage
-{
-	const char*			message;
-public:
-	DebugTraceMessage(const char* text) : message(text)
-	{
-		Trace("%s - enter", this->message);
-	}
-	~DebugTraceMessage()
-	{
-		Trace("%s - exit", this->message);
-	}
-};
+/*****************************************************************************/
 
 void AggFontInitialise()
 {
-//	DebugTraceMessage trace ("AggFontInitialise");
 	global_font_manager.Initialise ();
 }
 
 int AggFontGetFaceCount()
 {
-//	DebugTraceMessage trace ("AggFontGetFaceCount");
 	return global_font_manager.CountFontFaces ();
 }
 
 agg::font_face* AggFontGetFaceByRank(int n)
 {
-//	DebugTraceMessage trace ("AggGetFaceByRank");
 	return global_font_manager.RetNthFace (n);
 }
 
 agg::font_face* AggFontGetFaceByName(const wchar_t* family, const wchar_t* style, const wchar_t* optical)
 {
-//	DebugTraceMessage trace ("AggFontGetFaceByName");
 	return global_font_manager.FindFontFace (family, style, optical);
 }
 
@@ -130,6 +124,8 @@ double AggFontFaceGetCharAdvance(agg::font_face* face, int unicode)
 	
 	return 0;
 }
+
+/*****************************************************************************/
 
 double AggFontFaceGetTextAdvance(agg::font_face* face, const wchar_t* text, int mode)
 {
@@ -217,7 +213,7 @@ void AggFontFaceGetTextBounds(agg::font_face* face, const wchar_t* text, int mod
 	}
 }
 
-
+/*****************************************************************************/
 
 double AggFontFaceGetMetrics(agg::font_face* face, int id)
 {
@@ -238,6 +234,8 @@ double AggFontFaceGetMetrics(agg::font_face* face, int id)
 	
 	return 0;
 }
+
+/*****************************************************************************/
 
 int AggFontFaceGetTextCharEndXArray(agg::font_face* face, const wchar_t* text, int mode, double* x_array)
 {
@@ -263,6 +261,7 @@ int AggFontFaceGetTextCharEndXArray(agg::font_face* face, const wchar_t* text, i
 	return 0;
 }
 
+/*****************************************************************************/
 
 static char ReduceToASCIIAndConvertToUpper (int utf)
 {
@@ -308,6 +307,7 @@ static char ReduceToASCIIAndConvertToUpper (int utf)
 	return '#';
 }
 
+/*****************************************************************************/
 
 enum BreakClass
 {
@@ -634,6 +634,8 @@ static inline int round_down(double x)
 	}
 }
 
+/*****************************************************************************/
+
 double
 AggFontPixelCacheFill(AggBuffer* buffer, agg::font_face* face, const wchar_t* text, double scale,
 					  double ox, double oy,
@@ -797,53 +799,19 @@ AggFontPixelCacheFill(AggBuffer* buffer, agg::font_face* face, const wchar_t* te
 	return total_advance;
 }
 
-#if 0
-static int exception_filter(EXCEPTION_POINTERS * pex)
-{
-	char text[10000];
-	sprintf (text, "AggFontPixelCacheFill: Ex.code = %08x at %08p - start at %08p\n"
-		/**/	   "EAX=%08X EBX=%08X ECX=%08X EDX=%08X\n"
-		/**/	   "EIP=%08X EBP=%08X ESP=%08X\n",
-		/**/	   pex->ExceptionRecord->ExceptionCode,
-		/**/	   pex->ExceptionRecord->ExceptionAddress,
-		/**/       & AggFontPixelCacheFill,
-		/**/	   pex->ContextRecord->Eax,
-		/**/	   pex->ContextRecord->Ebx,
-		/**/	   pex->ContextRecord->Ecx,
-		/**/	   pex->ContextRecord->Edx,
-		/**/	   pex->ContextRecord->Eip,
-		/**/	   pex->ContextRecord->Ebp,
-		/**/	   pex->ContextRecord->Esp);
-	OutputDebugString (text);
-	
-	return EXCEPTION_CONTINUE_SEARCH;
-}
-
-double
-_AggFontPixelCacheFill(AggBuffer* buffer,
-					  agg::font_face* face, const wchar_t* text, double scale,
-					  double ox, double oy,
-					  double r, double g, double b, double a)
-{
-	double w = 0.0;
-	__try
-	{
-		w = AggFontPixelCacheFill (buffer, face, text, scale, ox, oy, r, g, b, a);
-	}
-	__except(exception_filter(GetExceptionInformation()))
-	{
-	}
-	return w;
-}
-#endif
-
 /*****************************************************************************/
 
 typedef __declspec(dllimport) int (FAR WINAPI *GETUNAME_FUNC)(DWORD,LPVOID); 
 
-
 static HMODULE			hUNameDll;
 static GETUNAME_FUNC	pGetUNameFunc;
+
+/*
+ *	Find the name of the specified character code. This uses the getuname.dll
+ *	from Windows to retrieve the Unicode database information.
+ *
+ *	See http://blogs.gotdotnet.com/michkap/archive/2006/01/12/511920.aspx
+ */
 
 bool
 AggFontGetUnicodeName(int code, wchar_t* max_path_buffer)

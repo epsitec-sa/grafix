@@ -382,10 +382,7 @@ font_face::RetGlyphAdvance (int16u glyph)
 double
 font_face::RetGlyphKerning (int16u glyph_1, int16u glyph_2)
 {
-	double x = 0;
-	double y = 0;
-	this->GetGlyphKerning (glyph_1, glyph_2, x, y);
-	return x;
+	return 0.0;
 }
 
 double
@@ -472,16 +469,6 @@ font_face::GetGlyphBounds (int16u glyph, double& x_min, double& y_min, double& x
 	}
 }
 
-
-bool
-font_face::GetGlyphKerning (int16u glyph_1, int16u glyph_2, double& x, double& y)
-{
-	this->RealiseData ();
-	
-	//	TODO: get kerning
-	
-	return false;
-}
 
 bool
 font_face::GetVerticalMetrics (double & ascender, double & descender, double & line_height)

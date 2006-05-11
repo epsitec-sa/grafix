@@ -279,7 +279,6 @@ namespace agg
 		
 		bool GetGlyphAdvance (int16u glyph, double& x, double& y);
 		bool GetGlyphAdvance (int16u glyph, double& x, double& y, font_face::cache_record::size_info_record*& info);
-		bool GetGlyphKerning (int16u glyph_1, int16u glyph_2, double& x, double& y);
 		bool GetVerticalMetrics (double & ascender, double & descender, double & line_height);
 		
 		void GetGlyphBounds (int16u glyph, double& x_min, double& y_min, double& x_max, double& y_max);
