@@ -12,18 +12,18 @@ using namespace System::Runtime::InteropServices;
 
 namespace AntiGrain
 {
-	__gc private class Internals
+	private ref class Internals
 	{
 	public:
 		static int OffsetToStringData = 0;
 	};
 	
-	__gc public class Interface
+	public ref class Interface
 	{
 	public:
 		static bool Initialise()
 		{
-			Internals::OffsetToStringData = System::Runtime::CompilerServices::RuntimeHelpers::get_OffsetToStringData ();
+			Internals::OffsetToStringData = System::Runtime::CompilerServices::RuntimeHelpers::OffsetToStringData;
 			return AggInitialise ();
 		}
 		
@@ -37,26 +37,26 @@ namespace AntiGrain
 			AggNoOp ();
 		}
 		
-		static void NoOpString(System::String* text)
+		static void NoOpString(const System::String^ text)
 		{
-			System::String __pin * pinned_text = text;
-			const wchar_t*         native_text = (const wchar_t*)((char*)(*((void**)&pinned_text)) + Internals::OffsetToStringData);
+			cli::pin_ptr<const System::String^> pinned_text = &text;
+			const wchar_t* native_text = (const wchar_t*)((char*)(*(*((void***)&pinned_text))) + Internals::OffsetToStringData);
 			
 			AggNoOpString (native_text);
 		}
 		
-		static System::String* GetVersion()
+		static System::String^ GetVersion()
 		{
-			return __gc new System::String (AggGetVersion ());
+			return gcnew System::String (AggGetVersion ());
 		}
 		
-		static System::String* GetProductName()
+		static System::String^ GetProductName()
 		{
-			return __gc new System::String (AggGetProductName ());
+			return gcnew System::String (AggGetProductName ());
 		}
 	};
 	
-	__gc public class Buffer
+	public ref class Buffer
 	{
 	public:
 		static System::IntPtr New(int dx, int dy, int bpp)
@@ -89,10 +89,10 @@ namespace AntiGrain
 			AggBufferAddClipBox (reinterpret_cast<AggBuffer*> (buffer.ToPointer ()), x1, y1, x2, y2);
 		}
 		
-		static void DrawGlyphs(System::IntPtr buffer, System::IntPtr hfont, int x, int y, unsigned short glyphs __gc[], int dx_array __gc[], int count, unsigned int color)
+		static void DrawGlyphs(System::IntPtr buffer, System::IntPtr hfont, int x, int y, cli::array<unsigned short>^ glyphs, cli::array<int>^ dx_array, int count, unsigned int color)
 		{
-			unsigned short __pin * p_glyphs   = & glyphs[0];
-			int __pin *            p_dx_array = (dx_array == 0) ? 0 : & dx_array[0];
+			cli::pin_ptr<unsigned short> p_glyphs   = & glyphs[0];
+			cli::pin_ptr<int>            p_dx_array = (dx_array == nullptr) ? nullptr : & dx_array[0];
 			
 			AggBufferDrawGlyphs(reinterpret_cast<AggBuffer*> (buffer.ToPointer ()), hfont.ToPointer (), x, y, p_glyphs, p_dx_array, (unsigned int) count, color);
 		}
@@ -127,7 +127,7 @@ namespace AntiGrain
 								x1, y1, x2, y2);
 		}
 		
-		static void GetMemoryLayout(System::IntPtr buffer, [Out] int __gc & width, [Out] int __gc & height, [Out] int __gc & stride, [Out] System::IntPtr & scan0)
+		static System::IntPtr GetMemoryLayout(System::IntPtr buffer, [Out] int% width, [Out] int% height, [Out] int% stride)
 		{
 			int nwidth, nheight, nstride;
 			void* nscan0;
@@ -137,7 +137,8 @@ namespace AntiGrain
 			width  = nwidth;
 			height = nheight;
 			stride = nstride;
-			scan0  = nscan0;
+			
+			return System::IntPtr (nscan0);
 		}
 		
 		static System::IntPtr GetMemoryBitmapHandle(System::IntPtr buffer)
@@ -162,11 +163,11 @@ namespace AntiGrain
 			AggBufferDelete (reinterpret_cast<AggBuffer*> (buffer.ToPointer ()));
 		}
 	};
-	
-	__gc public class Renderer
+
+	public ref class Renderer
 	{
 	public:
-		__value enum MaskComponent
+		enum class MaskComponent
 		{
 			None = -1,
 			A = 0,
@@ -175,12 +176,12 @@ namespace AntiGrain
 			B = 3
 		};
 		
-		__gc class Base
+		ref class Base
 		{
 		public:
 		};
 		
-		__gc class Special : public Base
+		ref class Special : public Base
 		{
 		public:
 			static void Fill4Colors(System::IntPtr renderer, int x, int y, int dx, int dy, double r1, double g1, double b1, double r2, double g2, double b2, double r3, double g3, double b3, double r4, double g4, double b4)
@@ -189,7 +190,7 @@ namespace AntiGrain
 			}
 		};
 		
-		__gc class Solid : public Base
+		ref class Solid : public Base
 		{
 		public:
 			static System::IntPtr New(System::IntPtr buffer)
@@ -214,10 +215,10 @@ namespace AntiGrain
 			
 			static void SetAlphaMask(System::IntPtr renderer, System::IntPtr buffer, MaskComponent component)
 			{
-				AggRendererSolidSetAlphaMask (reinterpret_cast<AggRendererSolid*> (renderer.ToPointer ()), reinterpret_cast<AggBuffer*> (buffer.ToPointer ()), component);
+				AggRendererSolidSetAlphaMask (reinterpret_cast<AggRendererSolid*> (renderer.ToPointer ()), reinterpret_cast<AggBuffer*> (buffer.ToPointer ()), (int) component);
 			}
 		};
-		__gc class Smooth : public Base
+		ref class Smooth : public Base
 		{
 		public:
 			static System::IntPtr New(System::IntPtr buffer)
@@ -247,10 +248,10 @@ namespace AntiGrain
 			
 			static void SetAlphaMask(System::IntPtr renderer, System::IntPtr buffer, MaskComponent component)
 			{
-				AggRendererSmoothSetAlphaMask (reinterpret_cast<AggRendererSmooth*> (renderer.ToPointer ()), reinterpret_cast<AggBuffer*> (buffer.ToPointer ()), component);
+				AggRendererSmoothSetAlphaMask (reinterpret_cast<AggRendererSmooth*> (renderer.ToPointer ()), reinterpret_cast<AggBuffer*> (buffer.ToPointer ()), (int) component);
 			}
 		};
-		__gc class Image : public Base
+		ref class Image : public Base
 		{
 		public:
 			static System::IntPtr New(System::IntPtr buffer)
@@ -287,10 +288,10 @@ namespace AntiGrain
 			
 			static void SetAlphaMask(System::IntPtr renderer, System::IntPtr buffer, MaskComponent component)
 			{
-				AggRendererImageSetAlphaMask (reinterpret_cast<AggRendererImage*> (renderer.ToPointer ()), reinterpret_cast<AggBuffer*> (buffer.ToPointer ()), component);
+				AggRendererImageSetAlphaMask (reinterpret_cast<AggRendererImage*> (renderer.ToPointer ()), reinterpret_cast<AggBuffer*> (buffer.ToPointer ()), (int) component);
 			}
 		};
-		__gc class Gradient : public Base
+		ref class Gradient : public Base
 		{
 		public:
 			static System::IntPtr New(System::IntPtr buffer)
@@ -308,17 +309,17 @@ namespace AntiGrain
 				AggRendererGradientSelect (reinterpret_cast<AggRendererGradient*> (renderer.ToPointer ()), id);
 			}
 			
-			static void Color1(System::IntPtr renderer, double r __gc[], double g __gc[], double b __gc[], double a __gc[])
+			static void Color1(System::IntPtr renderer, cli::array<double>^ r, cli::array<double>^ g, cli::array<double>^ b, cli::array<double>^ a)
 			{
 				double rr[256];
 				double gg[256];
 				double bb[256];
 				double aa[256];
-				
-				System::Runtime::InteropServices::Marshal::Copy (r, 0, rr, 256);
-				System::Runtime::InteropServices::Marshal::Copy (g, 0, gg, 256);
-				System::Runtime::InteropServices::Marshal::Copy (b, 0, bb, 256);
-				System::Runtime::InteropServices::Marshal::Copy (a, 0, aa, 256);
+
+				System::Runtime::InteropServices::Marshal::Copy (r, 0, System::IntPtr (rr), 256);
+				System::Runtime::InteropServices::Marshal::Copy (g, 0, System::IntPtr (gg), 256);
+				System::Runtime::InteropServices::Marshal::Copy (b, 0, System::IntPtr (bb), 256);
+				System::Runtime::InteropServices::Marshal::Copy (a, 0, System::IntPtr (aa), 256);
 				
 				AggRendererGradientColor1 (reinterpret_cast<AggRendererGradient*> (renderer.ToPointer ()), rr, gg, bb, aa);
 			}
@@ -335,12 +336,12 @@ namespace AntiGrain
 			
 			static void SetAlphaMask(System::IntPtr renderer, System::IntPtr buffer, MaskComponent component)
 			{
-				AggRendererGradientSetAlphaMask (reinterpret_cast<AggRendererGradient*> (renderer.ToPointer ()), reinterpret_cast<AggBuffer*> (buffer.ToPointer ()), component);
+				AggRendererGradientSetAlphaMask (reinterpret_cast<AggRendererGradient*> (renderer.ToPointer ()), reinterpret_cast<AggBuffer*> (buffer.ToPointer ()), (int) component);
 			}
 		};
 	};
 	
-	__gc public class Rasterizer
+	public ref class Rasterizer
 	{
 	public:
 		static System::IntPtr New()
@@ -396,20 +397,19 @@ namespace AntiGrain
 								glyph, x, y, scale);
 		}
 		
-		static void AddGlyphs(System::IntPtr rasterizer, System::IntPtr face, double scale, unsigned short glyphs __gc[], double x __gc[], double y __gc[], double sx __gc[])
+		static void AddGlyphs(System::IntPtr rasterizer, System::IntPtr face, double scale, cli::array<unsigned short>^ glyphs, cli::array<double>^ x, cli::array<double>^ y, cli::array<double>^ sx)
 		{
-			unsigned short __pin * p_glyphs   = & glyphs[0];
-			double __pin *         p_x        = & x[0];
-			double __pin *         p_y        = & y[0];
-			double __pin *         p_sx       = (sx == 0) ? 0 : & sx[0];
-//			double __pin *         p_sy       = (sy == 0) ? 0 : & sy[0];
+			cli::pin_ptr<unsigned short> p_glyphs = & glyphs[0];
+			cli::pin_ptr<double> p_x = & x[0];
+			cli::pin_ptr<double> p_y = & y[0];
+			cli::pin_ptr<double> p_sx = (sx == nullptr) ? nullptr : & sx[0];
 			
-			int n = glyphs->get_Length ();
+			int n = glyphs->Length;
 			
 			AggRasterizer*  r = reinterpret_cast<AggRasterizer*> (rasterizer.ToPointer ());
 			agg::font_face* f = reinterpret_cast<agg::font_face*> (face.ToPointer ());
 			
-			if (p_sx == 0)
+			if (p_sx == nullptr)
 			{
 				for (int i = 0; i < n; i++)
 				{
@@ -425,12 +425,12 @@ namespace AntiGrain
 			}
 		}
 		
-		static double AddText(System::IntPtr rasterizer, System::IntPtr face, System::String* text, int mode, double xx, double xy, double yx, double yy, double tx, double ty)
+		static double AddText(System::IntPtr rasterizer, System::IntPtr face, const System::String^ text, int mode, double xx, double xy, double yx, double yy, double tx, double ty)
 		{
 			System::Diagnostics::Debug::Assert (Internals::OffsetToStringData != 0);
 			
-			System::String __pin * pinned_text = text;
-			const wchar_t*         native_text = (const wchar_t*)((char*)(*((void**)&pinned_text)) + Internals::OffsetToStringData);
+			cli::pin_ptr<const System::String^> pinned_text = &text;
+			const wchar_t* native_text = (const wchar_t*)((char*)(*(*((void***)&pinned_text))) + Internals::OffsetToStringData);
 			
 			return AggRasterizerAddText(reinterpret_cast<AggRasterizer*> (rasterizer.ToPointer ()),
 										reinterpret_cast<agg::font_face*> (face.ToPointer ()),
@@ -476,7 +476,7 @@ namespace AntiGrain
 	};
 
 	
-	__gc public class Path
+	public ref class Path
 	{
 	public:
 		static System::IntPtr New()
@@ -553,7 +553,7 @@ namespace AntiGrain
 										 operation);
 		}
 		
-		static void ComputeBounds(System::IntPtr path, [Out] double __gc & x1, [Out] double __gc & y1, [Out] double __gc & x2, [Out] double __gc & y2)
+		static void ComputeBounds(System::IntPtr path, [Out] double% x1, [Out] double% y1, [Out] double% x2, [Out] double% y2)
 		{
 			double nx1, ny1, nx2, ny2;
 			
@@ -576,7 +576,7 @@ namespace AntiGrain
 			return AggPathElemCount (reinterpret_cast<AggPath*> (path.ToPointer ()));
 		}
 		
-		static void ElemGet(System::IntPtr path, int n, int types __gc[], double x __gc[], double y __gc[])
+		static void ElemGet(System::IntPtr path, int n, cli::array<int>^ types, cli::array<double>^ x, cli::array<double>^ y)
 		{
 			if (n > 0)
 			{
@@ -587,9 +587,9 @@ namespace AntiGrain
 				AggPathElemGet (reinterpret_cast<AggPath*> (path.ToPointer ()),
 								n, types_copy, x_copy, y_copy);
 				
-				System::Runtime::InteropServices::Marshal::Copy (types_copy, types, 0, n);
-				System::Runtime::InteropServices::Marshal::Copy (x_copy, x, 0, n);
-				System::Runtime::InteropServices::Marshal::Copy (y_copy, y, 0, n);
+				System::Runtime::InteropServices::Marshal::Copy (System::IntPtr (types_copy), types, 0, n);
+				System::Runtime::InteropServices::Marshal::Copy (System::IntPtr (x_copy), x, 0, n);
+				System::Runtime::InteropServices::Marshal::Copy (System::IntPtr (y_copy), y, 0, n);
 			}
 		}
 		
@@ -614,7 +614,7 @@ namespace AntiGrain
 		}
 	};
 	
-	__gc public class Font
+	public ref class Font
 	{
 	public:
 		static void Initialise()
@@ -632,28 +632,28 @@ namespace AntiGrain
 			return System::IntPtr ((void*) AggFontGetFaceByRank (n));
 		}
 		
-		static System::IntPtr GetFaceByName(System::String* family, System::String* style, System::String* optical)
+		static System::IntPtr GetFaceByName(const System::String^ family, const System::String^ style, const System::String^ optical)
 		{
 			System::Diagnostics::Debug::Assert (Internals::OffsetToStringData != 0);
 			
-			System::String __pin * pinned_family  = family;
-			System::String __pin * pinned_style   = style;
-			System::String __pin * pinned_optical = optical;
+			cli::pin_ptr<const System::String^> pinned_family  = & family;
+			cli::pin_ptr<const System::String^> pinned_style   = & style;
+			cli::pin_ptr<const System::String^> pinned_optical = & optical;
 			
-			const wchar_t* native_family  = (const wchar_t*)((char*)(*((void**)&pinned_family )) + Internals::OffsetToStringData);
-			const wchar_t* native_style   = (const wchar_t*)((char*)(*((void**)&pinned_style  )) + Internals::OffsetToStringData);
-			const wchar_t* native_optical = (const wchar_t*)((char*)(*((void**)&pinned_optical)) + Internals::OffsetToStringData);
+			const wchar_t* native_family  = (const wchar_t*)((char*)(*(*((void***)&pinned_family ))) + Internals::OffsetToStringData);
+			const wchar_t* native_style   = (const wchar_t*)((char*)(*(*((void***)&pinned_style  ))) + Internals::OffsetToStringData);
+			const wchar_t* native_optical = (const wchar_t*)((char*)(*(*((void***)&pinned_optical))) + Internals::OffsetToStringData);
 			
 			return System::IntPtr ((void*) AggFontGetFaceByName (native_family, native_style, native_optical));
 		}
 		
-		__gc class Face
+		ref class Face
 		{
 		public:
-			static System::String* GetName(System::IntPtr face, int id)
+			static System::String^ GetName(System::IntPtr face, int id)
 			{
 				const wchar_t* name = AggFontFaceGetName (reinterpret_cast<agg::font_face*> (face.ToPointer ()), id);
-				return __gc new System::String (name);
+				return gcnew System::String (name);
 			}
 			
 			static System::IntPtr GetOsHandle(System::IntPtr face)
@@ -681,17 +681,17 @@ namespace AntiGrain
 				return AggFontFaceGetCharAdvance (reinterpret_cast<agg::font_face*> (face.ToPointer ()), unicode);
 			}
 			
-			static double GetTextAdvance(System::IntPtr face, System::String* text, int mode)
+			static double GetTextAdvance(System::IntPtr face, const System::String^ text, int mode)
 			{
 				System::Diagnostics::Debug::Assert (Internals::OffsetToStringData != 0);
 				
-				System::String __pin * pinned_text = text;
-				const wchar_t*         native_text = (const wchar_t*)((char*)(*((void**)&pinned_text)) + Internals::OffsetToStringData);
+				cli::pin_ptr<const System::String^> pinned_text = & text;
+				const wchar_t*         native_text = (const wchar_t*)((char*)(*(*((void***)&pinned_text))) + Internals::OffsetToStringData);
 				
 				return AggFontFaceGetTextAdvance (reinterpret_cast<agg::font_face*> (face.ToPointer ()), native_text, mode);
 			}
 			
-			static void GetGlyphBounds (System::IntPtr face, int glyph, [Out] double __gc & x_min, [Out] double __gc & y_min, [Out] double __gc & x_max, [Out] double __gc & y_max)
+			static void GetGlyphBounds (System::IntPtr face, int glyph, [Out] double% x_min, [Out] double% y_min, [Out] double% x_max, [Out] double% y_max)
 			{
 				double nx_min, ny_min, nx_max, ny_max;
 				
@@ -703,7 +703,7 @@ namespace AntiGrain
 				y_max = ny_max;
 			}
 			
-			static void GetCharBounds (System::IntPtr face, int unicode, [Out] double __gc & x_min, [Out] double __gc & y_min, [Out] double __gc & x_max, [Out] double __gc & y_max)
+			static void GetCharBounds (System::IntPtr face, int unicode, [Out] double% x_min, [Out] double% y_min, [Out] double% x_max, [Out] double% y_max)
 			{
 				double nx_min, ny_min, nx_max, ny_max;
 				
@@ -715,12 +715,12 @@ namespace AntiGrain
 				y_max = ny_max;
 			}
 			
-			static void GetTextBounds (System::IntPtr face, System::String* text, int mode, [Out] double __gc & x_min, [Out] double __gc & y_min, [Out] double __gc & x_max, [Out] double __gc & y_max)
+			static void GetTextBounds (System::IntPtr face, const System::String^ text, int mode, [Out] double% x_min, [Out] double% y_min, [Out] double% x_max, [Out] double% y_max)
 			{
 				System::Diagnostics::Debug::Assert (Internals::OffsetToStringData != 0);
 				
-				System::String __pin * pinned_text = text;
-				const wchar_t*         native_text = (const wchar_t*)((char*)(*((void**)&pinned_text)) + Internals::OffsetToStringData);
+				cli::pin_ptr<const System::String^> pinned_text = & text;
+				const wchar_t*         native_text = (const wchar_t*)((char*)(*(*((void***)&pinned_text))) + Internals::OffsetToStringData);
 				
 				double nx_min, ny_min, nx_max, ny_max;
 				
@@ -737,45 +737,45 @@ namespace AntiGrain
 				return AggFontFaceGetMetrics (reinterpret_cast<agg::font_face*> (face.ToPointer ()), id);
 			}
 			
-			static int GetTextCharEndXArray(System::IntPtr face, System::String* text, int mode, double x_array __gc[])
+			static int GetTextCharEndXArray(System::IntPtr face, System::String^ text, int mode, cli::array<double>^ x_array)
 			{
 				System::Diagnostics::Debug::Assert (Internals::OffsetToStringData != 0);
 				
-				int n = text == 0 ? 0 : text->get_Length ();
+				int n = (text == nullptr) ? 0 : text->Length;
 				
 				if (n == 0)
 				{
 					return 0;
 				}
 				
-				System::String __pin * pinned_text = text;
-				const wchar_t*         native_text = (const wchar_t*)((char*)(*((void**)&pinned_text)) + Internals::OffsetToStringData);
+				cli::pin_ptr<System::String^> pinned_text = & text;
+				const wchar_t* native_text = (const wchar_t*)((char*)(*(*((void***)&pinned_text))) + Internals::OffsetToStringData);
 				
 				double* x_copy  = reinterpret_cast<double*> (_alloca (sizeof (double)*n));
 				
 				AggFontFaceGetTextCharEndXArray (reinterpret_cast<agg::font_face*> (face.ToPointer ()), native_text, mode, x_copy);
 				
-				System::Runtime::InteropServices::Marshal::Copy (x_copy, x_array, 0, n);
+				System::Runtime::InteropServices::Marshal::Copy (System::IntPtr (x_copy), x_array, 0, n);
 				
 				return n;
 			}
 		};
-		__gc class Break
+		ref class Break
 		{
 		public:
-			static System::IntPtr New(System::IntPtr face, System::String* text, int mode)
+			static System::IntPtr^ New(System::IntPtr face, const System::String^ text, int mode)
 			{
 				System::Diagnostics::Debug::Assert (Internals::OffsetToStringData != 0);
 				
-				System::String __pin * pinned_text = text;
-				const wchar_t*         native_text = (const wchar_t*)((char*)(*((void**)&pinned_text)) + Internals::OffsetToStringData);
+				cli::pin_ptr<const System::String^> pinned_text = & text;
+				const wchar_t*         native_text = (const wchar_t*)((char*)(*(*((void***)&pinned_text))) + Internals::OffsetToStringData);
 				
-				return System::IntPtr ((void*) AggFontFaceBreakNew (reinterpret_cast<agg::font_face*> (face.ToPointer ()), native_text, static_cast<TextBreakMode> (mode)));
+				return gcnew System::IntPtr ((void*) AggFontFaceBreakNew (reinterpret_cast<agg::font_face*> (face.ToPointer ()), native_text, static_cast<TextBreakMode> (mode)));
 			}
 			
-			static System::String* Iter(System::IntPtr context, [In][Out] double __gc & width, [Out] int __gc & n_char)
+			static System::String^ Iter(System::IntPtr context, [In][Out] double% width, [Out] int% n_char)
 			{
-				double nwidth = width;
+				double nwidth = (double) width;
 				int nn_char;
 				
 				const wchar_t* text = AggFontFaceBreakIter (reinterpret_cast<BreakContext*> (context.ToPointer ()), nwidth, nn_char);
@@ -785,10 +785,10 @@ namespace AntiGrain
 				
 				if (text == 0)
 				{
-					return 0;
+					return nullptr;
 				}
 				
-				return __gc new System::String (text);
+				return gcnew System::String (text);
 			}
 			
 			static void Delete(System::IntPtr context)
@@ -801,36 +801,36 @@ namespace AntiGrain
 				return AggFontFaceBreakHasMore (reinterpret_cast<BreakContext*> (context.ToPointer ()));
 			}
 		};
-		__gc class PixelCache
+		ref class PixelCache
 		{
 		public:
-			static double Paint(System::IntPtr buffer, System::IntPtr face, System::String* text, double scale, double ox, double oy, double r, double g, double b, double a)
+			static double Paint(System::IntPtr buffer, System::IntPtr face, const System::String^ text, double scale, double ox, double oy, double r, double g, double b, double a)
 			{
 				System::Diagnostics::Debug::Assert (Internals::OffsetToStringData != 0);
 				
-				System::String __pin * pinned_text = text;
-				const wchar_t*         native_text = (const wchar_t*)((char*)(*((void**)&pinned_text)) + Internals::OffsetToStringData);
+				cli::pin_ptr<const System::String^> pinned_text = & text;
+				const wchar_t* native_text = (const wchar_t*)((char*)(*(*((void***)&pinned_text))) + Internals::OffsetToStringData);
 				
 				return AggFontPixelCacheFill (reinterpret_cast<AggBuffer*> (buffer.ToPointer ()), reinterpret_cast<agg::font_face*> (face.ToPointer ()), native_text, scale, ox, oy, r, g, b, a);
 			}
 			
-			static void Fill(System::IntPtr face, System::String* text, double scale, double ox, double oy)
+			static void Fill(System::IntPtr face, const System::String^ text, double scale, double ox, double oy)
 			{
 				System::Diagnostics::Debug::Assert (Internals::OffsetToStringData != 0);
 				
-				System::String __pin * pinned_text = text;
-				const wchar_t*         native_text = (const wchar_t*)((char*)(*((void**)&pinned_text)) + Internals::OffsetToStringData);
+				cli::pin_ptr<const System::String^> pinned_text = & text;
+				const wchar_t*         native_text = (const wchar_t*)((char*)(*(*((void***)&pinned_text))) + Internals::OffsetToStringData);
 				
 				AggFontPixelCacheFill (0, reinterpret_cast<agg::font_face*> (face.ToPointer ()), native_text, scale, ox, oy, 0, 0, 0, 0);
 			}
 		};
 	};
-	__gc public class TextBreak
+	public ref class TextBreak
 	{
 	public:
-		static void InitialiseLineBreakInformation(System::Byte data[], int length)
+		static void InitialiseLineBreakInformation(cli::array<System::Byte>^ data, int length)
 		{
-			System::Byte __pin * ptr_data = &data[0];
+			cli::pin_ptr<System::Byte> ptr_data = &data[0];
 			const char* ptr_native = reinterpret_cast<char*> (ptr_data);
 			AggTextBreakInitialiseLineBreak (ptr_native, length);
 		}
@@ -840,12 +840,12 @@ namespace AntiGrain
 			return System::IntPtr ((void*) AggTextBreakNew ());
 		}
 		
-		static bool SetText(System::IntPtr text_break, System::String* text, int mode)
+		static bool SetText(System::IntPtr text_break, const System::String^ text, int mode)
 		{
 			System::Diagnostics::Debug::Assert (Internals::OffsetToStringData != 0);
 			
-			System::String __pin * pinned_text = text;
-			const wchar_t*         native_text = (const wchar_t*)((char*)(*((void**)&pinned_text)) + Internals::OffsetToStringData);
+			cli::pin_ptr<const System::String^> pinned_text = & text;
+			const wchar_t*         native_text = (const wchar_t*)((char*)(*(*((void***)&pinned_text))) + Internals::OffsetToStringData);
 			
 			return AggTextBreakSetText (reinterpret_cast<agg::text_break*> (text_break.ToPointer ()), native_text, mode);
 		}
@@ -877,9 +877,9 @@ namespace AntiGrain
 			AggTextBreakRewind (reinterpret_cast<agg::text_break*> (text_break.ToPointer ()));
 		}
 		
-		static System::String* FindNextBreak(System::IntPtr text_break, [In][Out] double __gc & width, [Out] int __gc & n_char)
+		static System::String^ FindNextBreak(System::IntPtr text_break, [In][Out] double% width, [Out] int% n_char)
 		{
-			double nwidth = width;
+			double nwidth = (double) width;
 			int nn_char;
 			
 			const wchar_t* text = AggTextBreakFindNextBreak (reinterpret_cast<agg::text_break*> (text_break.ToPointer ()), nwidth, nn_char);
@@ -889,10 +889,10 @@ namespace AntiGrain
 			
 			if (text == 0)
 			{
-				return 0;
+				return nullptr;
 			}
 			
-			return __gc new System::String (text);
+			return gcnew System::String (text);
 		}
 		
 		static void Hyphenate(System::IntPtr text_break)
@@ -900,12 +900,12 @@ namespace AntiGrain
 			AggTextBreakHyphenate (reinterpret_cast<agg::text_break*> (text_break.ToPointer ()));
 		}
 		
-		static int HyphenateWord(System::String* text, int text_length, short breaks __gc[])
+		static int HyphenateWord(const System::String^ text, int text_length, cli::array<short>^ breaks)
 		{
-			System::String __pin * pinned_text = text;
-			const wchar_t*         native_text = (const wchar_t*)((char*)(*((void**)&pinned_text)) + Internals::OffsetToStringData);
-			int                    breaks_len  = breaks->Count;
-			short __pin *          breaks_ptr = & breaks[0];
+			cli::pin_ptr<const System::String^> pinned_text = & text;
+			const wchar_t*         native_text = (const wchar_t*)((char*)(*(*((void***)&pinned_text))) + Internals::OffsetToStringData);
+			int                    breaks_len  = breaks->Length;
+			cli::pin_ptr<short>    breaks_ptr = & breaks[0];
 			
 			return AggTextBreakHyphenateWord (native_text, text_length, breaks_ptr, breaks_len);
 		}
@@ -915,16 +915,16 @@ namespace AntiGrain
 			AggTextBreakDelete (reinterpret_cast<agg::text_break*> (text_break.ToPointer ()));
 		}
 		
-		static System::String* GetUnicodeName(int code)
+		static System::String^ GetUnicodeName(int code)
 		{
 			wchar_t max_path_buffer[260];
 			
 			if (AggFontGetUnicodeName (code, max_path_buffer))
 			{
-				return __gc new System::String (max_path_buffer);
+				return gcnew System::String (max_path_buffer);
 			}
 			
-			return 0;
+			return nullptr;
 		}
 	};
 }

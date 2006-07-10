@@ -793,55 +793,55 @@ void AggRasterizerRenderImage(AggRasterizer* rasterizer, AggRendererImage* rende
 			case 0:
 				if (renderer->use_nn)
 				{
-					agg::render_scanlines (rasterizer->rasterizer, renderer->renderer->sl_a, renderer->ren_image_nn);
+					agg::render_scanlines_aa (rasterizer->rasterizer, renderer->renderer->sl_a, renderer->renderer->ren_base, renderer->span_alloc, renderer->span_gen_nn);
 				}
 				else
 				{
-					agg::render_scanlines (rasterizer->rasterizer, renderer->renderer->sl_a, renderer->ren_image);
+					agg::render_scanlines_aa (rasterizer->rasterizer, renderer->renderer->sl_a, renderer->renderer->ren_base, renderer->span_alloc, renderer->span_gen);
 				}
 				break;
 			
 			case 1:
 				if (renderer->use_nn)
 				{
-					agg::render_scanlines (rasterizer->rasterizer, renderer->renderer->sl_r, renderer->ren_image_nn);
+					agg::render_scanlines_aa (rasterizer->rasterizer, renderer->renderer->sl_r, renderer->renderer->ren_base, renderer->span_alloc, renderer->span_gen_nn);
 				}
 				else
 				{
-					agg::render_scanlines (rasterizer->rasterizer, renderer->renderer->sl_r, renderer->ren_image);
+					agg::render_scanlines_aa (rasterizer->rasterizer, renderer->renderer->sl_r, renderer->renderer->ren_base, renderer->span_alloc, renderer->span_gen);
 				}
 				break;
 			
 			case 2:
 				if (renderer->use_nn)
 				{
-					agg::render_scanlines (rasterizer->rasterizer, renderer->renderer->sl_g, renderer->ren_image_nn);
+					agg::render_scanlines_aa (rasterizer->rasterizer, renderer->renderer->sl_g, renderer->renderer->ren_base, renderer->span_alloc, renderer->span_gen_nn);
 				}
 				else
 				{
-					agg::render_scanlines (rasterizer->rasterizer, renderer->renderer->sl_g, renderer->ren_image);
+					agg::render_scanlines_aa (rasterizer->rasterizer, renderer->renderer->sl_g, renderer->renderer->ren_base, renderer->span_alloc, renderer->span_gen);
 				}
 				break;
 			
 			case 3:
 				if (renderer->use_nn)
 				{
-					agg::render_scanlines (rasterizer->rasterizer, renderer->renderer->sl_b, renderer->ren_image_nn);
+					agg::render_scanlines_aa (rasterizer->rasterizer, renderer->renderer->sl_b, renderer->renderer->ren_base, renderer->span_alloc, renderer->span_gen_nn);
 				}
 				else
 				{
-					agg::render_scanlines (rasterizer->rasterizer, renderer->renderer->sl_b, renderer->ren_image);
+					agg::render_scanlines_aa (rasterizer->rasterizer, renderer->renderer->sl_b, renderer->renderer->ren_base, renderer->span_alloc, renderer->span_gen);
 				}
 				break;
 			
 			default:
 				if (renderer->use_nn)
 				{
-					agg::render_scanlines (rasterizer->rasterizer, renderer->renderer->scanline, renderer->ren_image_nn);
+					agg::render_scanlines_aa (rasterizer->rasterizer, renderer->renderer->scanline, renderer->renderer->ren_base, renderer->span_alloc, renderer->span_gen_nn);
 				}
 				else
 				{
-					agg::render_scanlines (rasterizer->rasterizer, renderer->renderer->scanline, renderer->ren_image);
+					agg::render_scanlines_aa (rasterizer->rasterizer, renderer->renderer->scanline, renderer->renderer->ren_base, renderer->span_alloc, renderer->span_gen);
 				}
 				break;
 			

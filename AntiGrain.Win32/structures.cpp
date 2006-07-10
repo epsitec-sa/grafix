@@ -8,9 +8,9 @@ AggRendererImage::Validate ()
 		if (this->is_source_ok)
 		{
 			this->interpolator.transformer (this->matrix);
-			this->span_gen.source_image (this->source_buffer);
+			this->img_src.background_color (agg::rgba(1.0, 1.0, 1.0, 0.0));
+			this->img_pixf.attach (this->source_buffer); //@
 			this->span_gen.interpolator (this->interpolator);
-			this->span_gen.background_color (agg::rgba(1.0, 1.0, 1.0, 0.0));
 			this->is_ready = true;
 		}
 	}

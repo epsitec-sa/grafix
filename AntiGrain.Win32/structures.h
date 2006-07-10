@@ -10,6 +10,7 @@
 
 #include "agg_alpha_mask_u8.h"
 #include "agg_bounding_rect.h"
+#include "agg_image_accessors.h"
 #include "agg_path_storage.h"
 #include "agg_rasterizer_scanline_aa.h"
 #include "agg_rasterizer_outline_aa.h"
@@ -17,6 +18,7 @@
 #include "agg_renderer_scanline.h"
 #include "agg_renderer_mclip.h"
 #include "agg_renderer_outline_aa.h"
+#include "agg_span_allocator.h"
 #include "agg_span_image_filter_rgb.h"
 #include "agg_span_image_filter_rgba.h"
 #include "agg_span_interpolator_linear.h"
@@ -54,6 +56,7 @@ typedef agg::rgba8						color_type;
 typedef agg::order_bgra					component_order;
 typedef agg::renderer_mclip<pixfmt>		renderer_base;
 typedef agg::renderer_mclip<pixfmt_pre>	renderer_base_pre;
+typedef agg::span_allocator<color_type>	span_alloc_type;
 
 /*****************************************************************************/
 
@@ -232,7 +235,8 @@ struct AggRendererSmooth : AggRendererBase
 	
 	AggRendererSmooth (AggBuffer* buffer) : AggRendererBase(buffer), ren_smooth(renderer->ren_base, profile), ras_smooth(ren_smooth)
 	{
-		this->ras_smooth.accurate_join (true);
+//@		this->ras_smooth.accurate_join (true);
+		this->ras_smooth.line_join (agg::outline_miter_accurate_join);	//@
 		this->ras_smooth.round_cap (true);
 		this->profile.gamma (agg::gamma_power(1.2));
 		this->profile.min_width (0.75);
@@ -250,21 +254,23 @@ struct AggRendererImage
 {
 	AggRendererCommon*			renderer;
 	
-	typedef agg::span_interpolator_linear<>								interpolator_type;
-	typedef agg::span_image_filter_rgba_bilinear<color_type, component_order, interpolator_type>	span_gen_type;
-	typedef agg::span_image_filter_rgba_nn<color_type, component_order, interpolator_type>			span_gen_type_nn;
-    typedef agg::renderer_scanline_aa<renderer_base, span_gen_type>		renderer_type;
-	typedef agg::renderer_scanline_aa<renderer_base, span_gen_type_nn>	renderer_type_nn;
-	typedef agg::span_allocator<color_type>								span_alloc_type;
+	typedef agg::span_interpolator_linear<>													interpolator_type;
+	typedef agg::image_accessor_clip<pixfmt>												img_source_type;
+	typedef agg::span_image_filter_rgba_bilinear<img_source_type, interpolator_type>		span_gen_type;		//@
+	typedef agg::span_image_filter_rgba_nn<img_source_type, interpolator_type>				span_gen_type_nn;	//@
+//@	typedef agg::renderer_scanline_aa<renderer_base, span_gen_type>		renderer_type;
+//@	typedef agg::renderer_scanline_aa<renderer_base, span_gen_type_nn>	renderer_type_nn;
 	
 	agg::trans_affine			matrix;
 	interpolator_type			interpolator;
 	agg::rendering_buffer		source_buffer;
+	pixfmt						img_pixf;		//@
+	img_source_type				img_src;
 	span_alloc_type				span_alloc;
 	span_gen_type				span_gen;
 	span_gen_type_nn			span_gen_nn;
-	renderer_type				ren_image;
-	renderer_type_nn			ren_image_nn;
+//@	renderer_type				ren_image;
+//@	renderer_type_nn			ren_image_nn;
     
 	bool						is_source_ok;
 	bool						is_ready;
@@ -277,11 +283,13 @@ struct AggRendererImage
 		  matrix (),
 		  interpolator (matrix),
 		  source_buffer (),
+		  img_pixf (source_buffer),		//@
+		  img_src (img_pixf, agg::rgba (1, 0, 0, 1)),			//@
 		  span_alloc (),
-		  span_gen (span_alloc, source_buffer, agg::rgba (1, 0, 0, 1), interpolator),
-		  span_gen_nn (span_alloc, source_buffer, agg::rgba (1, 0, 0, 1), interpolator),
-		  ren_image(renderer->ren_base, span_gen),
-		  ren_image_nn(renderer->ren_base, span_gen_nn),
+		  span_gen (img_src, interpolator),	//@ supprimé agg::rgba (1, 0, 0, 1), 
+		  span_gen_nn (img_src, interpolator),
+//@		  ren_image(renderer->ren_base, span_gen),
+//@		  ren_image_nn(renderer->ren_base, span_gen_nn),
 		  is_source_ok (false),
 		  is_ready (false),
 		  use_nn (false)
@@ -328,7 +336,7 @@ struct AggRendererGradient : AggRendererBase
 							   gradient_polymorphic_wrapper_base,
 							   color_function_profile>							gradient_span_gen;
 	typedef agg::span_allocator<gradient_span_gen::color_type>					gradient_span_alloc;
-	typedef agg::renderer_scanline_aa<renderer_base, gradient_span_gen>			renderer_gradient;
+	typedef agg::renderer_scanline_aa<renderer_base, gradient_span_alloc, gradient_span_gen>	renderer_gradient;
 	
 	agg::trans_affine										matrix;
 	interpolator_type										interpolator;
@@ -359,8 +367,8 @@ struct AggRendererGradient : AggRendererBase
 		  matrix (),
 		  interpolator (matrix),
 		  span_alloc (),
-		  span_gen (span_alloc, interpolator, gr_x, colors, 0, 0),
-		  ren_gradient (renderer->ren_base, span_gen),
+		  span_gen (interpolator, gr_x, colors, 0, 0),
+		  ren_gradient (renderer->ren_base, span_alloc, span_gen),
 		  gamma_profile (),
 		  colors (color_profile, gamma_profile.gamma()),
 		  gradient_ptr (0), r1 (0), r2 (0), is_ready (false)

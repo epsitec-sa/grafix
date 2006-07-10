@@ -157,14 +157,14 @@ void AggPathAppendGlyph(AggPath* path, agg::font_face* face, int glyph, double x
 				contour.auto_detect_orientation (false);
 				contour.width (- bold);
 				
-				path->path.add_path (contour, 0, false);
+				path->path.concat_path (contour, 0);
 			}
 			else
 			{
 				agg::font_path_provider font_path = agg::font_path_provider (face, glyph, info, 0, 0, 1, 1);
 				agg::conv_transform<agg::font_path_provider, agg::trans_affine> conv (font_path, matrix);
 				
-				path->path.add_path (conv, 0, false);
+				path->path.concat_path (conv, 0);
 			}
 		}
 	}
@@ -180,7 +180,7 @@ void AggPathCombinePathsUsingGpc(AggPath* path1, AggPath* path2, AggPath* result
 		agg::conv_gpc<agg::conv_curve<agg::path_storage>, agg::conv_curve<agg::path_storage> > gpc (curve1, curve2);
 		gpc.operation (static_cast<agg::gpc_op_e> (op));
 		
-		result->path.add_path (gpc, 0, false);
+		result->path.concat_path (gpc, 0);
 	}
 }
 
@@ -201,7 +201,7 @@ void AggPathAppendPath(AggPath* path, AggPath* path2, double xx, double xy, doub
 			contour.auto_detect_orientation (true);
 			contour.width (bold);
 			
-			path->path.add_path (contour, 0, false);
+			path->path.concat_path (contour, 0);
 		}
 		else
 		{
@@ -212,13 +212,13 @@ void AggPathAppendPath(AggPath* path, AggPath* path2, double xx, double xy, doub
 				
 				curve.approximation_scale (scale * 2);
 				
-				path->path.add_path (curve, 0, false);
+				path->path.concat_path (curve, 0);
 			}
 			else
 			{
 				agg::conv_transform<agg::path_storage, agg::trans_affine> conv (path2->path, matrix);
 				
-				path->path.add_path (conv, 0, false);
+				path->path.concat_path (conv, 0);
 			}
 		}
 	}
@@ -241,7 +241,7 @@ void AggPathAppendPathStroke(AggPath* path, AggPath* path2, double width, int ca
 			stroke.line_join ((agg::line_join_e) join);
 			stroke.miter_limit (miter_limit);
 			
-			path->path.add_path (stroke, 0, false);
+			path->path.concat_path (stroke, 0);
 		}
 		else
 		{
@@ -253,7 +253,7 @@ void AggPathAppendPathStroke(AggPath* path, AggPath* path2, double width, int ca
 			stroke.line_join ((agg::line_join_e) join);
 			stroke.miter_limit (miter_limit);
 			
-			path->path.add_path (stroke, 0, false);
+			path->path.concat_path (stroke, 0);
 		}
 	}
 }
@@ -280,7 +280,14 @@ void AggPathAppendArc(AggPath* path, double x, double y, double rx, double ry, d
 		agg::arc arc (x, y, rx, ry, a1, a2, ccw);
 		
 		arc.approximation_scale (scale * 2);
-		path->path.add_path (arc, 0, continue_path);
+		if (continue_path)
+		{
+			path->path.join_path (arc, 0);
+		}
+		else
+		{
+			path->path.concat_path (arc, 0);
+		}
 	}
 }
 
@@ -316,6 +323,6 @@ void AggPathAppendDashedPath(AggPath* path, AggPath* dash, double scale)
 	if (path && dash && (scale > 0))
 	{
 		dash->curve.approximation_scale (scale * 2);
-		path->path.add_path (dash->dash, 0, false);
+		path->path.concat_path (dash->dash, 0);
 	}
 }
