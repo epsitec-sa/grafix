@@ -30,7 +30,7 @@
 #include "pixel_formats.h"
 
 
-enum { flip_y = true };
+enum flip_y_e { flip_y = true };
 
 static const agg::int32u pixmap_chain[] = 
 {
@@ -278,7 +278,9 @@ public:
         prof.width(m_width.value());
         renderer_oaa ren_oaa(ren_base, prof);
         rasterizer_outline_aa ras_oaa(ren_oaa);
-        ras_oaa.accurate_join(m_accurate_joins.status());
+        ras_oaa.line_join(m_accurate_joins.status() ? 
+                              agg::outline_miter_accurate_join :
+                              agg::outline_round_join); 
         ras_oaa.round_cap(true);
 
         pattern_filter filter;
@@ -315,12 +317,12 @@ public:
         text(ras_aa, sl, ren_aa, width() - width()/5 - 50, height()/2+50, "Arbitrary Image Pattern");
 
 
-        agg::render_ctrl(ras_aa, sl, ren_aa, m_step);
-        agg::render_ctrl(ras_aa, sl, ren_aa, m_width);
-        agg::render_ctrl(ras_aa, sl, ren_aa, m_test);
-        agg::render_ctrl(ras_aa, sl, ren_aa, m_rotate);
-        agg::render_ctrl(ras_aa, sl, ren_aa, m_accurate_joins);
-        agg::render_ctrl(ras_aa, sl, ren_aa, m_scale_pattern);
+        agg::render_ctrl(ras_aa, sl, ren_base, m_step);
+        agg::render_ctrl(ras_aa, sl, ren_base, m_width);
+        agg::render_ctrl(ras_aa, sl, ren_base, m_test);
+        agg::render_ctrl(ras_aa, sl, ren_base, m_rotate);
+        agg::render_ctrl(ras_aa, sl, ren_base, m_accurate_joins);
+        agg::render_ctrl(ras_aa, sl, ren_base, m_scale_pattern);
 
 
 
@@ -462,7 +464,9 @@ ras.render(false);     //false means "don't close
             prof.width(m_width.value());
             renderer_oaa ren_oaa(ren_base, prof);
             rasterizer_outline_aa ras_oaa(ren_oaa);
-            ras_oaa.accurate_join(m_accurate_joins.status());
+            ras_oaa.line_join(m_accurate_joins.status() ? 
+                                  agg::outline_miter_accurate_join :
+                                  agg::outline_round_join); 
             ras_oaa.round_cap(true);
 
             pattern_filter filter;

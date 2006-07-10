@@ -19,7 +19,7 @@
 //#define AGG_RGB555
 #include "pixel_formats.h"
 
-enum { flip_y = true };
+enum flip_y_e { flip_y = true };
 
 class the_application : public agg::platform_support
 {
@@ -64,13 +64,11 @@ public:
         typedef agg::gamma_lut<agg::int8u, agg::int8u, 8, 8> gamma_type;
         typedef pixfmt_gamma<gamma_type> pixfmt_type;
         typedef agg::renderer_base<pixfmt_type> ren_base;
-        typedef agg::renderer_scanline_aa_solid<ren_base> renderer;
 
         double g = m_gamma.value();
         gamma_type gamma(g);
         pixfmt_type pixf(rbuf_window(), gamma);
         ren_base renb(pixf);
-        renderer ren(renb);
         renb.clear(agg::rgba(1, 1, 1));
 
 
@@ -90,10 +88,11 @@ public:
         double x = (width() - 256.0) / 2.0;
         double y = 50.0;
         path.remove_all();
+        agg::gamma_power gp(g);
         for(i = 0; i < 256; i++)
         {
             double v = double(i) / 255.0;
-            double gval = agg::gamma_power(g)(v);
+            double gval = gp(v);
             double dy = gval * 255.0;
             if(i == 0) path.move_to(x + i, y + dy);
             else       path.line_to(x + i, y + dy);
@@ -102,44 +101,38 @@ public:
         gpoly.width(2.0);
         ras.reset();
         ras.add_path(gpoly);
-        ren.color(agg::rgba8(80,127,80));
-        agg::render_scanlines(ras, sl, ren);
+        agg::render_scanlines_aa_solid(ras, sl, renb, agg::rgba8(80,127,80));
 
         agg::ellipse ell(width() / 2, height() / 2, m_rx, m_ry, 150);
         agg::conv_stroke<agg::ellipse> poly(ell);
         poly.width(m_thickness.value());
         ras.reset();
         ras.add_path(poly);
-        ren.color(agg::rgba8(255,0,0));
-        agg::render_scanlines(ras, sl, ren);
+        agg::render_scanlines_aa_solid(ras, sl, renb, agg::rgba8(255,0,0));
 
         ell.init(width() / 2, height() / 2, m_rx-5.0, m_ry-5.0, 150);
         ras.reset();
         ras.add_path(poly);
-        ren.color(agg::rgba8(0,255,0));
-        agg::render_scanlines(ras, sl, ren);
+        agg::render_scanlines_aa_solid(ras, sl, renb, agg::rgba8(0,255,0));
 
         ell.init(width() / 2, height() / 2, m_rx-10.0, m_ry-10.0, 150);
         ras.reset();
         ras.add_path(poly);
-        ren.color(agg::rgba8(0,0,255));
-        agg::render_scanlines(ras, sl, ren);
+        agg::render_scanlines_aa_solid(ras, sl, renb, agg::rgba8(0,0,255));
 
         ell.init(width() / 2, height() / 2, m_rx-15.0, m_ry-15.0, 150);
         ras.reset();
         ras.add_path(poly);
-        ren.color(agg::rgba8(0,0,0));
-        agg::render_scanlines(ras, sl, ren);
+        agg::render_scanlines_aa_solid(ras, sl, renb, agg::rgba8(0,0,0));
 
         ell.init(width() / 2, height() / 2, m_rx-20.0, m_ry-20.0, 150);
         ras.reset();
         ras.add_path(poly);
-        ren.color(agg::rgba8(255,255,255));
-        agg::render_scanlines(ras, sl, ren);
+        agg::render_scanlines_aa_solid(ras, sl, renb, agg::rgba8(255,255,255));
 
-        agg::render_ctrl(ras, sl, ren, m_thickness);
-        agg::render_ctrl(ras, sl, ren, m_gamma);
-        agg::render_ctrl(ras, sl, ren, m_contrast);
+        agg::render_ctrl(ras, sl, renb, m_thickness);
+        agg::render_ctrl(ras, sl, renb, m_gamma);
+        agg::render_ctrl(ras, sl, renb, m_contrast);
     }
 
 

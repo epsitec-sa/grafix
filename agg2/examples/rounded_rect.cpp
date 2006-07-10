@@ -14,7 +14,7 @@
 #include "ctrl/agg_cbox_ctrl.h"
 
 
-enum { flip_y = true };
+enum flip_y_e { flip_y = true };
 
 
 class the_application : public agg::platform_support
@@ -105,10 +105,10 @@ public:
         ras.gamma(agg::gamma_none());
 
         // Render the controls
-        agg::render_ctrl(ras, sl, ren, m_radius);
-        agg::render_ctrl(ras, sl, ren, m_gamma);
-        agg::render_ctrl(ras, sl, ren, m_offset);
-        agg::render_ctrl(ras, sl, ren, m_white_on_black);
+        agg::render_ctrl(ras, sl, rb, m_radius);
+        agg::render_ctrl(ras, sl, rb, m_gamma);
+        agg::render_ctrl(ras, sl, rb, m_offset);
+        agg::render_ctrl(ras, sl, rb, m_white_on_black);
     }
 
 

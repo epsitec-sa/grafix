@@ -25,7 +25,7 @@
 //#define AGG_RGB555
 #include "pixel_formats.h"
 
-enum { flip_y = true };
+enum flip_y_e { flip_y = true };
 
 
 #include "agg_math.h"
@@ -80,19 +80,17 @@ public:
 
         typedef agg::renderer_base<pixfmt> base_ren_type;
 #ifdef AGG_GRAY8
-        typedef agg::span_gouraud_gray<color_type> gouraud_span_gen_type;
+        typedef agg::span_gouraud_gray<color_type> span_gen_type;
 #else
-        typedef agg::span_gouraud_rgba<color_type> gouraud_span_gen_type;
+        typedef agg::span_gouraud_rgba<color_type> span_gen_type;
 #endif
-        typedef agg::span_allocator<gouraud_span_gen_type::color_type> gouraud_span_alloc_type;
-        typedef agg::renderer_scanline_aa<base_ren_type, gouraud_span_gen_type> renderer_gouraud;
+        typedef agg::span_allocator<color_type> span_alloc_type;
         
         pixfmt pf(rbuf_window());
         base_ren_type ren_base(pf);
 
-        gouraud_span_alloc_type span_alloc;
-        gouraud_span_gen_type   span_gen(span_alloc);
-        renderer_gouraud        ren_gouraud(ren_base, span_gen);
+        span_alloc_type span_alloc;
+        span_gen_type   span_gen;
 
         ras.gamma(agg::gamma_linear(0.0, m_gamma.value()));
 
@@ -104,7 +102,7 @@ public:
         //                agg::rgba(0,   0,   1,  alpha));
         //span_gen.triangle(m_x[0], m_y[0], m_x[1], m_y[1], m_x[2], m_y[2], d);
         //ras.add_path(span_gen);
-        //agg::render_scanlines(ras, sl, ren_gouraud);
+        //agg::render_scanlines_aa(ras, sl, ren_base, span_alloc, span_gen);
 
 
         // Six triangles
@@ -125,7 +123,7 @@ public:
                         agg::rgba(brc, brc, brc,  alpha));
         span_gen.triangle(m_x[0], m_y[0], m_x[1], m_y[1], xc, yc, d);
         ras.add_path(span_gen);
-        agg::render_scanlines(ras, sl, ren_gouraud);
+        agg::render_scanlines_aa(ras, sl, ren_base, span_alloc, span_gen);
 
 
         span_gen.colors(agg::rgba(0,   1,   0,    alpha),
@@ -133,7 +131,7 @@ public:
                         agg::rgba(brc, brc, brc,  alpha));
         span_gen.triangle(m_x[1], m_y[1], m_x[2], m_y[2], xc, yc, d);
         ras.add_path(span_gen);
-        agg::render_scanlines(ras, sl, ren_gouraud);
+        agg::render_scanlines_aa(ras, sl, ren_base, span_alloc, span_gen);
 
 
         span_gen.colors(agg::rgba(0,   0,   1,   alpha),
@@ -141,7 +139,7 @@ public:
                         agg::rgba(brc, brc, brc, alpha));
         span_gen.triangle(m_x[2], m_y[2], m_x[0], m_y[0], xc, yc, d);
         ras.add_path(span_gen);
-        agg::render_scanlines(ras, sl, ren_gouraud);
+        agg::render_scanlines_aa(ras, sl, ren_base, span_alloc, span_gen);
 
 
         brc = 1-brc;
@@ -150,7 +148,7 @@ public:
                         agg::rgba(brc, brc, brc,  alpha));
         span_gen.triangle(m_x[0], m_y[0], m_x[1], m_y[1], x1, y1, d);
         ras.add_path(span_gen);
-        agg::render_scanlines(ras, sl, ren_gouraud);
+        agg::render_scanlines_aa(ras, sl, ren_base, span_alloc, span_gen);
 
 
         span_gen.colors(agg::rgba(0,   1,   0,    alpha),
@@ -158,7 +156,7 @@ public:
                         agg::rgba(brc, brc, brc,  alpha));
         span_gen.triangle(m_x[1], m_y[1], m_x[2], m_y[2], x2, y2, d);
         ras.add_path(span_gen);
-        agg::render_scanlines(ras, sl, ren_gouraud);
+        agg::render_scanlines_aa(ras, sl, ren_base, span_alloc, span_gen);
 
 
         span_gen.colors(agg::rgba(0,   0,   1,    alpha),
@@ -166,7 +164,7 @@ public:
                         agg::rgba(brc, brc, brc,  alpha));
         span_gen.triangle(m_x[2], m_y[2], m_x[0], m_y[0], x3, y3, d);
         ras.add_path(span_gen);
-        agg::render_scanlines(ras, sl, ren_gouraud);
+        agg::render_scanlines_aa(ras, sl, ren_base, span_alloc, span_gen);
     }
 
 
@@ -179,11 +177,9 @@ public:
     virtual void on_draw()
     {
         typedef agg::renderer_base<pixfmt> base_ren_type;
-        typedef agg::renderer_scanline_aa_solid<base_ren_type> renderer_solid;
 
         pixfmt pf(rbuf_window());
         base_ren_type ren_base(pf);
-        renderer_solid ren_solid(ren_base);
         ren_base.clear(agg::rgba(1,1,1));
 
         agg::scanline_u8 sl;
@@ -192,13 +188,10 @@ public:
         render_gouraud(sl, ras);
 
         ras.gamma(agg::gamma_none());
-        agg::render_ctrl(ras, sl, ren_solid, m_dilation);
-        agg::render_ctrl(ras, sl, ren_solid, m_gamma);
-        agg::render_ctrl(ras, sl, ren_solid, m_alpha);
+        agg::render_ctrl(ras, sl, ren_base, m_dilation);
+        agg::render_ctrl(ras, sl, ren_base, m_gamma);
+        agg::render_ctrl(ras, sl, ren_base, m_alpha);
     }
-
-
-
 
 
     virtual void on_mouse_button_down(int x, int y, unsigned flags)

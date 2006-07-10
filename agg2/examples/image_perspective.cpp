@@ -11,17 +11,19 @@
 #include "agg_trans_affine.h"
 #include "agg_trans_bilinear.h"
 #include "agg_trans_perspective.h"
+#include "agg_span_allocator.h"
 #include "agg_span_interpolator_linear.h"
 #include "agg_span_interpolator_trans.h"
 #include "agg_span_subdiv_adaptor.h"
 #include "agg_pixfmt_rgba.h"
+#include "agg_image_accessors.h"
 #include "agg_span_image_filter_rgba.h"
 #include "ctrl/agg_rbox_ctrl.h"
 #include "platform/agg_platform_support.h"
 #include "interactive_polygon.h"
 
 
-enum { flip_y = true };
+enum flip_y_e { flip_y = true };
 
 agg::rasterizer_scanline_aa<> g_rasterizer;
 agg::scanline_u8  g_scanline;
@@ -61,26 +63,20 @@ public:
 
     virtual void on_init()
     {
-        g_x1 = 0.0;
-        g_y1 = 0.0;
-        g_x2 = rbuf_img(0).width();
-        g_y2 = rbuf_img(0).height();
+        double d = 0.0;
+        g_x1 = d;
+        g_y1 = d;
+        g_x2 = rbuf_img(0).width() - d;
+        g_y2 = rbuf_img(0).height() - d;
 
-        double x1 = g_x1;// * 100.0;
-        double y1 = g_y1;// * 100.0;
-        double x2 = g_x2;// * 100.0;
-        double y2 = g_y2;// * 100.0;
-
-        double dx = width()  / 2.0 - (x2 - x1) / 2.0;
-        double dy = height() / 2.0 - (y2 - y1) / 2.0;
-        m_quad.xn(0) = floor(x1 + dx);
-        m_quad.yn(0) = floor(y1 + dy);
-        m_quad.xn(1) = floor(x2 + dx);
-        m_quad.yn(1) = floor(y1 + dy);
-        m_quad.xn(2) = floor(x2 + dx);
-        m_quad.yn(2) = floor(y2 + dy);
-        m_quad.xn(3) = floor(x1 + dx);
-        m_quad.yn(3) = floor(y2 + dy);
+        m_quad.xn(0) = 100;
+        m_quad.yn(0) = 100;
+        m_quad.xn(1) = width()  - 100;
+        m_quad.yn(1) = 100;
+        m_quad.xn(2) = width()  - 100;
+        m_quad.yn(2) = height() - 100;
+        m_quad.xn(3) = 100;
+        m_quad.yn(3) = height() - 100;
     }
 
     virtual void on_draw()
@@ -106,8 +102,8 @@ public:
         //--------------------------
         // Render the "quad" tool and controls
         g_rasterizer.add_path(m_quad);
-        r.color(agg::rgba(0, 0.3, 0.5, 0.6));
-        agg::render_scanlines(g_rasterizer, g_scanline, r);
+        agg::render_scanlines_aa_solid(g_rasterizer, g_scanline, rb, 
+                                       agg::rgba(0, 0.3, 0.5, 0.6));
 
         // Prepare the polygon to rasterize. Here we need to fill
         // the destination (transformed) polygon.
@@ -118,18 +114,28 @@ public:
         g_rasterizer.line_to_d(m_quad.xn(2), m_quad.yn(2));
         g_rasterizer.line_to_d(m_quad.xn(3), m_quad.yn(3));
 
-
-        typedef agg::span_allocator<agg::rgba8> span_alloc_type;
-        span_alloc_type sa;
-        agg::image_filter_hermite filter_kernel;
+        agg::span_allocator<color_type> sa;
+        agg::image_filter_bilinear filter_kernel;
         agg::image_filter_lut filter(filter_kernel, false);
+
+        pixfmt pixf_img(rbuf_img(0));
+
+        //typedef agg::image_accessor_wrap<pixfmt, 
+        //                                 agg::wrap_mode_reflect,
+        //                                 agg::wrap_mode_reflect> img_accessor_type;
+        //img_accessor_type ia(pixf_img);
+
+        //typedef agg::image_accessor_clip<pixfmt> img_accessor_type;
+        //img_accessor_type ia(pixf_img, agg::rgba(1,1,1));
+
+        typedef agg::image_accessor_clone<pixfmt> img_accessor_type;
+        img_accessor_type ia(pixf_img);
 
         start_timer();
         switch(m_trans_type.cur_item())
         {
             case 0:
             {
-
                 // Note that we consruct an affine matrix that transforms
                 // a parallelogram to a rectangle, i.e., it's inverted.
                 // It's actually the same as:
@@ -143,19 +149,10 @@ public:
                 typedef agg::span_interpolator_linear<agg::trans_affine> interpolator_type;
                 interpolator_type interpolator(tr);
 
-                typedef agg::span_image_filter_rgba_nn<color_type, 
-                                                        agg::order_bgra, 
-                                                        interpolator_type> span_gen_type;
-                typedef agg::renderer_scanline_aa<renderer_base_pre, span_gen_type> renderer_type;
-
-                span_gen_type sg(sa, 
-                                 rbuf_img(0), 
-                                 agg::rgba_pre(0, 0, 0, 0),
-                                 interpolator);
-//                                 filter);
-
-                renderer_type ri(rb_pre, sg);
-                agg::render_scanlines(g_rasterizer, g_scanline, ri);
+                typedef agg::span_image_filter_rgba_nn<img_accessor_type,
+                                                       interpolator_type> span_gen_type;
+                span_gen_type sg(ia, interpolator);
+                agg::render_scanlines_aa(g_rasterizer, g_scanline, rb_pre, sa, sg);
                 break;
             }
 
@@ -167,19 +164,10 @@ public:
                     typedef agg::span_interpolator_linear<agg::trans_bilinear> interpolator_type;
                     interpolator_type interpolator(tr);
 
-                    typedef agg::span_image_filter_rgba_2x2<color_type,
-                                                            agg::order_bgra, 
+                    typedef agg::span_image_filter_rgba_2x2<img_accessor_type,
                                                             interpolator_type> span_gen_type;
-                    typedef agg::renderer_scanline_aa<renderer_base_pre, span_gen_type> renderer_type;
-
-                    span_gen_type sg(sa, 
-                                     rbuf_img(0), 
-                                     agg::rgba_pre(0, 0, 0, 0),
-                                     interpolator,
-                                     filter);
-
-                    renderer_type ri(rb_pre, sg);
-                    agg::render_scanlines(g_rasterizer, g_scanline, ri);
+                    span_gen_type sg(ia, interpolator, filter);
+                    agg::render_scanlines_aa(g_rasterizer, g_scanline, rb_pre, sa, sg);
                 }
                 break;
             }
@@ -189,31 +177,35 @@ public:
                 agg::trans_perspective tr(m_quad.polygon(), g_x1, g_y1, g_x2, g_y2);
                 if(tr.is_valid())
                 {
-                    typedef agg::span_interpolator_linear<agg::trans_perspective> interpolator_type;
-                    typedef agg::span_subdiv_adaptor<interpolator_type> subdiv_adaptor_type;
+                    // Subdivision and linear interpolation (faster, but less accurate)
+                    //-----------------------
+                    //typedef agg::span_interpolator_linear<agg::trans_perspective> interpolator_type;
+                    //typedef agg::span_subdiv_adaptor<interpolator_type> subdiv_adaptor_type;
+                    //interpolator_type interpolator(tr);
+                    //subdiv_adaptor_type subdiv_adaptor(interpolator);
+                    //
+                    //typedef agg::span_image_filter_rgba_2x2<img_accessor_type,
+                    //                                        subdiv_adaptor_type> span_gen_type;
+                    //span_gen_type sg(ia, subdiv_adaptor, filter);
+                    //-----------------------
+
+                    // Direct calculations of the coordinates
+                    //-----------------------
+                    typedef agg::span_interpolator_trans<agg::trans_perspective> interpolator_type;
                     interpolator_type interpolator(tr);
-                    subdiv_adaptor_type subdiv_adaptor(interpolator);
+                    typedef agg::span_image_filter_rgba_2x2<img_accessor_type,
+                                                            interpolator_type> span_gen_type;
+                    span_gen_type sg(ia, interpolator, filter);
+                    //-----------------------
 
-                    typedef agg::span_image_filter_rgba_2x2<color_type,
-                                                            agg::order_bgra, 
-                                                            subdiv_adaptor_type> span_gen_type;
-                    typedef agg::renderer_scanline_aa<renderer_base_pre, span_gen_type> renderer_type;
-
-                    span_gen_type sg(sa, 
-                                     rbuf_img(0), 
-                                     agg::rgba_pre(0, 0, 0, 0),
-                                     subdiv_adaptor,
-                                     filter);
-
-                    renderer_type ri(rb_pre, sg);
-                    agg::render_scanlines(g_rasterizer, g_scanline, ri);
+                    agg::render_scanlines_aa(g_rasterizer, g_scanline, rb_pre, sa, sg);
                 }
                 break;
             }
         }
         double tm = elapsed_time();
 
-        char buf[64]; 
+        char buf[128]; 
         agg::gsv_text t;
         t.size(10.0);
 
@@ -225,12 +217,11 @@ public:
         t.text(buf);
 
         g_rasterizer.add_path(pt);
-        r.color(agg::rgba(0,0,0));
-        agg::render_scanlines(g_rasterizer, g_scanline, r);
-
+        agg::render_scanlines_aa_solid(g_rasterizer, g_scanline, rb, 
+                                       agg::rgba(0,0,0));
 
         //--------------------------
-        agg::render_ctrl(g_rasterizer, g_scanline, r, m_trans_type);
+        agg::render_ctrl(g_rasterizer, g_scanline, rb, m_trans_type);
     }
 
 
@@ -307,7 +298,6 @@ int agg_main(int argc, char* argv[])
     //----------------------------------------
     the_application::pixfmt pixf(app.rbuf_img(0));
     the_application::renderer_base rbase(pixf);
-    the_application::renderer_solid ren(rbase);
     rbase.clear(agg::rgba8(0,0,0,0));
     unsigned i;
     for(i = 0; i < 50; i++)
@@ -318,11 +308,11 @@ int agg_main(int argc, char* argv[])
                          rand() % 20 + 5,
                          100);
         g_rasterizer.add_path(ell);
-        ren.color(agg::rgba8((rand() & 0x7F) + 127, 
-                             (rand() & 0x7F) + 127, 
-                             (rand() & 0x7F) + 127, 
-                             255));
-        agg::render_scanlines(g_rasterizer, g_scanline, ren);
+        agg::render_scanlines_aa_solid(g_rasterizer, g_scanline, rbase, 
+                                       agg::rgba8((rand() & 0x7F) + 127, 
+                                                  (rand() & 0x7F) + 127, 
+                                                  (rand() & 0x7F) + 127, 
+                                                  255));
     }
 */
 

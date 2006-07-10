@@ -11,12 +11,13 @@
 #include "agg_span_interpolator_linear.h"
 #include "agg_scanline_u.h"
 #include "agg_renderer_scanline.h"
+#include "agg_span_allocator.h"
 #include "ctrl/agg_slider_ctrl.h"
 #include "ctrl/agg_rbox_ctrl.h"
 #include "ctrl/agg_cbox_ctrl.h"
 #include "platform/agg_platform_support.h"
 
-enum { flip_y = true };
+enum flip_y_e { flip_y = true };
 
 
 
@@ -151,6 +152,7 @@ public:
         typedef agg::renderer_scanline_aa_solid<renderer_base> renderer_solid;
        
         pixfmt pixf(rbuf_window());
+        pixfmt pixf_img(rbuf_img(0));
         renderer_base rb(pixf);
         renderer_solid rs(rb);
 
@@ -246,79 +248,45 @@ public:
         interpolator_type interpolator(image_mtx);
         agg::span_allocator<agg::rgba8> sa;
 
-
-/*
-        // nearest neighbor
-        //------------------------------------------
-        typedef agg::span_image_filter_rgba_nn<color_type, agg::order_bgra, interpolator_type> span_gen_type;
-        typedef agg::renderer_scanline_aa<renderer_base, span_gen_type> renderer_type;
-
-        span_gen_type sg(sa, rbuf_img(0), agg::rgba(1,1,1,0), interpolator);
-        //------------------------------------------
-*/
-
-
-
-
         // "hardcoded" bilinear filter
         //------------------------------------------
-        typedef agg::span_image_filter_rgba_bilinear<color_type, agg::order_bgra, interpolator_type> span_gen_type;
-        typedef agg::renderer_scanline_aa<renderer_base, span_gen_type> renderer_type;
-
-        span_gen_type sg(sa, rbuf_img(0), agg::rgba(1,1,1,0), interpolator);
+        typedef agg::span_image_filter_rgba_bilinear_clip<pixfmt, 
+                                                          interpolator_type> span_gen_type;
+        span_gen_type sg(pixf_img, agg::rgba(1,1,1), interpolator);
         //------------------------------------------
 
-
-
-
-/*
-        // arbitrary filter
-        //------------------------------------------
-        typedef agg::span_image_filter_rgba<color_type, agg::order_bgra, interpolator_type> span_gen_type;
-        typedef agg::renderer_scanline_aa<renderer_base, span_gen_type> renderer_type;
-
-        agg::image_filter<agg::image_filter_spline36> filter;
-
-        span_gen_type sg(sa, rbuf_img(0), agg::rgba(1,1,1,0), interpolator, filter);
-        //------------------------------------------
-*/
-
-
-
-        renderer_type ri(rb, sg);
-
-        agg::rasterizer_scanline_aa<> pf;
+        agg::rasterizer_scanline_aa<> ras;
         agg::scanline_u8 sl;
         agg::path_storage ps;
         create_star(ps);
 
         agg::conv_transform<agg::path_storage> tr(ps, polygon_mtx);
 
-        pf.add_path(tr);
-        agg::render_scanlines(pf, sl, ri);
+        ras.add_path(tr);
+        agg::render_scanlines_aa(ras, sl, rb, sa, sg);
 
         agg::ellipse e1(m_image_cx, m_image_cy, 5, 5, 20);
         agg::ellipse e2(m_image_cx, m_image_cy, 2, 2, 20);
         agg::conv_stroke<agg::ellipse> c1(e1);
 
         rs.color(agg::rgba(0.7,0.8,0));
-        pf.add_path(e1);
-        agg::render_scanlines(pf, sl, rs);
+        ras.add_path(e1);
+        agg::render_scanlines(ras, sl, rs);
 
         rs.color(agg::rgba(0,0,0));
-        pf.add_path(c1);
-        agg::render_scanlines(pf, sl, rs);
+        ras.add_path(c1);
+        agg::render_scanlines(ras, sl, rs);
 
-        pf.add_path(e2);
-        agg::render_scanlines(pf, sl, rs);
+        ras.add_path(e2);
+        agg::render_scanlines(ras, sl, rs);
 
-        agg::render_ctrl(pf, sl, rs, m_polygon_angle);
-        agg::render_ctrl(pf, sl, rs, m_polygon_scale);
-        agg::render_ctrl(pf, sl, rs, m_image_angle);
-        agg::render_ctrl(pf, sl, rs, m_image_scale);
-        agg::render_ctrl(pf, sl, rs, m_rotate_polygon);
-        agg::render_ctrl(pf, sl, rs, m_rotate_image);
-        agg::render_ctrl(pf, sl, rs, m_example);
+        agg::render_ctrl(ras, sl, rb, m_polygon_angle);
+        agg::render_ctrl(ras, sl, rb, m_polygon_scale);
+        agg::render_ctrl(ras, sl, rb, m_image_angle);
+        agg::render_ctrl(ras, sl, rb, m_image_scale);
+        agg::render_ctrl(ras, sl, rb, m_rotate_polygon);
+        agg::render_ctrl(ras, sl, rb, m_rotate_image);
+        agg::render_ctrl(ras, sl, rb, m_example);
     }
 
 
@@ -337,7 +305,7 @@ public:
             }
             else
             {
-                agg::rasterizer_scanline_aa<> pf;
+                agg::rasterizer_scanline_aa<> ras;
                 agg::trans_affine polygon_mtx;
 
                 polygon_mtx *= agg::trans_affine_translation(-m_polygon_cx, -m_polygon_cy);
@@ -349,8 +317,8 @@ public:
                 create_star(ps);
 
                 agg::conv_transform<agg::path_storage> tr(ps, polygon_mtx);
-                pf.add_path(tr);
-                if(pf.hit_test(x, y))
+                ras.add_path(tr);
+                if(ras.hit_test(x, y))
                 {
                     m_dx = x - m_polygon_cx;
                     m_dy = y - m_polygon_cy;

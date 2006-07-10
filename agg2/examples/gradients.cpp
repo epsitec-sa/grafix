@@ -7,6 +7,7 @@
 #include "agg_conv_transform.h"
 #include "agg_color_rgba.h"
 #include "agg_color_gray.h"
+#include "agg_span_allocator.h"
 #include "agg_span_gradient.h"
 #include "agg_span_interpolator_linear.h"
 #include "agg_renderer_scanline.h"
@@ -27,7 +28,7 @@
 //#define AGG_RGB555
 #include "pixel_formats.h"
 
-enum { flip_y = true };
+enum flip_y_e { flip_y = true };
 
 const double center_x = 350;
 const double center_y = 280;
@@ -323,26 +324,23 @@ public:
 
     virtual void on_draw()
     {
-        agg::rasterizer_scanline_aa<> pf;
+        agg::rasterizer_scanline_aa<> ras;
 
         typedef agg::renderer_base<pixfmt> renderer_base;
-        typedef agg::renderer_scanline_aa_solid<renderer_base> renderer_solid;
         agg::scanline_u8 sl;
-            
 
         pixfmt pixf(rbuf_window());
         renderer_base rb(pixf);
-        renderer_solid r(rb);
         rb.clear(agg::rgba(0, 0, 0));
       
         m_profile.text_size(8.0);
 
-        agg::render_ctrl(pf, sl, r, m_profile);
-        agg::render_ctrl(pf, sl, r, m_spline_r);
-        agg::render_ctrl(pf, sl, r, m_spline_g);
-        agg::render_ctrl(pf, sl, r, m_spline_b);
-        agg::render_ctrl(pf, sl, r, m_spline_a);
-        agg::render_ctrl(pf, sl, r, m_rbox);
+        agg::render_ctrl(ras, sl, rb, m_profile);
+        agg::render_ctrl(ras, sl, rb, m_spline_r);
+        agg::render_ctrl(ras, sl, rb, m_spline_g);
+        agg::render_ctrl(ras, sl, rb, m_spline_b);
+        agg::render_ctrl(ras, sl, rb, m_spline_a);
+        agg::render_ctrl(ras, sl, rb, m_rbox);
 
         double ini_scale = 1.0;
 
@@ -403,18 +401,14 @@ public:
                                    gradient_polymorphic_wrapper_base,
                                    color_function_profile> gradient_span_gen;
         typedef agg::span_allocator<gradient_span_gen::color_type> gradient_span_alloc;
-        typedef agg::renderer_scanline_aa<renderer_base, gradient_span_gen> renderer_gradient;
-        
+
         gradient_span_alloc    span_alloc;
         color_function_profile colors(color_profile, m_profile.gamma());
         interpolator_type      inter(mtx_g1);
-        gradient_span_gen      span_gen(span_alloc, inter, *gr_ptr, colors, 0, 150);
-        renderer_gradient      r1(rb, span_gen);
+        gradient_span_gen      span_gen(inter, *gr_ptr, colors, 0, 150);
 
-        pf.add_path(t1);
-        agg::render_scanlines(pf, sl, r1);
-
-
+        ras.add_path(t1);
+        agg::render_scanlines_aa(ras, sl, rb, span_alloc, span_gen);
     }
 
 

@@ -1,5 +1,5 @@
 //----------------------------------------------------------------------------
-// Anti-Grain Geometry - Version 2.3
+// Anti-Grain Geometry - Version 2.4
 // Copyright (C) 2002-2005 Maxim Shemanarev (http://www.antigrain.com)
 //
 // Permission to copy, use, modify, sell and distribute this software 
@@ -88,7 +88,7 @@ namespace agg
     {
         double ra = (fabs(m_rx) + fabs(m_ry)) / 2;
         double da = acos(ra / (ra + 0.125 / m_scale)) * 2;
-        m_num = int(2*pi / da);
+        m_num = uround(2*pi / da);
     }
 
     //------------------------------------------------------------------------

@@ -1,5 +1,5 @@
 //----------------------------------------------------------------------------
-// Anti-Grain Geometry - Version 2.3
+// Anti-Grain Geometry - Version 2.4
 // Copyright (C) 2002-2005 Maxim Shemanarev (http://www.antigrain.com)
 //
 // Permission to copy, use, modify, sell and distribute this software 
@@ -33,19 +33,17 @@ namespace agg
 {
 
     //=======================================================span_gouraud_gray
-    template<class ColorT, class Allocator = span_allocator<ColorT> >
-    class span_gouraud_gray : public span_gouraud<ColorT, Allocator>
+    template<class ColorT> class span_gouraud_gray : public span_gouraud<ColorT>
     {
     public:
-        typedef Allocator alloc_type;
         typedef ColorT color_type;
         typedef typename color_type::value_type value_type;
-        typedef span_gouraud<color_type, alloc_type> base_type;
+        typedef span_gouraud<color_type> base_type;
         typedef typename base_type::coord_type coord_type;
-        enum 
+        enum subpixel_scale_e
         { 
             subpixel_shift = 4, 
-            subpixel_size  = 1 << subpixel_shift
+            subpixel_scale = 1 << subpixel_shift
         };
 
     private:
@@ -54,8 +52,8 @@ namespace agg
         {
             void init(const coord_type& c1, const coord_type& c2)
             {
-                m_x1  = c1.x;
-                m_y1  = c1.y;
+                m_x1  = c1.x - 0.5;
+                m_y1  = c1.y - 0.5;
                 m_dx  = c2.x - c1.x;
                 double dy = c2.y - c1.y;
                 m_1dy = (fabs(dy) < 1e-10) ? 1e10 : 1.0 / dy;
@@ -70,9 +68,9 @@ namespace agg
                 double k = (y - m_y1) * m_1dy;
                 if(k < 0.0) k = 0.0;
                 if(k > 1.0) k = 1.0;
-                m_v = m_v1 + int(m_dv * k);
-                m_a = m_a1 + int(m_da * k);
-                m_x = int((m_x1 + m_dx * k) * subpixel_size);
+                m_v = m_v1 + iround(m_dv * k);
+                m_a = m_a1 + iround(m_da * k);
+                m_x = iround((m_x1 + m_dx * k) * subpixel_scale);
             }
 
             double m_x1;
@@ -91,33 +89,28 @@ namespace agg
 
     public:
         //--------------------------------------------------------------------
-        span_gouraud_gray(alloc_type& alloc) : base_type(alloc) {}
-
-        //--------------------------------------------------------------------
-        span_gouraud_gray(alloc_type& alloc, 
-                          const color_type& c1, 
+        span_gouraud_gray() {}
+        span_gouraud_gray(const color_type& c1, 
                           const color_type& c2, 
                           const color_type& c3,
                           double x1, double y1, 
                           double x2, double y2,
                           double x3, double y3, 
                           double d = 0) : 
-            base_type(alloc, c1, c2, c3, x1, y1, x2, y2, x3, y3, d)
+            base_type(c1, c2, c3, x1, y1, x2, y2, x3, y3, d)
         {}
 
         //--------------------------------------------------------------------
-        void prepare(unsigned max_span_len)
+        void prepare()
         {
-            base_type::prepare(max_span_len);
-
             coord_type coord[3];
-            arrange_vertices(coord);
+            base_type::arrange_vertices(coord);
 
-            m_y2 = int(floor(coord[1].y));
+            m_y2 = int(coord[1].y);
 
-            m_swap = calc_point_location(coord[0].x, coord[0].y, 
-                                         coord[2].x, coord[2].y,
-                                         coord[1].x, coord[1].y) < 0.0;
+            m_swap = cross_product(coord[0].x, coord[0].y, 
+                                   coord[2].x, coord[2].y,
+                                   coord[1].x, coord[1].y) < 0.0;
 
             m_c1.init(coord[0], coord[2]);
             m_c2.init(coord[0], coord[1]);
@@ -125,7 +118,7 @@ namespace agg
         }
 
         //--------------------------------------------------------------------
-        color_type* generate(int x, int y, unsigned len)
+        void generate(color_type* span, int x, int y, unsigned len)
         {
             m_c1.calc(y);
             const gray_calc* pc1 = &m_c1;
@@ -133,18 +126,15 @@ namespace agg
 
             if(y < m_y2)
             {
-                // Bottom part of the triangle (first subtriangle). 
-                // The y-correction (m_rgba2.m_1dy * 4) was found empirically. 
-                // Without it there are artifacts appear, when rendering
-                // narrow horiozontal triangles
+                // Bottom part of the triangle (first subtriangle)
                 //-------------------------
-                m_c2.calc(y + m_c2.m_1dy * 4);
+                m_c2.calc(y + m_c2.m_1dy);
             }
             else
             {
                 // Upper part (second subtriangle)
                 //-------------------------
-                m_c3.calc(y);
+                m_c3.calc(y - m_c3.m_1dy);
                 pc2 = &m_c3;
             }
 
@@ -177,9 +167,8 @@ namespace agg
             a    -= start;
             nlen += start;
 
-            color_type* span = base_type::allocator().span();
             int vv, va;
-            enum { lim = color_type::base_mask };
+            enum lim_e { lim = color_type::base_mask };
 
             // Beginning part of the span. Since we rolled back the 
             // interpolators, the color values may have overflow.
@@ -195,10 +184,10 @@ namespace agg
                 if(va < 0) va = 0; if(va > lim) va = lim;
                 span->v = (value_type)vv;
                 span->a = (value_type)va;
-                v     += subpixel_size; 
-                a     += subpixel_size;
-                nlen  -= subpixel_size;
-                start -= subpixel_size;
+                v     += subpixel_scale; 
+                a     += subpixel_scale;
+                nlen  -= subpixel_scale;
+                start -= subpixel_scale;
                 ++span;
                 --len;
             }
@@ -212,9 +201,9 @@ namespace agg
             {
                 span->v = (value_type)v.y();
                 span->a = (value_type)a.y();
-                v    += subpixel_size; 
-                a    += subpixel_size;
-                nlen -= subpixel_size;
+                v    += subpixel_scale; 
+                a    += subpixel_scale;
+                nlen -= subpixel_scale;
                 ++span;
                 --len;
             }
@@ -230,13 +219,11 @@ namespace agg
                 if(va < 0) va = 0; if(va > lim) va = lim;
                 span->v = (value_type)vv;
                 span->a = (value_type)va;
-                v += subpixel_size; 
-                a += subpixel_size;
+                v += subpixel_scale; 
+                a += subpixel_scale;
                 ++span;
                 --len;
             }
-
-            return base_type::allocator().span();
         }
 
 

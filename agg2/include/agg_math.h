@@ -1,5 +1,5 @@
 //----------------------------------------------------------------------------
-// Anti-Grain Geometry - Version 2.3
+// Anti-Grain Geometry - Version 2.4
 // Copyright (C) 2002-2005 Maxim Shemanarev (http://www.antigrain.com)
 //
 // Permission to copy, use, modify, sell and distribute this software 
@@ -25,16 +25,21 @@
 namespace agg
 {
 
+    //------------------------------------------------------vertex_dist_epsilon
+    // Coinciding points maximal distance (Epsilon)
+    const double vertex_dist_epsilon = 1e-14;
+
+    //-----------------------------------------------------intersection_epsilon
+    // See calc_intersection
     const double intersection_epsilon = 1.0e-30;
 
-    //------------------------------------------------------calc_point_location
-    AGG_INLINE double calc_point_location(double x1, double y1, 
-                                          double x2, double y2, 
-                                          double x,  double y)
+    //------------------------------------------------------------cross_product
+    AGG_INLINE double cross_product(double x1, double y1, 
+                                    double x2, double y2, 
+                                    double x,  double y)
     {
         return (x - x2) * (y2 - y1) - (y - y2) * (x2 - x1);
     }
-
 
     //--------------------------------------------------------point_in_triangle
     AGG_INLINE bool point_in_triangle(double x1, double y1, 
@@ -42,12 +47,11 @@ namespace agg
                                       double x3, double y3, 
                                       double x,  double y)
     {
-        bool cp1 = calc_point_location(x1, y1, x2, y2, x, y) < 0.0;
-        bool cp2 = calc_point_location(x2, y2, x3, y3, x, y) < 0.0;
-        bool cp3 = calc_point_location(x3, y3, x1, y1, x, y) < 0.0;
+        bool cp1 = cross_product(x1, y1, x2, y2, x, y) < 0.0;
+        bool cp2 = cross_product(x2, y2, x3, y3, x, y) < 0.0;
+        bool cp3 = cross_product(x3, y3, x1, y1, x, y) < 0.0;
         return cp1 == cp2 && cp2 == cp3 && cp3 == cp1;
     }
-
 
     //-----------------------------------------------------------calc_distance
     AGG_INLINE double calc_distance(double x1, double y1, double x2, double y2)
@@ -57,6 +61,13 @@ namespace agg
         return sqrt(dx * dx + dy * dy);
     }
 
+    //--------------------------------------------------------calc_sq_distance
+    AGG_INLINE double calc_sq_distance(double x1, double y1, double x2, double y2)
+    {
+        double dx = x2-x1;
+        double dy = y2-y1;
+        return dx * dx + dy * dy;
+    }
 
     //------------------------------------------------calc_line_point_distance
     AGG_INLINE double calc_line_point_distance(double x1, double y1, 
@@ -66,13 +77,60 @@ namespace agg
         double dx = x2-x1;
         double dy = y2-y1;
         double d = sqrt(dx * dx + dy * dy);
-        if(d < intersection_epsilon)
+        if(d < vertex_dist_epsilon)
         {
             return calc_distance(x1, y1, x, y);
         }
         return ((x - x2) * dy - (y - y2) * dx) / d;
     }
 
+    //-------------------------------------------------------calc_line_point_u
+    AGG_INLINE double calc_segment_point_u(double x1, double y1, 
+                                           double x2, double y2, 
+                                           double x,  double y)
+    {
+        double dx = x2 - x1;
+        double dy = y2 - y1;
+
+        if(dx == 0 && dy == 0)
+        {
+	        return 0;
+        }
+
+        double pdx = x - x1;
+        double pdy = y - y1;
+
+        return (pdx * dx + pdy * dy) / (dx * dx + dy * dy);
+    }
+
+    //---------------------------------------------calc_line_point_sq_distance
+    AGG_INLINE double calc_segment_point_sq_distance(double x1, double y1, 
+                                                     double x2, double y2, 
+                                                     double x,  double y,
+                                                     double u)
+    {
+        if(u <= 0)
+        {
+	        return calc_sq_distance(x, y, x1, y1);
+        }
+        else 
+        if(u >= 1)
+        {
+	        return calc_sq_distance(x, y, x2, y2);
+        }
+        return calc_sq_distance(x, y, x1 + u * (x2 - x1), y1 + u * (y2 - y1));
+    }
+
+    //---------------------------------------------calc_line_point_sq_distance
+    AGG_INLINE double calc_segment_point_sq_distance(double x1, double y1, 
+                                                     double x2, double y2, 
+                                                     double x,  double y)
+    {
+        return 
+            calc_segment_point_sq_distance(
+                x1, y1, x2, y2, x, y,
+                calc_segment_point_u(x1, y1, x2, y2, x, y));
+    }
 
     //-------------------------------------------------------calc_intersection
     AGG_INLINE bool calc_intersection(double ax, double ay, double bx, double by,
@@ -87,7 +145,6 @@ namespace agg
         *y = ay + r * (by-ay);
         return true;
     }
-
 
     //-----------------------------------------------------intersection_exists
     AGG_INLINE bool intersection_exists(double x1, double y1, double x2, double y2,
@@ -116,7 +173,6 @@ namespace agg
         //return ua >= 0.0 && ua <= 1.0 && ub >= 0.0 && ub <= 1.0;
     }
 
-
     //--------------------------------------------------------calc_orthogonal
     AGG_INLINE void calc_orthogonal(double thickness,
                                     double x1, double y1,
@@ -126,10 +182,9 @@ namespace agg
         double dx = x2 - x1;
         double dy = y2 - y1;
         double d = sqrt(dx*dx + dy*dy); 
-        *x = thickness * dy / d;
-        *y = thickness * dx / d;
+        *x =  thickness * dy / d;
+        *y = -thickness * dx / d;
     }
-
 
     //--------------------------------------------------------dilate_triangle
     AGG_INLINE void dilate_triangle(double x1, double y1,
@@ -144,10 +199,10 @@ namespace agg
         double dy2=0.0; 
         double dx3=0.0;
         double dy3=0.0; 
-        double loc = calc_point_location(x1, y1, x2, y2, x3, y3);
+        double loc = cross_product(x1, y1, x2, y2, x3, y3);
         if(fabs(loc) > intersection_epsilon)
         {
-            if(calc_point_location(x1, y1, x2, y2, x3, y3) > 0.0) 
+            if(cross_product(x1, y1, x2, y2, x3, y3) > 0.0) 
             {
                 d = -d;
             }
@@ -155,12 +210,12 @@ namespace agg
             calc_orthogonal(d, x2, y2, x3, y3, &dx2, &dy2);
             calc_orthogonal(d, x3, y3, x1, y1, &dx3, &dy3);
         }
-        *x++ = x1 + dx1;  *y++ = y1 - dy1;
-        *x++ = x2 + dx1;  *y++ = y2 - dy1;
-        *x++ = x2 + dx2;  *y++ = y2 - dy2;
-        *x++ = x3 + dx2;  *y++ = y3 - dy2;
-        *x++ = x3 + dx3;  *y++ = y3 - dy3;
-        *x++ = x1 + dx3;  *y++ = y1 - dy3;
+        *x++ = x1 + dx1;  *y++ = y1 + dy1;
+        *x++ = x2 + dx1;  *y++ = y2 + dy1;
+        *x++ = x2 + dx2;  *y++ = y2 + dy2;
+        *x++ = x3 + dx2;  *y++ = y3 + dy2;
+        *x++ = x3 + dx3;  *y++ = y3 + dy3;
+        *x++ = x1 + dx3;  *y++ = y1 + dy3;
     }
 
     //------------------------------------------------------calc_triangle_area
@@ -170,7 +225,6 @@ namespace agg
     {
         return (x1*y2 - x2*y1 + x2*y3 - x3*y2 + x3*y1 - x1*y3) * 0.5;
     }
-
 
     //-------------------------------------------------------calc_polygon_area
     template<class Storage> double calc_polygon_area(const Storage& st)
@@ -268,7 +322,7 @@ namespace agg
             }
         }
 
-        //This is calculation sqrt itself.
+        //This code calculates the sqrt.
         bit -= 9;
         if(bit > 0)
         {

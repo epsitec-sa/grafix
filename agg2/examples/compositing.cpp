@@ -1,10 +1,12 @@
 #include <stdio.h>
 #include "agg_rendering_buffer.h"
+#include "agg_renderer_base.h"
 #include "agg_rasterizer_scanline_aa.h"
 #include "agg_scanline_u.h"
 #include "agg_renderer_scanline.h"
 #include "agg_rounded_rect.h"
 #include "agg_pixfmt_rgba.h"
+#include "agg_span_allocator.h"
 #include "agg_span_gradient.h"
 #include "agg_gsv_text.h"
 #include "agg_span_interpolator_linear.h"
@@ -13,17 +15,53 @@
 #include "ctrl/agg_rbox_ctrl.h"
 
 
-enum { flip_y = true };
+enum flip_y_e { flip_y = true };
 
 typedef agg::rgba8 color;
-typedef agg::pixel32_type pixel_type;
+typedef color::value_type value_type;
+typedef agg::order_bgra order;
+typedef agg::int32u pixel_type;
+typedef agg::rendering_buffer rbuf_type;
 #define pix_format agg::pix_format_bgra32
 
-
-
-typedef agg::blender_rgba<color, agg::order_bgra> prim_blender_type; 
-typedef agg::pixel_formats_rgba<prim_blender_type, pixel_type> prim_pixfmt_type;
+typedef agg::blender_rgba<color, order> prim_blender_type; 
+typedef agg::pixfmt_alpha_blend_rgba<prim_blender_type, rbuf_type, pixel_type> prim_pixfmt_type;
 typedef agg::renderer_base<prim_pixfmt_type> prim_ren_base_type;
+
+void force_comp_op_link()
+{
+    // For unknown reason Digital Mars C++ doesn't want to link these 
+    // functions if they are not specified explicitly. 
+    value_type p[4] = {0};
+    agg::comp_op_rgba_invert_rgb <color, order>::blend_pix(p,0,0,0,0,0);
+    agg::comp_op_rgba_invert     <color, order>::blend_pix(p,0,0,0,0,0);
+    agg::comp_op_rgba_contrast   <color, order>::blend_pix(p,0,0,0,0,0);
+    agg::comp_op_rgba_darken     <color, order>::blend_pix(p,0,0,0,0,0);
+    agg::comp_op_rgba_lighten    <color, order>::blend_pix(p,0,0,0,0,0);
+    agg::comp_op_rgba_color_dodge<color, order>::blend_pix(p,0,0,0,0,0);
+    agg::comp_op_rgba_color_burn <color, order>::blend_pix(p,0,0,0,0,0);
+    agg::comp_op_rgba_hard_light <color, order>::blend_pix(p,0,0,0,0,0);
+    agg::comp_op_rgba_soft_light <color, order>::blend_pix(p,0,0,0,0,0);
+    agg::comp_op_rgba_difference <color, order>::blend_pix(p,0,0,0,0,0);
+    agg::comp_op_rgba_exclusion  <color, order>::blend_pix(p,0,0,0,0,0);
+    agg::comp_op_rgba_src_atop   <color, order>::blend_pix(p,0,0,0,0,0);
+    agg::comp_op_rgba_dst_atop   <color, order>::blend_pix(p,0,0,0,0,0);
+    agg::comp_op_rgba_xor        <color, order>::blend_pix(p,0,0,0,0,0);
+    agg::comp_op_rgba_plus       <color, order>::blend_pix(p,0,0,0,0,0);
+    agg::comp_op_rgba_minus      <color, order>::blend_pix(p,0,0,0,0,0);
+    agg::comp_op_rgba_multiply   <color, order>::blend_pix(p,0,0,0,0,0);
+    agg::comp_op_rgba_screen     <color, order>::blend_pix(p,0,0,0,0,0);
+    agg::comp_op_rgba_overlay    <color, order>::blend_pix(p,0,0,0,0,0);
+    agg::comp_op_rgba_src        <color, order>::blend_pix(p,0,0,0,0,0);
+    agg::comp_op_rgba_dst        <color, order>::blend_pix(p,0,0,0,0,0);
+    agg::comp_op_rgba_src_over   <color, order>::blend_pix(p,0,0,0,0,0);
+    agg::comp_op_rgba_dst_over   <color, order>::blend_pix(p,0,0,0,0,0);
+    agg::comp_op_rgba_src_in     <color, order>::blend_pix(p,0,0,0,0,0);
+    agg::comp_op_rgba_dst_in     <color, order>::blend_pix(p,0,0,0,0,0);
+    agg::comp_op_rgba_src_out    <color, order>::blend_pix(p,0,0,0,0,0);
+    agg::comp_op_rgba_dst_out    <color, order>::blend_pix(p,0,0,0,0,0);
+    agg::comp_op_rgba_clear      <color, order>::blend_pix(p,0,0,0,0,0);
+}
 
 namespace agg
 {
@@ -32,7 +70,7 @@ namespace agg
     template<> struct gradient_linear_color<color>
     {
         typedef color color_type;
-        enum { base_shift = color_type::base_shift };
+        enum base_scale_e { base_shift = color_type::base_shift };
 
         gradient_linear_color() {}
         gradient_linear_color(const color_type& c1, const color_type& c2) :
@@ -95,41 +133,36 @@ void circle(RenBase& rbase, color c1, color c2,
     typedef agg::span_gradient<color, 
                                interpolator_type, 
                                gradient_func_type, 
-                               color_func_type,
-                               span_allocator_type> span_gradient_type;
-    typedef agg::renderer_scanline_aa<renderer_base_type, 
-                                      span_gradient_type> renderer_gradient_type;
+                               color_func_type> span_gradient_type;
 
     gradient_func_type  gradient_func;                   // The gradient function
     agg::trans_affine   gradient_mtx = gradient_affine(x1, y1, x2, y2, 100);
     interpolator_type   span_interpolator(gradient_mtx); // Span interpolator
     span_allocator_type span_allocator;                  // Span Allocator
     color_func_type     color_func(c1, c2);
-    span_gradient_type span_gradient(span_allocator, 
-                                     span_interpolator, 
-                                     gradient_func, 
-                                     color_func, 
-                                     0, 100);
-    renderer_gradient_type ren_gradient(rbase, span_gradient);
+    span_gradient_type  span_gradient(span_interpolator, 
+                                      gradient_func, 
+                                      color_func, 
+                                      0, 100);
     agg::rasterizer_scanline_aa<> ras;
     agg::scanline_u8 sl;
 
     double r = agg::calc_distance(x1, y1, x2, y2) / 2;
     agg::ellipse ell((x1+x2)/2+5, (y1+y2)/2-3, r, r, 100);
-    agg::renderer_scanline_aa_solid<renderer_base_type> ren_solid(rbase);
-    ren_solid.color(agg::rgba(0.6, 0.6, 0.6, 0.7*shadow_alpha));
+
     ras.add_path(ell);
-    agg::render_scanlines(ras, sl, ren_solid);
+    agg::render_scanlines_aa_solid(ras, sl, rbase, 
+                                   agg::rgba(0.6, 0.6, 0.6, 0.7*shadow_alpha));
 
     ell.init((x1+x2)/2, (y1+y2)/2, r, r, 100);
     ras.add_path(ell);
-    agg::render_scanlines(ras, sl, ren_gradient);
+    agg::render_scanlines_aa(ras, sl, rbase, span_allocator, span_gradient);
 }
 
 
 
 template<class RenBase> 
-void dst_shape(RenBase& rbase, color c1, color c2, 
+void src_shape(RenBase& rbase, color c1, color c2, 
                double x1, double y1, double x2, double y2)
 {
     typedef RenBase renderer_base_type;
@@ -140,22 +173,17 @@ void dst_shape(RenBase& rbase, color c1, color c2,
     typedef agg::span_gradient<color, 
                                interpolator_type, 
                                gradient_func_type, 
-                               color_func_type,
-                               span_allocator_type> span_gradient_type;
-    typedef agg::renderer_scanline_aa<renderer_base_type, 
-                                      span_gradient_type> renderer_gradient_type;
+                               color_func_type> span_gradient_type;
 
     gradient_func_type  gradient_func;                   // The gradient function
     agg::trans_affine   gradient_mtx = gradient_affine(x1, y1, x2, y2, 100);
     interpolator_type   span_interpolator(gradient_mtx); // Span interpolator
     span_allocator_type span_allocator;                  // Span Allocator
     color_func_type     color_func(c1, c2);
-    span_gradient_type  span_gradient(span_allocator, 
-                                      span_interpolator, 
+    span_gradient_type  span_gradient(span_interpolator, 
                                       gradient_func, 
                                       color_func, 
                                       0, 100);
-    renderer_gradient_type ren_gradient(rbase, span_gradient);
     agg::rasterizer_scanline_aa<> ras;
     agg::scanline_u8 sl;
 
@@ -163,7 +191,7 @@ void dst_shape(RenBase& rbase, color c1, color c2,
 //    agg::ellipse shape((x1+x2)/2, (y1+y2)/2, fabs(x2-x1)/2, fabs(y2-y1)/2, 100);
 
     ras.add_path(shape);
-    agg::render_scanlines(ras, sl, ren_gradient);
+    agg::render_scanlines_aa(ras, sl, rbase, span_allocator, span_gradient);
 }
 
 
@@ -186,14 +214,14 @@ public:
         m_comp_op(420, 5.0, 420+170.0, 395.0, !flip_y)
     {
         m_alpha_src.label("Src Alpha=%.2f");
-        m_alpha_src.value(1.0);
+        m_alpha_src.value(0.75);
         add_ctrl(m_alpha_src);
 
         m_alpha_dst.label("Dst Alpha=%.2f");
-        m_alpha_dst.value(0.75);
+        m_alpha_dst.value(1.0);
         add_ctrl(m_alpha_dst);
 
-        m_comp_op.text_size(7);
+        m_comp_op.text_size(6.8);
         m_comp_op.add_item("clear");
         m_comp_op.add_item("src");
         m_comp_op.add_item("dst");
@@ -220,6 +248,8 @@ public:
         m_comp_op.add_item("difference");
         m_comp_op.add_item("exclusion");
         m_comp_op.add_item("contrast");
+        m_comp_op.add_item("invert");
+        m_comp_op.add_item("invert-rgb");
         m_comp_op.cur_item(3);
         add_ctrl(m_comp_op);
     }
@@ -233,42 +263,50 @@ public:
     }
 
 
-    template<class PixFmt> void render_scene(agg::rendering_buffer& rbuf, PixFmt& pixf)
+    void render_scene(rbuf_type& rbuf, prim_pixfmt_type& pixf)
     {
-        typedef agg::comp_op_adaptor_rgba<color, agg::order_bgra> blender_type;
-        typedef agg::pixfmt_custom_blend_rgba<blender_type> pixfmt_type;
+        typedef agg::comp_op_adaptor_rgba<color, order> blender_type;
+        typedef agg::pixfmt_custom_blend_rgba<blender_type, rbuf_type> pixfmt_type;
         typedef agg::renderer_base<pixfmt_type> renderer_type;
 
         pixfmt_type ren_pixf(rbuf);
         renderer_type renderer(ren_pixf);
 
-        agg::renderer_base<PixFmt> rb(pixf);
+        agg::renderer_base<prim_pixfmt_type> rb(pixf);
 
         rb.blend_from(prim_pixfmt_type(rbuf_img(1)), 
                       0, 250, 180, 
-                      unsigned(m_alpha_src.value() * 255));
+                      unsigned(m_alpha_dst.value() * 255));
+
         circle(rb, 
-               agg::rgba8(0xFD, 0xF0, 0x6F, unsigned(m_alpha_src.value() * 255)), 
-               agg::rgba8(0xFE, 0x9F, 0x34, unsigned(m_alpha_src.value() * 255)),
+               agg::rgba8(0xFD, 0xF0, 0x6F, unsigned(m_alpha_dst.value() * 255)), 
+               agg::rgba8(0xFE, 0x9F, 0x34, unsigned(m_alpha_dst.value() * 255)),
                70*3, 100+24*3, 37*3, 100+79*3,
-               m_alpha_src.value());
+               m_alpha_dst.value());
 
         ren_pixf.comp_op(m_comp_op.cur_item());
 
         if(m_comp_op.cur_item() == 25) // Contrast
         {
-            double v = m_alpha_dst.value();
-            dst_shape(renderer, 
+            double v = m_alpha_src.value();
+            src_shape(renderer, 
                       agg::rgba(v, v, v), 
                       agg::rgba(v, v, v),
                       300+50, 100+24*3, 107+50, 100+79*3);
         }
         else
         {
-            dst_shape(renderer, 
-                      agg::rgba8(0x7F, 0xC1, 0xFF, unsigned(m_alpha_dst.value() * 255)), 
-                      agg::rgba8(0x05, 0x00, 0x5F, unsigned(m_alpha_dst.value() * 255)),
+
+            src_shape(renderer, 
+                      agg::rgba8(0x7F, 0xC1, 0xFF, unsigned(m_alpha_src.value() * 255)), 
+                      agg::rgba8(0x05, 0x00, 0x5F, unsigned(m_alpha_src.value() * 255)),
                       300+50, 100+24*3, 107+50, 100+79*3);
+/*
+            src_shape(renderer, 
+                      agg::rgba8(0xFF, 0xFF, 0xFF, unsigned(m_alpha_src.value() * 255)), 
+                      agg::rgba8(0xFF, 0xFF, 0xFF, unsigned(m_alpha_src.value() * 255)),
+                      300+50, 100+24*3, 107+50, 100+79*3);
+*/
         }
     }
 
@@ -294,9 +332,10 @@ public:
         prim_pixfmt_type pixf2(rbuf_img(0));
         prim_ren_base_type rb2(pixf2);
         rb2.clear(agg::rgba8(0,0,0,0));
+        //rb2.clear(agg::rgba8(255,255,255,255));
 
-        typedef agg::blender_rgba_pre<color, agg::order_bgra> blender_type_pre; 
-        typedef agg::pixel_formats_rgba<blender_type_pre, pixel_type> pixfmt_pre;
+        typedef agg::blender_rgba_pre<color, order> blender_type_pre; 
+        typedef agg::pixfmt_alpha_blend_rgba<blender_type_pre, rbuf_type, pixel_type> pixfmt_pre;
         typedef agg::renderer_base<pixfmt_pre> ren_base_pre;
 
         pixfmt_pre pixf_pre(rbuf_window());
@@ -328,9 +367,10 @@ public:
         ren.color(agg::rgba(0,0,0));
         agg::render_scanlines(ras, sl, ren);
 
-        agg::render_ctrl(ras, sl, ren, m_alpha_src);
-        agg::render_ctrl(ras, sl, ren, m_alpha_dst);
-        agg::render_ctrl(ras, sl, ren, m_comp_op);
+
+        agg::render_ctrl_rs(ras, sl, ren, m_alpha_src);
+        agg::render_ctrl_rs(ras, sl, ren, m_alpha_dst);
+        agg::render_ctrl_rs(ras, sl, ren, m_comp_op);
     }
 
 
@@ -350,6 +390,7 @@ public:
 
 int agg_main(int argc, char* argv[])
 {
+    force_comp_op_link();
     the_application app(pix_format, flip_y);
     app.caption("AGG Example. Compositing Modes");
 

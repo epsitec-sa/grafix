@@ -1,5 +1,5 @@
 //----------------------------------------------------------------------------
-// Anti-Grain Geometry - Version 2.3
+// Anti-Grain Geometry - Version 2.4
 // Copyright (C) 2002-2005 Maxim Shemanarev (http://www.antigrain.com)
 //
 // Permission to copy, use, modify, sell and distribute this software 
@@ -28,9 +28,8 @@ namespace agg
     public:
         conv_concat(VS1& source1, VS2& source2) :
             m_source1(&source1), m_source2(&source2), m_status(2) {}
-
-        void set_source1(VS1& source) { m_source1 = &source; }
-        void set_source2(VS2& source) { m_source2 = &source; }
+        void attach1(VS1& source) { m_source1 = &source; }
+        void attach2(VS2& source) { m_source2 = &source; }
 
 
         void rewind(unsigned path_id)

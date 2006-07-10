@@ -1,5 +1,5 @@
 //----------------------------------------------------------------------------
-// Anti-Grain Geometry - Version 2.3
+// Anti-Grain Geometry - Version 2.4
 // Copyright (C) 2002-2005 Maxim Shemanarev (http://www.antigrain.com)
 //
 // Permission to copy, use, modify, sell and distribute this software 
@@ -75,6 +75,12 @@ namespace agg
             m_rasterizer.gamma(f);
         }
 
+        //--------------------------------------------------------------------
+        void transform(const agg::trans_affine& mtx)
+        {
+            m_affine = mtx;
+        }
+
         // Accessors
         //--------------------------------------------------------------------
         unsigned    resolution()   const { return m_resolution; }
@@ -98,7 +104,7 @@ namespace agg
         unsigned        glyph_index() const { return m_glyph_index; }
         unsigned        data_size()   const { return m_data_size;   }
         glyph_data_type data_type()   const { return m_data_type;   }
-        const rect&     bounds()      const { return m_bounds;      }
+        const rect_i&   bounds()      const { return m_bounds;      }
         double          advance_x()   const { return m_advance_x;   }
         double          advance_y()   const { return m_advance_y;   }
         void            write_glyph_to(int8u* data) const;
@@ -110,7 +116,6 @@ namespace agg
         const font_engine_win32_tt_base& operator = (const font_engine_win32_tt_base&);
 
         void update_signature();
-        static bool pair_less(const KERNINGPAIR v1, const KERNINGPAIR v2);
         void load_kerning_pairs();
         void sort_kerning_pairs();
         int  find_font(const char* name) const;
@@ -143,7 +148,7 @@ namespace agg
         unsigned        m_glyph_index;
         unsigned        m_data_size;
         glyph_data_type m_data_type;
-        rect            m_bounds;
+        rect_i          m_bounds;
         double          m_advance_x;
         double          m_advance_y;
         MAT2            m_matrix;
@@ -151,7 +156,7 @@ namespace agg
         KERNINGPAIR*    m_kerning_pairs;
         unsigned        m_num_kerning_pairs;
         unsigned        m_max_kerning_pairs;
-
+        trans_affine    m_affine;
 
         path_storage_integer<int16, 6>              m_path16;
         path_storage_integer<int32, 6>              m_path32;

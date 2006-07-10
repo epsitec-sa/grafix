@@ -170,7 +170,7 @@ namespace agg
         unsigned line_len = calc_row_len(width, bits_per_pixel);
         unsigned img_size = line_len * height;
         unsigned rgb_size = calc_palette_size(0, bits_per_pixel) * sizeof(RGBQUAD);
-        unsigned full_size = sizeof(BITMAPINFOHEADER) + rgb_size + img_size + sizeof(RGBQUAD);
+        unsigned full_size = sizeof(BITMAPINFOHEADER) + rgb_size + img_size;
 
         BITMAPINFO *bmp = (BITMAPINFO *) new unsigned char[full_size];
 
@@ -284,7 +284,7 @@ namespace agg
         } 
 
         dvc_x      = bmp_x;
-        dvc_x      = bmp_x;
+        dvc_y      = bmp_y;
         dvc_width  = bmp_width;
         dvc_height = bmp_height;
 
@@ -590,7 +590,7 @@ namespace agg
         unsigned line_len  = calc_row_len(width, bits_per_pixel);
         unsigned img_size  = line_len * height;
         unsigned rgb_size  = calc_palette_size(0, bits_per_pixel) * sizeof(RGBQUAD);
-        unsigned full_size = sizeof(BITMAPINFOHEADER) + rgb_size + sizeof(RGBQUAD);
+        unsigned full_size = sizeof(BITMAPINFOHEADER) + rgb_size;
         
         BITMAPINFO *bmp = (BITMAPINFO *) new unsigned char[full_size];
         

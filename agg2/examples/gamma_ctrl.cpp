@@ -20,7 +20,7 @@
 //#define AGG_RGB555
 #include "pixel_formats.h"
 
-enum { flip_y = true };
+enum flip_y_e { flip_y = true };
 
 
 agg::gamma_ctrl<agg::rgba8> g_ctrl(10.0, 10.0, 300.0, 200.0, !flip_y);
@@ -107,11 +107,10 @@ public:
         double ecenter = initial_width() / 2;
 
         typedef agg::renderer_base<pixfmt> ren_base;
-        typedef agg::renderer_scanline_aa_solid<ren_base> renderer;
 
         pixfmt pixf(rbuf_window());
         ren_base rb(pixf);
-        renderer r(rb);
+        agg::rgba8 color;
         rb.clear(agg::rgba(1, 1, 1));
 
         g_ctrl.text_size(10.0, 12.0);
@@ -119,80 +118,80 @@ public:
         agg::rasterizer_scanline_aa<> ras;
         agg::scanline_p8 sl;
 
-        agg::render_ctrl(ras, sl, r, g_ctrl);
+        agg::render_ctrl(ras, sl, rb, g_ctrl);
 
         ras.gamma(g_ctrl);
 
         agg::ellipse ellipse;
         agg::conv_stroke<agg::ellipse> poly(ellipse);
         agg::conv_transform<agg::conv_stroke<agg::ellipse> > tpoly(poly, trans_affine_resizing());
-        r.color(agg::rgba8(0, 0, 0));
+        color = agg::rgba8(0, 0, 0);
 
         ellipse.init(ecenter, 220, ewidth, 15, 100);
         poly.width(2.0);
         ras.add_path(tpoly, 0);
-        agg::render_scanlines(ras, sl, r);
+        agg::render_scanlines_aa_solid(ras, sl, rb, color);
 
         ellipse.init(ecenter, 220, 11, 11, 100);
         poly.width(2.0);
         ras.add_path(tpoly, 0);
-        agg::render_scanlines(ras, sl, r);
+        agg::render_scanlines_aa_solid(ras, sl, rb, color);
 
-        r.color(agg::rgba8(127, 127, 127));
+        color = agg::rgba8(127, 127, 127);
 
         ellipse.init(ecenter, 260, ewidth, 15, 100);
         poly.width(2.0);
         ras.add_path(tpoly, 0);
-        agg::render_scanlines(ras, sl, r);
+        agg::render_scanlines_aa_solid(ras, sl, rb, color);
 
         ellipse.init(ecenter, 260, 11, 11, 100);
         poly.width(2.0);
         ras.add_path(tpoly, 0);
-        agg::render_scanlines(ras, sl, r);
+        agg::render_scanlines_aa_solid(ras, sl, rb, color);
 
-        r.color(agg::rgba8(192, 192, 192));
+        color = agg::rgba8(192, 192, 192);
 
         ellipse.init(ecenter, 300, ewidth, 15, 100);
         poly.width(2.0);
         ras.add_path(tpoly, 0);
-        agg::render_scanlines(ras, sl, r);
+        agg::render_scanlines_aa_solid(ras, sl, rb, color);
 
         ellipse.init(ecenter, 300, 11, 11, 100);
         poly.width(2.0);
         ras.add_path(tpoly, 0);
-        agg::render_scanlines(ras, sl, r);
+        agg::render_scanlines_aa_solid(ras, sl, rb, color);
 
-        r.color(agg::rgba(0.0, 0.0, 0.4));
+        color = agg::rgba(0.0, 0.0, 0.4);
 
         ellipse.init(ecenter, 340, ewidth, 15.5, 100);
         poly.width(1.0);
         ras.add_path(tpoly, 0);
-        agg::render_scanlines(ras, sl, r);
+        agg::render_scanlines_aa_solid(ras, sl, rb, color);
 
         ellipse.init(ecenter, 340, 10.5, 10.5, 100);
         poly.width(1.0);
         ras.add_path(tpoly, 0);
-        agg::render_scanlines(ras, sl, r);
+        agg::render_scanlines_aa_solid(ras, sl, rb, color);
 
         ellipse.init(ecenter, 380, ewidth, 15.5, 100);
         poly.width(0.4);
         ras.add_path(tpoly, 0);
-        agg::render_scanlines(ras, sl, r);
+        agg::render_scanlines_aa_solid(ras, sl, rb, color);
 
         ellipse.init(ecenter, 380, 10.5, 10.5, 100);
         poly.width(0.4);
         ras.add_path(tpoly, 0);
-        agg::render_scanlines(ras, sl, r);
+        agg::render_scanlines_aa_solid(ras, sl, rb, color);
 
         ellipse.init(ecenter, 420, ewidth, 15.5, 100);
         poly.width(0.1);
         ras.add_path(tpoly, 0);
-        agg::render_scanlines(ras, sl, r);
+        agg::render_scanlines_aa_solid(ras, sl, rb, color);
 
         ellipse.init(ecenter, 420, 10.5, 10.5, 100);
         poly.width(0.1);
         ras.add_path(tpoly, 0);
-        agg::render_scanlines(ras, sl, r);
+        agg::render_scanlines_aa_solid(ras, sl, rb, color);
 
         agg::trans_affine mtx;
         mtx *= agg::trans_affine_skewing(0.15, 0.0);
@@ -204,12 +203,12 @@ public:
         text1.width(2.0);
         text.start_point(320, 10);
 
-        r.color(agg::rgba(0.0, 0.5, 0.0));
+        color = agg::rgba(0.0, 0.5, 0.0);
         ras.add_path(text1, 0);
-        agg::render_scanlines(ras, sl, r);
+        agg::render_scanlines_aa_solid(ras, sl, rb, color);
 
 
-        r.color(agg::rgba(0.5, 0.0, 0.0));
+        color = agg::rgba(0.5, 0.0, 0.0);
         agg::path_storage path;
         path.move_to(30, -1.0);
         path.line_to(60, 0.0);
@@ -228,7 +227,7 @@ public:
             mtx *= agg::trans_affine_translation(400, 130);
             mtx *= trans_affine_resizing();
             ras.add_path(trans, 0);
-            agg::render_scanlines(ras, sl, r);
+            agg::render_scanlines_aa_solid(ras, sl, rb, color);
         }
     }
 };

@@ -7,17 +7,20 @@
 #include "agg_trans_affine.h"
 #include "agg_conv_transform.h"
 #include "agg_pixfmt_rgb.h"
+#include "agg_span_allocator.h"
 #include "agg_span_image_filter_rgb.h"
 #include "agg_scanline_u.h"
 #include "agg_renderer_scanline.h"
 #include "agg_span_interpolator_linear.h"
 #include "agg_span_interpolator_adaptor.h"
 #include "agg_span_gradient.h"
+#include "agg_image_accessors.h"
 #include "ctrl/agg_slider_ctrl.h"
 #include "ctrl/agg_rbox_ctrl.h"
 #include "platform/agg_platform_support.h"
 
-enum { flip_y = true };
+
+enum flip_y_e { flip_y = true };
 
 
 static agg::int8u g_gradient_colors[] = 
@@ -314,14 +317,14 @@ inline void calculate_wave(int* x, int* y,
                            double cx, double cy, 
                            double period, double amplitude, double phase)
 {
-    double xd = double(*x) / agg::image_subpixel_size - cx;
-    double yd = double(*y) / agg::image_subpixel_size - cy;
+    double xd = double(*x) / agg::image_subpixel_scale - cx;
+    double yd = double(*y) / agg::image_subpixel_scale - cy;
     double d = sqrt(xd*xd + yd*yd);
     if(d > 1)
     {
         double a = cos(d / (16.0 * period) - phase) * (1.0 / (amplitude * d)) + 1.0; 
-        *x = int((xd * a + cx) * agg::image_subpixel_size);
-        *y = int((yd * a + cy) * agg::image_subpixel_size);
+        *x = int((xd * a + cx) * agg::image_subpixel_scale);
+        *y = int((yd * a + cy) * agg::image_subpixel_scale);
     }
 }
 
@@ -331,13 +334,13 @@ inline void calculate_swirl(int* x, int* y,
                             double cx, double cy, 
                             double amplitude, double phase)
 {
-    double xd = double(*x) / agg::image_subpixel_size - cx;
-    double yd = double(*y) / agg::image_subpixel_size - cy;
+    double xd = double(*x) / agg::image_subpixel_scale - cx;
+    double yd = double(*y) / agg::image_subpixel_scale - cy;
     double a = double(100.0 - sqrt(xd * xd + yd * yd)) / 100.0 * (0.1 / -amplitude);
     double sa = sin(a - phase/25.0);
     double ca = cos(a - phase/25.0);
-    *x = int((xd * ca - yd * sa + cx) * agg::image_subpixel_size);
-    *y = int((xd * sa + yd * ca + cy) * agg::image_subpixel_size);
+    *x = int((xd * ca - yd * sa + cx) * agg::image_subpixel_scale);
+    *y = int((xd * sa + yd * ca + cy) * agg::image_subpixel_scale);
 }
 
 
@@ -467,11 +470,11 @@ public:
     
         typedef agg::pixfmt_bgr24 pixfmt; 
         typedef agg::renderer_base<pixfmt> renderer_base;
-        typedef agg::renderer_scanline_aa_solid<renderer_base> renderer_solid;
 
         pixfmt pixf(rbuf_window());
+        pixfmt img_pixf(rbuf_img(0));
+
         renderer_base rb(pixf);
-        renderer_solid rs(rb);
 
         rb.clear(agg::rgba(1.0, 1.0, 1.0));
 
@@ -521,60 +524,47 @@ public:
 
         interpolator_type interpolator(img_mtx, *dist);
 
+        typedef agg::image_accessor_clip<pixfmt> img_source_type;
+        img_source_type img_src(img_pixf, agg::rgba(1,1,1));
+
 /*
         // Version without filtering (nearest neighbor)
         //------------------------------------------
-        typedef agg::span_image_filter_rgb_nn<agg::rgba8,
-                                              agg::order_bgr, 
+        typedef agg::span_image_filter_rgb_nn<img_source_type,
                                               interpolator_type> span_gen_type;
-        typedef agg::renderer_scanline_aa<renderer_base, span_gen_type> renderer_type;
-
-        span_gen_type sg(sa, 
-                         rbuf_img(0), 
-                         agg::rgba(1,1,1,0),
-                         interpolator);
+        span_gen_type sg(img_src, interpolator);
         //------------------------------------------
 */
 
-
-
-        // Version with "hardcoded" bilinear filter
+        // Version with "hardcoded" bilinear filter and without 
+        // image_accessor (direct filter, the old variant)
         //------------------------------------------
-        typedef agg::span_image_filter_rgb_bilinear<agg::rgba8,
-                                                    agg::order_bgr, 
-                                                    interpolator_type> span_gen_type;
-        typedef agg::renderer_scanline_aa<renderer_base, span_gen_type> renderer_type;
-
-        span_gen_type sg(sa, 
-                         rbuf_img(0), 
-                         agg::rgba(1,1,1,0),
-                         interpolator);
+        typedef agg::span_image_filter_rgb_bilinear_clip<pixfmt,
+                                                         interpolator_type> span_gen_type;
+        span_gen_type sg(img_pixf, agg::rgba(1,1,1), interpolator);
         //------------------------------------------
 
-
-
+/*
+        // Version with arbitrary 2x2 filter
+        //------------------------------------------
+        typedef agg::span_image_filter_rgb_2x2<img_source_type,
+                                               interpolator_type> span_gen_type;
+        agg::image_filter<agg::image_filter_kaiser> filter;
+        span_gen_type sg(img_src, interpolator, filter);
+        //------------------------------------------
+*/
 /*
         // Version with arbitrary filter
         //------------------------------------------
-        typedef agg::span_image_filter_rgb<agg::rgba8,
-                                           agg::order_bgr, 
+        typedef agg::span_image_filter_rgb<img_source_type,
                                            interpolator_type> span_gen_type;
-        typedef agg::renderer_scanline_aa<renderer_base, span_gen_type> renderer_type;
-
         agg::image_filter<agg::image_filter_spline36> filter;
-
-        span_gen_type sg(sa, 
-                         rbuf_img(0), 
-                         agg::rgba(1,1,1,0),
-                         interpolator, 
-                         filter);
+        span_gen_type sg(img_src, interpolator, filter);
         //------------------------------------------
 */
 
 
-        renderer_type ri(rb, sg);
-
-        agg::rasterizer_scanline_aa<> pf;
+        agg::rasterizer_scanline_aa<> ras;
         agg::scanline_u8 sl;
         double r = img_width;
         if(img_height < r) r = img_height;
@@ -586,16 +576,15 @@ public:
 
         agg::conv_transform<agg::ellipse> tr(ell, src_mtx);
 
-        pf.add_path(tr);
-        agg::render_scanlines(pf, sl, ri);
+        ras.add_path(tr);
+        agg::render_scanlines_aa(ras, sl, rb, sa, sg);
 
         src_mtx *= ~trans_affine_resizing();
         src_mtx *= agg::trans_affine_translation(img_width - img_width/10, 0.0);
         src_mtx *= trans_affine_resizing();
 
-        pf.add_path(tr);
-        rs.color(agg::rgba8(0,0,0));
-        agg::render_scanlines(pf, sl, rs);
+        ras.add_path(tr);
+        agg::render_scanlines_aa_solid(ras, sl, rb, agg::rgba8(0,0,0));
 
         typedef agg::span_gradient<agg::rgba8, 
                                    interpolator_type,
@@ -605,13 +594,10 @@ public:
         agg::gradient_circle gradient_function;
 
         color_array_type gradient_colors(m_gradient_colors);
-        gradient_span_gen span_gradient(sa, 
-                                        interpolator, 
+        gradient_span_gen span_gradient(interpolator, 
                                         gradient_function, 
                                         gradient_colors, 
                                         0, 180);
-
-        agg::renderer_scanline_aa<renderer_base, gradient_span_gen> rg(rb, span_gradient);
 
         agg::trans_affine gr1_mtx;
         gr1_mtx *= agg::trans_affine_translation(-img_width/2, -img_height/2);
@@ -638,14 +624,14 @@ public:
 
         agg::conv_transform<agg::ellipse> tr2(ell, gr1_mtx);
 
-        pf.add_path(tr2);
-        agg::render_scanlines(pf, sl, rg);
+        ras.add_path(tr2);
+        agg::render_scanlines_aa(ras, sl, rb, sa, span_gradient);
 
-        agg::render_ctrl(pf, sl, rs, m_angle);
-        agg::render_ctrl(pf, sl, rs, m_scale);
-        agg::render_ctrl(pf, sl, rs, m_amplitude);
-        agg::render_ctrl(pf, sl, rs, m_period);
-        agg::render_ctrl(pf, sl, rs, m_distortion);
+        agg::render_ctrl(ras, sl, rb, m_angle);
+        agg::render_ctrl(ras, sl, rb, m_scale);
+        agg::render_ctrl(ras, sl, rb, m_amplitude);
+        agg::render_ctrl(ras, sl, rb, m_period);
+        agg::render_ctrl(ras, sl, rb, m_distortion);
     }
 
 

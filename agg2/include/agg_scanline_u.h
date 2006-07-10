@@ -1,5 +1,5 @@
 //----------------------------------------------------------------------------
-// Anti-Grain Geometry - Version 2.3
+// Anti-Grain Geometry - Version 2.4
 // Copyright (C) 2002-2005 Maxim Shemanarev (http://www.antigrain.com)
 //
 // Permission to copy, use, modify, sell and distribute this software 
@@ -28,7 +28,7 @@
 
 namespace agg
 {
-    //==============================================================scanline_u
+    //=============================================================scanline_u8
     //
     // Unpacked scanline container class
     //
@@ -106,12 +106,12 @@ namespace agg
     // are better, because switching between two different areas of memory 
     // (that can be very large) occurs less frequently.
     //------------------------------------------------------------------------
-    template<class CoverT> class scanline_u
+    class scanline_u8
     {
     public:
-        typedef scanline_u<CoverT> self_type;
-        typedef CoverT cover_type;
-        typedef int16  coord_type;
+        typedef scanline_u8 self_type;
+        typedef int8u       cover_type;
+        typedef int16       coord_type;
 
         //--------------------------------------------------------------------
         struct span
@@ -125,18 +125,9 @@ namespace agg
         typedef const span* const_iterator;
 
         //--------------------------------------------------------------------
-        ~scanline_u()
-        {
-            delete [] m_spans;
-            delete [] m_covers;
-        }
-
-        scanline_u() :
+        scanline_u8() :
             m_min_x(0),
-            m_max_len(0),
             m_last_x(0x7FFFFFF0),
-            m_covers(0),
-            m_spans(0),
             m_cur_span(0)
         {}
 
@@ -144,17 +135,14 @@ namespace agg
         void reset(int min_x, int max_x)
         {
             unsigned max_len = max_x - min_x + 2;
-            if(max_len > m_max_len)
+            if(max_len > m_spans.size())
             {
-                delete [] m_spans;
-                delete [] m_covers;
-                m_covers  = new cover_type [max_len];
-                m_spans   = new span       [max_len];
-                m_max_len = max_len;
+                m_spans.resize(max_len);
+                m_covers.resize(max_len);
             }
-            m_last_x        = 0x7FFFFFF0;
-            m_min_x         = min_x;
-            m_cur_span      = m_spans;
+            m_last_x   = 0x7FFFFFF0;
+            m_min_x    = min_x;
+            m_cur_span = &m_spans[0];
         }
 
         //--------------------------------------------------------------------
@@ -171,16 +159,16 @@ namespace agg
                 m_cur_span++;
                 m_cur_span->x      = (coord_type)(x + m_min_x);
                 m_cur_span->len    = 1;
-                m_cur_span->covers = m_covers + x;
+                m_cur_span->covers = &m_covers[x];
             }
             m_last_x = x;
         }
 
         //--------------------------------------------------------------------
-        void add_cells(int x, unsigned len, const CoverT* covers)
+        void add_cells(int x, unsigned len, const cover_type* covers)
         {
             x -= m_min_x;
-            memcpy(m_covers + x, covers, len * sizeof(CoverT));
+            memcpy(&m_covers[x], covers, len * sizeof(cover_type));
             if(x == m_last_x+1)
             {
                 m_cur_span->len += (coord_type)len;
@@ -190,7 +178,7 @@ namespace agg
                 m_cur_span++;
                 m_cur_span->x      = (coord_type)(x + m_min_x);
                 m_cur_span->len    = (coord_type)len;
-                m_cur_span->covers = m_covers + x;
+                m_cur_span->covers = &m_covers[x];
             }
             m_last_x = x + len - 1;
         }
@@ -199,7 +187,7 @@ namespace agg
         void add_span(int x, unsigned len, unsigned cover)
         {
             x -= m_min_x;
-            memset(m_covers + x, cover, len);
+            memset(&m_covers[x], cover, len);
             if(x == m_last_x+1)
             {
                 m_cur_span->len += (coord_type)len;
@@ -209,7 +197,7 @@ namespace agg
                 m_cur_span++;
                 m_cur_span->x      = (coord_type)(x + m_min_x);
                 m_cur_span->len    = (coord_type)len;
-                m_cur_span->covers = m_covers + x;
+                m_cur_span->covers = &m_covers[x];
             }
             m_last_x = x + len - 1;
         }
@@ -224,70 +212,60 @@ namespace agg
         void reset_spans()
         {
             m_last_x    = 0x7FFFFFF0;
-            m_cur_span  = m_spans;
+            m_cur_span  = &m_spans[0];
         }
 
         //--------------------------------------------------------------------
         int      y()           const { return m_y; }
-        unsigned num_spans()   const { return unsigned(m_cur_span - m_spans); }
-        const_iterator begin() const { return m_spans + 1; }
-        iterator       begin()       { return m_spans + 1; }
+        unsigned num_spans()   const { return unsigned(m_cur_span - &m_spans[0]); }
+        const_iterator begin() const { return &m_spans[1]; }
+        iterator       begin()       { return &m_spans[1]; }
 
     private:
-        scanline_u(const self_type&);
+        scanline_u8(const self_type&);
         const self_type& operator = (const self_type&);
 
     private:
-        int           m_min_x;
-        unsigned      m_max_len;
-        int           m_last_x;
-        int           m_y;
-        cover_type*   m_covers;
-        span*         m_spans;
-        span*         m_cur_span;
+        int                   m_min_x;
+        int                   m_last_x;
+        int                   m_y;
+        pod_array<cover_type> m_covers;
+        pod_array<span>       m_spans;
+        span*                 m_cur_span;
     };
 
 
 
-    //=============================================================scanline_u8
-    typedef scanline_u<int8u> scanline_u8;
 
-    //============================================================scanline_u16
-    typedef scanline_u<int16u> scanline_u16;
-
-    //============================================================scanline_u32
-    typedef scanline_u<int32u> scanline_u32;
-
-
-    //=============================================================scanline_am
+    //==========================================================scanline_u8_am
     // 
     // The scanline container with alpha-masking
     // 
     //------------------------------------------------------------------------
-    template<class AlphaMask, class CoverT> 
-    class scanline_am : public scanline_u<CoverT>
+    template<class AlphaMask> 
+    class scanline_u8_am : public scanline_u8
     {
     public:
-        typedef AlphaMask alpha_mask_type;
-        typedef CoverT cover_type;
-        typedef int16  coord_type;
-        typedef scanline_u<CoverT> scanline_type;
+        typedef scanline_u8           base_type;
+        typedef AlphaMask             alpha_mask_type;
+        typedef base_type::cover_type cover_type;
+        typedef base_type::coord_type coord_type;
 
-        scanline_am() : scanline_type(), m_alpha_mask(0) {}
-        scanline_am(const AlphaMask& am) : scanline_type(), m_alpha_mask(&am) {}
+        scanline_u8_am() : base_type(), m_alpha_mask(0) {}
+        scanline_u8_am(const AlphaMask& am) : base_type(), m_alpha_mask(&am) {}
 
         //--------------------------------------------------------------------
         void finalize(int span_y)
         {
-            scanline_type::finalize(span_y);
+            base_type::finalize(span_y);
             if(m_alpha_mask)
             {
-                typename scanline_type::iterator span = scanline_type::begin();
-                unsigned count = scanline_type::num_spans();
+                typename base_type::iterator span = base_type::begin();
+                unsigned count = base_type::num_spans();
                 do
                 {
                     m_alpha_mask->combine_hspan(span->x, 
-                                                scanline_type::y(), 
+                                                base_type::y(), 
                                                 span->covers, 
                                                 span->len);
                     ++span;
@@ -301,29 +279,15 @@ namespace agg
     };
 
 
-    //==========================================================scanline_u8_am
-    template<class AlphaMask> 
-    class scanline_u8_am : public scanline_am<AlphaMask, int8u>
+
+
+    //===========================================================scanline32_u8
+    class scanline32_u8
     {
     public:
-        typedef AlphaMask alpha_mask_type;
-        typedef int8u cover_type;
-        typedef scanline_am<alpha_mask_type, cover_type> self_type;
-
-        scanline_u8_am() : self_type() {}
-        scanline_u8_am(const AlphaMask& am) : self_type(am) {}
-    };
-
-
-
-
-    //============================================================scanline32_u
-    template<class CoverT> class scanline32_u
-    {
-    public:
-        typedef scanline32_u<CoverT> self_type;
-        typedef CoverT cover_type;
-        typedef int32  coord_type;
+        typedef scanline32_u8 self_type;
+        typedef int8u         cover_type;
+        typedef int32         coord_type;
 
         //--------------------------------------------------------------------
         struct span
@@ -337,7 +301,7 @@ namespace agg
             cover_type* covers;
         };
 
-        typedef pod_deque<span, 4> span_array_type;
+        typedef pod_bvector<span, 4> span_array_type;
 
         //--------------------------------------------------------------------
         class const_iterator
@@ -362,7 +326,7 @@ namespace agg
         class iterator
         {
         public:
-            iterator(const span_array_type& spans) :
+            iterator(span_array_type& spans) :
                 m_spans(spans),
                 m_span_idx(0)
             {}
@@ -380,27 +344,19 @@ namespace agg
 
 
         //--------------------------------------------------------------------
-        ~scanline32_u()
-        {
-            delete [] m_covers;
-        }
-
-        scanline32_u() :
+        scanline32_u8() :
             m_min_x(0),
-            m_max_len(0),
             m_last_x(0x7FFFFFF0),
-            m_covers(0)
+            m_covers()
         {}
 
         //--------------------------------------------------------------------
         void reset(int min_x, int max_x)
         {
             unsigned max_len = max_x - min_x + 2;
-            if(max_len > m_max_len)
+            if(max_len > m_covers.size())
             {
-                delete [] m_covers;
-                m_covers  = new cover_type [max_len];
-                m_max_len = max_len;
+                m_covers.resize(max_len);
             }
             m_last_x = 0x7FFFFFF0;
             m_min_x  = min_x;
@@ -418,7 +374,7 @@ namespace agg
             }
             else
             {
-                m_spans.add(span(coord_type(x + m_min_x), 1, m_covers + x));
+                m_spans.add(span(coord_type(x + m_min_x), 1, &m_covers[x]));
             }
             m_last_x = x;
         }
@@ -427,14 +383,16 @@ namespace agg
         void add_cells(int x, unsigned len, const cover_type* covers)
         {
             x -= m_min_x;
-            memcpy(m_covers + x, covers, len * sizeof(cover_type));
+            memcpy(&m_covers[x], covers, len * sizeof(cover_type));
             if(x == m_last_x+1)
             {
                 m_spans.last().len += coord_type(len);
             }
             else
             {
-                m_spans.add(span(coord_type(x + m_min_x), coord_type(len), m_covers + x));
+                m_spans.add(span(coord_type(x + m_min_x), 
+                                 coord_type(len), 
+                                 &m_covers[x]));
             }
             m_last_x = x + len - 1;
         }
@@ -443,14 +401,16 @@ namespace agg
         void add_span(int x, unsigned len, unsigned cover)
         {
             x -= m_min_x;
-            memset(m_covers + x, cover, len);
+            memset(&m_covers[x], cover, len);
             if(x == m_last_x+1)
             {
                 m_spans.last().len += coord_type(len);
             }
             else
             {
-                m_spans.add(span(coord_type(x + m_min_x), coord_type(len), m_covers + x));
+                m_spans.add(span(coord_type(x + m_min_x), 
+                                 coord_type(len), 
+                                 &m_covers[x]));
             }
             m_last_x = x + len - 1;
         }
@@ -475,60 +435,50 @@ namespace agg
         iterator       begin()       { return iterator(m_spans); }
 
     private:
-        scanline32_u(const self_type&);
+        scanline32_u8(const self_type&);
         const self_type& operator = (const self_type&);
 
     private:
-        int             m_min_x;
-        unsigned        m_max_len;
-        int             m_last_x;
-        int             m_y;
-        cover_type*     m_covers;
-        span_array_type m_spans;
+        int                   m_min_x;
+        int                   m_last_x;
+        int                   m_y;
+        pod_array<cover_type> m_covers;
+        span_array_type       m_spans;
     };
 
 
-    //===========================================================scanline32_u8
-    typedef scanline32_u<int8u> scanline32_u8;
-
-    //==========================================================scanline32_u16
-    typedef scanline32_u<int16u> scanline32_u16;
-
-    //==========================================================scanline32_u32
-    typedef scanline32_u<int32u> scanline32_u32;
 
 
-
-
-    //===========================================================scanline32_am
+    //========================================================scanline32_u8_am
     // 
     // The scanline container with alpha-masking
     // 
     //------------------------------------------------------------------------
-    template<class AlphaMask, class CoverT> 
-    class scanline32_am : public scanline32_u<CoverT>
+    template<class AlphaMask> 
+    class scanline32_u8_am : public scanline32_u8
     {
     public:
-        typedef AlphaMask alpha_mask_type;
-        typedef CoverT cover_type;
-        typedef int32  coord_type;
-        typedef scanline32_u<CoverT> scanline_type;
+        typedef scanline_u8           base_type;
+        typedef AlphaMask             alpha_mask_type;
+        typedef base_type::cover_type cover_type;
+        typedef base_type::coord_type coord_type;
 
-        scanline32_am() : scanline_type(), m_alpha_mask(0) {}
-        scanline32_am(const AlphaMask& am) : scanline_type(), m_alpha_mask(&am) {}
+
+        scanline32_u8_am() : base_type(), m_alpha_mask(0) {}
+        scanline32_u8_am(const AlphaMask& am) : base_type(), m_alpha_mask(&am) {}
 
         //--------------------------------------------------------------------
         void finalize(int span_y)
         {
-            scanline_type::finalize(span_y);
+            base_type::finalize(span_y);
             if(m_alpha_mask)
             {
-                typename scanline_type::iterator span = scanline_type::begin();
-                unsigned count = scanline_type::num_spans();
+                typename base_type::iterator span = base_type::begin();
+                unsigned count = base_type::num_spans();
                 do
                 {
                     m_alpha_mask->combine_hspan(span->x, 
-                                                scanline_type::y(), 
+                                                base_type::y(), 
                                                 span->covers, 
                                                 span->len);
                     ++span;
@@ -539,21 +489,6 @@ namespace agg
 
     private:
         const AlphaMask* m_alpha_mask;
-    };
-
-
-    //========================================================scanline32_u8_am
-    template<class AlphaMask> 
-    class scanline32_u8_am : public scanline32_am<AlphaMask, int8u>
-    {
-    public:
-        typedef AlphaMask alpha_mask_type;
-        typedef int8u cover_type;
-        typedef int32 coord_type;
-        typedef scanline32_am<alpha_mask_type, cover_type> self_type;
-
-        scanline32_u8_am() : self_type() {}
-        scanline32_u8_am(const AlphaMask& am) : self_type(am) {}
     };
 
 

@@ -11,6 +11,7 @@
 #include "agg_pixfmt_rgb.h"
 #include "agg_pixfmt_gray.h"
 #include "agg_pixfmt_amask_adaptor.h"
+#include "agg_span_allocator.h"
 #include "agg_alpha_mask_u8.h"
 
 #include "platform/agg_platform_support.h"
@@ -20,7 +21,7 @@
 #include "ctrl/agg_rbox_ctrl.h"
 
 
-enum { flip_y = true };
+enum flip_y_e { flip_y = true };
 
 
 
@@ -498,17 +499,15 @@ public:
     virtual void on_draw()
     {
         typedef agg::renderer_base<pixfmt_type> base_ren_type;
-        typedef agg::renderer_scanline_aa_solid<base_ren_type> renderer_solid;
 
         pixfmt_type pf(rbuf_window());
         base_ren_type ren_base(pf);
-        renderer_solid ren_solid(ren_base);
         ren_base.clear(agg::rgba(1,1,1));
 
         render();
 
-        agg::render_ctrl(m_ras, m_sl, ren_solid, m_polygons);
-        agg::render_ctrl(m_ras, m_sl, ren_solid, m_operation);
+        agg::render_ctrl(m_ras, m_sl, ren_base, m_polygons);
+        agg::render_ctrl(m_ras, m_sl, ren_base, m_operation);
     }
 
 

@@ -1,5 +1,5 @@
 //----------------------------------------------------------------------------
-// Anti-Grain Geometry - Version 2.3
+// Anti-Grain Geometry - Version 2.4
 // Copyright (C) 2002-2005 Maxim Shemanarev (http://www.antigrain.com)
 //
 // Permission to copy, use, modify, sell and distribute this software 
@@ -32,6 +32,7 @@
 #include "agg_rasterizer_scanline_aa.h"
 #include "agg_conv_curve.h"
 #include "agg_font_cache_manager.h"
+#include "agg_trans_affine.h"
 
 namespace agg
 {
@@ -62,6 +63,7 @@ namespace agg
         bool width(double w);
         void hinting(bool h);
         void flip_y(bool f);
+        void transform(const trans_affine& affine);
 
         // Set Gamma
         //--------------------------------------------------------------------
@@ -94,7 +96,7 @@ namespace agg
         unsigned        glyph_index() const { return m_glyph_index; }
         unsigned        data_size()   const { return m_data_size;   }
         glyph_data_type data_type()   const { return m_data_type;   }
-        const rect&     bounds()      const { return m_bounds;      }
+        const rect_i&   bounds()      const { return m_bounds;      }
         double          advance_x()   const { return m_advance_x;   }
         double          advance_y()   const { return m_advance_y;   }
         void            write_glyph_to(int8u* data) const;
@@ -133,9 +135,10 @@ namespace agg
         unsigned        m_glyph_index;
         unsigned        m_data_size;
         glyph_data_type m_data_type;
-        rect            m_bounds;
+        rect_i          m_bounds;
         double          m_advance_x;
         double          m_advance_y;
+        trans_affine    m_affine;
 
         path_storage_integer<int16, 6>              m_path16;
         path_storage_integer<int32, 6>              m_path32;

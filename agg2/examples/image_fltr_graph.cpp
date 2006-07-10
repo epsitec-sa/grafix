@@ -18,7 +18,7 @@
 #include "platform/agg_platform_support.h"
 
 
-enum { flip_y = true };
+enum flip_y_e { flip_y = true };
 
 
 struct filter_base
@@ -270,11 +270,11 @@ public:
                 xs = (x_end + x_start)/2.0 - (normalized.diameter() * (x_end - x_start) / 32.0);
                 unsigned nn = normalized.diameter() * 256;
                 p.remove_all();
-                p.move_to(xs+0.5, ys + dy * weights[0] / agg::image_filter_size);
+                p.move_to(xs+0.5, ys + dy * weights[0] / agg::image_filter_scale);
                 for(j = 1; j < nn; j++)
                 {
                     p.line_to(xs + dx * j / n + 0.5,
-                              ys + dy * weights[j] / agg::image_filter_size);
+                              ys + dy * weights[j] / agg::image_filter_scale);
                 }
                 ras.add_path(tr);
                 rs.color(agg::rgba8(0, 0, 100, 255));
@@ -284,11 +284,11 @@ public:
 
         for(i = 0; i < m_num_filters; i++)
         {
-            agg::render_ctrl(ras, sl, rs, *m_filters[i]);
+            agg::render_ctrl(ras, sl, rb, *m_filters[i]);
         }
         if(m_sinc.status() || m_lanczos.status() || m_blackman.status())
         {
-            agg::render_ctrl(ras, sl, rs, m_radius);
+            agg::render_ctrl(ras, sl, rb, m_radius);
         }
     }
 };

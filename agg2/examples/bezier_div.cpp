@@ -22,7 +22,7 @@
 #include "platform/agg_platform_support.h"
 
 
-enum { flip_y = true };
+enum flip_y_e { flip_y = true };
 
 typedef agg::pixfmt_bgr24 pixfmt;
 
@@ -127,7 +127,7 @@ public:
         m_cusp_limit.no_transform();
 
         m_width.label("Width=%.2f");
-        m_width.range(0.0, 100);
+        m_width.range(-50, 100);
         m_width.value(50.0);
         add_ctrl(m_width);
         m_width.no_transform();
@@ -172,9 +172,10 @@ public:
         m_line_join.text_size(8);
         m_line_join.add_item("Miter Join");
         m_line_join.add_item("Miter Revert");
-        m_line_join.add_item("Miter Round");
         m_line_join.add_item("Round Join");
         m_line_join.add_item("Bevel Join");
+        m_line_join.add_item("Miter Round");
+
         m_line_join.cur_item(1);
         add_ctrl(m_line_join);
         m_line_join.no_transform();
@@ -236,7 +237,7 @@ public:
                    m_curve1.x3(), m_curve1.y3(),
                    m_curve1.x4(), m_curve1.y4());
 
-        agg::pod_deque<agg::vertex_dist, 8> curve_points;
+        agg::pod_bvector<agg::vertex_dist, 8> curve_points;
         unsigned cmd;
         double x, y;
         curve.rewind(0);
@@ -257,7 +258,7 @@ public:
         }
         curve_points[curve_points.size() - 1].dist = curve_dist;
         
-        agg::pod_deque<curve_point, 8> reference_points;
+        agg::pod_bvector<curve_point, 8> reference_points;
         for(i = 0; i < 4096; i++)
         {
             double mu = i / 4095.0;
@@ -359,7 +360,12 @@ public:
                    m_curve1.x2(), m_curve1.y2(),
                    m_curve1.x3(), m_curve1.y3(),
                    m_curve1.x4(), m_curve1.y4());
-        path.add_path(curve, 0, false);
+
+        path.concat_path(curve);
+//path.move_to(m_curve1.x1(), m_curve1.y1());
+//path.line_to(m_curve1.x2(), m_curve1.y2());
+//path.line_to(m_curve1.x3(), m_curve1.y3());
+//path.line_to(m_curve1.x4(), m_curve1.y4());
 
 
         agg::conv_stroke<agg::path_storage> stroke(path);
@@ -458,18 +464,18 @@ public:
         ren.color(agg::rgba(0,0,0));
         agg::render_scanlines(ras, sl, ren);
 
-        agg::render_ctrl(ras, sl, ren, m_curve1);
-        agg::render_ctrl(ras, sl, ren, m_angle_tolerance);
-        agg::render_ctrl(ras, sl, ren, m_approximation_scale);
-        agg::render_ctrl(ras, sl, ren, m_cusp_limit);
-        agg::render_ctrl(ras, sl, ren, m_width);
-        agg::render_ctrl(ras, sl, ren, m_show_points);
-        agg::render_ctrl(ras, sl, ren, m_show_outline);
-        agg::render_ctrl(ras, sl, ren, m_curve_type);
-        agg::render_ctrl(ras, sl, ren, m_case_type);
-        agg::render_ctrl(ras, sl, ren, m_inner_join);
-        agg::render_ctrl(ras, sl, ren, m_line_join);
-        agg::render_ctrl(ras, sl, ren, m_line_cap);
+        agg::render_ctrl(ras, sl, ren_base, m_curve1);
+        agg::render_ctrl(ras, sl, ren_base, m_angle_tolerance);
+        agg::render_ctrl(ras, sl, ren_base, m_approximation_scale);
+        agg::render_ctrl(ras, sl, ren_base, m_cusp_limit);
+        agg::render_ctrl(ras, sl, ren_base, m_width);
+        agg::render_ctrl(ras, sl, ren_base, m_show_points);
+        agg::render_ctrl(ras, sl, ren_base, m_show_outline);
+        agg::render_ctrl(ras, sl, ren_base, m_curve_type);
+        agg::render_ctrl(ras, sl, ren_base, m_case_type);
+        agg::render_ctrl(ras, sl, ren_base, m_inner_join);
+        agg::render_ctrl(ras, sl, ren_base, m_line_join);
+        agg::render_ctrl(ras, sl, ren_base, m_line_cap);
     }
 
     
@@ -477,7 +483,7 @@ public:
     {
         if(key == ' ')
         {
-            FILE* fd = fopen("coord", "w");
+            FILE* fd = fopen(full_file_name("coord"), "w");
             fprintf(fd, "%.3f, %.3f, %.3f, %.3f, %.3f, %.3f, %.3f, %.3f", 
                          m_curve1.x1(), m_curve1.y1(), 
                          m_curve1.x2(), m_curve1.y2(), 
@@ -504,6 +510,8 @@ public:
 
             case 1: //m_case_type.add_item("13---24");
                 m_curve1.curve(150, 150, 350, 150, 150, 150, 350, 150);
+                //m_curve1.curve(252, 227, 16, 227, 506, 227, 285, 227);
+                //m_curve1.curve(252, 227, 16, 227, 387, 227, 285, 227);
                 break;
 
             case 2: //m_case_type.add_item("Smooth Cusp 1");

@@ -22,7 +22,7 @@
 #include "ctrl/agg_rbox_ctrl.h"
 
 
-enum { flip_y = true };
+enum flip_y_e { flip_y = true };
 
 
 
@@ -614,10 +614,10 @@ public:
         agg::rasterizer_scanline_aa<> ras;
         agg::rasterizer_scanline_aa<> ras2;
 
-        agg::render_ctrl(ras, sl, ren_solid, m_polygons);
-        agg::render_ctrl(ras, sl, ren_solid, m_fill_rule);
-        agg::render_ctrl(ras, sl, ren_solid, m_scanline_type);
-        agg::render_ctrl(ras, sl, ren_solid, m_operation);
+        agg::render_ctrl(ras, sl, ren_base, m_polygons);
+        agg::render_ctrl(ras, sl, ren_base, m_fill_rule);
+        agg::render_ctrl(ras, sl, ren_base, m_scanline_type);
+        agg::render_ctrl(ras, sl, ren_base, m_operation);
 
         render_sbool(ras, ras2);
 

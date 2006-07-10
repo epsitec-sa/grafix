@@ -1,9 +1,9 @@
 AGGLIBS= -lagg -framework Carbon -framework QuickTime
-AGGCXXFLAGS = -O3 -I/Developer/Headers/FlatCarbon
+AGGCXXFLAGS = -bind_at_load -O3 -I/Developer/Headers/FlatCarbon
 CXX = g++
 C = gcc
 #CXX = icc
-LIB = ar cr
+LIB = ar cr -s
 
 PLATFORM=mac
 
@@ -24,6 +24,7 @@ all:
 	make alpha_mask2
 	make alpha_mask3
 	make bezier_div
+	make blur
 	make bspline
 	make circles
 	make component_rendering
@@ -33,6 +34,7 @@ all:
 	make gamma_correction
 	make gamma_ctrl
 	make gouraud
+	make gradient_focal
 	make gradients
 	make graph_test
 	make idea
@@ -46,6 +48,7 @@ all:
 	make raster_text
 	make rasterizers
 	make rasterizers2
+	make rasterizer_compound
 	make rounded_rect
 	make scanline_boolean
 	make scanline_boolean2
@@ -82,9 +85,12 @@ alpha_mask2: ../alpha_mask2.o ../parse_lion.o $(PLATFORMSOURCES) alpha_mask2.app
 
 alpha_mask3: ../alpha_mask3.o ../make_arrows.o ../make_gb_poly.o $(PLATFORMSOURCES) alpha_mask3.app
 	$(CXX) $(CXXFLAGS) ../alpha_mask3.o ../make_arrows.o ../make_gb_poly.o $(PLATFORMSOURCES) -o alpha_mask3.app/Contents/MacOS/alpha_mask3 $(LIBS)
-	
+
 bezier_div: ../bezier_div.o ../interactive_polygon.o $(PLATFORMSOURCES)  bezier_div.app
-	$(CXX) $(CXXFLAGS) ../bezier_div.o ../interactive_polygon.o $(PLATFORMSOURCES) -o bspline.app/Contents/MacOS/bezier_div $(LIBS)
+	$(CXX) $(CXXFLAGS) ../bezier_div.o ../interactive_polygon.o $(PLATFORMSOURCES) -o bezier_div.app/Contents/MacOS/bezier_div $(LIBS)
+
+blur: ../blur.o $(PLATFORMSOURCES) blur.app
+	$(CXX) $(CXXFLAGS) ../blur.o $(PLATFORMSOURCES) -o blur.app/Contents/MacOS/blur $(LIBS)
 
 bspline: ../bspline.o ../interactive_polygon.o $(PLATFORMSOURCES) bspline.app
 	$(CXX) $(CXXFLAGS) ../bspline.o ../interactive_polygon.o $(PLATFORMSOURCES) -o bspline.app/Contents/MacOS/bspline $(LIBS)
@@ -96,7 +102,7 @@ component_rendering: ../component_rendering.o $(PLATFORMSOURCES) component_rende
 	$(CXX) $(CXXFLAGS) ../component_rendering.o $(PLATFORMSOURCES) -o component_rendering.app/Contents/MacOS/component_rendering $(LIBS)
 
 compositing: ../compositing.o $(PLATFORMSOURCES) compositing.bmp compositing.app
-	cp compositing.bmp compositing.app/Contents/MacOS/compositing.bmp 
+	cp compositing.bmp compositing.app/Contents/MacOS/compositing.bmp
 	$(CXX) $(CXXFLAGS) ../compositing.o $(PLATFORMSOURCES) -o compositing.app/Contents/MacOS/compositing $(LIBS)
 
 conv_contour: ../conv_contour.o $(PLATFORMSOURCES) conv_contour.app
@@ -109,7 +115,7 @@ conv_stroke: ../conv_stroke.o $(PLATFORMSOURCES) conv_stroke.app
 	$(CXX) $(CXXFLAGS) ../conv_stroke.o $(PLATFORMSOURCES) -o conv_stroke.app/Contents/MacOS/conv_stroke $(LIBS)
 
 distortions: ../distortions.o $(PLATFORMSOURCES) spheres.bmp distortions.app
-	cp spheres.bmp distortions.app/Contents/MacOS/spheres.bmp 
+	cp spheres.bmp distortions.app/Contents/MacOS/spheres.bmp
 	$(CXX) $(CXXFLAGS) ../distortions.o $(PLATFORMSOURCES) -o distortions.app/Contents/MacOS/distortions $(LIBS)
 
 gamma_correction: ../gamma_correction.o $(PLATFORMSOURCES) gamma_correction.app
@@ -121,6 +127,9 @@ gamma_ctrl: ../gamma_ctrl.o $(PLATFORMSOURCES) gamma_ctrl.app
 gouraud: ../gouraud.o $(PLATFORMSOURCES) gouraud.app
 	$(CXX) $(CXXFLAGS) ../gouraud.o $(PLATFORMSOURCES) -o gouraud.app/Contents/MacOS/gouraud $(LIBS)
 
+gradient_focal: ../gradient_focal.o $(PLATFORMSOURCES) gradient_focal.app
+	$(CXX) $(CXXFLAGS) ../gradient_focal.o $(PLATFORMSOURCES) -o gradient_focal.app/Contents/MacOS/gradient_focal $(LIBS)
+
 gradients: ../gradients.o $(PLATFORMSOURCES) gradients.app
 	$(CXX) $(CXXFLAGS) ../gradients.o $(PLATFORMSOURCES) -o gradients.app/Contents/MacOS/gradients $(LIBS)
 
@@ -131,47 +140,47 @@ idea: ../idea.o $(PLATFORMSOURCES) idea.app
 	$(CXX) $(CXXFLAGS) ../idea.o $(PLATFORMSOURCES) -o idea.app/Contents/MacOS/idea $(LIBS)
 
 image_alpha: ../image_alpha.o $(PLATFORMSOURCES) spheres.bmp image_alpha.app
-	cp spheres.bmp image_alpha.app/Contents/MacOS/spheres.bmp 
+	cp spheres.bmp image_alpha.app/Contents/MacOS/spheres.bmp
 	$(CXX) $(CXXFLAGS) ../image_alpha.o $(PLATFORMSOURCES) -o image_alpha.app/Contents/MacOS/image_alpha $(LIBS)
 
 image_filters: ../image_filters.o $(PLATFORMSOURCES) spheres.bmp image_filters.app
-	cp spheres.bmp image_filters.app/Contents/MacOS/spheres.bmp 
+	cp spheres.bmp image_filters.app/Contents/MacOS/spheres.bmp
 	$(CXX) $(CXXFLAGS) ../image_filters.o $(PLATFORMSOURCES) -o image_filters.app/Contents/MacOS/image_filters $(LIBS)
 
 image_filters2: ../image_filters2.o $(PLATFORMSOURCES) spheres.bmp image_filters2.app
-	cp spheres.bmp image_filters2.app/Contents/MacOS/spheres.bmp 
+	cp spheres.bmp image_filters2.app/Contents/MacOS/spheres.bmp
 	$(CXX) $(CXXFLAGS) ../image_filters2.o $(PLATFORMSOURCES) -o image_filters2.app/Contents/MacOS/image_filters2 $(LIBS)
 
 image_fltr_graph: ../image_fltr_graph.o $(PLATFORMSOURCES) spheres.bmp image_fltr_graph.app
-	cp spheres.bmp image_fltr_graph.app/Contents/MacOS/spheres.bmp 
+	cp spheres.bmp image_fltr_graph.app/Contents/MacOS/spheres.bmp
 	$(CXX) $(CXXFLAGS) ../image_fltr_graph.o $(PLATFORMSOURCES) -o image_fltr_graph.app/Contents/MacOS/image_fltr_graph $(LIBS)
 
 image_perspective: ../image_perspective.o ../interactive_polygon.o $(PLATFORMSOURCES) spheres.bmp image_perspective.app
-	cp spheres.bmp image_perspective.app/Contents/MacOS/spheres.bmp 
+	cp spheres.bmp image_perspective.app/Contents/MacOS/spheres.bmp
 	$(CXX) $(CXXFLAGS) ../image_perspective.o  ../interactive_polygon.o $(PLATFORMSOURCES) -o image_perspective.app/Contents/MacOS/image_perspective $(LIBS)
 
 image_resample: ../image_resample.o  ../interactive_polygon.o $(PLATFORMSOURCES) spheres.bmp image_resample.app
-	cp spheres.bmp image_resample.app/Contents/MacOS/spheres.bmp 
+	cp spheres.bmp image_resample.app/Contents/MacOS/spheres.bmp
 	$(CXX) $(CXXFLAGS) ../image_resample.o ../interactive_polygon.o $(PLATFORMSOURCES) -o image_resample.app/Contents/MacOS/image_resample $(LIBS)
 
 image_transforms: ../image_transforms.o $(PLATFORMSOURCES) spheres.bmp image_transforms.app
-	cp spheres.bmp image_transforms.app/Contents/MacOS/spheres.bmp 
+	cp spheres.bmp image_transforms.app/Contents/MacOS/spheres.bmp
 	$(CXX) $(CXXFLAGS) ../image_transforms.o $(PLATFORMSOURCES) -o image_transforms.app/Contents/MacOS/image_transforms $(LIBS)
 
 image1: ../image1.o $(PLATFORMSOURCES) spheres.bmp image1.app
-	cp spheres.bmp image1.app/Contents/MacOS/spheres.bmp 
+	cp spheres.bmp image1.app/Contents/MacOS/spheres.bmp
 	$(CXX) $(CXXFLAGS) ../image1.o $(PLATFORMSOURCES) -o image1.app/Contents/MacOS/image1 $(LIBS)
 
 line_patterns: ../line_patterns.o $(PLATFORMSOURCES) 1.bmp 2.bmp 3.bmp 4.bmp 5.bmp 6.bmp 7.bmp 8.bmp 9.bmp line_patterns.app
-	cp 1.bmp line_patterns.app/Contents/MacOS/1.bmp 
-	cp 2.bmp line_patterns.app/Contents/MacOS/2.bmp 
-	cp 3.bmp line_patterns.app/Contents/MacOS/3.bmp 
-	cp 4.bmp line_patterns.app/Contents/MacOS/4.bmp 
-	cp 5.bmp line_patterns.app/Contents/MacOS/5.bmp 
-	cp 6.bmp line_patterns.app/Contents/MacOS/6.bmp 
-	cp 7.bmp line_patterns.app/Contents/MacOS/7.bmp 
-	cp 8.bmp line_patterns.app/Contents/MacOS/8.bmp 
-	cp 9.bmp line_patterns.app/Contents/MacOS/9.bmp 
+	cp 1.bmp line_patterns.app/Contents/MacOS/1.bmp
+	cp 2.bmp line_patterns.app/Contents/MacOS/2.bmp
+	cp 3.bmp line_patterns.app/Contents/MacOS/3.bmp
+	cp 4.bmp line_patterns.app/Contents/MacOS/4.bmp
+	cp 5.bmp line_patterns.app/Contents/MacOS/5.bmp
+	cp 6.bmp line_patterns.app/Contents/MacOS/6.bmp
+	cp 7.bmp line_patterns.app/Contents/MacOS/7.bmp
+	cp 8.bmp line_patterns.app/Contents/MacOS/8.bmp
+	cp 9.bmp line_patterns.app/Contents/MacOS/9.bmp
 	$(CXX) $(CXXFLAGS) ../line_patterns.o $(PLATFORMSOURCES) -o line_patterns.app/Contents/MacOS/line_patterns $(LIBS)
 
 lion: ../lion.o ../parse_lion.o $(PLATFORMSOURCES) lion.app
@@ -184,7 +193,7 @@ lion_outline: ../lion_outline.o ../parse_lion.o $(PLATFORMSOURCES) lion_outline.
 	$(CXX) $(CXXFLAGS) ../lion_outline.o ../parse_lion.o $(PLATFORMSOURCES) -o lion_outline.app/Contents/MacOS/lion_outline $(LIBS)
 
 mol_view: ../mol_view.o $(PLATFORMSOURCES) 1.sdf mol_view.app
-	cp 1.sdf mol_view.app/Contents/MacOS/1.sdf 
+	cp 1.sdf mol_view.app/Contents/MacOS/1.sdf
 	$(CXX) $(CXXFLAGS) ../mol_view.o $(PLATFORMSOURCES) -o mol_view.app/Contents/MacOS/mol_view $(LIBS)
 
 multi_clip: ../multi_clip.o ../parse_lion.o $(PLATFORMSOURCES) multi_clip.app
@@ -194,7 +203,7 @@ pattern_fill: ../pattern_fill.o $(PLATFORMSOURCES) pattern_fill.app
 	$(CXX) $(CXXFLAGS) ../pattern_fill.o $(PLATFORMSOURCES) -o pattern_fill.app/Contents/MacOS/pattern_fill $(LIBS)
 
 pattern_perspective: ../pattern_perspective.o ../interactive_polygon.o $(PLATFORMSOURCES) agg.bmp pattern_perspective.app
-	cp agg.bmp pattern_perspective.app/Contents/MacOS/agg.bmp 
+	cp agg.bmp pattern_perspective.app/Contents/MacOS/agg.bmp
 	$(CXX) $(CXXFLAGS) ../pattern_perspective.o ../interactive_polygon.o $(PLATFORMSOURCES) -o pattern_perspective.app/Contents/MacOS/pattern_perspective $(LIBS)
 
 perspective: ../perspective.o ../interactive_polygon.o ../parse_lion.o $(PLATFORMSOURCES) perspective.app
@@ -211,6 +220,9 @@ rasterizers: ../rasterizers.o $(PLATFORMSOURCES) rasterizers.app
 
 rasterizers2: ../rasterizers2.o $(PLATFORMSOURCES) rasterizers2.app
 	$(CXX) $(CXXFLAGS) ../rasterizers2.o $(PLATFORMSOURCES) -o rasterizers2.app/Contents/MacOS/rasterizers2 $(LIBS)
+
+rasterizer_compound: ../rasterizer_compound.o $(PLATFORMSOURCES) rasterizer_compound.app
+	$(CXX) $(CXXFLAGS) ../rasterizer_compound.o $(PLATFORMSOURCES) -o rasterizer_compound.app/Contents/MacOS/rasterizer_compound $(LIBS)
 
 rounded_rect: ../rounded_rect.o $(PLATFORMSOURCES) rounded_rect.app
 	$(CXX) $(CXXFLAGS) ../rounded_rect.o $(PLATFORMSOURCES) -o rounded_rect.app/Contents/MacOS/rounded_rect $(LIBS)
@@ -237,32 +249,32 @@ clean:
 agg.bmp:
 	@echo "Required file missing!!"
 	@echo "Please download http://www.antigrain.com/agg.bmp to /examples/macosx_carbon/"
-	@echo "Attempting to retrieve via wget: (will fail if wget is not installed)"
-	wget http://www.antigrain.com/agg.bmp
+	@echo "Attempting to retrieve via curl: (will fail if curl is not installed)"
+	curl -O http://www.antigrain.com/agg.bmp
 
 compositing.bmp:
 	@echo "Required file missing!!"
 	@echo "Please download http://www.antigrain.com/compositing.bmp to /examples/macosx_carbon/"
-	@echo "Attempting to retrieve via wget: (will fail if wget is not installed)"
-	wget http://www.antigrain.com/compositing.bmp
+	@echo "Attempting to retrieve via curl: (will fail if curl is not installed)"
+	curl -O http://www.antigrain.com/compositing.bmp
 
 spheres.bmp:
 	@echo "Required file missing!!"
 	@echo "Please download http://www.antigrain.com/spheres.bmp to /examples/macosx_carbon/"
-	@echo "Attempting to retrieve file: (will fail if wget is not installed)"
-	wget http://www.antigrain.com/spheres.bmp
+	@echo "Attempting to retrieve file: (will fail if curl is not installed)"
+	curl -O http://www.antigrain.com/spheres.bmp
 
 1.sdf:
 	@echo "Required file missing!!"
 	@echo "Please download http://www.antigrain.com/1.sdf to /examples/macosx_carbon/"
-	@echo "Attempting to retrieve file: (will fail if wget is not installed)"
-	wget http://www.antigrain.com/1.sdf
+	@echo "Attempting to retrieve file: (will fail if curl is not installed)"
+	curl -O http://www.antigrain.com/1.sdf
 
 1.bmp:
 	@echo "Required file missing!!"
 	@echo "Please download http://www.antigrain.com/line_patterns.bmp.zip to /examples/macosx_carbon/ and decoompress it"
-	@echo "Attempting to retrieve file: (will fail if wget is not installed)"
-	wget http://www.antigrain.com/line_patterns.bmp.zip
+	@echo "Attempting to retrieve file: (will fail if curl is not installed)"
+	curl -O http://www.antigrain.com/line_patterns.bmp.zip
 	unzip -o line_patterns.bmp.zip
 
 %.app:

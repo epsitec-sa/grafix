@@ -16,11 +16,11 @@
 #include "agg_renderer_outline_aa.h"
 #include "agg_rasterizer_outline_aa.h"
 #include "agg_renderer_scanline.h"
-#include "agg_span_generator.h"
+#include "agg_span_allocator.h"
 #include "agg_ellipse.h"
 #include "platform/agg_platform_support.h"
 
-enum { flip_y = true };
+enum flip_y_e { flip_y = true };
 
 agg::path_storage g_path;
 agg::rgba8        g_colors[100];
@@ -45,7 +45,8 @@ unsigned parse_lion(agg::path_storage& ps, agg::rgba8* colors, unsigned* path_id
 void parse_lion()
 {
     g_npaths = parse_lion(g_path, g_colors, g_path_idx);
-    agg::bounding_rect(g_path, g_path_idx, 0, g_npaths, &g_x1, &g_y1, &g_x2, &g_y2);
+    agg::pod_array_adaptor<unsigned> path_idx(g_path_idx, 100);
+    agg::bounding_rect(g_path, path_idx, 0, g_npaths, &g_x1, &g_y1, &g_x2, &g_y2);
     g_base_dx = (g_x2 - g_x1) / 2.0;
     g_base_dy = (g_y2 - g_y1) / 2.0;
 }
@@ -57,31 +58,29 @@ void parse_lion()
 
 namespace agg
 {
-    template<class Order, class Allocator = span_allocator<rgba8> >
-    class span_simple_blur_rgb24 : public span_generator<rgba8, Allocator>
+    template<class Order> class span_simple_blur_rgb24
     {
     public:
         //--------------------------------------------------------------------
-        typedef Allocator alloc_type;
         typedef rgba8 color_type;
-        typedef span_generator<color_type, alloc_type> base_type;
         
         //--------------------------------------------------------------------
-        span_simple_blur_rgb24(alloc_type& alloc) : 
-            base_type(alloc), m_source_image(0) {}
+        span_simple_blur_rgb24() : m_source_image(0) {}
 
         //--------------------------------------------------------------------
-        span_simple_blur_rgb24(alloc_type& alloc, const rendering_buffer& src) : 
-            base_type(alloc), m_source_image(&src) {}
+        span_simple_blur_rgb24(const rendering_buffer& src) : 
+            m_source_image(&src) {}
 
         //--------------------------------------------------------------------
         void source_image(const rendering_buffer& src) { m_source_image = &src; }
         const rendering_buffer& source_image() const { return *m_source_image; }
 
         //--------------------------------------------------------------------
-        color_type* generate(int x, int y, int len)
+        void prepare() {}
+
+        //--------------------------------------------------------------------
+        void generate(color_type* span, int x, int y, int len)
         {
-            color_type* span = base_type::allocator().span();
             if(y < 1 || y >= int(m_source_image->height() - 1))
             {
                 do
@@ -89,7 +88,7 @@ namespace agg
                     *span++ = rgba8(0,0,0,0);
                 }
                 while(--len);
-                return base_type::allocator().span();
+                return;
             }
 
             do
@@ -101,7 +100,7 @@ namespace agg
                     int i = 3;
                     do
                     {
-                        const int8u* ptr = m_source_image->row(y - i + 2) + (x - 1) * 3;
+                        const int8u* ptr = m_source_image->row_ptr(y - i + 2) + (x - 1) * 3;
 
                         color[0] += *ptr++;
                         color[1] += *ptr++;
@@ -128,7 +127,6 @@ namespace agg
                 ++x;
             }
             while(--len);
-            return base_type::allocator().span();
         }
 
     private:
@@ -207,7 +205,6 @@ public:
         agg::renderer_outline_aa<renderer_base> rp(rb, profile);
         agg::rasterizer_outline_aa<agg::renderer_outline_aa<renderer_base> > ras(rp);
         ras.round_cap(true);
-        ras.accurate_join(true);
 
         ras.render_all_paths(trans, g_colors, g_path_idx, g_npaths);
 
@@ -223,17 +220,15 @@ public:
 
         typedef agg::span_simple_blur_rgb24<agg::order_bgr> span_blur_gen;
         typedef agg::span_allocator<span_blur_gen::color_type> span_blur_alloc;
-        typedef agg::renderer_scanline_aa<renderer_base, span_blur_gen> renderer_blur;
 
         span_blur_alloc sa;
-        span_blur_gen sg(sa);
+        span_blur_gen sg;
 
-        renderer_blur rblur(rb, sg);
         sg.source_image(rbuf_img(0));
         ras2.add_path(ell);
 
         copy_window_to_img(0);
-        agg::render_scanlines(ras2, sl2, rblur);
+        agg::render_scanlines_aa(ras2, sl2, rb, sa, sg);
 
         // More blur if desired :-)
         //copy_window_to_img(0);

@@ -31,7 +31,7 @@
 //#define AGG_RGB555
 #include "pixel_formats.h"
 
-enum { flip_y = true };
+enum flip_y_e { flip_y = true };
 
 
 
@@ -58,7 +58,7 @@ void generate_circles(agg::path_storage& ps,
             agg::ellipse ell(quad[n1]     + (quad[n2]     - quad[n1])     * j / num_circles, 
                              quad[n1 + 1] + (quad[n2 + 1] - quad[n1 + 1]) * j / num_circles, 
                              radius, radius, 100);
-            ps.add_path(ell, 0, false);
+            ps.concat_path(ell);
         }
     }
 }
@@ -190,10 +190,10 @@ public:
         agg::render_scanlines(ras, sl, r);
         ras.add_path(m_quad2);
         agg::render_scanlines(ras, sl, r);
-        agg::render_ctrl(ras, sl, r, m_trans_type);
-        agg::render_ctrl(ras, sl, r, m_reset);
-        agg::render_ctrl(ras, sl, r, m_mul1);
-        agg::render_ctrl(ras, sl, r, m_mul2);
+        agg::render_ctrl(ras, sl, rb, m_trans_type);
+        agg::render_ctrl(ras, sl, rb, m_reset);
+        agg::render_ctrl(ras, sl, rb, m_mul1);
+        agg::render_ctrl(ras, sl, rb, m_mul2);
         //--------------------------
 
     }

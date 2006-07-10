@@ -17,7 +17,7 @@
 #include "pixel_formats.h"
 
 
-enum { flip_y = true };
+enum flip_y_e { flip_y = true };
 
 
 
@@ -132,9 +132,9 @@ public:
         draw_anti_aliased();
         draw_aliased();
 
-        agg::render_ctrl(ras_aa, m_sl_p8, ren_aa, m_gamma);
-        agg::render_ctrl(ras_aa, m_sl_p8, ren_aa, m_alpha);
-        agg::render_ctrl(ras_aa, m_sl_p8, ren_aa, m_test);
+        agg::render_ctrl(ras_aa, m_sl_p8, rb, m_gamma);
+        agg::render_ctrl(ras_aa, m_sl_p8, rb, m_alpha);
+        agg::render_ctrl(ras_aa, m_sl_p8, rb, m_test);
     }
 
 

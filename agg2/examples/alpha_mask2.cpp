@@ -17,6 +17,7 @@
 #include "agg_pixfmt_amask_adaptor.h"
 #include "agg_renderer_primitives.h"
 #include "agg_renderer_markers.h"
+#include "agg_span_allocator.h"
 #include "agg_span_gradient.h"
 #include "agg_span_interpolator_linear.h"
 #include "agg_rasterizer_outline_aa.h"
@@ -37,7 +38,7 @@
 //#define AGG_RGB555
 #include "pixel_formats.h"
 
-enum { flip_y = true };
+enum flip_y_e { flip_y = true };
 
 agg::rasterizer_scanline_aa<> g_rasterizer;
 agg::scanline_u8  g_scanline;
@@ -62,7 +63,8 @@ unsigned parse_lion(agg::path_storage& ps, agg::rgba8* colors, unsigned* path_id
 void parse_lion()
 {
     g_npaths = parse_lion(g_path, g_colors, g_path_idx);
-    agg::bounding_rect(g_path, g_path_idx, 0, g_npaths, &g_x1, &g_y1, &g_x2, &g_y2);
+    agg::pod_array_adaptor<unsigned> path_idx(g_path_idx, 100);
+    agg::bounding_rect(g_path, path_idx, 0, g_npaths, &g_x1, &g_y1, &g_x2, &g_y2);
     g_base_dx = (g_x2 - g_x1) / 2.0;
     g_base_dy = (g_y2 - g_y1) / 2.0;
 }
@@ -327,8 +329,10 @@ public:
         agg::ellipse ell;
         agg::span_allocator<color_type> sa;
         interpolator_type inter(grm);
-        span_grad_type sg(sa, inter, grf, grc, 0, 10);
-        agg::renderer_scanline_aa<amask_ren_type, span_grad_type> rg(r, sg);
+        span_grad_type sg(inter, grf, grc, 0, 10);
+        agg::renderer_scanline_aa<amask_ren_type, 
+                                  agg::span_allocator<color_type>,
+                                  span_grad_type> rg(r, sa, sg);
         for(i = 0; i < 50; i++)
         {
             x = rand() % width;
@@ -349,7 +353,7 @@ public:
             agg::render_scanlines(g_rasterizer, g_scanline, rg);
         }
 
-        agg::render_ctrl(g_rasterizer, g_scanline, rb, m_num_cb);
+        agg::render_ctrl(g_rasterizer, g_scanline, rbase, m_num_cb);
     }
 
 

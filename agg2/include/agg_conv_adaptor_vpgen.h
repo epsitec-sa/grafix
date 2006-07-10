@@ -1,5 +1,5 @@
 //----------------------------------------------------------------------------
-// Anti-Grain Geometry - Version 2.3
+// Anti-Grain Geometry - Version 2.4
 // Copyright (C) 2002-2005 Maxim Shemanarev (http://www.antigrain.com)
 //
 // Permission to copy, use, modify, sell and distribute this software 
@@ -25,9 +25,8 @@ namespace agg
     template<class VertexSource, class VPGen> class conv_adaptor_vpgen
     {
     public:
-        conv_adaptor_vpgen(VertexSource& source) : m_source(&source) {}
-
-        void set_source(VertexSource& source) { m_source = &source; }
+        explicit conv_adaptor_vpgen(VertexSource& source) : m_source(&source) {}
+        void attach(VertexSource& source) { m_source = &source; }
 
         VPGen& vpgen() { return m_vpgen; }
         const VPGen& vpgen() const { return m_vpgen; }

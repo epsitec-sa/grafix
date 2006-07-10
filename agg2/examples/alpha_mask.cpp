@@ -16,7 +16,7 @@
 #include "agg_ellipse.h"
 #include "platform/agg_platform_support.h"
 
-enum { flip_y = true };
+enum flip_y_e { flip_y = true };
 
 agg::path_storage g_path;
 agg::rgba8        g_colors[100];
@@ -39,7 +39,8 @@ unsigned parse_lion(agg::path_storage& ps, agg::rgba8* colors, unsigned* path_id
 void parse_lion()
 {
     g_npaths = parse_lion(g_path, g_colors, g_path_idx);
-    agg::bounding_rect(g_path, g_path_idx, 0, g_npaths, &g_x1, &g_y1, &g_x2, &g_y2);
+    agg::pod_array_adaptor<unsigned> path_idx(g_path_idx, 100);
+    agg::bounding_rect(g_path, path_idx, 0, g_npaths, &g_x1, &g_y1, &g_x2, &g_y2);
     g_base_dx = (g_x2 - g_x1) / 2.0;
     g_base_dy = (g_y2 - g_y1) / 2.0;
 }

@@ -17,7 +17,7 @@
 #include "ctrl/agg_rbox_ctrl.h"
 
 
-enum { flip_y = true };
+enum flip_y_e { flip_y = true };
 bool font_flip_y = !flip_y;
 
 
@@ -281,11 +281,13 @@ public:
             m_feng.hinting(m_hinting.status());
             m_feng.height(m_height.value());
             m_feng.width(m_width.value());
-//m_feng.transform(agg::trans_affine_rotation(agg::deg2rad(1.0)));
             m_feng.flip_y(font_flip_y);
 
-//m_feng.transform(agg::trans_affine_rotation(agg::deg2rad(20.0)));
-//m_feng.flip_y(true);
+            agg::trans_affine mtx;
+            mtx *= agg::trans_affine_rotation(agg::deg2rad(-4.0));
+            //mtx *= agg::trans_affine_skewing(-0.4, 0);
+            //mtx *= agg::trans_affine_translation(1, 0);
+            m_feng.transform(mtx);
 
             double x  = 10.0;
             double y0 = height() - m_height.value() - 10.0;
@@ -407,14 +409,14 @@ public:
         ras.gamma(agg::gamma_power(1.0));
 
 
-        agg::render_ctrl(ras, sl, ren_solid, m_ren_type);
-        agg::render_ctrl(ras, sl, ren_solid, m_height);
-        agg::render_ctrl(ras, sl, ren_solid, m_width);
-        agg::render_ctrl(ras, sl, ren_solid, m_weight);
-        agg::render_ctrl(ras, sl, ren_solid, m_gamma);
-        agg::render_ctrl(ras, sl, ren_solid, m_hinting);
-        agg::render_ctrl(ras, sl, ren_solid, m_kerning);
-        agg::render_ctrl(ras, sl, ren_solid, m_performance);
+        agg::render_ctrl(ras, sl, ren_base, m_ren_type);
+        agg::render_ctrl(ras, sl, ren_base, m_height);
+        agg::render_ctrl(ras, sl, ren_base, m_width);
+        agg::render_ctrl(ras, sl, ren_base, m_weight);
+        agg::render_ctrl(ras, sl, ren_base, m_gamma);
+        agg::render_ctrl(ras, sl, ren_base, m_hinting);
+        agg::render_ctrl(ras, sl, ren_base, m_kerning);
+        agg::render_ctrl(ras, sl, ren_base, m_performance);
     }
 
 

@@ -15,7 +15,7 @@
 #include "platform/agg_platform_support.h"
 
 
-enum { flip_y = true };
+enum flip_y_e { flip_y = true };
 
 
 
@@ -105,11 +105,9 @@ public:
     virtual void on_draw()
     {
         typedef agg::renderer_base<agg::pixfmt_bgr24> ren_base;
-        typedef agg::renderer_scanline_aa_solid<ren_base> renderer;
 
         agg::pixfmt_bgr24 pixf(rbuf_window());
         ren_base renb(pixf);
-        renderer ren(renb);
         renb.clear(agg::rgba(1, 1, 1));
 
         agg::rasterizer_scanline_aa<> ras;
@@ -129,6 +127,7 @@ public:
                     <agg::path_storage> > > contour(curve);
 
         contour.width(m_width.value());
+        //contour.inner_join(agg::inner_bevel);
         //contour.line_join(agg::miter_join);
         //contour.inner_line_join(agg::miter_join);
         //contour.inner_miter_limit(4.0);
@@ -136,12 +135,11 @@ public:
 
         compose_path();
         ras.add_path(contour);
-        ren.color(agg::rgba(0,0,0));
-        agg::render_scanlines(ras, sl, ren);
+        agg::render_scanlines_aa_solid(ras, sl, renb, agg::rgba(0,0,0));
 
-        agg::render_ctrl(ras, sl, ren, m_close);
-        agg::render_ctrl(ras, sl, ren, m_width);
-        agg::render_ctrl(ras, sl, ren, m_auto_detect);
+        agg::render_ctrl(ras, sl, renb, m_close);
+        agg::render_ctrl(ras, sl, renb, m_width);
+        agg::render_ctrl(ras, sl, renb, m_auto_detect);
     }
 
 };

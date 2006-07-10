@@ -1,6 +1,6 @@
 all:	lib
 
-src/libagg.a:	
+src/libagg.a:
 	cd src; make
 
 lib:	src/libagg.a

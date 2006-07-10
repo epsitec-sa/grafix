@@ -27,7 +27,7 @@
 #include "ctrl/agg_cbox_ctrl.h"
 #include "platform/agg_platform_support.h"
 
-enum { flip_y = true };
+enum flip_y_e { flip_y = true };
 
 
 typedef agg::pixfmt_bgr24 pixfmt;
@@ -48,9 +48,10 @@ typedef agg::span_gradient<color_type,
 typedef agg::span_allocator<color_type> gradient_span_alloc;
 
 typedef agg::renderer_scanline_aa<base_renderer, 
+                                  gradient_span_alloc,
                                   gradient_span_gen> gradient_renderer;
 
-typedef agg::rasterizer_scanline_aa<>                scanline_rasterizer;
+typedef agg::rasterizer_scanline_aa<> scanline_rasterizer;
 typedef agg::rasterizer_outline<primitives_renderer> outline_rasterizer;
 
 
@@ -534,8 +535,8 @@ public:
                     mtx *= agg::trans_affine_translation(n.x, n.y);
                     mtx.invert();
                     interpolator inter(mtx);
-                    gradient_span_gen sg(sa, inter, gf, m_gradient_colors, 0.0, 10.0);
-                    gradient_renderer ren(rb, sg);
+                    gradient_span_gen sg(inter, gf, m_gradient_colors, 0.0, 10.0);
+                    gradient_renderer ren(rb, sa, sg);
                     ras.add_path(ell);
                     agg::render_scanlines(ras, m_sl, ren);
                 }
@@ -821,6 +822,7 @@ public:
     virtual void on_draw()
     {
         scanline_rasterizer ras;
+
         pixfmt pixf(rbuf_window());
         base_renderer rb(pixf);
         solid_renderer solid(rb);
@@ -830,13 +832,13 @@ public:
         draw_scene(ras, solid, draft);
 
         ras.filling_rule(agg::fill_non_zero);
-        agg::render_ctrl(ras, m_sl, solid, m_type);
-        agg::render_ctrl(ras, m_sl, solid, m_width);
-        agg::render_ctrl(ras, m_sl, solid, m_benchmark);
-        agg::render_ctrl(ras, m_sl, solid, m_draw_nodes);
-        agg::render_ctrl(ras, m_sl, solid, m_draw_edges);
-        agg::render_ctrl(ras, m_sl, solid, m_draft);
-        agg::render_ctrl(ras, m_sl, solid, m_translucent);
+        agg::render_ctrl(ras, m_sl, rb, m_type);
+        agg::render_ctrl(ras, m_sl, rb, m_width);
+        agg::render_ctrl(ras, m_sl, rb, m_benchmark);
+        agg::render_ctrl(ras, m_sl, rb, m_draw_nodes);
+        agg::render_ctrl(ras, m_sl, rb, m_draw_edges);
+        agg::render_ctrl(ras, m_sl, rb, m_draft);
+        agg::render_ctrl(ras, m_sl, rb, m_translucent);
     }
 
 
@@ -851,6 +853,7 @@ public:
             update_window();
 
             scanline_rasterizer ras;
+
             pixfmt pixf(rbuf_window());
             base_renderer rb(pixf);
             solid_renderer solid(rb);

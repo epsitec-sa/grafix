@@ -1,5 +1,5 @@
 //----------------------------------------------------------------------------
-// Anti-Grain Geometry - Version 2.3
+// Anti-Grain Geometry - Version 2.4
 // Copyright (C) 2002-2005 Maxim Shemanarev (http://www.antigrain.com)
 //
 // Permission to copy, use, modify, sell and distribute this software 
@@ -383,7 +383,7 @@ namespace agg
 
    
     //------------------------------------------------------------------------
-    enum 
+    enum xevent_mask_e
     { 
         xevent_mask =
             PointerMotionMask|
@@ -1166,7 +1166,7 @@ namespace agg
             unsigned char* tmp_buf = new unsigned char [w * 3];
             for(y = 0; y < rbuf_img(idx).height(); y++)
             {
-                const unsigned char* src = rbuf_img(idx).row(m_flip_y ? h - 1 - y : y);
+                const unsigned char* src = rbuf_img(idx).row_ptr(m_flip_y ? h - 1 - y : y);
                 switch(m_format)
                 {
                     default: break;

@@ -18,13 +18,13 @@
 #include "ctrl/agg_rbox_ctrl.h"
 
 
-enum { flip = true };
+enum flip_y_e { flip = true };
 
 typedef char char_type;
 
 static char_type text[] = 
 //"0123456789ABCDEFGHIJKLMNOPRSTUVWXYZabcdefghijklmnoprstuvwxyz "
-"Anti-Grain Geometry is designed as a set of loosely coupled "
+" Anti-Grain Geometry is designed as a set of loosely coupled "
 "algorithms and class templates united with a common idea, "
 "so that all the components can be easily combined. Also, "
 "the template based design allows you to replace any part of "
@@ -214,7 +214,7 @@ public:
         m_width.no_transform();
 
         m_weight.label("Font Weight=%.2f");
-        m_weight.range(-1, 1);
+        m_weight.range(-2, 2);
         m_weight.text_thickness(1.5);
         add_ctrl(m_weight);
         m_weight.no_transform();
@@ -246,7 +246,7 @@ public:
 
     template<class Rasterizer, class Scanline, class RenSolid, class RenBin>
     unsigned draw_text(Rasterizer& ras, Scanline& sl, 
-                   RenSolid& ren_solid, RenBin& ren_bin)
+                       RenSolid& ren_solid, RenBin& ren_bin)
     {
         agg::glyph_rendering gren = agg::glyph_ren_native_mono;
         switch(m_ren_type.cur_item())
@@ -277,6 +277,11 @@ public:
         m_feng.width((m_width.value() == m_height.value()) ? 0.0 : m_width.value() / 2.4);
         m_feng.italic(true);
         m_feng.flip_y(text_flip);
+
+        agg::trans_affine mtx;
+        //mtx *= agg::trans_affine_skewing(-0.3, 0);
+        mtx *= agg::trans_affine_rotation(agg::deg2rad(-4.0));
+        m_feng.transform(mtx);
 
         if(m_feng.create_font("Arial", gren))
         {
@@ -349,7 +354,6 @@ public:
                 ++p;
             }
         }
-
         return num_glyphs;
     }
 
@@ -383,20 +387,18 @@ public:
             m_gamma_lut.gamma(m_gamma.value());
         }
 
-
         draw_text(ras, sl, ren_solid, ren_bin);
 
         ras.gamma(agg::gamma_power(1.0));
 
-
-        agg::render_ctrl(ras, sl, ren_solid, m_ren_type);
-        agg::render_ctrl(ras, sl, ren_solid, m_height);
-        agg::render_ctrl(ras, sl, ren_solid, m_width);
-        agg::render_ctrl(ras, sl, ren_solid, m_weight);
-        agg::render_ctrl(ras, sl, ren_solid, m_gamma);
-        agg::render_ctrl(ras, sl, ren_solid, m_hinting);
-        agg::render_ctrl(ras, sl, ren_solid, m_kerning);
-        agg::render_ctrl(ras, sl, ren_solid, m_performance);
+        agg::render_ctrl(ras, sl, ren_base, m_ren_type);
+        agg::render_ctrl(ras, sl, ren_base, m_height);
+        agg::render_ctrl(ras, sl, ren_base, m_width);
+        agg::render_ctrl(ras, sl, ren_base, m_weight);
+        agg::render_ctrl(ras, sl, ren_base, m_gamma);
+        agg::render_ctrl(ras, sl, ren_base, m_hinting);
+        agg::render_ctrl(ras, sl, ren_base, m_kerning);
+        agg::render_ctrl(ras, sl, ren_base, m_performance);
     }
 
 

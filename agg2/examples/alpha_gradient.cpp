@@ -7,6 +7,7 @@
 #include "agg_span_gradient.h"
 #include "agg_span_gradient_alpha.h"
 #include "agg_span_interpolator_linear.h"
+#include "agg_span_allocator.h"
 #include "agg_span_converter.h"
 #include "agg_ellipse.h"
 #include "agg_pixfmt_rgb.h"
@@ -15,7 +16,8 @@
 
 #include "ctrl/agg_spline_ctrl.h"
 
-enum { flip_y = true };
+enum flip_y_e { flip_y = true };
+
 
 
 #define pix_format agg::pix_format_bgr24
@@ -81,11 +83,9 @@ public:
     virtual void on_draw()
     {
         typedef agg::renderer_base<pixfmt_type> base_ren_type;
-        typedef agg::renderer_scanline_aa_solid<base_ren_type> renderer_solid;
 
         pixfmt_type pf(rbuf_window());
         base_ren_type ren_base(pf);
-        renderer_solid ren_solid(ren_base);
         ren_base.clear(agg::rgba(1,1,1));
 
         agg::scanline_u8 sl;
@@ -101,12 +101,12 @@ public:
         for(i = 0; i < 100; i++)
         {
             ell.init(rand() % w, rand() % h, rand() % 60 + 5, rand() % 60 + 5, 50);
-            ren_solid.color(agg::rgba(rand() / double(RAND_MAX), 
-                                      rand() / double(RAND_MAX), 
-                                      rand() / double(RAND_MAX), 
-                                      rand() / double(RAND_MAX) / 2.0));
             ras.add_path(ell);
-            agg::render_scanlines(ras, sl, ren_solid);
+            agg::render_scanlines_aa_solid(ras, sl, ren_base, 
+                                           agg::rgba(rand() / double(RAND_MAX), 
+                                                     rand() / double(RAND_MAX), 
+                                                     rand() / double(RAND_MAX), 
+                                                     rand() / double(RAND_MAX) / 2.0));
         }
 
 
@@ -154,8 +154,7 @@ public:
         typedef agg::span_gradient<color_type, 
                                    interpolator_type, 
                                    gradient_func_type, 
-                                   gradient_colors_type,
-                                   span_allocator_type> span_gradient_type;
+                                   gradient_colors_type> span_gradient_type;
 
 
         // Gradient alpha array adaptor
@@ -177,13 +176,6 @@ public:
                                     span_gradient_alpha_type> span_conv_type;
 
 
-
-        // The gradient (plus span converter) renderer type
-        //-----------------
-        typedef agg::renderer_scanline_aa<base_ren_type, 
-                                          span_conv_type> renderer_gradient_type;
-
-
         // The gradient objects declarations
         //----------------
         gradient_func_type       gradient_func;                      // The gradient function
@@ -201,8 +193,7 @@ public:
         // and where it ends. The actual meaning of "d1" and "d2" depands
         // on the gradient function.
         //----------------
-        span_gradient_type span_gradient(span_allocator, 
-                                         span_interpolator, 
+        span_gradient_type span_gradient(span_interpolator, 
                                          gradient_func, 
                                          color_array, 
                                          0, 150);
@@ -221,10 +212,6 @@ public:
 
         // Span converter declaration
         span_conv_type span_conv(span_gradient, span_gradient_alpha);
-
-        // The gradient renderer
-        //----------------
-        renderer_gradient_type ren_gradient(ren_base, span_conv);
 
 
         // Finally we can draw a circle.
@@ -249,21 +236,22 @@ public:
         ell.init(width()/2, height()/2, 150, 150, 100);
         ras.add_path(ell);
 
-        agg::render_scanlines(ras, sl, ren_gradient);
+        // Render the circle with gradient plus alpha-gradient 
+        agg::render_scanlines_aa(ras, sl, ren_base, span_allocator, span_conv);
 
 
         // Draw the control points and the parallelogram
         //-----------------
-        ren_solid.color(agg::rgba(0, 0.4, 0.4, 0.31));
+        agg::rgba color_pnt(0, 0.4, 0.4, 0.31);
         ell.init(m_x[0], m_y[0], 5, 5, 20);
         ras.add_path(ell);
-        agg::render_scanlines(ras, sl, ren_solid);
+        agg::render_scanlines_aa_solid(ras, sl, ren_base, color_pnt);
         ell.init(m_x[1], m_y[1], 5, 5, 20);
         ras.add_path(ell);
-        agg::render_scanlines(ras, sl, ren_solid);
+        agg::render_scanlines_aa_solid(ras, sl, ren_base, color_pnt);
         ell.init(m_x[2], m_y[2], 5, 5, 20);
         ras.add_path(ell);
-        agg::render_scanlines(ras, sl, ren_solid);
+        agg::render_scanlines_aa_solid(ras, sl, ren_base, color_pnt);
 
         agg::vcgen_stroke stroke;
         stroke.add_vertex(m_x[0], m_y[0], agg::path_cmd_move_to);
@@ -271,11 +259,10 @@ public:
         stroke.add_vertex(m_x[2], m_y[2], agg::path_cmd_line_to);
         stroke.add_vertex(m_x[0]+m_x[2]-m_x[1], m_y[0]+m_y[2]-m_y[1], agg::path_cmd_line_to);
         stroke.add_vertex(0, 0, agg::path_cmd_end_poly | agg::path_flags_close);
-        ren_solid.color(color_type(0, 0, 0));
         ras.add_path(stroke);
-        agg::render_scanlines(ras, sl, ren_solid);
+        agg::render_scanlines_aa_solid(ras, sl, ren_base, agg::rgba(0, 0, 0));
 
-        agg::render_ctrl(ras, sl, ren_solid, m_alpha);
+        agg::render_ctrl(ras, sl, ren_base, m_alpha);
     }
 
 

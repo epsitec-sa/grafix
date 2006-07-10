@@ -12,11 +12,13 @@
 #include "agg_pixfmt_rgba.h"
 #include "agg_scanline_u.h"
 #include "agg_renderer_scanline.h"
+#include "agg_span_allocator.h"
 #include "agg_span_interpolator_linear.h"
+#include "agg_image_accessors.h"
 #include "ctrl/agg_slider_ctrl.h"
 #include "platform/agg_platform_support.h"
 
-enum { flip_y = true };
+enum flip_y_e { flip_y = true };
 
 #define AGG_BGR24
 #include "pixel_formats.h"
@@ -49,15 +51,13 @@ public:
 
     virtual void on_draw()
     {
-        typedef agg::renderer_base<pixfmt>                     renderer_base;
-        typedef agg::renderer_base<pixfmt_pre>                 renderer_base_pre;
-        typedef agg::renderer_scanline_aa_solid<renderer_base> renderer_solid;
+        typedef agg::renderer_base<pixfmt>     renderer_base;
+        typedef agg::renderer_base<pixfmt_pre> renderer_base_pre;
        
         pixfmt            pixf(rbuf_window());
         pixfmt_pre        pixf_pre(rbuf_window());
         renderer_base     rb(pixf);
         renderer_base_pre rb_pre(pixf_pre);
-        renderer_solid    rs(rb);
 
         rb.clear(agg::rgba(1.0, 1.0, 1.0));
 
@@ -76,64 +76,54 @@ public:
         img_mtx *= trans_affine_resizing();
         img_mtx.invert();
 
-        typedef agg::span_allocator<color_type> span_alloc_type;
+        agg::span_allocator<color_type> sa;
 
-        span_alloc_type sa;
         typedef agg::span_interpolator_linear<> interpolator_type;
         interpolator_type interpolator(img_mtx);
 
+        typedef agg::image_accessor_clip<pixfmt> img_source_type;
+
+        pixfmt img_pixf(rbuf_img(0));
+        img_source_type img_src(img_pixf, agg::rgba_pre(0, 0.4, 0, 0.5));
 
 /*
         // Version without filtering (nearest neighbor)
         //------------------------------------------
-        typedef agg::span_image_filter_rgb_nn<color_type, component_order, 
-                                               interpolator_type> span_gen_type;
-        typedef agg::renderer_scanline_aa<renderer_base_pre, span_gen_type> renderer_type;
-
-        span_gen_type sg(sa, 
-                         rbuf_img(0), 
-                         agg::rgba_pre(0, 0.4, 0, 0.5),
-                         interpolator);
+        typedef agg::span_image_filter_rgb_nn<img_source_type,
+                                              interpolator_type> span_gen_type;
+        span_gen_type sg(img_src, interpolator);
         //------------------------------------------
 */
 
-
-
-        // Version with "hardcoded" bilinear filter
+        // Version with "hardcoded" bilinear filter and without 
+        // image_accessor (direct filter, the old variant)
         //------------------------------------------
-        typedef agg::span_image_filter_rgb_bilinear<color_type, component_order, 
-                                                    interpolator_type> span_gen_type;
-        typedef agg::renderer_scanline_aa<renderer_base_pre, span_gen_type> renderer_type;
-
-        span_gen_type sg(sa, 
-                         rbuf_img(0), 
-                         agg::rgba_pre(0, 0.4, 0, 0.5),
-                         interpolator);
+        typedef agg::span_image_filter_rgb_bilinear_clip<pixfmt,
+                                                         interpolator_type> span_gen_type;
+        span_gen_type sg(img_pixf, agg::rgba_pre(0, 0.4, 0, 0.5), interpolator);
         //------------------------------------------
 
-
-
+/*
+        // Version with arbitrary 2x2 filter
+        //------------------------------------------
+        typedef agg::span_image_filter_rgb_2x2<img_source_type,
+                                               interpolator_type> span_gen_type;
+        agg::image_filter<agg::image_filter_kaiser> filter;
+        span_gen_type sg(img_src, interpolator, filter);
+        //------------------------------------------
+*/
 /*
         // Version with arbitrary filter
         //------------------------------------------
-        typedef agg::span_image_filter_rgb<color_type, component_order, 
-                                            interpolator_type> span_gen_type;
-        typedef agg::renderer_scanline_aa<renderer_base_pre, span_gen_type> renderer_type;
-
+        typedef agg::span_image_filter_rgb<img_source_type,
+                                           interpolator_type> span_gen_type;
         agg::image_filter<agg::image_filter_spline36> filter;
-
-        span_gen_type sg(sa, 
-                         rbuf_img(0), 
-                         agg::rgba_pre(0, 0.4, 0, 0.5),
-                         interpolator, 
-                         filter);
+        span_gen_type sg(img_src, interpolator, filter);
         //------------------------------------------
 */
 
-
-        renderer_type ri(rb_pre, sg);
-
-        agg::rasterizer_scanline_aa<> pf;
+        agg::rasterizer_scanline_aa<> ras;
+        ras.clip_box(0, 0, width(), height());
         agg::scanline_u8 sl;
         double r = initial_width();
         if(initial_height() - 60 < r) r = initial_height() - 60;
@@ -145,11 +135,11 @@ public:
 
         agg::conv_transform<agg::ellipse> tr(ell, src_mtx);
 
-        pf.add_path(tr);
-        agg::render_scanlines(pf, sl, ri);
+        ras.add_path(tr);
+        agg::render_scanlines_aa(ras, sl, rb_pre, sa, sg);
 
-        agg::render_ctrl(pf, sl, rs, m_angle);
-        agg::render_ctrl(pf, sl, rs, m_scale);
+        agg::render_ctrl(ras, sl, rb, m_angle);
+        agg::render_ctrl(ras, sl, rb, m_scale);
     }
 
 };

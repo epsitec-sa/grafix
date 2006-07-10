@@ -1,5 +1,5 @@
 //----------------------------------------------------------------------------
-// Anti-Grain Geometry - Version 2.3
+// Anti-Grain Geometry - Version 2.4
 // Copyright (C) 2002-2005 Maxim Shemanarev (http://www.antigrain.com)
 //
 // Permission to copy, use, modify, sell and distribute this software 
@@ -29,7 +29,6 @@
 #include <stdlib.h>
 #include <math.h>
 #include "agg_array.h"
-#include "agg_render_scanlines.h"
 
 
 namespace agg
@@ -64,6 +63,7 @@ namespace agg
             class const_iterator
             {
             public:
+                const_iterator() : m_storage(0) {}
                 const_iterator(const embedded_scanline& sl) :
                     m_storage(sl.m_storage),
                     m_span_idx(sl.m_scanline.start_span)
@@ -135,7 +135,7 @@ namespace agg
 
         // Renderer Interface
         //---------------------------------------------------------------
-        void prepare(unsigned)
+        void prepare()
         {
             m_scanlines.remove_all();
             m_spans.remove_all();
@@ -317,8 +317,8 @@ namespace agg
 
 
     private:
-        pod_deque<span_data, 10>    m_spans;
-        pod_deque<scanline_data, 8> m_scanlines;
+        pod_bvector<span_data, 10>    m_spans;
+        pod_bvector<scanline_data, 8> m_scanlines;
         span_data     m_fake_span;
         scanline_data m_fake_scanline;
         int           m_min_x;
@@ -361,6 +361,7 @@ namespace agg
                     int32 len;
                 };
 
+                const_iterator() : m_ptr(0) {}
                 const_iterator(const embedded_scanline& sl) :
                     m_ptr(sl.m_ptr),
                     m_dx(sl.m_dx)
@@ -458,8 +459,8 @@ namespace agg
             m_data(data),
             m_end(data + size),
             m_ptr(data),
-            m_dx(int(floor(dx + 0.5))),
-            m_dy(int(floor(dy + 0.5))),
+            m_dx(iround(dx)),
+            m_dy(iround(dy)),
             m_min_x(0x7FFFFFFF),
             m_min_y(0x7FFFFFFF),
             m_max_x(-0x7FFFFFFF),
@@ -472,8 +473,8 @@ namespace agg
             m_data  = data;
             m_end   = data + size;
             m_ptr   = data;
-            m_dx    = int(floor(dx + 0.5));
-            m_dy    = int(floor(dy + 0.5));
+            m_dx    = iround(dx);
+            m_dy    = iround(dy);
             m_min_x = 0x7FFFFFFF;
             m_min_y = 0x7FFFFFFF;
             m_max_x = -0x7FFFFFFF;
@@ -504,9 +505,8 @@ namespace agg
                 m_min_y = read_int32() + m_dy;
                 m_max_x = read_int32() + m_dx;
                 m_max_y = read_int32() + m_dy;
-                return true;
             }
-            return false;
+            return m_ptr < m_end;
         }
 
         //--------------------------------------------------------------------

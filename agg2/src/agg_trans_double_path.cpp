@@ -1,5 +1,5 @@
 //----------------------------------------------------------------------------
-// Anti-Grain Geometry - Version 2.3
+// Anti-Grain Geometry - Version 2.4
 // Copyright (C) 2002-2005 Maxim Shemanarev (http://www.antigrain.com)
 //
 // Permission to copy, use, modify, sell and distribute this software 
@@ -228,7 +228,7 @@ namespace agg
             }
             else
             {
-                i = (unsigned)floor(*x * kindex);
+                i = unsigned(*x * kindex);
                 j = i + 1;
                 dd = vertices[j].dist - vertices[i].dist;
                 d = ((*x * kindex) - i) * dd;

@@ -1,5 +1,5 @@
 //----------------------------------------------------------------------------
-// Anti-Grain Geometry - Version 2.3
+// Anti-Grain Geometry - Version 2.4
 // Copyright (C) 2002-2005 Maxim Shemanarev (http://www.antigrain.com)
 //
 // Permission to copy, use, modify, sell and distribute this software 
@@ -23,13 +23,14 @@ namespace agg
     template<class Renderer> class rasterizer_outline
     {
     public:
-        rasterizer_outline(Renderer& ren) : 
+        explicit rasterizer_outline(Renderer& ren) : 
             m_ren(&ren), 
             m_start_x(0), 
             m_start_y(0), 
             m_vertices(0)
-        {
-        }
+        {}
+        void attach(Renderer& ren) { m_ren = &ren; }
+
 
         //--------------------------------------------------------------------
         void move_to(int x, int y)

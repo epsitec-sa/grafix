@@ -9,7 +9,7 @@
 #include "ctrl/agg_cbox_ctrl.h"
 
 
-enum { flip_y = true };
+enum flip_y_e { flip_y = true };
 
 
 namespace agg
@@ -20,15 +20,16 @@ namespace agg
     public:
         square(double size) : m_size(size) {}
 
-        template<class Rasterizer, class Scanline, class Renderer> 
-        void draw(Rasterizer& ras, Scanline& sl, Renderer& ren, double x, double y)
+        template<class Rasterizer, class Scanline, class Renderer, class ColorT> 
+        void draw(Rasterizer& ras, Scanline& sl, Renderer& ren, ColorT color, 
+                  double x, double y)
         {
             ras.reset();
             ras.move_to_d(x*m_size,        y*m_size);
             ras.line_to_d(x*m_size+m_size, y*m_size);
             ras.line_to_d(x*m_size+m_size, y*m_size+m_size);
             ras.line_to_d(x*m_size,        y*m_size+m_size);
-            agg::render_scanlines(ras, sl, ren);
+            agg::render_scanlines_aa_solid(ras, sl, ren, color);
         }
 
     private:
@@ -49,7 +50,7 @@ namespace agg
         void color(rgba8 c) { m_color = c; }
 
         //--------------------------------------------------------------------
-        void prepare(unsigned) {}
+        void prepare() {}
 
         //--------------------------------------------------------------------
         template<class Scanline> void render(const Scanline& sl)
@@ -68,8 +69,9 @@ namespace agg
                 do 
                 {
                     int a = (*covers++ * m_color.a) >> 8;
-                    m_ren.color(rgba8(m_color.r, m_color.g, m_color.b, a));
-                    m_square.draw(m_ras, m_sl, m_ren, x, y);
+                    m_square.draw(m_ras, m_sl, m_ren, 
+                                  rgba8(m_color.r, m_color.g, m_color.b, a),
+                                  x, y);
                     ++x;
                 }
                 while(--num_pix);
@@ -161,14 +163,12 @@ public:
     virtual void on_draw()
     {
         typedef agg::renderer_base<agg::pixfmt_bgr24> ren_base;
-        typedef agg::renderer_scanline_aa_solid<ren_base> renderer;
 
         agg::pixfmt_bgr24 pixf(rbuf_window());
-        ren_base rb(pixf);
-        renderer ren(rb);
+        ren_base ren(pixf);
         agg::scanline_u8 sl;
 
-        rb.clear(agg::rgba(1,1,1));
+        ren.clear(agg::rgba(1,1,1));
 
         agg::rasterizer_scanline_aa<> ras;
 
@@ -176,45 +176,43 @@ public:
 
         ras.gamma(agg::gamma_power(m_slider2.value()));
 
-        agg::renderer_enlarged<renderer> ren_en(ren, size_mul);
 
-        ren_en.color(agg::rgba8(0,0,0, 255));
+        agg::renderer_enlarged<ren_base> ren_en(ren, size_mul);
+
         ras.reset();
         ras.move_to_d(m_x[0]/size_mul, m_y[0]/size_mul);
         ras.line_to_d(m_x[1]/size_mul, m_y[1]/size_mul);
         ras.line_to_d(m_x[2]/size_mul, m_y[2]/size_mul);
+        ren_en.color(agg::rgba8(0,0,0, 255));
         agg::render_scanlines(ras, sl, ren_en);
 
-        ren.color(agg::rgba8(0,0,0));
-        agg::render_scanlines(ras, sl, ren);// 20, 80);
+
+        agg::render_scanlines_aa_solid(ras, sl, ren, agg::rgba8(0,0,0));
 
         ras.gamma(agg::gamma_none());
-
 
         agg::path_storage ps;
         agg::conv_stroke<agg::path_storage> pg(ps);
         pg.width(2.0);
-        ren.color(agg::rgba8(0,150,160, 200));
 
         ps.remove_all();
         ps.move_to(m_x[0], m_y[0]);
         ps.line_to(m_x[1], m_y[1]);
         ras.add_path(pg);
-        agg::render_scanlines(ras, sl, ren);
+        agg::render_scanlines_aa_solid(ras, sl, ren, agg::rgba8(0,150,160, 200));
 
         ps.remove_all();
         ps.move_to(m_x[1], m_y[1]);
         ps.line_to(m_x[2], m_y[2]);
         ras.add_path(pg);
-        agg::render_scanlines(ras, sl, ren);
+        agg::render_scanlines_aa_solid(ras, sl, ren, agg::rgba8(0,150,160, 200));
 
         ps.remove_all();
         ps.move_to(m_x[2], m_y[2]);
         ps.line_to(m_x[0], m_y[0]);
         ras.add_path(pg);
-        agg::render_scanlines(ras, sl, ren);
- 
-       
+        agg::render_scanlines_aa_solid(ras, sl, ren, agg::rgba8(0,150,160, 200));
+
         // Render the controls
         agg::render_ctrl(ras, sl, ren, m_slider1);
         agg::render_ctrl(ras, sl, ren, m_slider2);

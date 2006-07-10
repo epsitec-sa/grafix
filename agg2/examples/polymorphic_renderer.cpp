@@ -24,7 +24,7 @@ static int pix_fmt = agg::pix_format_rgb555;
 //static int pix_fmt = agg::pix_format_bgra32;
 
 
-enum { flip_y = true };
+enum flip_y_e { flip_y = true };
 
 namespace agg
 {
@@ -41,7 +41,7 @@ namespace agg
         virtual void clear(const color_type& c) = 0;
         virtual void color(const color_type& c) = 0;
         virtual const color_type& color() const = 0;
-        virtual void prepare(unsigned max_len) = 0;
+        virtual void prepare() = 0;
         virtual void render(const scanline_type&) = 0;
     };
 
@@ -74,9 +74,9 @@ namespace agg
             return m_ren.color();
         }
 
-        virtual void prepare(unsigned max_len)
+        virtual void prepare()
         {
-            m_ren.prepare(max_len);
+            m_ren.prepare();
         }
 
         virtual void render(const scanline_type& sl)

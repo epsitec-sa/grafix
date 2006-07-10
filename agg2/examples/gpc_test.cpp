@@ -7,7 +7,6 @@
 #include "agg_scanline_p.h"
 #include "agg_renderer_scanline.h"
 #include "agg_renderer_primitives.h"
-#include "agg_span_solid.h"
 #include "agg_conv_curve.h"
 #include "agg_conv_stroke.h"
 #include "agg_conv_clip_polygon.h"
@@ -20,7 +19,7 @@
 #include "ctrl/agg_rbox_ctrl.h"
 
 
-enum { flip_y = true };
+enum flip_y_e { flip_y = true };
 
 
 
@@ -528,11 +527,9 @@ if(fd)
     virtual void on_draw()
     {
         typedef agg::renderer_base<agg::pixfmt_bgr24> base_ren_type;
-        typedef agg::renderer_scanline_aa_solid<base_ren_type> renderer_solid;
 
         agg::pixfmt_bgr24 pf(rbuf_window());
         base_ren_type ren_base(pf);
-        renderer_solid ren_solid(ren_base);
         ren_base.clear(agg::rgba(1,1,1));
 
         agg::scanline_u8 sl;
@@ -540,8 +537,8 @@ if(fd)
 
         render_gpc(sl, ras);
 
-        agg::render_ctrl(ras, sl, ren_solid, m_polygons);
-        agg::render_ctrl(ras, sl, ren_solid, m_operation);
+        agg::render_ctrl(ras, sl, ren_base, m_polygons);
+        agg::render_ctrl(ras, sl, ren_base, m_operation);
     }
 
 

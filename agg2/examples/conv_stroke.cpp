@@ -19,7 +19,7 @@
 #include "ctrl/agg_rbox_ctrl.h"
 
 
-enum { flip_y = true };
+enum flip_y_e { flip_y = true };
 
 
 
@@ -87,11 +87,9 @@ public:
     virtual void on_draw()
     {
         typedef agg::renderer_base<agg::pixfmt_bgr24> ren_base;
-        typedef agg::renderer_scanline_aa_solid<ren_base> renderer;
 
         agg::pixfmt_bgr24 pixf(rbuf_window());
         ren_base renb(pixf);
-        renderer ren(renb);
         renb.clear(agg::rgba(1, 1, 1));
 
         agg::rasterizer_scanline_aa<> ras;
@@ -128,8 +126,7 @@ public:
         stroke.miter_limit(m_miter_limit.value());
         stroke.width(m_width.value());
         ras.add_path(stroke);
-        ren.color(agg::rgba(0.8, 0.7, 0.6));
-        agg::render_scanlines(ras, sl, ren);
+        agg::render_scanlines_aa_solid(ras, sl, renb, agg::rgba(0.8, 0.7, 0.6));
         // (1)
 
 
@@ -137,8 +134,7 @@ public:
         agg::conv_stroke<agg::path_storage> poly1(path);
         poly1.width(1.5);
         ras.add_path(poly1);
-        ren.color(agg::rgba(0,0,0));
-        agg::render_scanlines(ras, sl, ren);
+        agg::render_scanlines_aa_solid(ras, sl, renb, agg::rgba(0,0,0));
         // (2)
 
 
@@ -152,24 +148,22 @@ public:
         poly2.line_join(join);
         poly2_dash.add_dash(20.0, m_width.value() / 2.5);
         ras.add_path(poly2);
-        ren.color(agg::rgba(0,0,0.3));
-        agg::render_scanlines(ras, sl, ren);
+        agg::render_scanlines_aa_solid(ras, sl, renb, agg::rgba(0,0,0.3));
         // (3)
 
 
 
         // (4)
         ras.add_path(path);
-        ren.color(agg::rgba(0.0, 0.0, 0.0, 0.2));
-        agg::render_scanlines(ras, sl, ren);
+        agg::render_scanlines_aa_solid(ras, sl, renb, agg::rgba(0.0, 0.0, 0.0, 0.2));
         // (4)
 
 
 
-        agg::render_ctrl(ras, sl, ren, m_join);
-        agg::render_ctrl(ras, sl, ren, m_cap);
-        agg::render_ctrl(ras, sl, ren, m_width);
-        agg::render_ctrl(ras, sl, ren, m_miter_limit);
+        agg::render_ctrl(ras, sl, renb, m_join);
+        agg::render_ctrl(ras, sl, renb, m_cap);
+        agg::render_ctrl(ras, sl, renb, m_width);
+        agg::render_ctrl(ras, sl, renb, m_miter_limit);
     }
 
 

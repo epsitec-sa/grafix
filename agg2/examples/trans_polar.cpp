@@ -12,7 +12,7 @@
 #include "ctrl/agg_cbox_ctrl.h"
 
 
-enum { flip_y = true };
+enum flip_y_e { flip_y = true };
 
 
 namespace agg
@@ -155,9 +155,9 @@ public:
 
         agg::rasterizer_scanline_aa<> ras; 
        
-        agg::render_ctrl(ras, sl, ren, m_slider1);
-        agg::render_ctrl(ras, sl, ren, m_slider_spiral);
-        agg::render_ctrl(ras, sl, ren, m_slider_base_y);
+        agg::render_ctrl(ras, sl, rb, m_slider1);
+        agg::render_ctrl(ras, sl, rb, m_slider_spiral);
+        agg::render_ctrl(ras, sl, rb, m_slider_base_y);
  
 
         typedef agg::conv_segmentator<agg::slider_ctrl<agg::rgba8> > conv_segmentator_type;
@@ -178,7 +178,7 @@ public:
                                  conv_transform_type>  ctrl(m_slider1, pipeline);
 
 
-        agg::render_ctrl(ras, sl, ren, ctrl);
+        agg::render_ctrl(ras, sl, rb, ctrl);
     }
 
 

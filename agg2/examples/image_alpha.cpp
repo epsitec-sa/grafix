@@ -7,7 +7,9 @@
 
 #include "agg_rendering_buffer.h"
 #include "agg_pixfmt_rgb.h"
+#include "agg_span_allocator.h"
 #include "agg_span_image_filter_rgb.h"
+#include "agg_image_accessors.h"
 #include "agg_span_interpolator_linear.h"
 #include "agg_span_converter.h"
 #include "agg_scanline_u.h"
@@ -17,7 +19,7 @@
 #include "ctrl/agg_spline_ctrl.h"
 #include "platform/agg_platform_support.h"
 
-enum { flip_y = true };
+enum flip_y_e { flip_y = true };
 
 
 namespace agg
@@ -30,7 +32,7 @@ namespace agg
         typedef rgba8 color_type;
         typedef int8u alpha_type;
 
-        enum
+        enum array_size_e
         {
             array_size = 256 * 3
         };
@@ -40,12 +42,13 @@ namespace agg
         {
         }
 
-        void convert(color_type* colors, int x, int y, unsigned len) const
+        void prepare() {}
+        void generate(color_type* span, int x, int y, unsigned len) const
         {
             do
             {
-                colors->a = m_alpha_array[colors->r + colors->g + colors->b];
-                ++colors;
+                span->a = m_alpha_array[span->r + span->g + span->b];
+                ++span;
             }
             while(--len);
         }
@@ -110,11 +113,9 @@ public:
     {
         typedef agg::pixfmt_bgr24 pixfmt;
         typedef agg::renderer_base<pixfmt> renderer_base;
-        typedef agg::renderer_scanline_aa_solid<renderer_base> renderer_solid;
 
         pixfmt pixf(rbuf_window());
         renderer_base rb(pixf);
-        renderer_solid rs(rb);
 
         rb.clear(agg::rgba(1.0, 1.0, 1.0));
 
@@ -141,32 +142,30 @@ public:
         agg::span_conv_brightness_alpha_rgb8 color_alpha(brightness_alpha_array);
 
 
+
+        typedef agg::image_accessor_clip<pixfmt> img_source_type;
         typedef agg::span_interpolator_linear<> interpolator_type; 
-        typedef agg::span_image_filter_rgb_bilinear<agg::rgba8,
-                                                    agg::order_bgr,
+        typedef agg::span_image_filter_rgb_bilinear<img_source_type,
                                                     interpolator_type> span_gen;
         typedef agg::span_converter<span_gen,
                                     agg::span_conv_brightness_alpha_rgb8> span_conv;
 
-        typedef agg::renderer_scanline_aa<renderer_base, span_conv> renderer;
 
         span_alloc sa;
         interpolator_type interpolator(img_mtx);
-        span_gen sg(sa, rbuf_img(0), agg::rgba(1,1,1,0), interpolator);
+        pixfmt img_pixf(rbuf_img(0));
+        img_source_type img_src(img_pixf, agg::rgba(0,0,0,0));
+        span_gen sg(img_src, interpolator);
         span_conv sc(sg, color_alpha);
-        renderer ri(rb, sc);
-
         agg::ellipse ell;
         agg::rasterizer_scanline_aa<> ras;
         agg::scanline_u8 sl;
-
         
         for(i = 0; i < 50; i++)
         {
             ell.init(m_x[i], m_y[i], m_rx[i], m_ry[i], 50);
-            rs.color(m_colors[i]);
             ras.add_path(ell);
-            agg::render_scanlines(ras, sl, rs);
+            agg::render_scanlines_aa_solid(ras, sl, rb, m_colors[i]);
         }
 
 
@@ -180,16 +179,16 @@ public:
 
 
         ras.add_path(tr);
-        agg::render_scanlines(ras, sl, ri);
+        agg::render_scanlines_aa(ras, sl, rb, sa, sc);
 
-        agg::render_ctrl(ras, sl, rs, m_alpha);
+        agg::render_ctrl(ras, sl, rb, m_alpha);
     }
 
     virtual void on_key(int x, int y, unsigned key, unsigned flags)
     {
         if(key == ' ')
         {
-            FILE* fd = fopen("alpha", "w");
+            FILE* fd = fopen(full_file_name("alpha"), "w");
 
             int i;
             for(i = 0; i < agg::span_conv_brightness_alpha_rgb8::array_size; i++)

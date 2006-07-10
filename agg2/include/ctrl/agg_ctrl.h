@@ -1,5 +1,5 @@
 //----------------------------------------------------------------------------
-// Anti-Grain Geometry - Version 2.3
+// Anti-Grain Geometry - Version 2.4
 // Copyright (C) 2002-2005 Maxim Shemanarev (http://www.antigrain.com)
 //
 // Permission to copy, use, modify, sell and distribute this software 
@@ -86,6 +86,20 @@ namespace agg
     //--------------------------------------------------------------------
     template<class Rasterizer, class Scanline, class Renderer, class Ctrl> 
     void render_ctrl(Rasterizer& ras, Scanline& sl, Renderer& r, Ctrl& c)
+    {
+        unsigned i;
+        for(i = 0; i < c.num_paths(); i++)
+        {
+            ras.reset();
+            ras.add_path(c, i);
+            render_scanlines_aa_solid(ras, sl, r, c.color(i));
+        }
+    }
+
+
+    //--------------------------------------------------------------------
+    template<class Rasterizer, class Scanline, class Renderer, class Ctrl> 
+    void render_ctrl_rs(Rasterizer& ras, Scanline& sl, Renderer& r, Ctrl& c)
     {
         unsigned i;
         for(i = 0; i < c.num_paths(); i++)

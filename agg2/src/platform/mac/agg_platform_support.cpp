@@ -1,5 +1,5 @@
 //----------------------------------------------------------------------------
-// Anti-Grain Geometry - Version 2.3 
+// Anti-Grain Geometry - Version 2.4 
 // Copyright (C) 2002-2005 Maxim Shemanarev (McSeem)
 // Copyright (C) 2003 Hansruedi Baer (MacOS support)
 //
@@ -490,7 +490,8 @@ pascal void DoPeriodicTask (EventLoopTimerRef theTimer, void* userData);
 		Str255 p_msg;
 		
 		::CopyCStringToPascal (msg, p_msg);
-		::StandardAlert (kAlertPlainAlert, (const unsigned char*) "\pAGG Message", p_msg, NULL, &item);
+		::StandardAlert (kAlertPlainAlert, (const unsigned char*) "\013AGG Message", p_msg, NULL, &item);
+		//::StandardAlert (kAlertPlainAlert, (const unsigned char*) "\pAGG Message", p_msg, NULL, &item);
     }
 
 

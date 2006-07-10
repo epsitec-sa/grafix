@@ -22,10 +22,10 @@
 //#define AGG_RGB555
 #include "pixel_formats.h"
 
-enum { flip_y = true };
-enum { default_num_points = 10000 };
+enum flip_y_e { flip_y = true };
+enum default_num_points_e { default_num_points = 10000 };
 
-enum 
+enum start_size_e
 {
     start_width  = 400,
     start_height = 400
@@ -136,11 +136,9 @@ public:
         agg::scanline_p8 sl;
 
         typedef agg::renderer_base<pixfmt> renderer_base;
-        typedef agg::renderer_scanline_aa_solid<renderer_base> renderer_solid;
 
         pixfmt pixf(rbuf_window());
         renderer_base rb(pixf);
-        renderer_solid rs(rb);
 
         rb.clear(agg::rgba(1,1,1));
       
@@ -183,19 +181,20 @@ public:
                         m_slider_ctrl_size.value() * 5.0, 
                         8);
                 pf.add_path(t1);
-                rs.color(agg::rgba(m_points[i].color.r, 
+
+                agg::render_scanlines_aa_solid(
+                    pf, sl, rb,
+                    agg::rgba(m_points[i].color.r, 
                                    m_points[i].color.g,
                                    m_points[i].color.b,
                                    alpha));
-
-                agg::render_scanlines(pf, sl, rs);
                 n_drawn++;
             }
         }
 
-        agg::render_ctrl(pf, sl, rs, m_scale_ctrl_z);
-        agg::render_ctrl(pf, sl, rs, m_slider_ctrl_sel);
-        agg::render_ctrl(pf, sl, rs, m_slider_ctrl_size);
+        agg::render_ctrl(pf, sl, rb, m_scale_ctrl_z);
+        agg::render_ctrl(pf, sl, rb, m_slider_ctrl_sel);
+        agg::render_ctrl(pf, sl, rb, m_slider_ctrl_size);
 
         char buf[10];
         sprintf(buf, "%08u", n_drawn);
@@ -206,8 +205,7 @@ public:
         txt.start_point(10.0, initial_height() - 20.0);
         agg::gsv_text_outline<> txt_o(txt, trans_affine_resizing());
         pf.add_path(txt_o);
-        rs.color(agg::rgba(0,0,0));
-        agg::render_scanlines(pf, sl, rs);
+        agg::render_scanlines_aa_solid(pf, sl, rb, agg::rgba(0,0,0));
 
     }
 

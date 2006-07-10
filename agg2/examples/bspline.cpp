@@ -21,7 +21,7 @@
 //#define AGG_RGB555
 #include "pixel_formats.h"
 
-enum { flip_y = true };
+enum flip_y_e { flip_y = true };
 
 
 
@@ -32,7 +32,6 @@ class the_application : public agg::platform_support
 {
 public:
     typedef agg::renderer_base<pixfmt> renderer_base;
-    typedef agg::renderer_scanline_aa_solid<renderer_base> renderer_solid;
     typedef agg::scanline_p8 scanline_type;
 
     agg::interactive_polygon     m_poly;
@@ -93,7 +92,6 @@ public:
     {
         pixfmt pixf(rbuf_window());
         renderer_base rb(pixf);
-        renderer_solid r(rb);
         rb.clear(agg::rgba(1, 1, 1));
 
         scanline_type sl;
@@ -113,19 +111,17 @@ public:
 
         stroke.width(2.0);
 
-        r.color(agg::rgba(0, 0, 0));
         ras.add_path(stroke);
-        agg::render_scanlines(ras, sl, r);
+        agg::render_scanlines_aa_solid(ras, sl, rb, agg::rgba(0, 0, 0));
 
 
         //--------------------------
         // Render the "poly" tool and controls
-        r.color(agg::rgba(0, 0.3, 0.5, 0.6));
         ras.add_path(m_poly);
-        agg::render_scanlines(ras, sl, r);
+        agg::render_scanlines_aa_solid(ras, sl, rb, agg::rgba(0, 0.3, 0.5, 0.6));
 
-        agg::render_ctrl(ras, sl, r, m_close);
-        agg::render_ctrl(ras, sl, r, m_num_points);
+        agg::render_ctrl(ras, sl, rb, m_close);
+        agg::render_ctrl(ras, sl, rb, m_num_points);
         //--------------------------
 
     }

@@ -23,9 +23,10 @@
 //#define AGG_ABGR32
 //#define AGG_RGB565
 //#define AGG_RGB555
+//#define AGG_RGB_AAA
 #include "pixel_formats.h"
 
-enum { flip_y = true };
+enum flip_y_e { flip_y = true };
 
 agg::rasterizer_scanline_aa<> g_rasterizer;
 agg::scanline_p8  g_scanline;
@@ -49,7 +50,8 @@ unsigned parse_lion(agg::path_storage& ps, agg::rgba8* colors, unsigned* path_id
 void parse_lion()
 {
     g_npaths = parse_lion(g_path, g_colors, g_path_idx);
-    agg::bounding_rect(g_path, g_path_idx, 0, g_npaths, &g_x1, &g_y1, &g_x2, &g_y2);
+    agg::pod_array_adaptor<unsigned> path_idx(g_path_idx, 100);
+    agg::bounding_rect(g_path, path_idx, 0, g_npaths, &g_x1, &g_y1, &g_x2, &g_y2);
     g_base_dx = (g_x2 - g_x1) / 2.0;
     g_base_dy = (g_y2 - g_y1) / 2.0;
 }
@@ -127,8 +129,27 @@ public:
 
         agg::render_all_paths(g_rasterizer, g_scanline, r, trans_lens, g_colors, g_path_idx, g_npaths);
 
-        agg::render_ctrl(g_rasterizer, g_scanline, r, m_magn_slider);
-        agg::render_ctrl(g_rasterizer, g_scanline, r, m_radius_slider);
+        agg::render_ctrl(g_rasterizer, g_scanline, rb, m_magn_slider);
+        agg::render_ctrl(g_rasterizer, g_scanline, rb, m_radius_slider);
+
+
+        // Testing inverse_transform()
+        //--------------------
+        //double x, y;
+        //for(y = 0; y < height(); y += 10)
+        //{
+        //    for(x = 0; x < height(); x += 10)
+        //    {
+        //        double x2 = x+0.5;
+        //        double y2 = y+0.5;
+        //        lens.transform(&x2, &y2);
+        //        lens.inverse_transform(&x2, &y2);
+        //        agg::ellipse e(x2, y2, 1, 1);
+        //        g_rasterizer.add_path(e);
+        //        r.color(agg::rgba8(0,0,0));
+        //        agg::render_scanlines(g_rasterizer, g_scanline, r);
+        //    }
+        //}
     }
 
 

@@ -20,7 +20,7 @@
 //#define AGG_RGB555
 #include "pixel_formats.h"
 
-enum { flip_y = false };
+enum flip_y_e { flip_y = false };
 
 
 struct path_attributes
@@ -179,29 +179,29 @@ public:
                                              agg::rgba8(0,   0,   0),
                                              1.0);
 
-        g_path.add_poly(g_poly_bulb, AGG_POLY_SIZE(g_poly_bulb), false, agg::path_flags_close);
+        g_path.concat_poly(g_poly_bulb, AGG_POLY_SIZE(g_poly_bulb), true);
 
         g_attr[g_npaths++] = path_attributes(g_path.start_new_path(),
                                              agg::rgba8(255,  255, 200),
                                              agg::rgba8(90,   0,   0),
                                              0.7);
 
-        g_path.add_poly(g_poly_beam1, AGG_POLY_SIZE(g_poly_beam1), false, agg::path_flags_close); 
-        g_path.add_poly(g_poly_beam2, AGG_POLY_SIZE(g_poly_beam2), false, agg::path_flags_close); 
-        g_path.add_poly(g_poly_beam3, AGG_POLY_SIZE(g_poly_beam3), false, agg::path_flags_close); 
-        g_path.add_poly(g_poly_beam4, AGG_POLY_SIZE(g_poly_beam4), false, agg::path_flags_close); 
+        g_path.concat_poly(g_poly_beam1, AGG_POLY_SIZE(g_poly_beam1), true); 
+        g_path.concat_poly(g_poly_beam2, AGG_POLY_SIZE(g_poly_beam2), true); 
+        g_path.concat_poly(g_poly_beam3, AGG_POLY_SIZE(g_poly_beam3), true); 
+        g_path.concat_poly(g_poly_beam4, AGG_POLY_SIZE(g_poly_beam4), true); 
 
         g_attr[g_npaths++] = path_attributes(g_path.start_new_path(),
                                              agg::rgba8(0, 0, 0),
                                              agg::rgba8(0, 0, 0),
                                              0.0);
 
-        g_path.add_poly(g_poly_fig1, AGG_POLY_SIZE(g_poly_fig1)); 
-        g_path.add_poly(g_poly_fig2, AGG_POLY_SIZE(g_poly_fig2)); 
-        g_path.add_poly(g_poly_fig3, AGG_POLY_SIZE(g_poly_fig3)); 
-        g_path.add_poly(g_poly_fig4, AGG_POLY_SIZE(g_poly_fig4)); 
-        g_path.add_poly(g_poly_fig5, AGG_POLY_SIZE(g_poly_fig5)); 
-        g_path.add_poly(g_poly_fig6, AGG_POLY_SIZE(g_poly_fig6)); 
+        g_path.concat_poly(g_poly_fig1, AGG_POLY_SIZE(g_poly_fig1), true); 
+        g_path.concat_poly(g_poly_fig2, AGG_POLY_SIZE(g_poly_fig2), true); 
+        g_path.concat_poly(g_poly_fig3, AGG_POLY_SIZE(g_poly_fig3), true); 
+        g_path.concat_poly(g_poly_fig4, AGG_POLY_SIZE(g_poly_fig4), true); 
+        g_path.concat_poly(g_poly_fig5, AGG_POLY_SIZE(g_poly_fig5), true); 
+        g_path.concat_poly(g_poly_fig6, AGG_POLY_SIZE(g_poly_fig6), true); 
 
         m_rotate.text_size(7);
         m_even_odd.text_size(7);
@@ -230,13 +230,9 @@ public:
     virtual void on_draw()
     {
         typedef agg::renderer_base<pixfmt> ren_base;
-        typedef agg::renderer_scanline_aa_solid<ren_base>  renderer_solid;
-        typedef agg::renderer_scanline_bin_solid<ren_base> renderer_bin_solid;
 
         pixfmt pixf(rbuf_window());
         ren_base rbase(pixf);
-        renderer_solid r(rbase);
-        renderer_bin_solid rb(rbase);
         trans_roundoff roundoff;
 
         if(m_redraw_flag)
@@ -244,11 +240,11 @@ public:
             g_rasterizer.gamma(agg::gamma_none());
             rbase.clear(agg::rgba8(255,255,255));
             g_rasterizer.filling_rule(agg::fill_non_zero);
-            agg::render_ctrl(g_rasterizer, g_scanline, r, m_rotate);
-            agg::render_ctrl(g_rasterizer, g_scanline, r, m_even_odd);
-            agg::render_ctrl(g_rasterizer, g_scanline, r, m_draft);
-            agg::render_ctrl(g_rasterizer, g_scanline, r, m_roundoff);
-            agg::render_ctrl(g_rasterizer, g_scanline, r, m_angle_delta);
+            agg::render_ctrl(g_rasterizer, g_scanline, rbase, m_rotate);
+            agg::render_ctrl(g_rasterizer, g_scanline, rbase, m_even_odd);
+            agg::render_ctrl(g_rasterizer, g_scanline, rbase, m_draft);
+            agg::render_ctrl(g_rasterizer, g_scanline, rbase, m_roundoff);
+            agg::render_ctrl(g_rasterizer, g_scanline, rbase, m_angle_delta);
             m_redraw_flag = false;
         }
         else
@@ -303,35 +299,31 @@ public:
         for(i = 0; i < g_npaths; i++)
         {
             g_rasterizer.filling_rule(g_pflag);
-            r.color(g_attr[i].fill_color);
-            rb.color(g_attr[i].fill_color);
             if(m_roundoff.status()) g_rasterizer.add_path(fill_roundoff, g_attr[i].index);
             else                    g_rasterizer.add_path(fill,          g_attr[i].index);
 
             if(m_draft.status())
             {
-                agg::render_scanlines(g_rasterizer, g_scanline, rb);
+                agg::render_scanlines_bin_solid(g_rasterizer, g_scanline, rbase, g_attr[i].fill_color);
             }
             else
             {
-                agg::render_scanlines(g_rasterizer, g_scanline, r);
+                agg::render_scanlines_aa_solid(g_rasterizer, g_scanline, rbase, g_attr[i].fill_color);
             }
 
             if(g_attr[i].stroke_width > 0.001)
             {
-                r.color(g_attr[i].stroke_color);
-                rb.color(g_attr[i].stroke_color);
                 stroke.width(g_attr[i].stroke_width * mtx.scale());
                 stroke_roundoff.width(g_attr[i].stroke_width * mtx.scale());
                 if(m_roundoff.status()) g_rasterizer.add_path(stroke_roundoff, g_attr[i].index);
                 else                    g_rasterizer.add_path(stroke,          g_attr[i].index);
                 if(m_draft.status())
                 {
-                    agg::render_scanlines(g_rasterizer, g_scanline, rb);
+                    agg::render_scanlines_bin_solid(g_rasterizer, g_scanline, rbase, g_attr[i].stroke_color);
                 }
                 else
                 {
-                    agg::render_scanlines(g_rasterizer, g_scanline, r);
+                    agg::render_scanlines_aa_solid(g_rasterizer, g_scanline, rbase, g_attr[i].stroke_color);
                 }
             }
         }

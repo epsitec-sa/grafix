@@ -19,7 +19,7 @@
 #include "platform/agg_platform_support.h"
 
 
-enum { flip_y = true };
+enum flip_y_e { flip_y = true };
 
 typedef agg::pixfmt_bgr24 pixfmt;
 
@@ -257,18 +257,18 @@ public:
         draw_curve(patt, ras_img, ren_img, p8, m_curve8.curve());
         draw_curve(patt, ras_img, ren_img, p9, m_curve9.curve());
 
-        agg::render_ctrl(ras, sl, ren, m_curve1);
-        agg::render_ctrl(ras, sl, ren, m_curve2);
-        agg::render_ctrl(ras, sl, ren, m_curve3);
-        agg::render_ctrl(ras, sl, ren, m_curve4);
-        agg::render_ctrl(ras, sl, ren, m_curve5);
-        agg::render_ctrl(ras, sl, ren, m_curve6);
-        agg::render_ctrl(ras, sl, ren, m_curve7);
-        agg::render_ctrl(ras, sl, ren, m_curve8);
-        agg::render_ctrl(ras, sl, ren, m_curve9);
+        agg::render_ctrl(ras, sl, ren_base, m_curve1);
+        agg::render_ctrl(ras, sl, ren_base, m_curve2);
+        agg::render_ctrl(ras, sl, ren_base, m_curve3);
+        agg::render_ctrl(ras, sl, ren_base, m_curve4);
+        agg::render_ctrl(ras, sl, ren_base, m_curve5);
+        agg::render_ctrl(ras, sl, ren_base, m_curve6);
+        agg::render_ctrl(ras, sl, ren_base, m_curve7);
+        agg::render_ctrl(ras, sl, ren_base, m_curve8);
+        agg::render_ctrl(ras, sl, ren_base, m_curve9);
 
-        agg::render_ctrl(ras, sl, ren, m_scale_x);
-        agg::render_ctrl(ras, sl, ren, m_start_x);
+        agg::render_ctrl(ras, sl, ren_base, m_scale_x);
+        agg::render_ctrl(ras, sl, ren_base, m_start_x);
     }
 
 
@@ -276,7 +276,7 @@ public:
     {
         if(key == ' ')
         {
-            FILE* fd = fopen("coord", "w");
+            FILE* fd = fopen(full_file_name("coord"), "w");
             fprintf(fd, "%.0f, %.0f, %.0f, %.0f, %.0f, %.0f, %.0f, %.0f", 
                          m_curve1.x1(), m_curve1.y1(), 
                          m_curve1.x2(), m_curve1.y2(), 

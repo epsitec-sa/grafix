@@ -1,5 +1,5 @@
 //----------------------------------------------------------------------------
-// Anti-Grain Geometry - Version 2.3
+// Anti-Grain Geometry - Version 2.4
 // Copyright (C) 2002-2005 Maxim Shemanarev (http://www.antigrain.com)
 //
 // Permission to copy, use, modify, sell and distribute this software 
@@ -37,7 +37,7 @@ namespace agg
         };
 
     public:
-        typedef pod_deque<point_type, 6> vertex_storage;
+        typedef pod_bvector<point_d, 6> vertex_storage;
 
         vcgen_bspline();
 

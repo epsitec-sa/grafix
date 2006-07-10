@@ -5,6 +5,7 @@
 #include "agg_scanline_u.h"
 #include "agg_renderer_scanline.h"
 #include "agg_pixfmt_rgb.h"
+#include "agg_span_allocator.h"
 #include "agg_span_gradient.h"
 #include "agg_span_interpolator_linear.h"
 #include "agg_glyph_raster_bin.h"
@@ -15,7 +16,7 @@
 #include "ctrl/agg_cbox_ctrl.h"
 
 
-enum { flip_y = true };
+enum flip_y_e { flip_y = true };
 
 
 
@@ -141,7 +142,9 @@ public:
                                    interpolator_type, 
                                    gradient_sine_repeat_adaptor<agg::gradient_circle>, 
                                    agg::gradient_linear_color<agg::rgba8> > span_gen_type;
-        typedef agg::renderer_scanline_aa<ren_base, span_gen_type> ren_type;
+        typedef agg::renderer_scanline_aa<ren_base, 
+                                          span_alloc_type,
+                                          span_gen_type> ren_type;
 
         agg::trans_affine mtx;
         gradient_sine_repeat_adaptor<agg::gradient_circle> grad_func;
@@ -150,8 +153,8 @@ public:
         color_func.colors(agg::rgba(1.0,0,0), agg::rgba(0,0.5,0));
         interpolator_type inter(mtx);
         span_alloc_type sa;
-        span_gen_type sg(sa, inter, grad_func, color_func, 0, 150.0);
-        ren_type ren(rb, sg);
+        span_gen_type sg(inter, grad_func, color_func, 0, 150.0);
+        ren_type ren(rb, sa, sg);
 
         agg::renderer_raster_htext<ren_type, glyph_gen> rt2(ren, glyph);
         rt2.render_text(5, 465, (unsigned char*)"RADIAL REPEATING GRADIENT: A quick brown fox jumps over the lazy dog", !flip_y());
