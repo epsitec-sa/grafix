@@ -260,6 +260,10 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
+				RelativePath=".\agg_color_interpolator.h"
+				>
+			</File>
+			<File
 				RelativePath=".\interface.h"
 				>
 			</File>
@@ -268,7 +272,15 @@
 				>
 			</File>
 			<File
+				RelativePath=".\settings.h"
+				>
+			</File>
+			<File
 				RelativePath=".\structures.h"
+				>
+			</File>
+			<File
+				RelativePath="..\agg2\font\win32.h"
 				>
 			</File>
 			<File
@@ -831,10 +843,6 @@
 				<Filter
 					Name="platform"
 					>
-					<File
-						RelativePath="..\agg2\include\platform\agg_platform_support.h"
-						>
-					</File>
 					<Filter
 						Name="win32"
 						>
@@ -977,18 +985,6 @@
 					>
 				</File>
 				<File
-					RelativePath="..\agg2\font\agg_font_manager.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\agg2\font\agg_font_manager.h"
-					>
-				</File>
-				<File
-					RelativePath="..\agg2\font\agg_font_manager_rec.cpp"
-					>
-				</File>
-				<File
 					RelativePath="..\agg2\font\agg_font_opentype.cpp"
 					>
 				</File>
@@ -1010,22 +1006,6 @@
 				</File>
 				<File
 					RelativePath="..\agg2\font\agg_strsafe.h"
-					>
-				</File>
-				<File
-					RelativePath="..\agg2\font\agg_text_break.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\agg2\font\agg_text_break.h"
-					>
-				</File>
-				<File
-					RelativePath="..\agg2\font\agg_text_unicode_support.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\agg2\font\agg_text_unicode_support.h"
 					>
 				</File>
 				<File

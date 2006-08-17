@@ -20,8 +20,8 @@ using namespace System::Runtime::CompilerServices;
 [assembly:AssemblyTrademarkAttribute("")];
 [assembly:AssemblyCultureAttribute("")];		
 
-[assembly:AssemblyVersionAttribute("2.4.0628.0")];
+[assembly:AssemblyVersionAttribute("2.4.0633.1")];
 
 [assembly:AssemblyDelaySignAttribute(false)];
-[assembly:AssemblyKeyFileAttribute("s:\\Epsitec.Cresus\\Epsitec.Cresus.snk")];
+[assembly:AssemblyKeyFileAttribute("..\\Epsitec.Cresus.snk")];
 [assembly:AssemblyKeyNameAttribute("")];

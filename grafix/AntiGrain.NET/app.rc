@@ -75,7 +75,7 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 2,4,628,0
+ FILEVERSION 2,4,633,0
  PRODUCTVERSION 2,4,0,0
  FILEFLAGSMASK 0x17L
 #ifdef _DEBUG
@@ -93,8 +93,8 @@ BEGIN
         BEGIN
             VALUE "Comments", "Distributed under the terms of the GNU LGPL license."
             VALUE "FileDescription", "Anti-Grain Geometry .NET Interface"
-            VALUE "FileVersion", "2, 4, 628, 0"
-            VALUE "InternalName", "AGG .NET v2.4 (July 2006)"
+            VALUE "FileVersion", "2, 4, 633, 0"
+            VALUE "InternalName", "AGG .NET v2.4 (August 2006)"
             VALUE "LegalCopyright", "Copyright © 2003-2006, Pierre Arnaud, OPaC bright ideas"
             VALUE "OriginalFilename", "AntiGrain.dll"
             VALUE "ProductName", "Anti-Grain Geometry Graphics Library"

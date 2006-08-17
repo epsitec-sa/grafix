@@ -4,7 +4,7 @@
  *	Font Path Provider definition. The font_path_provider class generates a path
  *	from a glyph description stored in an Open Type font face.
  *
- *	(C) Copyright 2002-2004, Pierre ARNAUD, OPaC bright ideas, Ch. du Fontenay 6,
+ *	(C) Copyright 2002-2006, Pierre ARNAUD, OPaC bright ideas, Ch. du Fontenay 6,
  *		CH-1400 YVERDON, Switzerland. All rights reserved. 
  *		Contact: pierre.arnaud@opac.ch, http://www.opac.ch
  *

@@ -1,4 +1,4 @@
-//	interface.cpp
+//	AntiGrain.Win32/interface.cpp
 //
 //	Copyright © 2003-2006, Pierre ARNAUD, OPaC bright ideas, Ch. du Fontenay 6,
 //	                       CH-1400 YVERDON, Switzerland. All rights reserved. 
@@ -9,8 +9,10 @@
 #include "interface.h"
 #include "structures.h"
 
+#if defined(USE_WIN32_API)
 #include <windows.h>
 #include <stdio.h>
+#endif
 
 /*
  *	The "interface" consists of low level functions required to set up and
@@ -19,19 +21,25 @@
 
 /*****************************************************************************/
 
+#if defined(USE_WIN32_API)
 static BYTE*	version_data			= 0;
+#endif
+
 static wchar_t* version_file_version	= 0;
 static wchar_t* version_product_name	= 0;
 
 /*****************************************************************************/
 
-bool AggInitialise()
+bool
+AggInitialise()
 {
 	return true;
 }
 
-void AggShutDown()
+void
+AggShutDown()
 {
+#if defined(USE_WIN32_API)
 	if (version_data)
 	{
 		delete version_data;
@@ -40,15 +48,18 @@ void AggShutDown()
 		version_file_version = 0;
 		version_product_name = 0;
 	}
+#endif
 }
 
 /*****************************************************************************/
 
-void AggNoOp()
+void
+AggNoOp()
 {
 }
 
-void AggNoOpString(const wchar_t* text)
+void
+AggNoOpString(const wchar_t* text)
 {
 }
 
@@ -59,8 +70,11 @@ void AggNoOpString(const wchar_t* text)
  *	key, using a cache (info).
  */
 
-static const wchar_t* GetVersionInfo(const wchar_t* key, wchar_t*& info)
+static const wchar_t*
+GetVersionInfo(const wchar_t* key, wchar_t*& info)
 {
+#if defined(USE_WIN32_API)
+
 	if ( (version_data == 0)
 	  && (global_dll_handle) )
 	{
@@ -106,20 +120,32 @@ static const wchar_t* GetVersionInfo(const wchar_t* key, wchar_t*& info)
 			VerQueryValueW (version_data, name, (LPVOID*) &info, &info_len);
 		}
 	}
+#endif
 	
 	return info;
 }
 
 /*****************************************************************************/
 
-const wchar_t* AggGetVersion()
+const wchar_t*
+AggGetVersion()
 {
+#if defined(USE_WIN32_API)
+	//	TODO: find the file version by some other platform specific means...
+	version_file_version = L"2, 4, 0, 0";
+#endif
 	return GetVersionInfo (L"FileVersion", version_file_version);
 }
 
 
-const wchar_t* AggGetProductName()
+const wchar_t*
+AggGetProductName()
 {
+#if defined(USE_WIN32_API)
+	//	TODO: find the product name by some other platform specific means...
+	version_product_name = L"Anti-Grain Geometry Graphics Library";
+#endif
+	
 	return GetVersionInfo (L"ProductName", version_product_name);
 }
 

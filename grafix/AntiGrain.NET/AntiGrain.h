@@ -64,11 +64,6 @@ namespace AntiGrain
 			return System::IntPtr ((void*) AggBufferNew (dx, dy, bpp));
 		}
 		
-		static System::IntPtr New(System::IntPtr hdc, int dx, int dy, int bpp)
-		{
-			return System::IntPtr ((void*) AggBufferNewUsingOS (hdc.ToPointer (), dx, dy, bpp));
-		}
-		
 		static void Resize(System::IntPtr buffer, int dx, int dy, int bpp)
 		{
 			AggBufferResize (reinterpret_cast<AggBuffer*> (buffer.ToPointer ()), dx, dy, bpp);
@@ -400,8 +395,8 @@ namespace AntiGrain
 		static void AddGlyphs(System::IntPtr rasterizer, System::IntPtr face, double scale, cli::array<unsigned short>^ glyphs, cli::array<double>^ x, cli::array<double>^ y, cli::array<double>^ sx)
 		{
 			cli::pin_ptr<unsigned short> p_glyphs = & glyphs[0];
-			cli::pin_ptr<double> p_x = & x[0];
-			cli::pin_ptr<double> p_y = & y[0];
+			cli::pin_ptr<double> p_x  = & x[0];
+			cli::pin_ptr<double> p_y  = (y == nullptr) ? nullptr : & y[0];
 			cli::pin_ptr<double> p_sx = (sx == nullptr) ? nullptr : & sx[0];
 			
 			int n = glyphs->Length;
@@ -409,32 +404,40 @@ namespace AntiGrain
 			AggRasterizer*  r = reinterpret_cast<AggRasterizer*> (rasterizer.ToPointer ());
 			agg::font_face* f = reinterpret_cast<agg::font_face*> (face.ToPointer ());
 			
-			if (p_sx == nullptr)
+			if (p_y == nullptr)
 			{
-				for (int i = 0; i < n; i++)
+				if (p_sx == nullptr)
 				{
-					AggRasterizerAddGlyphXY (r, f, p_glyphs[i], p_x[i], p_y[i], scale, scale);
+					for (int i = 0; i < n; i++)
+					{
+						AggRasterizerAddGlyphXY (r, f, p_glyphs[i], p_x[i], 0, scale, scale);
+					}
+				}
+				else
+				{
+					for (int i = 0; i < n; i++)
+					{
+						AggRasterizerAddGlyphXY (r, f, p_glyphs[i], p_x[i], 0, p_sx[i] * scale, scale);
+					}
 				}
 			}
 			else
 			{
-				for (int i = 0; i < n; i++)
+				if (p_sx == nullptr)
 				{
-					AggRasterizerAddGlyphXY (r, f, p_glyphs[i], p_x[i], p_y[i], p_sx[i] * scale, scale);
+					for (int i = 0; i < n; i++)
+					{
+						AggRasterizerAddGlyphXY (r, f, p_glyphs[i], p_x[i], p_y[i], scale, scale);
+					}
+				}
+				else
+				{
+					for (int i = 0; i < n; i++)
+					{
+						AggRasterizerAddGlyphXY (r, f, p_glyphs[i], p_x[i], p_y[i], p_sx[i] * scale, scale);
+					}
 				}
 			}
-		}
-		
-		static double AddText(System::IntPtr rasterizer, System::IntPtr face, const System::String^ text, int mode, double xx, double xy, double yx, double yy, double tx, double ty)
-		{
-			System::Diagnostics::Debug::Assert (Internals::OffsetToStringData != 0);
-			
-			cli::pin_ptr<const System::String^> pinned_text = &text;
-			const wchar_t* native_text = (const wchar_t*)((char*)(*(*((void***)&pinned_text))) + Internals::OffsetToStringData);
-			
-			return AggRasterizerAddText(reinterpret_cast<AggRasterizer*> (rasterizer.ToPointer ()),
-										reinterpret_cast<agg::font_face*> (face.ToPointer ()),
-										native_text, mode, xx, xy, yx, yy, tx, ty);
 		}
 		
 		static void AddPathStroke1(System::IntPtr rasterizer, System::IntPtr path, double width, bool curves)
@@ -617,289 +620,42 @@ namespace AntiGrain
 	public ref class Font
 	{
 	public:
-		static void Initialise()
+		static System::IntPtr CreateFaceHandle(cli::array<unsigned char>^ data, int size, System::IntPtr handle)
 		{
-			AggFontInitialise ();
+			cli::pin_ptr<unsigned char> p_data = & data[0];
+			return System::IntPtr (AggFontCreateFaceFromFontData (p_data, size, handle.ToPointer ()));
 		}
 		
-		static int GetFaceCount()
+		static void DisposeFaceHandle(System::IntPtr face)
 		{
-			return AggFontGetFaceCount ();
+			AggFontDisposeFace (reinterpret_cast<agg::font_face*> (face.ToPointer ()));
 		}
 		
-		static System::IntPtr GetFaceByRank(int n)
-		{
-			return System::IntPtr ((void*) AggFontGetFaceByRank (n));
-		}
-		
-		static System::IntPtr GetFaceByName(const System::String^ family, const System::String^ style, const System::String^ optical)
-		{
-			System::Diagnostics::Debug::Assert (Internals::OffsetToStringData != 0);
-			
-			cli::pin_ptr<const System::String^> pinned_family  = & family;
-			cli::pin_ptr<const System::String^> pinned_style   = & style;
-			cli::pin_ptr<const System::String^> pinned_optical = & optical;
-			
-			const wchar_t* native_family  = (const wchar_t*)((char*)(*(*((void***)&pinned_family ))) + Internals::OffsetToStringData);
-			const wchar_t* native_style   = (const wchar_t*)((char*)(*(*((void***)&pinned_style  ))) + Internals::OffsetToStringData);
-			const wchar_t* native_optical = (const wchar_t*)((char*)(*(*((void***)&pinned_optical))) + Internals::OffsetToStringData);
-			
-			return System::IntPtr ((void*) AggFontGetFaceByName (native_family, native_style, native_optical));
-		}
-		
-		ref class Face
-		{
-		public:
-			static System::String^ GetName(System::IntPtr face, int id)
-			{
-				const wchar_t* name = AggFontFaceGetName (reinterpret_cast<agg::font_face*> (face.ToPointer ()), id);
-				return gcnew System::String (name);
-			}
-			
-			static System::IntPtr GetOsHandle(System::IntPtr face)
-			{
-				return System::IntPtr (AggFontFaceGetOsHandle (reinterpret_cast<agg::font_face*> (face.ToPointer ())));
-			}
-			
-			static double GetCaretSlope(System::IntPtr face)
-			{
-				return AggFontFaceGetCaretSlope (reinterpret_cast<agg::font_face*> (face.ToPointer ()));
-			}
-			
-			static int GetGlyphIndex(System::IntPtr face, int unicode)
-			{
-				return AggFontFaceGetGlyphIndex (reinterpret_cast<agg::font_face*> (face.ToPointer ()), unicode);
-			}
-			
-			static double GetGlyphAdvance(System::IntPtr face, int glyph)
-			{
-				return AggFontFaceGetGlyphAdvance (reinterpret_cast<agg::font_face*> (face.ToPointer ()), glyph);
-			}
-			
-			static double GetCharAdvance(System::IntPtr face, int unicode)
-			{
-				return AggFontFaceGetCharAdvance (reinterpret_cast<agg::font_face*> (face.ToPointer ()), unicode);
-			}
-			
-			static double GetTextAdvance(System::IntPtr face, const System::String^ text, int mode)
-			{
-				System::Diagnostics::Debug::Assert (Internals::OffsetToStringData != 0);
-				
-				cli::pin_ptr<const System::String^> pinned_text = & text;
-				const wchar_t*         native_text = (const wchar_t*)((char*)(*(*((void***)&pinned_text))) + Internals::OffsetToStringData);
-				
-				return AggFontFaceGetTextAdvance (reinterpret_cast<agg::font_face*> (face.ToPointer ()), native_text, mode);
-			}
-			
-			static void GetGlyphBounds (System::IntPtr face, int glyph, [Out] double% x_min, [Out] double% y_min, [Out] double% x_max, [Out] double% y_max)
-			{
-				double nx_min, ny_min, nx_max, ny_max;
-				
-				AggFontFaceGetGlyphBounds (reinterpret_cast<agg::font_face*> (face.ToPointer ()), glyph, nx_min, ny_min, nx_max, ny_max);
-				
-				x_min = nx_min;
-				y_min = ny_min;
-				x_max = nx_max;
-				y_max = ny_max;
-			}
-			
-			static void GetCharBounds (System::IntPtr face, int unicode, [Out] double% x_min, [Out] double% y_min, [Out] double% x_max, [Out] double% y_max)
-			{
-				double nx_min, ny_min, nx_max, ny_max;
-				
-				AggFontFaceGetCharBounds (reinterpret_cast<agg::font_face*> (face.ToPointer ()), unicode, nx_min, ny_min, nx_max, ny_max);
-				
-				x_min = nx_min;
-				y_min = ny_min;
-				x_max = nx_max;
-				y_max = ny_max;
-			}
-			
-			static void GetTextBounds (System::IntPtr face, const System::String^ text, int mode, [Out] double% x_min, [Out] double% y_min, [Out] double% x_max, [Out] double% y_max)
-			{
-				System::Diagnostics::Debug::Assert (Internals::OffsetToStringData != 0);
-				
-				cli::pin_ptr<const System::String^> pinned_text = & text;
-				const wchar_t*         native_text = (const wchar_t*)((char*)(*(*((void***)&pinned_text))) + Internals::OffsetToStringData);
-				
-				double nx_min, ny_min, nx_max, ny_max;
-				
-				AggFontFaceGetTextBounds (reinterpret_cast<agg::font_face*> (face.ToPointer ()), native_text, mode, nx_min, ny_min, nx_max, ny_max);
-				
-				x_min = nx_min;
-				y_min = ny_min;
-				x_max = nx_max;
-				y_max = ny_max;
-			}
-			
-			static double GetMetrics(System::IntPtr face, int id)
-			{
-				return AggFontFaceGetMetrics (reinterpret_cast<agg::font_face*> (face.ToPointer ()), id);
-			}
-			
-			static int GetTextCharEndXArray(System::IntPtr face, System::String^ text, int mode, cli::array<double>^ x_array)
-			{
-				System::Diagnostics::Debug::Assert (Internals::OffsetToStringData != 0);
-				
-				int n = (text == nullptr) ? 0 : text->Length;
-				
-				if (n == 0)
-				{
-					return 0;
-				}
-				
-				cli::pin_ptr<System::String^> pinned_text = & text;
-				const wchar_t* native_text = (const wchar_t*)((char*)(*(*((void***)&pinned_text))) + Internals::OffsetToStringData);
-				
-				double* x_copy  = reinterpret_cast<double*> (_alloca (sizeof (double)*n));
-				
-				AggFontFaceGetTextCharEndXArray (reinterpret_cast<agg::font_face*> (face.ToPointer ()), native_text, mode, x_copy);
-				
-				System::Runtime::InteropServices::Marshal::Copy (System::IntPtr (x_copy), x_array, 0, n);
-				
-				return n;
-			}
-		};
-		ref class Break
-		{
-		public:
-			static System::IntPtr^ New(System::IntPtr face, const System::String^ text, int mode)
-			{
-				System::Diagnostics::Debug::Assert (Internals::OffsetToStringData != 0);
-				
-				cli::pin_ptr<const System::String^> pinned_text = & text;
-				const wchar_t*         native_text = (const wchar_t*)((char*)(*(*((void***)&pinned_text))) + Internals::OffsetToStringData);
-				
-				return gcnew System::IntPtr ((void*) AggFontFaceBreakNew (reinterpret_cast<agg::font_face*> (face.ToPointer ()), native_text, static_cast<TextBreakMode> (mode)));
-			}
-			
-			static System::String^ Iter(System::IntPtr context, [In][Out] double% width, [Out] int% n_char)
-			{
-				double nwidth = (double) width;
-				int nn_char;
-				
-				const wchar_t* text = AggFontFaceBreakIter (reinterpret_cast<BreakContext*> (context.ToPointer ()), nwidth, nn_char);
-				
-				width  = nwidth;
-				n_char = nn_char;
-				
-				if (text == 0)
-				{
-					return nullptr;
-				}
-				
-				return gcnew System::String (text);
-			}
-			
-			static void Delete(System::IntPtr context)
-			{
-				AggFontFaceBreakDelete (reinterpret_cast<BreakContext*> (context.ToPointer ()));
-			}
-			
-			static bool HasMore(System::IntPtr context)
-			{
-				return AggFontFaceBreakHasMore (reinterpret_cast<BreakContext*> (context.ToPointer ()));
-			}
-		};
 		ref class PixelCache
 		{
 		public:
-			static double Paint(System::IntPtr buffer, System::IntPtr face, const System::String^ text, double scale, double ox, double oy, double r, double g, double b, double a)
+			static double Paint(System::IntPtr buffer, System::IntPtr face, cli::array<unsigned short>^ glyphs, double scale, double ox, double oy, double r, double g, double b, double a)
 			{
-				System::Diagnostics::Debug::Assert (Internals::OffsetToStringData != 0);
+				cli::pin_ptr<unsigned short> p_glyphs   = & glyphs[0];
+				int length = glyphs->Length;
 				
-				cli::pin_ptr<const System::String^> pinned_text = & text;
-				const wchar_t* native_text = (const wchar_t*)((char*)(*(*((void***)&pinned_text))) + Internals::OffsetToStringData);
-				
-				return AggFontPixelCacheFill (reinterpret_cast<AggBuffer*> (buffer.ToPointer ()), reinterpret_cast<agg::font_face*> (face.ToPointer ()), native_text, scale, ox, oy, r, g, b, a);
+				return AggFontPixelCacheFill (reinterpret_cast<AggBuffer*> (buffer.ToPointer ()), reinterpret_cast<agg::font_face*> (face.ToPointer ()), p_glyphs, length, scale, ox, oy, r, g, b, a);
 			}
 			
-			static void Fill(System::IntPtr face, const System::String^ text, double scale, double ox, double oy)
+			static void Fill(System::IntPtr face, cli::array<unsigned short>^ glyphs, double scale, double ox, double oy)
 			{
-				System::Diagnostics::Debug::Assert (Internals::OffsetToStringData != 0);
-				
-				cli::pin_ptr<const System::String^> pinned_text = & text;
-				const wchar_t*         native_text = (const wchar_t*)((char*)(*(*((void***)&pinned_text))) + Internals::OffsetToStringData);
-				
-				AggFontPixelCacheFill (0, reinterpret_cast<agg::font_face*> (face.ToPointer ()), native_text, scale, ox, oy, 0, 0, 0, 0);
+				cli::pin_ptr<unsigned short> p_glyphs   = & glyphs[0];
+				int length = glyphs->Length;
+
+				AggFontPixelCacheFill (0, reinterpret_cast<agg::font_face*> (face.ToPointer ()), p_glyphs, length, scale, ox, oy, 0, 0, 0, 0);
 			}
 		};
 	};
+	
 	public ref class TextBreak
 	{
+	
 	public:
-		static void InitialiseLineBreakInformation(cli::array<System::Byte>^ data, int length)
-		{
-			cli::pin_ptr<System::Byte> ptr_data = &data[0];
-			const char* ptr_native = reinterpret_cast<char*> (ptr_data);
-			AggTextBreakInitialiseLineBreak (ptr_native, length);
-		}
-		
-		static System::IntPtr New()
-		{
-			return System::IntPtr ((void*) AggTextBreakNew ());
-		}
-		
-		static bool SetText(System::IntPtr text_break, const System::String^ text, int mode)
-		{
-			System::Diagnostics::Debug::Assert (Internals::OffsetToStringData != 0);
-			
-			cli::pin_ptr<const System::String^> pinned_text = & text;
-			const wchar_t*         native_text = (const wchar_t*)((char*)(*(*((void***)&pinned_text))) + Internals::OffsetToStringData);
-			
-			return AggTextBreakSetText (reinterpret_cast<agg::text_break*> (text_break.ToPointer ()), native_text, mode);
-		}
-
-		
-		static void SetFontFaceCount(System::IntPtr text_break, int n)
-		{
-			AggTextBreakSetFontFaceCount(reinterpret_cast<agg::text_break*> (text_break.ToPointer ()), n);
-		}
-		
-		static void SetNthFontFace(System::IntPtr text_break, int nth, System::IntPtr face)
-		{
-			AggTextBreakSetNthFontFace(reinterpret_cast<agg::text_break*> (text_break.ToPointer ()), nth, reinterpret_cast<agg::font_face*> (face.ToPointer ()));
-		}
-		
-		static void SetRunCount(System::IntPtr text_break, int n)
-		{
-			AggTextBreakSetRunCount(reinterpret_cast<agg::text_break*> (text_break.ToPointer ()), n);
-		}
-		
-		static void SetNthRun(System::IntPtr text_break, int nth, int run_length, int face_index, double scale)
-		{
-			AggTextBreakSetNthRun(reinterpret_cast<agg::text_break*> (text_break.ToPointer ()), nth, run_length, face_index, scale);
-		}
-		
-		
-		static void Rewind(System::IntPtr text_break)
-		{
-			AggTextBreakRewind (reinterpret_cast<agg::text_break*> (text_break.ToPointer ()));
-		}
-		
-		static System::String^ FindNextBreak(System::IntPtr text_break, [In][Out] double% width, [Out] int% n_char)
-		{
-			double nwidth = (double) width;
-			int nn_char;
-			
-			const wchar_t* text = AggTextBreakFindNextBreak (reinterpret_cast<agg::text_break*> (text_break.ToPointer ()), nwidth, nn_char);
-			
-			width  = nwidth;
-			n_char = nn_char;
-			
-			if (text == 0)
-			{
-				return nullptr;
-			}
-			
-			return gcnew System::String (text);
-		}
-		
-		static void Hyphenate(System::IntPtr text_break)
-		{
-			AggTextBreakHyphenate (reinterpret_cast<agg::text_break*> (text_break.ToPointer ()));
-		}
-		
 		static int HyphenateWord(const System::String^ text, int text_length, cli::array<short>^ breaks)
 		{
 			cli::pin_ptr<const System::String^> pinned_text = & text;
@@ -908,11 +664,6 @@ namespace AntiGrain
 			cli::pin_ptr<short>    breaks_ptr = & breaks[0];
 			
 			return AggTextBreakHyphenateWord (native_text, text_length, breaks_ptr, breaks_len);
-		}
-		
-		static void Delete(System::IntPtr text_break)
-		{
-			AggTextBreakDelete (reinterpret_cast<agg::text_break*> (text_break.ToPointer ()));
 		}
 		
 		static System::String^ GetUnicodeName(int code)

@@ -3,7 +3,7 @@
  *
  *	Font Path Provider Implementation.
  *
- *	(C) Copyright 2002-2004, Pierre ARNAUD, OPaC bright ideas, Ch. du Fontenay 6,
+ *	(C) Copyright 2002-2006, Pierre ARNAUD, OPaC bright ideas, Ch. du Fontenay 6,
  *		CH-1400 YVERDON, Switzerland. All rights reserved. 
  *		Contact: pierre.arnaud@opac.ch, http://www.opac.ch
  *
@@ -17,3 +17,10 @@
  */
 
 #include "agg_font_path_provider.h"
+
+/*****************************************************************************/
+
+/*
+ *	Well, there is nothing here for now, since all of the code is defined inline
+ *	in the header file...
+ */

@@ -4,7 +4,10 @@
  *	The font_face class represents a font face, that is all data related to a
  *	"physical" font (glyphs, geometry, etc.)
  *
- *	(C) Copyright 2003-2004, Pierre ARNAUD, OPaC bright ideas, Ch. du Fontenay 6,
+ *	Note: part of the code in this file is no longer needed, as we rely on
+ *	a C# implementation for most OpenType table parsing.
+ *
+ *	(C) Copyright 2003-2006, Pierre ARNAUD, OPaC bright ideas, Ch. du Fontenay 6,
  *		CH-1400 YVERDON, Switzerland. All rights reserved. 
  *		Contact: pierre.arnaud@opac.ch, http://www.opac.ch
  *
@@ -25,7 +28,11 @@
 #include "agg_font_opentype.h"
 #include "agg_strsafe.h"
 
+#undef	ACTIVE_DEBUG_TRACE
+
+#if defined(ACTIVE_DEBUG_TRACE)
 extern void Trace (const char* fmt, ...);
+#endif
 
 /*****************************************************************************/
 
@@ -46,95 +53,66 @@ extern void Trace (const char* fmt, ...);
 
 using namespace agg;
 
-font_face::font_face (font_manager* f_manager)
+font_face::font_face ()
 	:
-	manager (f_manager),
 	face_data (0),
 	face_data_size (0),
-	face_cache (0),
-	prev (0),
-	next (0),
-	os_description (0),
 	os_handle (0),
-	lock_count (0),
-	is_memory_usage_reduction_pending (false),
-	is_font_unsupported (false)
+	face_cache (0),
+	lock_count (0)
 {
-	string_zero (this->os_name, sizeof (this->os_name));
-	string_zero (this->family_name, sizeof (this->family_name));
-	string_zero (this->style_name, sizeof (this->style_name));
-	string_zero (this->style_name_loc, sizeof (this->style_name_loc));
-	string_zero (this->optical_name, sizeof (this->optical_name));
-	string_zero (this->unique_name, sizeof (this->unique_name));
 }
 
 font_face::~font_face ()
 {
+	if (this->face_data != 0)
+	{
+		delete this->face_data;
+		
+		this->face_data = 0;
+	}
+	
 	assert (this->lock_count == 0);
 }
 
 /*****************************************************************************/
 
-bool
-font_face::RealiseData ()
+font_face*
+font_face::CreateFontFaceFromData (const void* face_data, size_t face_data_size, void* os_handle)
 {
-	if ( (this->face_data == 0)
-	  && (this->is_font_unsupported == false) )
-	{
-		font_manager::family_record::LoadFontData (this->os_description, this->face_data, this->face_data_size);
-		
-		open_type::table_directory* dir = this->FindOpenTypeTableDirectory (this->face_data);
-		
-		int32u end_of_tables = dir->FindMaxTableEnd ();
-		
-		if (end_of_tables > this->face_data_size)
-		{
-			this->is_font_unsupported = true;
-			
-			font_manager::family_record::FreeFontData (this->face_data);
-			
-			this->face_data = 0;
-			this->face_data_size = 0;
-		}
-	}
+	font_face* face = new font_face ();
 	
-	return this->face_data ? true : false;
+	face->face_data = new char[face_data_size];
+	face->face_data_size = face_data_size;
+	face->os_handle = os_handle;
+	
+	memcpy (face->face_data, face_data, face_data_size);
+	
+	return face;
 }
+
+void
+font_face::DisposeFontFace(font_face* face)
+{
+	if (face != 0)
+	{
+		delete face;
+	}
+}
+
+/*****************************************************************************/
 
 void
 font_face::DisposeData ()
 {
 	if (this->face_data)
 	{
-		font_manager::family_record::FreeFontData (this->face_data);
+		delete this->face_data;
 		this->face_data = 0;
 		this->face_data_size = 0;
 	}
 	
-	if (this->os_handle)
-	{
-		font_manager::family_record::FreeOsHandle (this->os_handle);
-		this->os_handle = 0;
-	}
-	
 	this->ClearCache ();
-}
-
-void*
-font_face::RetOsHandle ()
-{
-	if (this->os_handle == 0)
-	{
-#if defined(WIN32)
-		LOGFONTW* logfont = reinterpret_cast<LOGFONTW*> (this->os_description);
-		logfont->lfHeight = this->RetUnitsPerEM ();
-		logfont->lfWidth  = 0;
-#endif
-		
-		font_manager::family_record::LoadFontAndReturnOsHandle (this->os_description, this->os_handle);
-	}
-	
-	return this->os_handle;
 }
 
 void
@@ -150,8 +128,7 @@ font_face::ClearCache ()
 bool
 font_face::UpdateCache ()
 {
-	if ( (this->face_cache == 0)
-	  && (this->RealiseData ()) )
+	if (this->face_cache == 0)
 	{
 		this->face_cache = new font_face::cache_record (this);
 	}
@@ -235,7 +212,6 @@ font_face::FindOpenTypeTableDirectory (void* base_ptr)
 open_type::table_directory*
 font_face::RetOpenTypeTableDirectory ()
 {
-	this->RealiseData ();
 	return this->FindOpenTypeTableDirectory (this->face_data);
 }
 
@@ -317,8 +293,6 @@ font_face::RetOpenTypeGSUBLookupTable (int16u index)
 int16u
 font_face::RetGlyphIndex (int32u unicode)
 {
-	this->RealiseData ();
-	
 	open_type::table_cmap* ot_cmap = this->RetOpenTypeCMap ();
 	open_type::table_cmap::EncodingFmt4* unicode_map = ot_cmap ? ot_cmap->FindUnicodeTable () : 0;
 	
@@ -733,41 +707,17 @@ font_face::SubstituteGlyphs (int16u* glyphs, int8u* charpg, int & num_glyphs,
 /*****************************************************************************/
 
 void
-font_face::ReduceMemoryUsage ()
-{
-	if (this->lock_count == 0)
-	{
-		assert (this->is_memory_usage_reduction_pending == false);
-		this->DisposeData ();
-	}
-	else
-	{
-		this->is_memory_usage_reduction_pending = true;
-	}
-}
-
-void
 font_face::Unlock ()
 {
 	assert (this->lock_count);
 	
 	this->lock_count--;
 	
-	if ( (this->lock_count == 0)
-	  && (this->is_memory_usage_reduction_pending) )
+	if (this->lock_count == 0)
 	{
-		this->is_memory_usage_reduction_pending = false;
-		this->DisposeData ();
+		//	...
 	}
 }
-
-/*****************************************************************************/
-
-const wchar_t* font_face::RetFamilyName () const			{ return this->family_name; }
-const wchar_t* font_face::RetStyleName () const				{ return this->style_name; }
-const wchar_t* font_face::RetStyleNameUserLocale () const	{ return this->style_name_loc; }
-const wchar_t* font_face::RetOpticalName () const			{ return this->optical_name; }
-const wchar_t* font_face::RetUniqueName () const			{ return this->unique_name; }
 
 /*****************************************************************************/
 
@@ -927,15 +877,18 @@ font_face::cache_record::FindSizeInfo (int16u glyph)
 	}
 	else
 	{
+		//	We don't know how to parse fonts which don't have a glyph table, like
+		//	PostScript fonts (such as Adobe's "Warnock Pro" font family). Under Win32,
+		//	we rely on GDI to convert the glyph into its outline and then we tranform
+		//	the path to a TrueType compatible representation.
+		
 #if defined(WIN32)
 		Win32::TempDC dc;
 		
-		HFONT   os_font  = (HFONT) this->face->RetOsHandle ();
+		HFONT   os_font  = (HFONT) this->face->os_handle;
 		HGDIOBJ old_font = SelectObject (dc, os_font);
 		
 		GLYPHMETRICS metrics = { 0 };
-		
-		short em = this->face->RetUnitsPerEM ();
 		
 		MAT2 mat2;
 		mat2.eM11.value = 1; mat2.eM11.fract = 0;
@@ -1125,7 +1078,7 @@ font_face::cache_record::FindSizeInfo (int16u glyph)
 	info->mxy = 0.0;
 	info->myx = 0.0;
 	
-#if 0
+#if defined(ACTIVE_DEBUG_TRACE)
 	Trace ("%S %S, Glyph %d has contents at offset %d [%d %d %d %d] %d %d [%d:%d]\n",
 			face->RetFamilyName (),
 			face->RetStyleNameUserLocale (),
@@ -1142,10 +1095,7 @@ font_face::cache_record::FindSizeInfo (int16u glyph)
 		
 		if (num_contours > 0)
 		{
-//-			__int64 cycle_t0 = GetCycleCount ();
 			this->DecompileSimpleCoordinates (info, num_contours, glyph_table);
-//-			__int64 cycle_t1 = GetCycleCount ();
-//-			Trace ("Time to decompile: %d cycles\n", (int) (cycle_t1 - cycle_t0));
 		}
 		else if (num_contours == -1)
 		{
@@ -1213,7 +1163,7 @@ font_face::cache_record::DecompileComposite (int16u glyph, size_info_record*& in
 		
 		int16u flags = compo->Flags ();
 		
-#if 0
+#if defined(ACTIVE_DEBUG_TRACE)
 		if ((flags & open_type::table_glyf::FLAG_ArgsAreXyValues) == 0)
 		{
 			Trace ("Glyph %d in %S %S does not specify [x] [y] offset, but points !\n", glyph, face->RetFamilyName (), face->RetStyleNameUserLocale ());

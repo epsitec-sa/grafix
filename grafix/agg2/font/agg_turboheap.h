@@ -4,7 +4,7 @@
  *	Basic Turbo Heap for very fast allocation (not best memory usage, but never
  *	mind, we want some fast code).
  *
- *	(C) Copyright 2003-2004, Pierre ARNAUD, OPaC bright ideas, Ch. du Fontenay 6,
+ *	(C) Copyright 2003-2006, Pierre ARNAUD, OPaC bright ideas, Ch. du Fontenay 6,
  *		CH-1400 YVERDON, Switzerland. All rights reserved. 
  *		Contact: pierre.arnaud@opac.ch, http://www.opac.ch
  *

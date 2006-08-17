@@ -1,10 +1,22 @@
+//	AntiGrain.Win32/agg_renderer.cpp
+//
+//	Copyright © 2003-2006, Pierre ARNAUD, OPaC bright ideas, Ch. du Fontenay 6,
+//	                       CH-1400 YVERDON, Switzerland. All rights reserved. 
+//
+//	Contact: pierre.arnaud@opac.ch, http://www.opac.ch
+//	License: see license.txt
+
 #include "interface.h"
 #include "structures.h"
 
 #include "agg_conv_curve.h"
+#include "agg_color_interpolator.h"
 
+/*****************************************************************************/
 
-void AggRendererSolidSetAlphaMask(AggRendererSolid* renderer, AggBuffer* buffer, int component)
+void
+AggRendererSolidSetAlphaMask(AggRendererSolid* renderer,
+							 AggBuffer* buffer, int component)
 {
 	if (renderer)
 	{
@@ -21,7 +33,9 @@ void AggRendererSolidSetAlphaMask(AggRendererSolid* renderer, AggBuffer* buffer,
 	}
 }
 
-void AggRendererSmoothSetAlphaMask(AggRendererSmooth* renderer, AggBuffer* buffer, int component)
+void
+AggRendererSmoothSetAlphaMask(AggRendererSmooth* renderer,
+							  AggBuffer* buffer, int component)
 {
 	if (renderer)
 	{
@@ -38,7 +52,9 @@ void AggRendererSmoothSetAlphaMask(AggRendererSmooth* renderer, AggBuffer* buffe
 	}
 }
 
-void AggRendererImageSetAlphaMask(AggRendererImage* renderer, AggBuffer* buffer, int component)
+void
+AggRendererImageSetAlphaMask(AggRendererImage* renderer,
+							 AggBuffer* buffer, int component)
 {
 	if (renderer)
 	{
@@ -55,7 +71,9 @@ void AggRendererImageSetAlphaMask(AggRendererImage* renderer, AggBuffer* buffer,
 	}
 }
 
-void AggRendererGradientSetAlphaMask(AggRendererGradient* renderer, AggBuffer* buffer, int component)
+void
+AggRendererGradientSetAlphaMask(AggRendererGradient* renderer,
+								AggBuffer* buffer, int component)
 {
 	if (renderer)
 	{
@@ -72,32 +90,17 @@ void AggRendererGradientSetAlphaMask(AggRendererGradient* renderer, AggBuffer* b
 	}
 }
 
+/*****************************************************************************/
 
-
-
-AggRendererSolid* AggRendererSolidNew(AggBuffer* buffer)
+AggRendererSolid*
+AggRendererSolidNew(AggBuffer* buffer)
 {
 	AggRendererSolid* renderer = new AggRendererSolid (buffer);
 	return renderer;
 }
 
-void AggRendererSolidClear(AggRendererSolid* renderer, double r, double g, double b, double a)
-{
-	if (renderer)
-	{
-		renderer->renderer->ren_base.clear (agg::rgba (r, g, b, a));
-	}
-}
-
-void AggRendererSolidColor(AggRendererSolid* renderer, double r, double g, double b, double a)
-{
-	if (renderer)
-	{
-		renderer->ren_solid.color (agg::rgba (r, g, b, a));
-	}
-}
-
-void AggRendererSolidDelete(AggRendererSolid* renderer)
+void
+AggRendererSolidDelete(AggRendererSolid* renderer)
 {
 	if (renderer->fence != 0x5AA55AA5)
 	{
@@ -107,15 +110,41 @@ void AggRendererSolidDelete(AggRendererSolid* renderer)
 	delete renderer;
 }
 
+void
+AggRendererSolidClear(AggRendererSolid* renderer, double r, double g, double b, double a)
+{
+	if (renderer)
+	{
+		renderer->renderer->ren_base.clear (agg::rgba (r, g, b, a));
+	}
+}
 
+void
+AggRendererSolidColor(AggRendererSolid* renderer, double r, double g, double b, double a)
+{
+	if (renderer)
+	{
+		renderer->ren_solid.color (agg::rgba (r, g, b, a));
+	}
+}
 
-AggRendererSmooth* AggRendererSmoothNew(AggBuffer* buffer)
+/*****************************************************************************/
+
+AggRendererSmooth*
+AggRendererSmoothNew(AggBuffer* buffer)
 {
 	AggRendererSmooth* renderer = new AggRendererSmooth (buffer);
 	return renderer;
 }
 
-void AggRendererSmoothColor(AggRendererSmooth* renderer, double r, double g, double b, double a)
+void
+AggRendererSmoothDelete(AggRendererSmooth* renderer)
+{
+	delete renderer;
+}
+
+void
+AggRendererSmoothColor(AggRendererSmooth* renderer, double r, double g, double b, double a)
 {
 	if (renderer)
 	{
@@ -123,7 +152,9 @@ void AggRendererSmoothColor(AggRendererSmooth* renderer, double r, double g, dou
 	}
 }
 
-void AggRendererSmoothSetup(AggRendererSmooth* renderer, double r1, double r2, double xx, double xy, double yx, double yy, double tx, double ty)
+void
+AggRendererSmoothSetup(AggRendererSmooth* renderer, double r1, double r2,
+					   double xx, double xy, double yx, double yy, double tx, double ty)
 {
 	if (renderer)
 	{
@@ -144,41 +175,35 @@ void AggRendererSmoothSetup(AggRendererSmooth* renderer, double r1, double r2, d
 	}
 }
 
-void AggRendererSmoothAddPath(AggRendererSmooth* renderer, AggPath* path)
+void
+AggRendererSmoothAddPath(AggRendererSmooth* renderer, AggPath* path)
 {
 	if ( (renderer)
 	  && (path) )
 	{
-		{
-			{
-				{
-					agg::conv_transform<agg::path_storage, agg::trans_affine> conv (path->path, renderer->transform_matrix);
-					agg::conv_curve<agg::conv_transform<agg::path_storage, agg::trans_affine> > curve (conv);
-					renderer->ras_smooth.add_path (curve);
-				}
-			}
-		}
+		agg::conv_transform<agg::path_storage, agg::trans_affine> conv (path->path, renderer->transform_matrix);
+		agg::conv_curve<agg::conv_transform<agg::path_storage, agg::trans_affine> > curve (conv);
+		renderer->ras_smooth.add_path (curve);
 	}
 }
 
-void AggRendererSmoothDelete(AggRendererSmooth* renderer)
-{
-	delete renderer;
-}
+/*****************************************************************************/
 
-
-AggRendererGradient* AggRendererGradientNew(AggBuffer* buffer)
+AggRendererGradient*
+AggRendererGradientNew(AggBuffer* buffer)
 {
 	AggRendererGradient* renderer = new AggRendererGradient (buffer);
 	return renderer;
 }
 
-void AggRendererGradientDelete(AggRendererGradient* renderer)
+void
+AggRendererGradientDelete(AggRendererGradient* renderer)
 {
 	delete renderer;
 }
 
-void AggRendererGradientSelect(AggRendererGradient* renderer, int id)
+void
+AggRendererGradientSelect(AggRendererGradient* renderer, int id)
 {
 	if (renderer)
 	{
@@ -186,7 +211,8 @@ void AggRendererGradientSelect(AggRendererGradient* renderer, int id)
 	}
 }
 
-void AggRendererGradientRange(AggRendererGradient* renderer, double r1, double r2)
+void
+AggRendererGradientRange(AggRendererGradient* renderer, double r1, double r2)
 {
 	if (renderer)
 	{
@@ -196,8 +222,9 @@ void AggRendererGradientRange(AggRendererGradient* renderer, double r1, double r
 	}
 }
 
-void AggRendererGradientColor1(AggRendererGradient* renderer,
-							   const double r[256], const double g[256], const double b[256], const double a[256])
+void
+AggRendererGradientColor1(AggRendererGradient* renderer,
+						  const double r[256], const double g[256], const double b[256], const double a[256])
 {
 	if (renderer)
 	{
@@ -210,8 +237,9 @@ void AggRendererGradientColor1(AggRendererGradient* renderer,
 	}
 }
 
-void AggRendererGradientMatrix(AggRendererGradient* renderer,
-							   double xx, double xy, double yx, double yy, double tx, double ty)
+void
+AggRendererGradientMatrix(AggRendererGradient* renderer,
+						  double xx, double xy, double yx, double yy, double tx, double ty)
 {
 	if (renderer)
 	{
@@ -224,31 +252,31 @@ void AggRendererGradientMatrix(AggRendererGradient* renderer,
 	}
 }
 
+/*****************************************************************************/
 
-AggRendererImage* AggRendererImageNew(AggBuffer* buffer)
+AggRendererImage*
+AggRendererImageNew(AggBuffer* buffer)
 {
 	AggRendererImage* renderer = new AggRendererImage (buffer);
 	return renderer;
 }
 
-void AggRendererImageSetStretchMode(AggRendererImage* renderer, int mode)
+void
+AggRendererImageDelete(AggRendererImage* renderer)
+{
+	delete renderer;
+}
+
+void
+AggRendererImageSetStretchMode(AggRendererImage* renderer, int mode)
 {
 	renderer->use_nn = (mode == 0);
 }
 
-void AggRendererImageDelete(AggRendererImage* renderer)
-{
-	if (renderer->fence != 0x5AA55AA5)
-	{
-		::DebugBreak ();
-	}
-	
-	delete renderer;
-}
 
-
-void AggRendererImageMatrix(AggRendererImage* renderer,
-							double xx, double xy, double yx, double yy, double tx, double ty)
+void
+AggRendererImageMatrix(AggRendererImage* renderer,
+					   double xx, double xy, double yx, double yy, double tx, double ty)
 {
 	if (renderer)
 	{
@@ -261,7 +289,8 @@ void AggRendererImageMatrix(AggRendererImage* renderer,
 	}
 }
 
-void AggRendererImageSource1(AggRendererImage* renderer, AggBuffer* buffer)
+void
+AggRendererImageSource1(AggRendererImage* renderer, AggBuffer* buffer)
 {
 	if (renderer)
 	{
@@ -279,7 +308,8 @@ void AggRendererImageSource1(AggRendererImage* renderer, AggBuffer* buffer)
 	}
 }
 
-void AggRendererImageSource2(AggRendererImage* renderer, void* buffer, int dx, int dy, int stride)
+void
+AggRendererImageSource2(AggRendererImage* renderer, void* buffer, int dx, int dy, int stride)
 {
 	if (renderer)
 	{
@@ -297,65 +327,7 @@ void AggRendererImageSource2(AggRendererImage* renderer, void* buffer, int dx, i
 	}
 }
 
-
-namespace agg
-{
-    class color_interpolator_rgba8
-    {
-    public:
-        color_interpolator_rgba8(agg::rgba8 c1, agg::rgba8 c2, unsigned len) :
-            m_r(c1.r, c2.r, len),
-            m_g(c1.g, c2.g, len),
-            m_b(c1.b, c2.b, len),
-            m_a(c1.a, c2.a, len)
-        {
-        }
-
-        void operator ++ ()
-        {
-            ++m_r; ++m_g; ++m_b; ++m_a;
-        }
-
-        rgba8 color() const
-        {
-            return rgba8(m_r.y(), m_g.y(), m_b.y(), m_a.y());
-        }
-
-    private:
-        dda_line_interpolator<16> m_r;
-        dda_line_interpolator<16> m_g;
-        dda_line_interpolator<16> m_b;
-        dda_line_interpolator<16> m_a;
-    };
-
-
-
-    // Rendering a square with color interpolation between its corners
-    // The colors of the corners are ordered CCW started from bottom-left,
-    // assuming that the Y axis goes up.
-    //------------------------------------------------------------------
-    template<class Renderer>
-    void color_rect_rgba8(Renderer& r, int x, int y, int dx, int dy,
-                          rgba8 c1, rgba8 c2, rgba8 c3, rgba8 c4)
-    {
-        int i, j;
-        color_interpolator_rgba8 cy1(c1, c4, dy);
-        color_interpolator_rgba8 cy2(c2, c3, dy);
-        for(i = 0; i < dy; ++i)
-        {
-            color_interpolator_rgba8 cx(cy1.color(), cy2.color(), dx);
-            for(j = 0; j < dx; ++j)
-            {
-                r.copy_pixel(x + j, y + i, cx.color());
-                ++cx;
-            }
-            ++cy1;
-            ++cy2;
-        }
-    }
-}
-
-
+/*****************************************************************************/
 
 void AggRendererFill4Colors(AggRendererBase* renderer,
 							int x, int y, int dx, int dy,
@@ -373,3 +345,5 @@ void AggRendererFill4Colors(AggRendererBase* renderer,
 							   agg::rgba8 (agg::rgba (r4, g4, b4)));
 	}
 }
+
+/*****************************************************************************/

@@ -3,7 +3,7 @@
  *
  *	String functions.
  *
- *	(C) Copyright 2002-2003, Pierre ARNAUD, OPaC bright ideas, Ch. du Fontenay 6,
+ *	(C) Copyright 2002-2006, Pierre ARNAUD, OPaC bright ideas, Ch. du Fontenay 6,
  *		CH-1400 YVERDON, Switzerland. All rights reserved. 
  *		Contact: pierre.arnaud@opac.ch, http://www.opac.ch
  *
@@ -18,6 +18,10 @@
 
 #ifndef AGG_STRSAFE_INCLUDED
 #define AGG_STRSAFE_INCLUDED
+
+#ifdef _MSC_VER
+#pragma warning(disable: 4996)
+#endif
 
 #include <string.h>
 #include <wchar.h>

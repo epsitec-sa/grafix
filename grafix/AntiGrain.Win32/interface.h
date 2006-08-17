@@ -34,9 +34,6 @@ typedef void AggRendererImage;
 typedef void AggRendererSolid;
 typedef void AggRendererSmooth;
 typedef void AggRendererBase;
-typedef void BreakContext;
-
-typedef int  TextBreakMode;
 
 namespace agg
 {
@@ -54,9 +51,6 @@ struct AggRendererImage;
 struct AggRendererSolid;
 struct AggRendererSmooth;
 struct AggRendererBase;
-struct BreakContext;
-
-enum TextBreakMode;
 
 namespace agg
 {
@@ -79,7 +73,6 @@ extern "C" AGGDLL const wchar_t*	AggGetProductName();
 /*	from agg_buffer.cpp														 */
 
 extern "C" AGGDLL AggBuffer*		AggBufferNew(unsigned dx, unsigned dy, unsigned bpp);
-extern "C" AGGDLL AggBuffer*		AggBufferNewUsingOS(void* hdc, unsigned dx, unsigned dy, unsigned bpp);
 extern "C" AGGDLL void				AggBufferResize(AggBuffer* buffer, unsigned dx, unsigned dy, unsigned bpp);
 extern "C" AGGDLL void				AggBufferDrawGlyphs(AggBuffer* buffer, void* hfont, int x, int y, unsigned short* glyphs, int* dx_array, unsigned int count, unsigned int color);
 extern "C" AGGDLL void				AggBufferPaint(AggBuffer* buffer, void* hdc, int x1, int y1, int x2, int y2);
@@ -180,53 +173,15 @@ extern "C" AGGDLL void				AggPathDashSetStart(AggPath* path, double dash_start);
 /*****************************************************************************/
 /*	from agg_font.cpp														 */
 
-extern "C" AGGDLL void				AggFontInitialise();
-extern "C" AGGDLL int				AggFontGetFaceCount();
-extern "C" AGGDLL agg::font_face*	AggFontGetFaceByRank(int n);
-extern "C" AGGDLL agg::font_face*	AggFontGetFaceByName(const wchar_t* family, const wchar_t* style, const wchar_t* optical);
-extern "C" AGGDLL const wchar_t*	AggFontFaceGetName(agg::font_face* face, int id);
-extern "C" AGGDLL void*				AggFontFaceGetOsHandle(agg::font_face* face);
-extern "C" AGGDLL double			AggFontFaceGetCaretSlope(agg::font_face* face);
-extern "C" AGGDLL int				AggFontFaceGetGlyphIndex(agg::font_face* face, int unicode);
-extern "C" AGGDLL double			AggFontFaceGetGlyphAdvance(agg::font_face* face, int glyph);
-extern "C" AGGDLL double			AggFontFaceGetCharAdvance(agg::font_face* face, int unicode);
-extern "C" AGGDLL double			AggFontFaceGetTextAdvance(agg::font_face* face, const wchar_t* text, int mode);
-extern "C" AGGDLL void				AggFontFaceGetGlyphBounds(agg::font_face* face, int glyph, double& x_min, double& y_min, double& x_max, double& y_max);
-extern "C" AGGDLL void				AggFontFaceGetCharBounds(agg::font_face* face, int unicode, double& x_min, double& y_min, double& x_max, double& y_max);
-extern "C" AGGDLL void				AggFontFaceGetTextBounds(agg::font_face* face, const wchar_t* text, int mode, double& x_min, double& y_min, double& x_max, double& y_max);
-extern "C" AGGDLL double			AggFontFaceGetMetrics(agg::font_face* face, int id);
-extern "C" AGGDLL int				AggFontFaceGetTextCharEndXArray(agg::font_face* face, const wchar_t* text, int mode, double* x_array);
+extern "C" AGGDLL void*				AggFontCreateFaceFromFontData(const void* data, size_t size, void* os_handle);
+extern "C" AGGDLL void				AggFontDisposeFace(agg::font_face* face);
 
-extern "C" AGGDLL double			AggFontPixelCacheFill(AggBuffer* buffer, agg::font_face* face, const wchar_t* text, double scale, double ox, double oy, double r, double g, double b, double a);
-
-extern "C" AGGDLL BreakContext*		AggFontFaceBreakNew(agg::font_face* face, const wchar_t* text, TextBreakMode mode);
-extern "C" AGGDLL const wchar_t*	AggFontFaceBreakIter(BreakContext* context, double& width, int& n_char);
-extern "C" AGGDLL bool				AggFontFaceBreakHasMore(BreakContext* context);
-extern "C" AGGDLL void				AggFontFaceBreakDelete(BreakContext* context);
-
+extern "C" AGGDLL double			AggFontPixelCacheFill(AggBuffer* buffer, agg::font_face* face, const unsigned short* glyphs, int length, double scale, double ox, double oy, double r, double g, double b, double a);
 extern "C" AGGDLL bool				AggFontGetUnicodeName(int code, wchar_t* max_path_buffer);
 
 /*****************************************************************************/
 /*	from agg_text.cpp														 */
 
-extern "C" AGGDLL void				AggTextBreakInitialiseLineBreak(const void* data, size_t length);
-extern "C" AGGDLL agg::text_break*	AggTextBreakNew();
-extern "C" AGGDLL void				AggTextBreakDelete(agg::text_break* tb);
-extern "C" AGGDLL bool				AggTextBreakIsValid(agg::text_break* tb);
-extern "C" AGGDLL bool				AggTextBreakSetFontFaces(agg::text_break* tb, int n, agg::font_face** faces);
-extern "C" AGGDLL bool				AggTextBreakSetTextRuns(agg::text_break* tb, int n, const unsigned short* run_lengths, const unsigned short* font_ids, const double* scales);
-extern "C" AGGDLL bool				AggTextBreakSetText(agg::text_break* tb, const wchar_t* text, int mode);
-extern "C" AGGDLL const	wchar_t*	AggTextBreakGetText(agg::text_break* tb);
-extern "C" AGGDLL int				AggTextBreakGetTextLength(agg::text_break* tb);
-extern "C" AGGDLL const unsigned char* AggTextBreakGetTextBreaks(agg::text_break* tb);
-extern "C" AGGDLL void				AggTextBreakRewind(agg::text_break* tb);
-extern "C" AGGDLL const wchar_t*	AggTextBreakFindNextBreak(agg::text_break* tb, double& width, int& n_chars);
-
-extern "C" AGGDLL void				AggTextBreakSetFontFaceCount(agg::text_break* tb, int n);
-extern "C" AGGDLL void				AggTextBreakSetNthFontFace(agg::text_break* tb, int nth, agg::font_face* face);
-extern "C" AGGDLL void				AggTextBreakSetRunCount(agg::text_break* tb, int n);
-extern "C" AGGDLL void				AggTextBreakSetNthRun(agg::text_break* tb, int nth, int run_length, int face_index, double scale);
-extern "C" AGGDLL void				AggTextBreakHyphenate(agg::text_break* tb);
 extern "C" AGGDLL int				AggTextBreakHyphenateWord(const wchar_t* text, int text_length, short* breaks, int breaks_length);
 
 /*****************************************************************************/

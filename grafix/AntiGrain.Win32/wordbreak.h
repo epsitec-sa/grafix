@@ -30,3 +30,4 @@
 // non accentuées.
 
 extern bool Break (const char* word, int length, int* list);
+extern char ReduceToASCIIAndConvertToUpper (int utf);

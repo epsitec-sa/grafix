@@ -1,4 +1,4 @@
-//	wordbreak.cpp
+//	AntiGrain.Win32/wordbreak.cpp
 //
 //	Copyright © 2002,	   Daniel ROUX, EPSITEC SA, Ch. de la Mouette 5,
 //						   CH-1092 BELMONT, Switzerland. All rights reserved.

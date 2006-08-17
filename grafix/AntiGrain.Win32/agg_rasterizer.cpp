@@ -1,12 +1,21 @@
+//	AntiGrain.Win32/agg_rasterizer.cpp
+//
+//	Copyright © 2003-2006, Pierre ARNAUD, OPaC bright ideas, Ch. du Fontenay 6,
+//	                       CH-1400 YVERDON, Switzerland. All rights reserved. 
+//
+//	Contact: pierre.arnaud@opac.ch, http://www.opac.ch
+//	License: see license.txt
+
 #include "interface.h"
 #include "structures.h"
 
 #include "agg_font_path_provider.h"
 #include "agg_conv_curve.h"
 
-using namespace agg;
+/*****************************************************************************/
 
-AggRasterizer* AggRasterizerNew()
+AggRasterizer*
+AggRasterizerNew()
 {
 	AggRasterizer* rasterizer = new AggRasterizer ();
 	rasterizer->has_transform = false;
@@ -14,7 +23,16 @@ AggRasterizer* AggRasterizerNew()
 	return rasterizer;
 }
 
-void AggRasterizerClear(AggRasterizer* rasterizer)
+void
+AggRasterizerDelete(AggRasterizer* rasterizer)
+{
+	delete rasterizer;
+}
+
+/*****************************************************************************/
+
+void
+AggRasterizerClear(AggRasterizer* rasterizer)
 {
 	if (rasterizer)
 	{
@@ -22,20 +40,26 @@ void AggRasterizerClear(AggRasterizer* rasterizer)
 	}
 }
 
-void AggRasterizerFillingRule(AggRasterizer* rasterizer, int rule)
+void
+AggRasterizerFillingRule(AggRasterizer* rasterizer, int rule)
 {
 	if ( (rasterizer)
 	  && (rule) )
 	{
 		switch (rule)
 		{
-			case 1:	rasterizer->rasterizer.filling_rule (agg::fill_even_odd);	break;
-			case 2: rasterizer->rasterizer.filling_rule (agg::fill_non_zero);	break;
+			case 1:
+				rasterizer->rasterizer.filling_rule (agg::fill_even_odd);
+				break;
+			case 2:
+				rasterizer->rasterizer.filling_rule (agg::fill_non_zero);
+				break;
 		}
 	}
 }
 
-bool AggRasterizerHitTest(AggRasterizer* rasterizer, int x, int y)
+bool
+AggRasterizerHitTest(AggRasterizer* rasterizer, int x, int y)
 {
 	if (rasterizer)
 	{
@@ -45,7 +69,8 @@ bool AggRasterizerHitTest(AggRasterizer* rasterizer, int x, int y)
 	return false;
 }
 
-void AggRasterizerGamma(AggRasterizer* rasterizer, double gamma)
+void
+AggRasterizerGamma(AggRasterizer* rasterizer, double gamma)
 {
 	if (rasterizer)
 	{
@@ -60,7 +85,9 @@ void AggRasterizerGamma(AggRasterizer* rasterizer, double gamma)
 	}
 }
 
-void AggRasterizerSetTransform(AggRasterizer* rasterizer, double xx, double xy, double yx, double yy, double tx, double ty)
+void
+AggRasterizerSetTransform(AggRasterizer* rasterizer,
+						  double xx, double xy, double yx, double yy, double tx, double ty)
 {
 	if (rasterizer)
 	{
@@ -81,7 +108,8 @@ void AggRasterizerSetTransform(AggRasterizer* rasterizer, double xx, double xy, 
 	}
 }
 
-void AggRasterizerSetClipBox(AggRasterizer* rasterizer, double x1, double y1, double x2, double y2)
+void
+AggRasterizerSetClipBox(AggRasterizer* rasterizer, double x1, double y1, double x2, double y2)
 {
 	if (rasterizer)
 	{
@@ -98,7 +126,8 @@ void AggRasterizerSetClipBox(AggRasterizer* rasterizer, double x1, double y1, do
 	}
 }
 
-void AggRasterizerResetClipBox(AggRasterizer* rasterizer)
+void
+AggRasterizerResetClipBox(AggRasterizer* rasterizer)
 {
 	if (rasterizer)
 	{
@@ -110,7 +139,10 @@ void AggRasterizerResetClipBox(AggRasterizer* rasterizer)
 	}
 }
 
-void AggRasterizerAddPath(AggRasterizer* rasterizer, AggPath* path, bool curved)
+/*****************************************************************************/
+
+void
+AggRasterizerAddPath(AggRasterizer* rasterizer, AggPath* path, bool curved)
 {
 	if ( (rasterizer)
 	  && (path) )
@@ -214,9 +246,11 @@ void AggRasterizerAddPath(AggRasterizer* rasterizer, AggPath* path, bool curved)
 	}
 }
 
-void AggRasterizerAddGlyph(AggRasterizer* rasterizer, agg::font_face* face,
-						   int glyph,
-						   double x, double y, double scale)
+/*****************************************************************************/
+
+void
+AggRasterizerAddGlyph(AggRasterizer* rasterizer, agg::font_face* face,
+					  int glyph, double x, double y, double scale)
 {
 	if ( (rasterizer)
 	  && (face) && (face->UpdateCache ())
@@ -225,8 +259,6 @@ void AggRasterizerAddGlyph(AggRasterizer* rasterizer, agg::font_face* face,
 	{
 		face->RetGlyphAdvance (glyph);
 		
-//		__int64 cycle_t0 = GetCycleCount ();
-		
 		agg::font_face::cache_record::size_info_record* info = face->FindSizeInfo (glyph);
 		
 		if ( (info)
@@ -289,16 +321,15 @@ void AggRasterizerAddGlyph(AggRasterizer* rasterizer, agg::font_face* face,
 				}
 			}
 		}
-		
-//		__int64 cycle_t1 = GetCycleCount ();
-		
-//		Trace ("AGG Rasterizer AddGlyph took %d cycles\n", (int)(cycle_t1-cycle_t0));
 	}
 }
 
-void AggRasterizerAddGlyphXY(AggRasterizer* rasterizer, agg::font_face* face,
-						     int glyph,
-						     double x, double y, double scale_x, double scale_y)
+/*****************************************************************************/
+
+void
+AggRasterizerAddGlyphXY(AggRasterizer* rasterizer, agg::font_face* face,
+						int glyph,
+						double x, double y, double scale_x, double scale_y)
 {
 	if ( (rasterizer)
 	  && (face) && (face->UpdateCache ())
@@ -307,8 +338,6 @@ void AggRasterizerAddGlyphXY(AggRasterizer* rasterizer, agg::font_face* face,
 	{
 		face->RetGlyphAdvance (glyph);
 		
-//		__int64 cycle_t0 = GetCycleCount ();
-		
 		agg::font_face::cache_record::size_info_record* info = face->FindSizeInfo (glyph);
 		
 		if ( (info)
@@ -371,14 +400,16 @@ void AggRasterizerAddGlyphXY(AggRasterizer* rasterizer, agg::font_face* face,
 				}
 			}
 		}
-		
-//		__int64 cycle_t1 = GetCycleCount ();
-		
-//		Trace ("AGG Rasterizer AddGlyph took %d cycles\n", (int)(cycle_t1-cycle_t0));
 	}
 }
 
-double AggRasterizerAddText(AggRasterizer* rasterizer, agg::font_face* face, const wchar_t* text, int mode, double xx, double xy, double yx, double yy, double tx, double ty)
+/*****************************************************************************/
+
+#if 0
+double
+AggRasterizerAddText(AggRasterizer* rasterizer, agg::font_face* face,
+					 const wchar_t* text, int mode,
+					 double xx, double xy, double yx, double yy, double tx, double ty)
 {
 	double width = 0;
 	
@@ -397,8 +428,8 @@ double AggRasterizerAddText(AggRasterizer* rasterizer, agg::font_face* face, con
 				matrix *= rasterizer->transform_matrix;
 			}
 			
-			int32u unicode = *text++;
-			int16u glyph   = face->RetGlyphIndex (unicode);
+			agg::int32u unicode = *text++;
+			agg::int16u glyph   = face->RetGlyphIndex (unicode);
 			double advance = face->RetGlyphAdvance (glyph) * xx;
 			
 			width += advance;
@@ -441,8 +472,13 @@ double AggRasterizerAddText(AggRasterizer* rasterizer, agg::font_face* face, con
 	
 	return width;
 }
+#endif
 
-void AggRasterizerAddPathStroke1(AggRasterizer* rasterizer, AggPath* path, double width, bool curved)
+/*****************************************************************************/
+
+void
+AggRasterizerAddPathStroke1(AggRasterizer* rasterizer,
+							AggPath* path, double width, bool curved)
 {
 	if ( (rasterizer)
 	  && (path) )
@@ -583,7 +619,12 @@ void AggRasterizerAddPathStroke1(AggRasterizer* rasterizer, AggPath* path, doubl
 	}
 }
 
-void AggRasterizerAddPathStroke2(AggRasterizer* rasterizer, AggPath* path, double width, int cap, int join, double miter_limit, bool curved)
+/*****************************************************************************/
+
+void
+AggRasterizerAddPathStroke2(AggRasterizer* rasterizer,
+							AggPath* path, double width, int cap, int join,
+							double miter_limit, bool curved)
 {
 	if (miter_limit < 0)
 	{
@@ -758,36 +799,46 @@ void AggRasterizerAddPathStroke2(AggRasterizer* rasterizer, AggPath* path, doubl
 	}
 }
 
-void AggRasterizerRenderSolid(AggRasterizer* rasterizer, AggRendererSolid* renderer)
+/*****************************************************************************/
+
+void
+AggRasterizerRenderSolid(AggRasterizer* rasterizer, AggRendererSolid* renderer)
 {
 	if ( (rasterizer)
 	  && (renderer) )
 	{
-//		__int64 cycle_t0 = GetCycleCount ();
-		
 		switch (renderer->renderer->active_mask_component)
 		{
-			case 0:  agg::render_scanlines (rasterizer->rasterizer, renderer->renderer->sl_a, renderer->ren_solid); break;
-			case 1:  agg::render_scanlines (rasterizer->rasterizer, renderer->renderer->sl_r, renderer->ren_solid); break;
-			case 2:  agg::render_scanlines (rasterizer->rasterizer, renderer->renderer->sl_g, renderer->ren_solid); break;
-			case 3:  agg::render_scanlines (rasterizer->rasterizer, renderer->renderer->sl_b, renderer->ren_solid); break;
-			default: agg::render_scanlines (rasterizer->rasterizer, renderer->renderer->scanline, renderer->ren_solid); break;
+			case 0:
+				agg::render_scanlines (rasterizer->rasterizer, renderer->renderer->sl_a, renderer->ren_solid);
+				break;
+				
+			case 1:
+				agg::render_scanlines (rasterizer->rasterizer, renderer->renderer->sl_r, renderer->ren_solid);
+				break;
+			
+			case 2:
+				agg::render_scanlines (rasterizer->rasterizer, renderer->renderer->sl_g, renderer->ren_solid);
+				break;
+			
+			case 3:
+				agg::render_scanlines (rasterizer->rasterizer, renderer->renderer->sl_b, renderer->ren_solid);
+				break;
+			
+			default:
+				agg::render_scanlines (rasterizer->rasterizer, renderer->renderer->scanline, renderer->ren_solid);
+				break;
 		}
-		
-//		__int64 cycle_t1 = GetCycleCount ();
-		
-//		Trace ("AGG Rasterizer Render took %d cycles\n", (int)(cycle_t1-cycle_t0));
 	}
 }
 
-void AggRasterizerRenderImage(AggRasterizer* rasterizer, AggRendererImage* renderer)
+void
+AggRasterizerRenderImage(AggRasterizer* rasterizer, AggRendererImage* renderer)
 {
 	if ( (rasterizer)
 	  && (renderer)
 	  && (renderer->Validate ()) )
 	{
-//		__int64 cycle_t0 = GetCycleCount ();
-		
 		switch (renderer->renderer->active_mask_component)
 		{
 			case 0:
@@ -846,14 +897,11 @@ void AggRasterizerRenderImage(AggRasterizer* rasterizer, AggRendererImage* rende
 				break;
 			
 		}
-		
-//		__int64 cycle_t1 = GetCycleCount ();
-		
-//		Trace ("AGG Image Rasterizer Render took %d cycles\n", (int)(cycle_t1-cycle_t0));
 	}
 }
 
-void AggRasterizerRenderGradient(AggRasterizer* rasterizer, AggRendererGradient* renderer)
+void
+AggRasterizerRenderGradient(AggRasterizer* rasterizer, AggRendererGradient* renderer)
 {
 	if ( (rasterizer)
 	  && (renderer)
@@ -870,7 +918,4 @@ void AggRasterizerRenderGradient(AggRasterizer* rasterizer, AggRendererGradient*
 	}
 }
 
-void AggRasterizerDelete(AggRasterizer* rasterizer)
-{
-	delete rasterizer;
-}
+/*****************************************************************************/

@@ -1,9 +1,10 @@
 //	AntiGrain.Win32/agg_path.cpp
 //
-//	Copyright © 2003-2005, Pierre ARNAUD, OPaC bright ideas, Ch. du Fontenay 6,
+//	Copyright © 2003-2006, Pierre ARNAUD, OPaC bright ideas, Ch. du Fontenay 6,
 //	                       CH-1400 YVERDON, Switzerland. All rights reserved. 
 //
 //	Contact: pierre.arnaud@opac.ch, http://www.opac.ch
+//	License: see license.txt
 
 #include "interface.h"
 #include "structures.h"
@@ -16,20 +17,25 @@
 #include "agg_conv_contour.h"
 #include "agg_conv_curve.h"
 
-using namespace agg;
+/*****************************************************************************/
 
-AggPath* AggPathNew()
+AggPath*
+AggPathNew()
 {
 	AggPath* path = new AggPath ();
 	return path;
 }
 
-void AggPathDelete(AggPath* path)
+void
+AggPathDelete(AggPath* path)
 {
 	delete path;
 }
 
-void AggPathMoveTo(AggPath* path, double x, double y)
+/*****************************************************************************/
+
+void
+AggPathMoveTo(AggPath* path, double x, double y)
 {
 	if (path)
 	{
@@ -37,7 +43,8 @@ void AggPathMoveTo(AggPath* path, double x, double y)
 	}
 }
 
-void AggPathLineTo(AggPath* path, double x, double y)
+void
+AggPathLineTo(AggPath* path, double x, double y)
 {
 	if (path)
 	{
@@ -45,7 +52,8 @@ void AggPathLineTo(AggPath* path, double x, double y)
 	}
 }
 
-void AggPathCurve3(AggPath* path, double x_c, double y_c, double x, double y)
+void
+AggPathCurve3(AggPath* path, double x_c, double y_c, double x, double y)
 {
 	if (path)
 	{
@@ -53,7 +61,8 @@ void AggPathCurve3(AggPath* path, double x_c, double y_c, double x, double y)
 	}
 }
 
-void AggPathCurve4(AggPath* path, double x_c1, double y_c1, double x_c2, double y_c2, double x, double y)
+void
+AggPathCurve4(AggPath* path, double x_c1, double y_c1, double x_c2, double y_c2, double x, double y)
 {
 	if (path)
 	{
@@ -61,7 +70,8 @@ void AggPathCurve4(AggPath* path, double x_c1, double y_c1, double x_c2, double 
 	}
 }
 
-void AggPathClose(AggPath* path)
+void
+AggPathClose(AggPath* path)
 {
 	if (path)
 	{
@@ -69,7 +79,8 @@ void AggPathClose(AggPath* path)
 	}
 }
 
-void AggPathAddNewPath(AggPath* path)
+void
+AggPathAddNewPath(AggPath* path)
 {
 	if (path)
 	{
@@ -77,7 +88,8 @@ void AggPathAddNewPath(AggPath* path)
 	}
 }
 
-void AggPathRemoveAll(AggPath* path)
+void
+AggPathRemoveAll(AggPath* path)
 {
 	if (path)
 	{
@@ -85,7 +97,10 @@ void AggPathRemoveAll(AggPath* path)
 	}
 }
 
-int AggPathElemCount(AggPath* path)
+/*****************************************************************************/
+
+int
+AggPathElemCount(AggPath* path)
 {
 	if (path)
 	{
@@ -109,7 +124,8 @@ int AggPathElemCount(AggPath* path)
 	return 0;
 }
 
-void AggPathElemGet(AggPath* path, int max, int* types, double* x, double* y)
+void
+AggPathElemGet(AggPath* path, int max, int* types, double* x, double* y)
 {
 	if ( (path)
 	  && (max > 0) )
@@ -132,9 +148,12 @@ void AggPathElemGet(AggPath* path, int max, int* types, double* x, double* y)
 	}
 }
 
+/*****************************************************************************/
 
-
-void AggPathAppendGlyph(AggPath* path, agg::font_face* face, int glyph, double xx, double xy, double yx, double yy, double tx, double ty, double bold)
+void
+AggPathAppendGlyph(AggPath* path, agg::font_face* face, int glyph,
+				   double xx, double xy, double yx, double yy, double tx, double ty,
+				   double bold)
 {
 	if (path && path && face->UpdateCache () && (glyph >= 0) && (glyph < 0xff00))
 	{
@@ -170,7 +189,10 @@ void AggPathAppendGlyph(AggPath* path, agg::font_face* face, int glyph, double x
 	}
 }
 
-void AggPathCombinePathsUsingGpc(AggPath* path1, AggPath* path2, AggPath* result, int op)
+/*****************************************************************************/
+
+void
+AggPathCombinePathsUsingGpc(AggPath* path1, AggPath* path2, AggPath* result, int op)
 {
 	if (path1 && path2 && result)
 	{
@@ -184,7 +206,12 @@ void AggPathCombinePathsUsingGpc(AggPath* path1, AggPath* path2, AggPath* result
 	}
 }
 
-void AggPathAppendPath(AggPath* path, AggPath* path2, double xx, double xy, double yx, double yy, double tx, double ty, double scale, double bold)
+/*****************************************************************************/
+
+void
+AggPathAppendPath(AggPath* path, AggPath* path2,
+				  double xx, double xy, double yx, double yy, double tx, double ty,
+				  double scale, double bold)
 {
 	if (path && path2)
 	{
@@ -224,7 +251,11 @@ void AggPathAppendPath(AggPath* path, AggPath* path2, double xx, double xy, doub
 	}
 }
 
-void AggPathAppendPathStroke(AggPath* path, AggPath* path2, double width, int cap, int join, double miter_limit, double scale, bool curved)
+/*****************************************************************************/
+
+void
+AggPathAppendPathStroke(AggPath* path, AggPath* path2, double width,
+						int cap, int join, double miter_limit, double scale, bool curved)
 {
 	if (path && path2)
 	{
@@ -258,7 +289,10 @@ void AggPathAppendPathStroke(AggPath* path, AggPath* path2, double width, int ca
 	}
 }
 
-void AggPathComputeBounds(AggPath* path, double& x1, double& y1, double& x2, double& y2)
+/*****************************************************************************/
+
+void
+AggPathComputeBounds(AggPath* path, double& x1, double& y1, double& x2, double& y2)
 {
 	if (path)
 	{
@@ -273,7 +307,9 @@ void AggPathComputeBounds(AggPath* path, double& x1, double& y1, double& x2, dou
 	}
 }
 
-void AggPathAppendArc(AggPath* path, double x, double y, double rx, double ry, double a1, double a2, bool ccw, double scale, bool continue_path)
+void
+AggPathAppendArc(AggPath* path, double x, double y, double rx, double ry,
+				 double a1, double a2, bool ccw, double scale, bool continue_path)
 {
 	if (path)
 	{
@@ -291,8 +327,10 @@ void AggPathAppendArc(AggPath* path, double x, double y, double rx, double ry, d
 	}
 }
 
+/*****************************************************************************/
 
-void AggPathDashReset(AggPath* path)
+void
+AggPathDashReset(AggPath* path)
 {
 	if (path)
 	{
@@ -301,7 +339,8 @@ void AggPathDashReset(AggPath* path)
 	}
 }
 
-void AggPathDashAdd(AggPath* path, double dash_len, double gap_len)
+void
+AggPathDashAdd(AggPath* path, double dash_len, double gap_len)
 {
 	if (path)
 	{
@@ -310,7 +349,8 @@ void AggPathDashAdd(AggPath* path, double dash_len, double gap_len)
 	}
 }
 
-void AggPathDashSetStart(AggPath* path, double dash_start)
+void
+AggPathDashSetStart(AggPath* path, double dash_start)
 {
 	if (path)
 	{
@@ -318,7 +358,8 @@ void AggPathDashSetStart(AggPath* path, double dash_start)
 	}
 }
 
-void AggPathAppendDashedPath(AggPath* path, AggPath* dash, double scale)
+void
+AggPathAppendDashedPath(AggPath* path, AggPath* dash, double scale)
 {
 	if (path && dash && (scale > 0))
 	{
@@ -326,3 +367,5 @@ void AggPathAppendDashedPath(AggPath* path, AggPath* dash, double scale)
 		path->path.concat_path (dash->dash, 0);
 	}
 }
+
+/*****************************************************************************/

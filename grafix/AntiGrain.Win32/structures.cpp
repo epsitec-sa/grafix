@@ -1,4 +1,14 @@
+//	AntiGrain.Win32/structures.cpp
+//
+//	Copyright © 2003-2006, Pierre ARNAUD, OPaC bright ideas, Ch. du Fontenay 6,
+//	                       CH-1400 YVERDON, Switzerland. All rights reserved. 
+//
+//	Contact: pierre.arnaud@opac.ch, http://www.opac.ch
+//	License: see license.txt
+
 #include "structures.h"
+
+/*****************************************************************************/
 
 bool
 AggRendererImage::Validate ()
@@ -17,6 +27,8 @@ AggRendererImage::Validate ()
 	
 	return this->is_ready;
 }
+
+/*****************************************************************************/
 
 void
 AggRendererGradient::Select (AggRendererGradient::GradientID id)
@@ -58,3 +70,5 @@ AggRendererGradient::Validate ()
 	
 	return this->is_ready;
 }
+
+/*****************************************************************************/

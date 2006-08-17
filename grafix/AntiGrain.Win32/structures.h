@@ -8,6 +8,8 @@
 
 #pragma once
 
+#include "settings.h"
+
 #include "agg_alpha_mask_u8.h"
 #include "agg_bounding_rect.h"
 #include "agg_image_accessors.h"
@@ -123,9 +125,11 @@ struct AggBuffer
 	AggRendererCommon*		renderer;
 	AggRendererCommonPre*	renderer_pre;
     
+#if defined(USE_WIN32_API)
 	HDC						bitmap_dc;
 	HBITMAP                 bitmap;
 	HGDIOBJ					bitmap_old;
+#endif
 };
 
 /*****************************************************************************/

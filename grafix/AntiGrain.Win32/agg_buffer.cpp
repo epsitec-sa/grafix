@@ -1,11 +1,29 @@
+//	AntiGrain.Win32/agg_buffer.cpp
+//
+//	Copyright © 2003-2006, Pierre ARNAUD, OPaC bright ideas, Ch. du Fontenay 6,
+//	                       CH-1400 YVERDON, Switzerland. All rights reserved. 
+//
+//	Contact: pierre.arnaud@opac.ch, http://www.opac.ch
+//	License: see license.txt
+
 #include "interface.h"
 #include "structures.h"
 
+/*****************************************************************************/
+
+//	IPP refers to the "Intel Integrated Performance Primitives"
+
+#if defined(USE_IPP)
 #include <ippcore.h>
 #include <ipp.h>
+#endif
 
-static void InitIPP()
+/*****************************************************************************/
+
+static void
+InitIPP()
 {
+#if defined(USE_IPP)
 	static bool need_init = true;
 	
 	if (need_init)
@@ -13,9 +31,13 @@ static void InitIPP()
 		need_init = false;
 		ippStaticInitBest ();
 	}
+#endif
 }
 
-AggBuffer* AggBufferNew(unsigned dx, unsigned dy, unsigned bpp)
+/*****************************************************************************/
+
+AggBuffer*
+AggBufferNew(unsigned dx, unsigned dy, unsigned bpp)
 {
 	InitIPP ();
 	
@@ -23,32 +45,16 @@ AggBuffer* AggBufferNew(unsigned dx, unsigned dy, unsigned bpp)
 	
 	if (buffer)
 	{
-		buffer->bitmap_dc  = 0;
-		buffer->bitmap     = 0;
-		buffer->bitmap_old = 0;
-		
-		buffer->pixmap.create (dx, dy, (agg::org_e) bpp, 0xff);
-		buffer->buffer.attach (buffer->pixmap.buf (), buffer->pixmap.width (), buffer->pixmap.height (), buffer->pixmap.stride ());
-		buffer->renderer = new AggRendererCommon (buffer->buffer);
-		buffer->renderer_pre = new AggRendererCommonPre (buffer->buffer);
-	}
-	
-	return buffer;
-}
-
-AggBuffer* AggBufferNewUsingOS(void* hdc, unsigned dx, unsigned dy, unsigned bpp)
-{
-	InitIPP ();
-	
-	AggBuffer* buffer = new AggBuffer ();
-	
-	if (buffer)
-	{
-		buffer->bitmap_dc  = ::CreateCompatibleDC ((HDC) hdc);
+#if defined(USE_WIN32_API)
+		buffer->bitmap_dc  = ::CreateCompatibleDC (NULL);
 		buffer->bitmap     = buffer->pixmap.create_dib_section (buffer->bitmap_dc, dx, dy, (agg::org_e) bpp, 0xff);
 		buffer->bitmap_old = ::SelectObject (buffer->bitmap_dc, buffer->bitmap);
 		
 		buffer->buffer.attach (buffer->pixmap.buf (), buffer->pixmap.width (), buffer->pixmap.height (), buffer->pixmap.stride ());
+#else
+		buffer->pixmap.create (dx, dy, (agg::org_e) bpp, 0xff);
+#endif
+		buffer->buffer.attach (buffer->pixmap.buf (), buffer->pixmap.width (), buffer->pixmap.height (), buffer->pixmap.stride ());
 		buffer->renderer = new AggRendererCommon (buffer->buffer);
 		buffer->renderer_pre = new AggRendererCommonPre (buffer->buffer);
 	}
@@ -56,10 +62,12 @@ AggBuffer* AggBufferNewUsingOS(void* hdc, unsigned dx, unsigned dy, unsigned bpp
 	return buffer;
 }
 
-void AggBufferResize(AggBuffer* buffer, unsigned dx, unsigned dy, unsigned bpp)
+void
+AggBufferResize(AggBuffer* buffer, unsigned dx, unsigned dy, unsigned bpp)
 {
 	if (buffer)
 	{
+#if defined(USE_WIN32_API)
 		if (buffer->bitmap_dc && buffer->bitmap)
 		{
 			::SelectObject (buffer->bitmap_dc, buffer->bitmap_old);
@@ -74,6 +82,9 @@ void AggBufferResize(AggBuffer* buffer, unsigned dx, unsigned dy, unsigned bpp)
 		{
 			buffer->pixmap.create (dx, dy, (agg::org_e) bpp, 0xff);
 		}
+#else
+		buffer->pixmap.create (dx, dy, (agg::org_e) bpp, 0xff);
+#endif
 		
 		buffer->buffer.attach (buffer->pixmap.buf (), buffer->pixmap.width (), buffer->pixmap.height (), buffer->pixmap.stride ());
 		buffer->renderer->ren_base.reset_clipping (true);
@@ -81,8 +92,10 @@ void AggBufferResize(AggBuffer* buffer, unsigned dx, unsigned dy, unsigned bpp)
 	}
 }
 
-void AggBufferDrawGlyphs(AggBuffer* buffer, void* hfont, int x, int y, unsigned short* glyphs, int* dx_array, unsigned int count, unsigned int color)
+void
+AggBufferDrawGlyphs(AggBuffer* buffer, void* hfont, int x, int y, unsigned short* glyphs, int* dx_array, unsigned int count, unsigned int color)
 {
+#if defined(USE_WIN32_API)
 	if (buffer && buffer->bitmap_dc && buffer->bitmap && hfont)
 	{
 		HGDIOBJ old_hfont = ::SelectObject (buffer->bitmap_dc, (HFONT) hfont);
@@ -92,9 +105,14 @@ void AggBufferDrawGlyphs(AggBuffer* buffer, void* hfont, int x, int y, unsigned 
 		::ExtTextOut (buffer->bitmap_dc, x, y, ETO_GLYPH_INDEX, 0, reinterpret_cast<LPCTSTR> (glyphs), count, dx_array);
 		::SelectObject (buffer->bitmap_dc, old_hfont);
 	}
+#else
+	//	TODO: paint into the specified buffer using the native text
+	//	functions.
+#endif
 }
 
-void AggBufferPaint(AggBuffer* buffer, void* hdc, int x1, int y1, int x2, int y2)
+void
+AggBufferPaint(AggBuffer* buffer, void* hdc, int x1, int y1, int x2, int y2)
 {
 	if (buffer)
 	{
@@ -102,7 +120,8 @@ void AggBufferPaint(AggBuffer* buffer, void* hdc, int x1, int y1, int x2, int y2
 	}
 }
 
-void AggBufferPaintOffset(AggBuffer* buffer, void* hdc, int ox, int oy, int x1, int y1, int x2, int y2)
+void
+AggBufferPaintOffset(AggBuffer* buffer, void* hdc, int ox, int oy, int x1, int y1, int x2, int y2)
 {
 	if (buffer)
 	{
@@ -110,7 +129,8 @@ void AggBufferPaintOffset(AggBuffer* buffer, void* hdc, int ox, int oy, int x1, 
 	}
 }
 
-void AggBufferBlendOffset(AggBuffer* buffer, void* hdc, int ox, int oy, int x1, int y1, int x2, int y2)
+void
+AggBufferBlendOffset(AggBuffer* buffer, void* hdc, int ox, int oy, int x1, int y1, int x2, int y2)
 {
 	if (buffer)
 	{
@@ -118,25 +138,17 @@ void AggBufferBlendOffset(AggBuffer* buffer, void* hdc, int ox, int oy, int x1, 
 	}
 }
 
-void AggBufferClear(AggBuffer* buffer)
+void
+AggBufferClear(AggBuffer* buffer)
 {
 	if (buffer)
 	{
-#if 1
 		buffer->pixmap.clear (0x00);
-#else
-		int               long_count = buffer->pixmap.height () * buffer->pixmap.stride () / 4;
-		unsigned __int32* memory     = (unsigned __int32*) buffer->pixmap.buf ();
-		
-		while (long_count--)
-		{
-			*memory++ = 0x01000000;
-		}
-#endif
 	}
 }
 
-void AggBufferGetMemoryLayout(AggBuffer* buffer, int & dx, int & dy, int & stride, void*& memory)
+void
+AggBufferGetMemoryLayout(AggBuffer* buffer, int & dx, int & dy, int & stride, void*& memory)
 {
 	if (buffer)
 	{
@@ -154,17 +166,21 @@ void AggBufferGetMemoryLayout(AggBuffer* buffer, int & dx, int & dy, int & strid
 	}
 }
 
-void* AggBufferGetMemoryBitmapHandle(AggBuffer* buffer)
+void*
+AggBufferGetMemoryBitmapHandle(AggBuffer* buffer)
 {
 	if (buffer)
 	{
+#if defined(USE_WIN32_API)
 		return buffer->bitmap;
+#endif
 	}
 	
 	return 0;
 }
 
-void AggBufferClearRect(AggBuffer* buffer, int x1, int y1, int x2, int y2)
+void
+AggBufferClearRect(AggBuffer* buffer, int x1, int y1, int x2, int y2)
 {
 	if (buffer)
 	{
@@ -194,8 +210,10 @@ void AggBufferClearRect(AggBuffer* buffer, int x1, int y1, int x2, int y2)
 	}
 }
 
-void AggBufferDelete(AggBuffer* buffer)
+void
+AggBufferDelete(AggBuffer* buffer)
 {
+#if defined(USE_WIN32_API)
 	if (buffer->bitmap_dc && buffer->bitmap)
 	{
 		::SelectObject (buffer->bitmap_dc, buffer->bitmap_old);
@@ -206,6 +224,7 @@ void AggBufferDelete(AggBuffer* buffer)
 		buffer->bitmap     = 0;
 		buffer->bitmap_old = 0;
 	}
+#endif
 	
 	delete buffer->renderer;
 	delete buffer->renderer_pre;
@@ -213,25 +232,32 @@ void AggBufferDelete(AggBuffer* buffer)
 }
 
 
-void AggBufferInfiniteClipping(AggBuffer* buffer)
+void
+AggBufferInfiniteClipping(AggBuffer* buffer)
 {
 	buffer->renderer->ren_base.reset_clipping(true);
 	buffer->renderer_pre->ren_base_pre.reset_clipping(true);
 }
 
-void AggBufferEmptyClipping(AggBuffer* buffer)
+void
+AggBufferEmptyClipping(AggBuffer* buffer)
 {
 	buffer->renderer->ren_base.reset_clipping(false);
 	buffer->renderer_pre->ren_base_pre.reset_clipping(false);
 }
 
-void AggBufferAddClipBox(AggBuffer* buffer, int x1, int y1, int x2, int y2)
+void
+AggBufferAddClipBox(AggBuffer* buffer, int x1, int y1, int x2, int y2)
 {
 	buffer->renderer->ren_base.add_clip_box (x1, y1, x2, y2);
 	buffer->renderer_pre->ren_base_pre.add_clip_box (x1, y1, x2, y2);
 }
 
-void AggBufferBltBuffer(AggBuffer* buffer, int xd, int yd, AggBuffer* source, int xs, int ys, int dx, int dy)
+/*****************************************************************************/
+
+void
+AggBufferBltBuffer(AggBuffer* buffer, int xd, int yd,
+				   AggBuffer* source, int xs, int ys, int dx, int dy)
 {
 	if (buffer && source)
 	{
@@ -315,16 +341,22 @@ void AggBufferBltBuffer(AggBuffer* buffer, int xd, int yd, AggBuffer* source, in
 		src_pixels += x3 * 4;
 		src_pixels += y3 * src_byte_width;
 		
+#if defined(USE_IPP)
 		IppiSize roi_size;
 		
 		roi_size.width  = dx;
 		roi_size.height = dy;
 		
 		ippiCopy_8u_C4R (src_pixels, src_byte_width, dst_pixels, dst_byte_width, roi_size);
+#else
+		//	TODO: implement function which does the same as ippiCopy_8u_C4R
+#endif
 	}
 }
 
-void AggBufferComposeBuffer(AggBuffer* buffer, int xd, int yd, AggBuffer* source, int xs, int ys, int dx, int dy)
+void
+AggBufferComposeBuffer(AggBuffer* buffer, int xd, int yd,
+					   AggBuffer* source, int xs, int ys, int dx, int dy)
 {
 	if (buffer && source)
 	{
@@ -407,12 +439,18 @@ void AggBufferComposeBuffer(AggBuffer* buffer, int xd, int yd, AggBuffer* source
 		
 		src_pixels += x3 * 4;
 		src_pixels += y3 * src_byte_width;
-		
+
+#if defined(USE_IPP)
 		IppiSize roi_size;
 		
 		roi_size.width  = dx;
 		roi_size.height = dy;
 		
 		ippiAlphaComp_8u_AC4R (src_pixels, src_byte_width, dst_pixels, dst_byte_width, dst_pixels, dst_byte_width, roi_size, ippAlphaOverPremul);
+#else
+		//	TODO: implement function which does the same as ippiAlphaComp_8u_AC4R
+#endif
 	}
 }
+
+/*****************************************************************************/

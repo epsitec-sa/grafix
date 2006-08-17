@@ -4,7 +4,7 @@
  *	The font_face class represents a font face, that is all data related to a
  *	"physical" font (glyphs, geometry, etc.)
  *
- *	(C) Copyright 2003-2004, Pierre ARNAUD, OPaC bright ideas, Ch. du Fontenay 6,
+ *	(C) Copyright 2003-2006, Pierre ARNAUD, OPaC bright ideas, Ch. du Fontenay 6,
  *		CH-1400 YVERDON, Switzerland. All rights reserved. 
  *		Contact: pierre.arnaud@opac.ch, http://www.opac.ch
  *
@@ -23,7 +23,6 @@
 /*****************************************************************************/
 
 #include "agg_turboheap.h"
-#include "agg_font_manager.h"
 
 /*****************************************************************************/
 
@@ -55,8 +54,6 @@ namespace agg
 	
 	class font_face
 	{
-		friend class agg::font_manager;
-		friend struct agg::font_manager::family_record;
 		
 	public:
 		enum GlyphSubst
@@ -190,39 +187,24 @@ namespace agg
 		
 		
 	protected:
-		font_manager*		manager;				//	associated font manager
-		
 		void*				face_data;				//	associated face (font) data (or 0)
 		size_t				face_data_size;			//	size of face data
+		void*				os_handle;
 		
 		cache_record*		face_cache;				//	OpenType face information cache
 		
-		font_face*			prev;					//	previous font face in same family
-		font_face*			next;					//	next font face in same family
-		
-		void*				os_description;			//	pointer to OS description of font
-		wchar_t				os_name[64];			//	name used by OS
-		void*				os_handle;				//	handle to OS Font
-		
-		wchar_t				family_name[64];		//	family name (untranslated)
-		wchar_t				style_name[64];			//	style name (untranslated)
-		wchar_t				style_name_loc[64];		//	style name (translated according to user's locale)
-		wchar_t				optical_name[64];		//	optical name (untranslated)
-		wchar_t				unique_name[100];		//	unique name (untranslated)
-		
 		int					lock_count;				//	# of uses of this face object
 		
-		bool				is_memory_usage_reduction_pending;	//	set when ReduceMemoryUsage was called while lock_count > 0
-		bool				is_font_unsupported;				//	set when font is a TTC font, for instance
-		
 	protected:
-		font_face (font_manager* manager);
+		font_face ();
 		virtual ~ font_face ();
 		
-		bool RealiseData ();
 		void DisposeData ();
 		
 	public:
+		static font_face* CreateFontFaceFromData (const void* face_data, size_t face_data_size, void* os_handle);
+		static void DisposeFontFace(font_face* face);
+		
 		void ClearCache ();
 		bool UpdateCache ();
 		
@@ -263,7 +245,6 @@ namespace agg
 		int8u* TurboAlloc (int32u size)								{ this->UpdateCache (); return this->face_cache->TurboAlloc (size); }
 		double RetScaleToEM ()										{ this->UpdateCache (); return this->face_cache->scale_to_em; }
 		int RetUnitsPerEM ()										{ this->UpdateCache (); return this->face_cache->units_per_em; }
-		bool IsSupported ()											{ return ! this->is_font_unsupported; }
 		
 		double RetGlyphAdvance (int16u glyph);
 		double RetGlyphKerning (int16u glyph_1, int16u glyph_2);
@@ -287,18 +268,6 @@ namespace agg
 		int MapToGlyphs (const int32u* text, size_t text_len, int16u* glyphs, int8u* char_per_glyph, int max_glyphs, font_face::GlyphSubst substitution);
 		
 		int SubstituteGlyphs (int16u* glyphs, int8u* char_per_glyph, int & num_glyphs, font_face::GlyphSubst substitution);
-		
-		void ReduceMemoryUsage ();
-		
-		const wchar_t* RetFamilyName () const;
-		const wchar_t* RetStyleName () const;
-		const wchar_t* RetStyleNameUserLocale () const;
-		const wchar_t* RetOpticalName () const;
-		const wchar_t* RetUniqueName () const;
-		
-		void* RetOsHandle ();
-		
-		font_manager* RetFontManager () const						{ return this->manager; }
 	};
 }
 

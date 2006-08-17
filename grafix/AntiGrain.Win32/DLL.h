@@ -1,4 +1,4 @@
-//	DLL.h
+//	AntiGrain.Win32/DLL.h
 //
 //	Copyright © 2003-2006, Pierre ARNAUD, OPaC bright ideas, Ch. du Fontenay 6,
 //	                       CH-1400 YVERDON, Switzerland. All rights reserved. 
@@ -8,6 +8,9 @@
 
 #pragma once
 
+#include "settings.h"
+
+#if defined(USE_WIN32_API)
 #if	defined(AGGWRAPPER_EXPORTS)
 
 //	If compiling the DLL itself, AGGWRAPPER_EXPORTS is defined and we
@@ -27,5 +30,12 @@ extern void Trace (const char* fmt, ...);
 //	the *.dll).
 
 #define	AGGDLL	__declspec(dllimport)
+
+#endif
+#else
+
+#define	AGGDLL
+
+//	TODO: define AGGDLL in order to export the symbols when compiling
 
 #endif

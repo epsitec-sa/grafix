@@ -1,10 +1,9 @@
 /*
  *	win32.h
  *
- *	Temporary DC wrapper. The TempDC class makes sure that the DC will be
- *	released on destruction.
+ *	Plaform-dependent code.
  *
- *	(C) Copyright 2002-2004, Pierre ARNAUD, OPaC bright ideas, Ch. du Fontenay 6,
+ *	(C) Copyright 2002-2006, Pierre ARNAUD, OPaC bright ideas, Ch. du Fontenay 6,
  *		CH-1400 YVERDON, Switzerland. All rights reserved. 
  *		Contact: pierre.arnaud@opac.ch, http://www.opac.ch
  *
