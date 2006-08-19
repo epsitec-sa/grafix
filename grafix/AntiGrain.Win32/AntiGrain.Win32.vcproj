@@ -230,10 +230,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\agg_text.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\DLL.h"
 				>
 			</File>
@@ -247,10 +243,6 @@
 			</File>
 			<File
 				RelativePath=".\structures.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\wordbreak.cpp"
 				>
 			</File>
 		</Filter>
@@ -281,10 +273,6 @@
 			</File>
 			<File
 				RelativePath="..\agg2\font\win32.h"
-				>
-			</File>
-			<File
-				RelativePath=".\wordbreak.h"
 				>
 			</File>
 		</Filter>

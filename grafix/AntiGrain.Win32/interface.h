@@ -180,8 +180,3 @@ extern "C" AGGDLL double			AggFontPixelCacheFill(AggBuffer* buffer, agg::font_fa
 extern "C" AGGDLL bool				AggFontGetUnicodeName(int code, wchar_t* max_path_buffer);
 
 /*****************************************************************************/
-/*	from agg_text.cpp														 */
-
-extern "C" AGGDLL int				AggTextBreakHyphenateWord(const wchar_t* text, int text_length, short* breaks, int breaks_length);
-
-/*****************************************************************************/

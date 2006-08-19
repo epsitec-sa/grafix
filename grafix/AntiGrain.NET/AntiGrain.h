@@ -631,6 +631,18 @@ namespace AntiGrain
 			AggFontDisposeFace (reinterpret_cast<agg::font_face*> (face.ToPointer ()));
 		}
 		
+		static System::String^ GetUnicodeName(int code)
+		{
+			wchar_t max_path_buffer[260];
+			
+			if (AggFontGetUnicodeName (code, max_path_buffer))
+			{
+				return gcnew System::String (max_path_buffer);
+			}
+			
+			return nullptr;
+		}
+		
 		ref class PixelCache
 		{
 		public:
@@ -650,32 +662,5 @@ namespace AntiGrain
 				AggFontPixelCacheFill (0, reinterpret_cast<agg::font_face*> (face.ToPointer ()), p_glyphs, length, scale, ox, oy, 0, 0, 0, 0);
 			}
 		};
-	};
-	
-	public ref class TextBreak
-	{
-	
-	public:
-		static int HyphenateWord(const System::String^ text, int text_length, cli::array<short>^ breaks)
-		{
-			cli::pin_ptr<const System::String^> pinned_text = & text;
-			const wchar_t*         native_text = (const wchar_t*)((char*)(*(*((void***)&pinned_text))) + Internals::OffsetToStringData);
-			int                    breaks_len  = breaks->Length;
-			cli::pin_ptr<short>    breaks_ptr = & breaks[0];
-			
-			return AggTextBreakHyphenateWord (native_text, text_length, breaks_ptr, breaks_len);
-		}
-		
-		static System::String^ GetUnicodeName(int code)
-		{
-			wchar_t max_path_buffer[260];
-			
-			if (AggFontGetUnicodeName (code, max_path_buffer))
-			{
-				return gcnew System::String (max_path_buffer);
-			}
-			
-			return nullptr;
-		}
 	};
 }
