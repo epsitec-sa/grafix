@@ -620,10 +620,10 @@ namespace AntiGrain
 	public ref class Font
 	{
 	public:
-		static System::IntPtr CreateFaceHandle(cli::array<unsigned char>^ data, int size, System::IntPtr handle)
+		static System::IntPtr CreateFaceHandle(cli::array<unsigned char>^ data, int size, int offset, System::IntPtr handle)
 		{
 			cli::pin_ptr<unsigned char> p_data = & data[0];
-			return System::IntPtr (AggFontCreateFaceFromFontData (p_data, size, handle.ToPointer ()));
+			return System::IntPtr (AggFontCreateFaceFromFontData (p_data, size, offset, handle.ToPointer ()));
 		}
 		
 		static void DisposeFaceHandle(System::IntPtr face)

@@ -25,9 +25,9 @@
 /*****************************************************************************/
 
 void*
-AggFontCreateFaceFromFontData(const void* data, size_t size, void* os_handle)
+AggFontCreateFaceFromFontData(const void* data, size_t size, size_t offset, void* os_handle)
 {
-	return agg::font_face::CreateFontFaceFromData (data, size, os_handle);
+	return agg::font_face::CreateFontFaceFromData (data, size, offset, os_handle);
 }
 
 void

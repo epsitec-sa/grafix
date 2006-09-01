@@ -173,7 +173,7 @@ extern "C" AGGDLL void				AggPathDashSetStart(AggPath* path, double dash_start);
 /*****************************************************************************/
 /*	from agg_font.cpp														 */
 
-extern "C" AGGDLL void*				AggFontCreateFaceFromFontData(const void* data, size_t size, void* os_handle);
+extern "C" AGGDLL void*				AggFontCreateFaceFromFontData(const void* data, size_t size, size_t offset, void* os_handle);
 extern "C" AGGDLL void				AggFontDisposeFace(agg::font_face* face);
 
 extern "C" AGGDLL double			AggFontPixelCacheFill(AggBuffer* buffer, agg::font_face* face, const unsigned short* glyphs, int length, double scale, double ox, double oy, double r, double g, double b, double a);

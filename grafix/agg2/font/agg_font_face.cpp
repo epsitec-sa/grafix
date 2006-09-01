@@ -57,6 +57,7 @@ font_face::font_face ()
 	:
 	face_data (0),
 	face_data_size (0),
+	face_data_offset (0),
 	os_handle (0),
 	face_cache (0),
 	lock_count (0)
@@ -78,12 +79,14 @@ font_face::~font_face ()
 /*****************************************************************************/
 
 font_face*
-font_face::CreateFontFaceFromData (const void* face_data, size_t face_data_size, void* os_handle)
+font_face::CreateFontFaceFromData (const void* face_data, size_t face_data_size, size_t face_data_offset, void* os_handle)
 {
 	font_face* face = new font_face ();
 	
-	face->face_data = new char[face_data_size];
-	face->face_data_size = face_data_size;
+	face->face_data        = new char[face_data_size];
+	face->face_data_size   = face_data_size;
+	face->face_data_offset = face_data_offset;
+	
 	face->os_handle = os_handle;
 	
 	memcpy (face->face_data, face_data, face_data_size);
@@ -187,32 +190,33 @@ font_face::FillOpenTypeLigatureSubstArray (const open_type::feature_table* featu
 }
 
 open_type::table_directory*
-font_face::FindOpenTypeTableDirectory (void* base_ptr)
+font_face::FindOpenTypeTableDirectory (void* base_ptr, int offset)
 {
 	if (base_ptr == 0)
 	{
 		return 0;
 	}
 	
-	open_type::table_ttc_header* ttc = reinterpret_cast<open_type::table_ttc_header*> (base_ptr);
-	
-	int ttf_offset = 0;
-	
-	if ((ttc->tag[0] == 't') &&
-		(ttc->tag[1] == 't') &&
-		(ttc->tag[2] == 'c') &&
-		(ttc->tag[3] == 'f'))
+	if (offset == 0)
 	{
-		ttf_offset = read_big_endian (ttc->offset_table[0]);
+		open_type::table_ttc_header* ttc = reinterpret_cast<open_type::table_ttc_header*> (base_ptr);
+		
+		if ((ttc->tag[0] == 't') &&
+			(ttc->tag[1] == 't') &&
+			(ttc->tag[2] == 'c') &&
+			(ttc->tag[3] == 'f'))
+		{
+			offset = read_big_endian (ttc->offset_table[0]);
+		}
 	}
 	
-	return reinterpret_cast<open_type::table_directory*> (reinterpret_cast<char*> (base_ptr) + ttf_offset);
+	return reinterpret_cast<open_type::table_directory*> (reinterpret_cast<char*> (base_ptr) + offset);
 }
 
 open_type::table_directory*
 font_face::RetOpenTypeTableDirectory ()
 {
-	return this->FindOpenTypeTableDirectory (this->face_data);
+	return this->FindOpenTypeTableDirectory (this->face_data, this->face_data_offset);
 }
 
 open_type::table_GSUB*

@@ -189,6 +189,7 @@ namespace agg
 	protected:
 		void*				face_data;				//	associated face (font) data (or 0)
 		size_t				face_data_size;			//	size of face data
+		size_t				face_data_offset;		//	offset to start of directory entry
 		void*				os_handle;
 		
 		cache_record*		face_cache;				//	OpenType face information cache
@@ -202,7 +203,7 @@ namespace agg
 		void DisposeData ();
 		
 	public:
-		static font_face* CreateFontFaceFromData (const void* face_data, size_t face_data_size, void* os_handle);
+		static font_face* CreateFontFaceFromData (const void* face_data, size_t face_data_size, size_t face_data_offset, void* os_handle);
 		static void DisposeFontFace(font_face* face);
 		
 		void ClearCache ();
@@ -212,7 +213,7 @@ namespace agg
 		
 	public:
 		open_type::table_directory*     RetOpenTypeTableDirectory ();
-		open_type::table_directory*		FindOpenTypeTableDirectory (void* base_ptr);
+		open_type::table_directory*		FindOpenTypeTableDirectory (void* base_ptr, int offset);
 		open_type::table_GSUB*          RetOpenTypeGSUB ();
 		open_type::table_head*          RetOpenTypeHead ();
 		open_type::table_hhea*          RetOpenTypeHorizHead ();
