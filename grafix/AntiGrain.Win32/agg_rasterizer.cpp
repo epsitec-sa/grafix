@@ -850,9 +850,13 @@ AggRasterizerRenderImage(AggRasterizer* rasterizer, AggRendererImage* renderer)
 				{
 					agg::render_scanlines_aa (rasterizer->rasterizer, renderer->renderer->sl_a, renderer->renderer->ren_base, renderer->span_alloc, renderer->span_gen);
 				}
-				else
+				else if (renderer->mode > 1)
 				{
 					agg::render_scanlines_aa (rasterizer->rasterizer, renderer->renderer->sl_a, renderer->renderer->ren_base, renderer->span_alloc, renderer->span_gen_general);
+				}
+				else
+				{
+					agg::render_scanlines_aa (rasterizer->rasterizer, renderer->renderer->sl_a, renderer->renderer->ren_base, renderer->span_alloc, renderer->span_gen_resample);
 				}
 				break;
 			
@@ -865,9 +869,13 @@ AggRasterizerRenderImage(AggRasterizer* rasterizer, AggRendererImage* renderer)
 				{
 					agg::render_scanlines_aa (rasterizer->rasterizer, renderer->renderer->sl_r, renderer->renderer->ren_base, renderer->span_alloc, renderer->span_gen);
 				}
-				else
+				else if (renderer->mode > 1)
 				{
 					agg::render_scanlines_aa (rasterizer->rasterizer, renderer->renderer->sl_r, renderer->renderer->ren_base, renderer->span_alloc, renderer->span_gen_general);
+				}
+				else
+				{
+					agg::render_scanlines_aa (rasterizer->rasterizer, renderer->renderer->sl_r, renderer->renderer->ren_base, renderer->span_alloc, renderer->span_gen_resample);
 				}
 				break;
 			
@@ -879,6 +887,10 @@ AggRasterizerRenderImage(AggRasterizer* rasterizer, AggRendererImage* renderer)
 				else if (renderer->mode == 1)
 				{
 					agg::render_scanlines_aa (rasterizer->rasterizer, renderer->renderer->sl_g, renderer->renderer->ren_base, renderer->span_alloc, renderer->span_gen);
+				}
+				else if (renderer->mode > 1)
+				{
+					agg::render_scanlines_aa (rasterizer->rasterizer, renderer->renderer->sl_g, renderer->renderer->ren_base, renderer->span_alloc, renderer->span_gen_resample);
 				}
 				else
 				{
@@ -895,9 +907,13 @@ AggRasterizerRenderImage(AggRasterizer* rasterizer, AggRendererImage* renderer)
 				{
 					agg::render_scanlines_aa (rasterizer->rasterizer, renderer->renderer->sl_b, renderer->renderer->ren_base, renderer->span_alloc, renderer->span_gen);
 				}
-				else
+				else if (renderer->mode > 1)
 				{
 					agg::render_scanlines_aa (rasterizer->rasterizer, renderer->renderer->sl_b, renderer->renderer->ren_base, renderer->span_alloc, renderer->span_gen_general);
+				}
+				else
+				{
+					agg::render_scanlines_aa (rasterizer->rasterizer, renderer->renderer->sl_b, renderer->renderer->ren_base, renderer->span_alloc, renderer->span_gen_resample);
 				}
 				break;
 			
@@ -910,9 +926,13 @@ AggRasterizerRenderImage(AggRasterizer* rasterizer, AggRendererImage* renderer)
 				{
 					agg::render_scanlines_aa (rasterizer->rasterizer, renderer->renderer->scanline, renderer->renderer->ren_base, renderer->span_alloc, renderer->span_gen);
 				}
-				else
+				else if (renderer->mode > 1)
 				{
 					agg::render_scanlines_aa (rasterizer->rasterizer, renderer->renderer->scanline, renderer->renderer->ren_base, renderer->span_alloc, renderer->span_gen_general);
+				}
+				else
+				{
+					agg::render_scanlines_aa (rasterizer->rasterizer, renderer->renderer->scanline, renderer->renderer->ren_base, renderer->span_alloc, renderer->span_gen_resample);
 				}
 				break;
 			

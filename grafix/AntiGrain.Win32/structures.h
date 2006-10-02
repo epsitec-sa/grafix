@@ -263,6 +263,7 @@ struct AggRendererImage
 	typedef agg::span_image_filter_rgba_bilinear<img_source_type, interpolator_type>		span_gen_type;		//@
 	typedef agg::span_image_filter_rgba_nn<img_source_type, interpolator_type>				span_gen_type_nn;	//@
 	typedef agg::span_image_filter_rgba<img_source_type, interpolator_type>					span_gen_type_general;
+	typedef agg::span_image_resample_rgba_affine<img_source_type>							span_gen_type_resample;
 	
 	agg::trans_affine			matrix;
 	interpolator_type			interpolator;
@@ -274,6 +275,7 @@ struct AggRendererImage
 	span_gen_type				span_gen;
 	span_gen_type_nn			span_gen_nn;
 	span_gen_type_general		span_gen_general;
+	span_gen_type_resample		span_gen_resample;
     
 	bool						is_source_ok;
 	bool						is_ready;
@@ -293,6 +295,7 @@ struct AggRendererImage
 		  span_gen (img_src, interpolator),	//@ supprimé agg::rgba (1, 0, 0, 1), 
 		  span_gen_nn (img_src, interpolator),
 		  span_gen_general (img_src, interpolator, filter),
+		  span_gen_resample (img_src, interpolator, filter),
 //@		  ren_image(renderer->ren_base, span_gen),
 //@		  ren_image_nn(renderer->ren_base, span_gen_nn),
 		  is_source_ok (false),
