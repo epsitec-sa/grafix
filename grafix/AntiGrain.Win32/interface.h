@@ -134,7 +134,7 @@ extern "C" AGGDLL AggRendererImage*	AggRendererImageNew(AggBuffer* buffer);
 extern "C" AGGDLL void				AggRendererImageMatrix(AggRendererImage* renderer, double xx, double xy, double yx, double yy, double tx, double ty);
 extern "C" AGGDLL void				AggRendererImageSource1(AggRendererImage* renderer, AggBuffer* buffer);
 extern "C" AGGDLL void				AggRendererImageSource2(AggRendererImage* renderer, void* buffer, int dx, int dy, int stride);
-extern "C" AGGDLL void				AggRendererImageSetStretchMode(AggRendererImage* renderer, int mode);
+extern "C" AGGDLL void				AggRendererImageSetStretchMode(AggRendererImage* renderer, int mode, double radius);
 extern "C" AGGDLL void				AggRendererImageDelete(AggRendererImage* renderer);
 
 extern "C" AGGDLL AggRendererGradient* AggRendererGradientNew(AggBuffer* buffer);

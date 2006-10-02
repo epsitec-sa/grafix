@@ -262,23 +262,23 @@ struct AggRendererImage
 	typedef agg::image_accessor_clip<pixfmt>												img_source_type;
 	typedef agg::span_image_filter_rgba_bilinear<img_source_type, interpolator_type>		span_gen_type;		//@
 	typedef agg::span_image_filter_rgba_nn<img_source_type, interpolator_type>				span_gen_type_nn;	//@
-//@	typedef agg::renderer_scanline_aa<renderer_base, span_gen_type>		renderer_type;
-//@	typedef agg::renderer_scanline_aa<renderer_base, span_gen_type_nn>	renderer_type_nn;
+	typedef agg::span_image_filter_rgba<img_source_type, interpolator_type>					span_gen_type_general;
 	
 	agg::trans_affine			matrix;
 	interpolator_type			interpolator;
 	agg::rendering_buffer		source_buffer;
 	pixfmt						img_pixf;		//@
 	img_source_type				img_src;
+	agg::image_filter_lut		filter;
 	span_alloc_type				span_alloc;
 	span_gen_type				span_gen;
 	span_gen_type_nn			span_gen_nn;
-//@	renderer_type				ren_image;
-//@	renderer_type_nn			ren_image_nn;
+	span_gen_type_general		span_gen_general;
     
 	bool						is_source_ok;
 	bool						is_ready;
 	bool						use_nn;
+	int							mode;
 	
 	unsigned int				fence;
 	
@@ -292,11 +292,13 @@ struct AggRendererImage
 		  span_alloc (),
 		  span_gen (img_src, interpolator),	//@ supprimé agg::rgba (1, 0, 0, 1), 
 		  span_gen_nn (img_src, interpolator),
+		  span_gen_general (img_src, interpolator, filter),
 //@		  ren_image(renderer->ren_base, span_gen),
 //@		  ren_image_nn(renderer->ren_base, span_gen_nn),
 		  is_source_ok (false),
 		  is_ready (false),
-		  use_nn (false)
+		  use_nn (false),
+		  mode (0)
 	{
 		this->span_gen.filter_offset (0);
 		this->fence = 0x5AA55AA5;

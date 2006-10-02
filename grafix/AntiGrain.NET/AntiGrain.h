@@ -276,9 +276,9 @@ namespace AntiGrain
 				AggRendererImageDelete (reinterpret_cast<AggRendererImage*> (renderer.ToPointer ()));
 			}
 			
-			static void SetStretchMode(System::IntPtr renderer, int mode)
+			static void SetStretchMode(System::IntPtr renderer, int mode, double radius)
 			{
-				AggRendererImageSetStretchMode (reinterpret_cast<AggRendererImage*> (renderer.ToPointer ()), mode);
+				AggRendererImageSetStretchMode (reinterpret_cast<AggRendererImage*> (renderer.ToPointer ()), mode, radius);
 			}
 			
 			static void SetAlphaMask(System::IntPtr renderer, System::IntPtr buffer, MaskComponent component)

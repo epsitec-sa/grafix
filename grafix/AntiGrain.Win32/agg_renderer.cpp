@@ -268,9 +268,31 @@ AggRendererImageDelete(AggRendererImage* renderer)
 }
 
 void
-AggRendererImageSetStretchMode(AggRendererImage* renderer, int mode)
+AggRendererImageSetStretchMode(AggRendererImage* renderer, int mode, double radius)
 {
 	renderer->use_nn = (mode == 0);
+	renderer->mode = mode;
+
+	if (mode > 1)
+	{
+		switch (mode)
+		{
+			case 2:  renderer->filter.calculate (agg::image_filter_bicubic ()); break;
+			case 3:  renderer->filter.calculate (agg::image_filter_spline16 ()); break;
+			case 4:  renderer->filter.calculate (agg::image_filter_spline36 ()); break;
+			case 5:  renderer->filter.calculate (agg::image_filter_kaiser ()); break;
+			case 6:  renderer->filter.calculate (agg::image_filter_quadric ()); break;
+			case 7:  renderer->filter.calculate (agg::image_filter_catrom ()); break;
+			case 8:  renderer->filter.calculate (agg::image_filter_gaussian ()); break;
+			case 9:  renderer->filter.calculate (agg::image_filter_bessel ()); break;
+			case 10: renderer->filter.calculate (agg::image_filter_mitchell ()); break;
+            case 11: renderer->filter.calculate (agg::image_filter_sinc (radius)); break; 
+            case 12: renderer->filter.calculate (agg::image_filter_lanczos (radius)); break; 
+            case 13: renderer->filter.calculate (agg::image_filter_blackman (radius)); break; 
+		}
+
+		renderer->span_gen_general.filter (renderer->filter);
+	}
 }
 
 
