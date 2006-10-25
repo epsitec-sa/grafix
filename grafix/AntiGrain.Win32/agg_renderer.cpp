@@ -297,6 +297,7 @@ AggRendererImageSetStretchMode(AggRendererImage* renderer, int mode, double radi
 	{
 		switch (-mode)
 		{
+			case 1:  renderer->filter.calculate (agg::image_filter_bilinear ()); break;
 			case 2:  renderer->filter.calculate (agg::image_filter_bicubic ()); break;
 			case 3:  renderer->filter.calculate (agg::image_filter_spline16 ()); break;
 			case 4:  renderer->filter.calculate (agg::image_filter_spline36 ()); break;
