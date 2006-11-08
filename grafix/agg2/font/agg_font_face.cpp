@@ -798,6 +798,10 @@ font_face::cache_record::CheckAndResize (int16u n)
 	{
 		return true;
 	}
+	if (n >= 0xff00)
+	{
+		return false;
+	}
 	
 	n += 1;
 	
@@ -831,9 +835,7 @@ font_face::cache_record::CheckAndResize (int16u n)
 font_face::cache_record::size_info_record*
 font_face::cache_record::FindSizeInfo (int16u glyph)
 {
-	if ( /*(this->ot_glyf == 0)
-	  || (this->ot_loca == 0)
-	  || */(this->CheckAndResize (glyph) == false) )
+	if (this->CheckAndResize (glyph) == false)
 	{
 		return 0;
 	}

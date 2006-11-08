@@ -86,9 +86,15 @@ AggFontPixelCacheFill(AggBuffer* buffer, agg::font_face* face,
 	
 	while (length-- > 0)
 	{
-		agg::int16u glyph   = *glyphs++;
-		agg::int8u  i_xs    = static_cast<agg::int8u> ((ox - (int)(ox)) * 256);
-		agg::int8u  i_ys    = static_cast<agg::int8u> ((oy - (int)(oy)) * 256);
+		agg::int16u glyph = *glyphs++;
+
+		if (glyph >= 0xff00)
+		{
+			continue;
+		}
+		
+		agg::int8u  i_xs = static_cast<agg::int8u> ((ox - (int)(ox)) * 256);
+		agg::int8u  i_ys = static_cast<agg::int8u> ((oy - (int)(oy)) * 256);
 		
 		agg::font_face::cache_record::size_info_record* info = face->FindSizeInfo (glyph);
 		agg::font_face::cache_record::pix_data_record*  data = info ? face->FindPixData (info, i_size, i_xs, i_ys) : 0;
