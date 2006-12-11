@@ -37,10 +37,10 @@ typedef int compiler_pack_check_assertion[(sizeof(agg::open_type::compiler_pack_
 /*****************************************************************************/
 
 void*
-open_type::table_directory::FindTable (const char* name)
+open_type::table_directory::FindTable (void* data, const char* name)
 {
-	int8u* base = reinterpret_cast<int8u*> (this);
-	int16u num  = read_big_endian (this->num_tables);
+	int8u* base = reinterpret_cast<int8u*> (data);
+	int16u num = read_big_endian (this->num_tables);
 	
 	for (int16u i = 0; i < num; i++)
 	{
@@ -56,9 +56,8 @@ open_type::table_directory::FindTable (const char* name)
 int32u
 open_type::table_directory::FindMaxTableEnd ()
 {
-	int32u max  = 0;
-//	int8u* base = reinterpret_cast<int8u*> (this);
-	int16u num  = read_big_endian (this->num_tables);
+	int32u max = 0;
+	int16u num = read_big_endian (this->num_tables);
 	
 	for (int16u i = 0; i < num; i++)
 	{

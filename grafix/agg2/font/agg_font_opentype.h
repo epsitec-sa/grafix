@@ -62,7 +62,7 @@ namespace agg
 			int16u			range_shift;
 			table_entry		entries[1];
 			
-			void* FindTable (const char* name);
+			void* FindTable (void* base, const char* name);
 			int32u FindMaxTableEnd ();
 		};
 

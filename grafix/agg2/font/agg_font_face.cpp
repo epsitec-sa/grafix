@@ -172,6 +172,11 @@ font_face::FillOpenTypeLigatureSubstArray (const open_type::feature_table* featu
 		
 		lookup_table  = this->RetOpenTypeGSUBLookupTable (features->RetIndex (i));
 		int subst_num = lookup_table->RetSubTableCount ();
+
+		if (lookup_table->RetLookupType () == open_type::lookup_table::GSUB_TYPE_ChainingContext)
+		{
+			continue;
+		}
 		
 		assert (lookup_table->RetLookupType () == open_type::lookup_table::GSUB_TYPE_Ligature);
 		
@@ -190,7 +195,7 @@ font_face::FillOpenTypeLigatureSubstArray (const open_type::feature_table* featu
 }
 
 open_type::table_directory*
-font_face::FindOpenTypeTableDirectory (void* base_ptr, int offset)
+font_face::FindOpenTypeTableDirectory (void* base_ptr, size_t offset)
 {
 	if (base_ptr == 0)
 	{
@@ -223,42 +228,42 @@ open_type::table_GSUB*
 font_face::RetOpenTypeGSUB ()
 {
 	open_type::table_directory* ot_dir = this->RetOpenTypeTableDirectory ();
-	return ot_dir ? reinterpret_cast<open_type::table_GSUB*> (ot_dir->FindTable ("GSUB")) : 0;
+	return ot_dir ? reinterpret_cast<open_type::table_GSUB*> (ot_dir->FindTable (this->face_data, "GSUB")) : 0;
 }
 
 open_type::table_head*
 font_face::RetOpenTypeHead ()
 {
 	open_type::table_directory* ot_dir = this->RetOpenTypeTableDirectory ();
-	return ot_dir ? reinterpret_cast<open_type::table_head*> (ot_dir->FindTable ("head")) : 0;
+	return ot_dir ? reinterpret_cast<open_type::table_head*> (ot_dir->FindTable (this->face_data, "head")) : 0;
 }
 
 open_type::table_hhea*
 font_face::RetOpenTypeHorizHead ()
 {
 	open_type::table_directory* ot_dir = this->RetOpenTypeTableDirectory ();
-	return ot_dir ? reinterpret_cast<open_type::table_hhea*> (ot_dir->FindTable ("hhea")) : 0;
+	return ot_dir ? reinterpret_cast<open_type::table_hhea*> (ot_dir->FindTable (this->face_data, "hhea")) : 0;
 }
 
 open_type::table_cmap*
 font_face::RetOpenTypeCMap ()
 {
 	open_type::table_directory* ot_dir = this->RetOpenTypeTableDirectory ();
-	return ot_dir ? reinterpret_cast<open_type::table_cmap*> (ot_dir->FindTable ("cmap")) : 0;
+	return ot_dir ? reinterpret_cast<open_type::table_cmap*> (ot_dir->FindTable (this->face_data, "cmap")) : 0;
 }
 
 open_type::table_loca*
 font_face::RetOpenTypeLoca ()
 {
 	open_type::table_directory* ot_dir = this->RetOpenTypeTableDirectory ();
-	return ot_dir ? reinterpret_cast<open_type::table_loca*> (ot_dir->FindTable ("loca")) : 0;
+	return ot_dir ? reinterpret_cast<open_type::table_loca*> (ot_dir->FindTable (this->face_data, "loca")) : 0;
 }
 
 open_type::table_glyf*
 font_face::RetOpenTypeGlyf (int32u offset)
 {
 	open_type::table_directory* ot_dir = this->RetOpenTypeTableDirectory ();
-	int8u* table_glyf = ot_dir ? reinterpret_cast<int8u*> (ot_dir->FindTable ("glyf")) : 0;
+	int8u* table_glyf = ot_dir ? reinterpret_cast<int8u*> (ot_dir->FindTable (this->face_data, "glyf")) : 0;
 	return table_glyf ? reinterpret_cast<open_type::table_glyf*> (table_glyf + offset) : 0;
 }
 
@@ -748,12 +753,12 @@ mac_ascender (0), mac_descender (0), mac_line_gap (0)
 	
 	open_type::table_directory* ot_dir = face->RetOpenTypeTableDirectory ();
 	
-	this->ot_glyf = reinterpret_cast<open_type::table_glyf*> (ot_dir->FindTable ("glyf"));
-	this->ot_head = reinterpret_cast<open_type::table_head*> (ot_dir->FindTable ("head"));
-	this->ot_hhea = reinterpret_cast<open_type::table_hhea*> (ot_dir->FindTable ("hhea"));
-	this->ot_hmtx = reinterpret_cast<open_type::table_hmtx*> (ot_dir->FindTable ("hmtx"));
-	this->ot_loca = reinterpret_cast<open_type::table_loca*> (ot_dir->FindTable ("loca"));
-	this->ot_maxp = reinterpret_cast<open_type::table_maxp*> (ot_dir->FindTable ("maxp"));
+	this->ot_glyf = reinterpret_cast<open_type::table_glyf*> (ot_dir->FindTable (font_face->face_data, "glyf"));
+	this->ot_head = reinterpret_cast<open_type::table_head*> (ot_dir->FindTable (font_face->face_data, "head"));
+	this->ot_hhea = reinterpret_cast<open_type::table_hhea*> (ot_dir->FindTable (font_face->face_data, "hhea"));
+	this->ot_hmtx = reinterpret_cast<open_type::table_hmtx*> (ot_dir->FindTable (font_face->face_data, "hmtx"));
+	this->ot_loca = reinterpret_cast<open_type::table_loca*> (ot_dir->FindTable (font_face->face_data, "loca"));
+	this->ot_maxp = reinterpret_cast<open_type::table_maxp*> (ot_dir->FindTable (font_face->face_data, "maxp"));
 	
 	this->units_per_em = read_big_endian (this->ot_head->units_per_em);
 	this->scale_to_em  = 1.0 / this->units_per_em;

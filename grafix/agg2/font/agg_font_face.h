@@ -213,7 +213,7 @@ namespace agg
 		
 	public:
 		open_type::table_directory*     RetOpenTypeTableDirectory ();
-		open_type::table_directory*		FindOpenTypeTableDirectory (void* base_ptr, int offset);
+		open_type::table_directory*		FindOpenTypeTableDirectory (void* base_ptr, size_t offset);
 		open_type::table_GSUB*          RetOpenTypeGSUB ();
 		open_type::table_head*          RetOpenTypeHead ();
 		open_type::table_hhea*          RetOpenTypeHorizHead ();
