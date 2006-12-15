@@ -177,6 +177,7 @@ extern "C" AGGDLL void*				AggFontCreateFaceFromFontData(const void* data, size_
 extern "C" AGGDLL void				AggFontDisposeFace(agg::font_face* face);
 
 extern "C" AGGDLL double			AggFontPixelCacheFill(AggBuffer* buffer, agg::font_face* face, const unsigned short* glyphs, int length, double scale, double ox, double oy, double r, double g, double b, double a);
+extern "C" AGGDLL void				AggFontPixelCacheGlyphXY(AggBuffer* buffer, agg::font_face* face, unsigned short glyph, double ox, double oy, double scale_x, double scale_y, double r, double g, double b, double a);
 extern "C" AGGDLL bool				AggFontGetUnicodeName(int code, wchar_t* max_path_buffer);
 
 /*****************************************************************************/

@@ -661,6 +661,78 @@ namespace AntiGrain
 
 				AggFontPixelCacheFill (0, reinterpret_cast<agg::font_face*> (face.ToPointer ()), p_glyphs, length, scale, ox, oy, 0, 0, 0, 0);
 			}
+			
+			static void Paint(System::IntPtr buffer, System::IntPtr face, double scale, cli::array<unsigned short>^ glyphs, cli::array<double>^ x, cli::array<double>^ y, cli::array<double>^ sx, double r, double g, double b, double a, double xx, double yy, double tx, double ty)
+			{
+				cli::pin_ptr<unsigned short> p_glyphs = & glyphs[0];
+				cli::pin_ptr<double> p_x  = & x[0];
+				cli::pin_ptr<double> p_y  = (y == nullptr) ? nullptr : & y[0];
+				cli::pin_ptr<double> p_sx = (sx == nullptr) ? nullptr : & sx[0];
+				
+				int n = glyphs->Length;
+				
+				AggBuffer* buf = reinterpret_cast<AggBuffer*> (buffer.ToPointer ());
+				agg::font_face* f = reinterpret_cast<agg::font_face*> (face.ToPointer ());
+				
+				if (p_y == nullptr)
+				{
+					if (p_sx == nullptr)
+					{
+						double y = ty;
+						double sx = scale * xx;
+						double sy = scale * yy;
+						
+						for (int i = 0; i < n; i++)
+						{
+							double x = p_x[i] * xx + tx;
+							
+							AggFontPixelCacheGlyphXY (buf, f, p_glyphs[i], x, y, sx, sy, r, g, b, a);
+						}
+					}
+					else
+					{
+						double y = ty;
+						double sy = scale * yy;
+						
+						for (int i = 0; i < n; i++)
+						{
+							double x = p_x[i] * xx + tx;
+							double sx = p_sx[i] * scale * xx;
+							
+							AggFontPixelCacheGlyphXY (buf, f, p_glyphs[i], x, y, sx, sy, r, g, b, a);
+						}
+					}
+				}
+				else
+				{
+					if (p_sx == nullptr)
+					{
+						double sx = scale * xx;
+						double sy = scale * yy;
+						
+						for (int i = 0; i < n; i++)
+						{
+							double x = p_x[i] * xx + tx;
+							double y = p_y[i] * yy + ty;
+							
+							AggFontPixelCacheGlyphXY (buf, f, p_glyphs[i], x, y, sx, sy, r, g, b, a);
+						}
+					}
+					else
+					{
+						double sy = scale * yy;
+						
+						for (int i = 0; i < n; i++)
+						{
+							double x = p_x[i] * xx + tx;
+							double y = p_y[i] * yy + ty;
+							double sx = p_sx[i] * scale * xx;
+							
+							AggFontPixelCacheGlyphXY (buf, f, p_glyphs[i], x, y, sx, sy, r, g, b, a);
+						}
+					}
+				}
+			}
 		};
 	};
 }
