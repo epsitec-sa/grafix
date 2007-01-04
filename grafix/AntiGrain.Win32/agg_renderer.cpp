@@ -258,6 +258,10 @@ AggRendererImage*
 AggRendererImageNew(AggBuffer* buffer)
 {
 	AggRendererImage* renderer = new AggRendererImage (buffer);
+	
+	renderer->filter.calculate (agg::image_filter_bilinear ());
+	renderer->span_gen_resample.filter (renderer->filter);
+	
 	return renderer;
 }
 
