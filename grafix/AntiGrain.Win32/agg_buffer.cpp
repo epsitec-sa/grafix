@@ -62,6 +62,47 @@ AggBufferNew(unsigned dx, unsigned dy, unsigned bpp)
 	return buffer;
 }
 
+AggBuffer*
+AggBufferNewFrom(unsigned dx, unsigned dy, unsigned bpp, int stride, void* bits)
+{
+	InitIPP ();
+	
+	AggBuffer* buffer = new AggBuffer ();
+	
+	if (buffer)
+	{
+#if defined(USE_WIN32_API)
+		buffer->bitmap_dc  = ::CreateCompatibleDC (NULL);
+		buffer->bitmap     = buffer->pixmap.create_dib_section (buffer->bitmap_dc, dx, dy, (agg::org_e) bpp, 0xff);
+		buffer->bitmap_old = ::SelectObject (buffer->bitmap_dc, buffer->bitmap);
+		
+		buffer->buffer.attach (buffer->pixmap.buf (), buffer->pixmap.width (), buffer->pixmap.height (), buffer->pixmap.stride ());
+#else
+		buffer->pixmap.create (dx, dy, (agg::org_e) bpp, 0xff);
+#endif
+		buffer->buffer.attach (buffer->pixmap.buf (), buffer->pixmap.width (), buffer->pixmap.height (), buffer->pixmap.stride ());
+		buffer->renderer = new AggRendererCommon (buffer->buffer);
+		buffer->renderer_pre = new AggRendererCommonPre (buffer->buffer);
+
+		agg::int8u* src_memory = reinterpret_cast<agg::int8u*> (bits);
+		agg::int8u* dst_memory = buffer->pixmap.buf ();
+		
+		unsigned int src_stride = stride;
+		unsigned int dst_stride = buffer->pixmap.stride ();
+
+		for (unsigned y = 0; y < dy; y++)
+		{
+			agg::int8u* src = src_memory + y*src_stride;
+			agg::int8u* dst = dst_memory + y*dst_stride;
+
+			memcpy (dst, src, dx);
+		}
+	}
+	
+	return buffer;
+}
+
+
 void
 AggBufferResize(AggBuffer* buffer, unsigned dx, unsigned dy, unsigned bpp)
 {

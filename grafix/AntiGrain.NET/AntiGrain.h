@@ -1,6 +1,6 @@
 //	AntiGrain.h
 //
-//	Copyright © 2003-2006, Pierre ARNAUD, OPaC bright ideas, Ch. du Fontenay 6,
+//	Copyright © 2003-2007, Pierre ARNAUD, OPaC bright ideas, Ch. du Fontenay 6,
 //	                       CH-1400 YVERDON, Switzerland. All rights reserved. 
 //
 //	Contact: pierre.arnaud@opac.ch, http://www.opac.ch
@@ -62,6 +62,11 @@ namespace AntiGrain
 		static System::IntPtr New(int dx, int dy, int bpp)
 		{
 			return System::IntPtr ((void*) AggBufferNew (dx, dy, bpp));
+		}
+
+		static System::IntPtr NewFrom(int dx, int dy, int bpp, int stride, System::IntPtr ptr)
+		{
+			return System::IntPtr ((void*) AggBufferNewFrom (dx, dy, bpp, stride, ptr.ToPointer ()));
 		}
 		
 		static void Resize(System::IntPtr buffer, int dx, int dy, int bpp)

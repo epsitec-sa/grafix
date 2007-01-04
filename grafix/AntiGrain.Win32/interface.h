@@ -1,6 +1,6 @@
 //	interface.h
 //
-//	Copyright © 2003-2006, Pierre ARNAUD, OPaC bright ideas, Ch. du Fontenay 6,
+//	Copyright © 2003-2007, Pierre ARNAUD, OPaC bright ideas, Ch. du Fontenay 6,
 //	                       CH-1400 YVERDON, Switzerland. All rights reserved. 
 //
 //	Contact: pierre.arnaud@opac.ch, http://www.opac.ch
@@ -73,6 +73,7 @@ extern "C" AGGDLL const wchar_t*	AggGetProductName();
 /*	from agg_buffer.cpp														 */
 
 extern "C" AGGDLL AggBuffer*		AggBufferNew(unsigned dx, unsigned dy, unsigned bpp);
+extern "C" AGGDLL AggBuffer*		AggBufferNewFrom(unsigned dx, unsigned dy, unsigned bpp, int stride, void* bits);
 extern "C" AGGDLL void				AggBufferResize(AggBuffer* buffer, unsigned dx, unsigned dy, unsigned bpp);
 extern "C" AGGDLL void				AggBufferDrawGlyphs(AggBuffer* buffer, void* hfont, int x, int y, unsigned short* glyphs, int* dx_array, unsigned int count, unsigned int color);
 extern "C" AGGDLL void				AggBufferPaint(AggBuffer* buffer, void* hdc, int x1, int y1, int x2, int y2);

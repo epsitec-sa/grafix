@@ -1,6 +1,6 @@
 //	AssemblyInfo.cpp
 //
-//	Copyright © 2003-2006, Pierre ARNAUD, OPaC bright ideas, Ch. du Fontenay 6,
+//	Copyright © 2003-2007, Pierre ARNAUD, OPaC bright ideas, Ch. du Fontenay 6,
 //	                       CH-1400 YVERDON, Switzerland. All rights reserved. 
 //
 //	Contact: pierre.arnaud@opac.ch, http://www.opac.ch
@@ -16,11 +16,11 @@ using namespace System::Runtime::CompilerServices;
 [assembly:AssemblyConfigurationAttribute("")];
 [assembly:AssemblyCompanyAttribute("OPaC bright ideas")];
 [assembly:AssemblyProductAttribute("Anti-Grain Geometry Graphics Library for .NET")];
-[assembly:AssemblyCopyrightAttribute("Copyright © 2003-2006, Pierre Arnaud, OPaC bright ideas")];
+[assembly:AssemblyCopyrightAttribute("Copyright © 2003-2007, Pierre Arnaud, OPaC bright ideas")];
 [assembly:AssemblyTrademarkAttribute("")];
 [assembly:AssemblyCultureAttribute("")];		
 
-[assembly:AssemblyVersionAttribute("2.4.0650.1")];
+[assembly:AssemblyVersionAttribute("2.4.0701.0")];
 
 [assembly:AssemblyDelaySignAttribute(false)];
 [assembly:AssemblyKeyFileAttribute("..\\Epsitec.Cresus.snk")];
