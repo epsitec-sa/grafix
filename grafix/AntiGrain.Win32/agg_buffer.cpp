@@ -89,13 +89,17 @@ AggBufferNewFrom(unsigned dx, unsigned dy, unsigned bpp, int stride, void* bits)
 		
 		unsigned int src_stride = stride;
 		unsigned int dst_stride = buffer->pixmap.stride ();
+		unsigned int byte_width = src_stride < dst_stride ? src_stride : dst_stride;
+
+		src_memory += dy * src_stride;
 
 		for (unsigned y = 0; y < dy; y++)
 		{
-			agg::int8u* src = src_memory + y*src_stride;
-			agg::int8u* dst = dst_memory + y*dst_stride;
+			src_memory -= src_stride;
 
-			memcpy (dst, src, dx);
+			memcpy (dst_memory, src_memory, byte_width);
+
+			dst_memory += dst_stride;
 		}
 	}
 	
