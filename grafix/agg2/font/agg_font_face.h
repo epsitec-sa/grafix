@@ -4,7 +4,7 @@
  *	The font_face class represents a font face, that is all data related to a
  *	"physical" font (glyphs, geometry, etc.)
  *
- *	(C) Copyright 2003-2006, Pierre ARNAUD, OPaC bright ideas, Ch. du Fontenay 6,
+ *	(C) Copyright 2003-2007, Pierre ARNAUD, OPaC bright ideas, Ch. du Fontenay 6,
  *		CH-1400 YVERDON, Switzerland. All rights reserved. 
  *		Contact: pierre.arnaud@opac.ch, http://www.opac.ch
  *

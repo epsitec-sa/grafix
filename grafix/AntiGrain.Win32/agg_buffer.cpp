@@ -1,6 +1,6 @@
 //	AntiGrain.Win32/agg_buffer.cpp
 //
-//	Copyright © 2003-2006, Pierre ARNAUD, OPaC bright ideas, Ch. du Fontenay 6,
+//	Copyright © 2003-2007, Pierre ARNAUD, OPaC bright ideas, Ch. du Fontenay 6,
 //	                       CH-1400 YVERDON, Switzerland. All rights reserved. 
 //
 //	Contact: pierre.arnaud@opac.ch, http://www.opac.ch
@@ -57,13 +57,14 @@ AggBufferNew(unsigned dx, unsigned dy, unsigned bpp)
 		buffer->buffer.attach (buffer->pixmap.buf (), buffer->pixmap.width (), buffer->pixmap.height (), buffer->pixmap.stride ());
 		buffer->renderer = new AggRendererCommon (buffer->buffer);
 		buffer->renderer_pre = new AggRendererCommonPre (buffer->buffer);
+		buffer->use_shared_memory = false;
 	}
 	
 	return buffer;
 }
 
 AggBuffer*
-AggBufferNewFrom(unsigned dx, unsigned dy, unsigned bpp, int stride, void* bits)
+AggBufferNewFrom(unsigned dx, unsigned dy, unsigned bpp, int stride, void* bits, bool copy_bits)
 {
 	InitIPP ();
 	
@@ -71,35 +72,51 @@ AggBufferNewFrom(unsigned dx, unsigned dy, unsigned bpp, int stride, void* bits)
 	
 	if (buffer)
 	{
-#if defined(USE_WIN32_API)
-		buffer->bitmap_dc  = ::CreateCompatibleDC (NULL);
-		buffer->bitmap     = buffer->pixmap.create_dib_section (buffer->bitmap_dc, dx, dy, (agg::org_e) bpp, 0xff);
-		buffer->bitmap_old = ::SelectObject (buffer->bitmap_dc, buffer->bitmap);
-		
-		buffer->buffer.attach (buffer->pixmap.buf (), buffer->pixmap.width (), buffer->pixmap.height (), buffer->pixmap.stride ());
-#else
-		buffer->pixmap.create (dx, dy, (agg::org_e) bpp, 0xff);
-#endif
-		buffer->buffer.attach (buffer->pixmap.buf (), buffer->pixmap.width (), buffer->pixmap.height (), buffer->pixmap.stride ());
-		buffer->renderer = new AggRendererCommon (buffer->buffer);
-		buffer->renderer_pre = new AggRendererCommonPre (buffer->buffer);
-
-		agg::int8u* src_memory = reinterpret_cast<agg::int8u*> (bits);
-		agg::int8u* dst_memory = buffer->pixmap.buf ();
-		
-		unsigned int src_stride = stride;
-		unsigned int dst_stride = buffer->pixmap.stride ();
-		unsigned int byte_width = src_stride < dst_stride ? src_stride : dst_stride;
-
-		src_memory += dy * src_stride;
-
-		for (unsigned y = 0; y < dy; y++)
+		if (copy_bits)
 		{
-			src_memory -= src_stride;
+#if defined(USE_WIN32_API)
+			buffer->bitmap_dc  = ::CreateCompatibleDC (NULL);
+			buffer->bitmap     = buffer->pixmap.create_dib_section (buffer->bitmap_dc, dx, dy, (agg::org_e) bpp, 0xff);
+			buffer->bitmap_old = ::SelectObject (buffer->bitmap_dc, buffer->bitmap);
+#else
+			buffer->pixmap.create (dx, dy, (agg::org_e) bpp, 0xff);
+#endif
+			buffer->buffer.attach (buffer->pixmap.buf (), buffer->pixmap.width (), buffer->pixmap.height (), buffer->pixmap.stride ());
+			buffer->renderer = new AggRendererCommon (buffer->buffer);
+			buffer->renderer_pre = new AggRendererCommonPre (buffer->buffer);
+			buffer->use_shared_memory = false;
 
-			memcpy (dst_memory, src_memory, byte_width);
+			agg::int8u* src_memory = reinterpret_cast<agg::int8u*> (bits);
+			agg::int8u* dst_memory = buffer->pixmap.buf ();
+			
+			unsigned int src_stride = stride;
+			unsigned int dst_stride = buffer->pixmap.stride ();
+			unsigned int byte_width = src_stride < dst_stride ? src_stride : dst_stride;
 
-			dst_memory += dst_stride;
+			src_memory += dy * src_stride;
+
+			for (unsigned y = 0; y < dy; y++)
+			{
+				src_memory -= src_stride;
+
+				memcpy (dst_memory, src_memory, byte_width);
+
+				dst_memory += dst_stride;
+			}
+		}
+		else
+		{
+#if defined(USE_WIN32_API)
+			buffer->bitmap_dc  = NULL;
+			buffer->bitmap     = NULL;
+			buffer->bitmap_old = NULL;
+#endif
+
+			buffer->buffer.attach (reinterpret_cast<agg::int8u*> (bits), dx, dy, -stride);
+			
+			buffer->renderer = new AggRendererCommon (buffer->buffer);
+			buffer->renderer_pre = new AggRendererCommonPre (buffer->buffer);
+			buffer->use_shared_memory = true;
 		}
 	}
 	
@@ -125,10 +142,21 @@ AggBufferResize(AggBuffer* buffer, unsigned dx, unsigned dy, unsigned bpp)
 		}
 		else
 		{
+			if (buffer->use_shared_memory == false)
+			{
+				buffer->pixmap.destroy ();
+			}
+			
 			buffer->pixmap.create (dx, dy, (agg::org_e) bpp, 0xff);
+			buffer->use_shared_memory = false;
 		}
 #else
+		if (buffer->use_shared_memory == false)
+		{
+			buffer->pixmap.destroy ();
+		}
 		buffer->pixmap.create (dx, dy, (agg::org_e) bpp, 0xff);
+		buffer->use_shared_memory = false;
 #endif
 		
 		buffer->buffer.attach (buffer->pixmap.buf (), buffer->pixmap.width (), buffer->pixmap.height (), buffer->pixmap.stride ());
@@ -161,7 +189,10 @@ AggBufferPaint(AggBuffer* buffer, void* hdc, int x1, int y1, int x2, int y2)
 {
 	if (buffer)
 	{
-		buffer->pixmap.draw ((HDC) hdc);
+		if (buffer->use_shared_memory == false)
+		{
+			buffer->pixmap.draw ((HDC) hdc);
+		}
 	}
 }
 
@@ -170,7 +201,10 @@ AggBufferPaintOffset(AggBuffer* buffer, void* hdc, int ox, int oy, int x1, int y
 {
 	if (buffer)
 	{
-		buffer->pixmap.draw ((HDC) hdc, ox, oy);
+		if (buffer->use_shared_memory == false)
+		{
+			buffer->pixmap.draw ((HDC) hdc, ox, oy);
+		}
 	}
 }
 
@@ -179,7 +213,10 @@ AggBufferBlendOffset(AggBuffer* buffer, void* hdc, int ox, int oy, int x1, int y
 {
 	if (buffer)
 	{
-		buffer->pixmap.blend ((HDC) hdc, ox, oy);
+		if (buffer->use_shared_memory == false)
+		{
+			buffer->pixmap.blend ((HDC) hdc, ox, oy);
+		}
 	}
 }
 
@@ -188,7 +225,14 @@ AggBufferClear(AggBuffer* buffer)
 {
 	if (buffer)
 	{
-		buffer->pixmap.clear (0x00);
+		if (buffer->use_shared_memory == false)
+		{
+			buffer->pixmap.clear (0x00);
+		}
+		else
+		{
+			buffer->buffer.clear (0x00);
+		}
 	}
 }
 
@@ -197,10 +241,20 @@ AggBufferGetMemoryLayout(AggBuffer* buffer, int & dx, int & dy, int & stride, vo
 {
 	if (buffer)
 	{
-		dx = buffer->pixmap.width ();
-		dy = buffer->pixmap.height ();
-		stride = buffer->pixmap.stride ();
-		memory = buffer->pixmap.buf ();
+		if (buffer->use_shared_memory == false)
+		{
+			dx = buffer->pixmap.width ();
+			dy = buffer->pixmap.height ();
+			stride = buffer->pixmap.stride ();
+			memory = buffer->pixmap.buf ();
+		}
+		else
+		{
+			dx = buffer->buffer.width ();
+			dy = buffer->buffer.height ();
+			stride = buffer->buffer.stride ();
+			memory = buffer->buffer.buf ();
+		}
 	}
 	else
 	{
@@ -229,10 +283,10 @@ AggBufferClearRect(AggBuffer* buffer, int x1, int y1, int x2, int y2)
 {
 	if (buffer)
 	{
-		unsigned char* ptr = buffer->pixmap.buf ();
+		unsigned char* ptr = buffer->buffer.buf ();
 		
-		int dx = buffer->pixmap.width ();
-		int dy = buffer->pixmap.height ();
+		int dx = buffer->buffer.width ();
+		int dy = buffer->buffer.height ();
 		
 		if (x1 < 0)  x1 = 0;
 		if (y1 < 0)  y1 = 0;
@@ -243,12 +297,11 @@ AggBufferClearRect(AggBuffer* buffer, int x1, int y1, int x2, int y2)
 		  && (y1 < y2)
 		  && (ptr) )
 		{
-			int stride = buffer->pixmap.stride ();
 			int num = (x2 - x1) * 4;
 			
 			for (int y = y1; y < y2; y++)
 			{
-				unsigned char* bits = ptr + y * stride + x1 * 4;
+				unsigned char* bits = buffer->buffer.row_ptr (y) + x1 * 4;
 				memset (bits, 0, num);
 			}
 		}
@@ -270,6 +323,11 @@ AggBufferDelete(AggBuffer* buffer)
 		buffer->bitmap_old = 0;
 	}
 #endif
+
+	if (buffer->use_shared_memory == false)
+	{
+		buffer->pixmap.destroy ();
+	}
 	
 	delete buffer->renderer;
 	delete buffer->renderer_pre;
@@ -308,6 +366,11 @@ AggBufferBltBuffer(AggBuffer* buffer, int xd, int yd,
 	{
 		unsigned char* src_pixels = source->pixmap.buf ();
 		unsigned char* dst_pixels = buffer->pixmap.buf ();
+
+		if (!src_pixels || !dst_pixels)
+		{
+			return;
+		}
 		
 		int src_byte_width = source->pixmap.stride ();
 		int dst_byte_width = buffer->pixmap.stride ();
@@ -407,6 +470,11 @@ AggBufferComposeBuffer(AggBuffer* buffer, int xd, int yd,
 	{
 		unsigned char* src_pixels = source->pixmap.buf ();
 		unsigned char* dst_pixels = buffer->pixmap.buf ();
+
+		if (!src_pixels || !dst_pixels)
+		{
+			return;
+		}
 		
 		int src_byte_width = source->pixmap.stride ();
 		int dst_byte_width = buffer->pixmap.stride ();

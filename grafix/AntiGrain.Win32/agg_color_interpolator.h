@@ -1,7 +1,7 @@
 //	AntiGrain.Win32/agg_color_interpolator.h
 //
 //	Copyright © 2005 Maxim Shemanarev (http://www.antigrain.com)
-//	Copyright © 2005-2006, Pierre ARNAUD, OPaC bright ideas, Ch. du Fontenay 6,
+//	Copyright © 2005-2007, Pierre ARNAUD, OPaC bright ideas, Ch. du Fontenay 6,
 //	                       CH-1400 YVERDON, Switzerland. All rights reserved. 
 //
 //	Contact: pierre.arnaud@opac.ch, http://www.opac.ch

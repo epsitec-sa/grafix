@@ -64,9 +64,9 @@ namespace AntiGrain
 			return System::IntPtr ((void*) AggBufferNew (dx, dy, bpp));
 		}
 
-		static System::IntPtr NewFrom(int dx, int dy, int bpp, int stride, System::IntPtr ptr)
+		static System::IntPtr NewFrom(int dx, int dy, int bpp, int stride, System::IntPtr ptr, bool copyBits)
 		{
-			return System::IntPtr ((void*) AggBufferNewFrom (dx, dy, bpp, stride, ptr.ToPointer ()));
+			return System::IntPtr ((void*) AggBufferNewFrom (dx, dy, bpp, stride, ptr.ToPointer (), copyBits));
 		}
 		
 		static void Resize(System::IntPtr buffer, int dx, int dy, int bpp)
