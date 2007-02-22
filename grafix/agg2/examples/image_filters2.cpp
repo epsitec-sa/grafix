@@ -23,19 +23,226 @@
 
 enum flip_y_e { flip_y = true };
 
-enum { l = 255 };
+enum { l = 255, h = 127 };
+
 static agg::int8u g_image[] = 
 {
    0,l,0,l,  0,0,l,l,  l,l,l,l,  l,0,0,l,
    l,0,0,l,  0,0,0,l,  l,l,l,l,  l,l,l,l,
-   l,l,l,l,  l,l,l,l,  0,0,l,l,  l,0,0,l,
-   0,0,l,l,  l,l,l,l,  0,0,0,l,  0,l,0,l
+   l,l,l,l,  0,0,l,h,  0,0,l,l,  l,0,0,l,
+   0,0,l,h,  l,l,l,l,  0,0,0,l,  0,l,0,l
 };
+
+namespace agg
+{
+    //-----------------------------------------------------image_accessor_clip_convert_pre
+    template<class PixFmt> class image_accessor_clip_convert_pre
+    {
+    public:
+        typedef PixFmt   pixfmt_type;
+        typedef typename pixfmt_type::color_type color_type;
+        typedef typename pixfmt_type::order_type order_type;
+        typedef typename pixfmt_type::value_type value_type;
+        enum pix_width_e { pix_width = pixfmt_type::pix_width };
+
+        image_accessor_clip_convert_pre() {}
+        explicit image_accessor_clip_convert_pre(const pixfmt_type& pixf, 
+                                                 const color_type& bk) : 
+            m_pixf(&pixf)
+        {
+            pixfmt_type::make_pix(m_bk_buf, bk);
+			pixfmt_type::make_pix(m_zero_buf, color_type());
+        }
+
+        void attach(const pixfmt_type& pixf)
+        {
+            m_pixf = &pixf;
+        }
+
+        void background_color(const color_type& bk)
+        {
+            pixfmt_type::make_pix(m_bk_buf, bk);
+        }
+
+    private:
+        AGG_INLINE const int8u* pixel() const
+        {
+			if(m_y >= 0 && m_y < (int)m_pixf->height() &&
+               m_x >= 0 && m_x < (int)m_pixf->width())
+            {
+				const int8u* ptr;
+				ptr = m_pixf->pix_ptr(m_x, m_y);
+				int8u a = ptr[order_type::A];
+
+				if (a == pixfmt_type::base_mask)
+				{
+					return ptr;
+				}
+				if (a == 0)
+				{
+					return m_zero_buf;
+				}
+
+				int8u r = ptr[order_type::R];
+				int8u g = ptr[order_type::G];
+				int8u b = ptr[order_type::B];
+				
+				r = int8u((r * a) >> 8);
+				g = int8u((g * a) >> 8);
+				b = int8u((b * a) >> 8);
+				
+				m_tmp_buf[order_type::R] = r;
+				m_tmp_buf[order_type::G] = g;
+				m_tmp_buf[order_type::B] = b;
+				m_tmp_buf[order_type::A] = a;
+				
+				return m_tmp_buf;
+            }
+			else
+			{
+	            return m_bk_buf;
+			}
+        }
+
+    public:
+        AGG_INLINE const int8u* span(int x, int y, unsigned len)
+        {
+            m_x = m_x0 = x;
+            m_y = y;
+            if(y >= 0 && y < (int)m_pixf->height() &&
+               x >= 0 && x+(int)len <= (int)m_pixf->width())
+            {
+                m_pix_ptr = m_pixf->pix_ptr(x, y);
+            }
+			else
+			{
+				m_pix_ptr = 0;
+			}
+            return pixel();
+        }
+
+        AGG_INLINE const int8u* next_x()
+        {
+            if(m_pix_ptr) return m_pix_ptr += pix_width;
+            ++m_x;
+            return pixel();
+        }
+
+        AGG_INLINE const int8u* next_y()
+        {
+            ++m_y;
+            m_x = m_x0;
+            if(m_pix_ptr && 
+               m_y >= 0 && m_y < (int)m_pixf->height())
+            {
+                return m_pix_ptr = m_pixf->pix_ptr(m_x, m_y);
+            }
+            m_pix_ptr = 0;
+            return pixel();
+        }
+
+    private:
+        const pixfmt_type* m_pixf;
+        int8u              m_bk_buf[4];
+		mutable int8u      m_tmp_buf[4];
+		int8u              m_zero_buf[4];
+        int                m_x, m_x0, m_y;
+        const int8u*       m_pix_ptr;
+    };
+    //----------------------------------------------------image_accessor_clone_premultiplying
+    template<class PixFmt> class image_accessor_clone_convert_pre
+    {
+    public:
+        typedef PixFmt   pixfmt_type;
+        typedef typename pixfmt_type::color_type color_type;
+        typedef typename pixfmt_type::order_type order_type;
+        typedef typename pixfmt_type::value_type value_type;
+        enum pix_width_e { pix_width = pixfmt_type::pix_width };
+
+        image_accessor_clone_convert_pre() {}
+        explicit image_accessor_clone_convert_pre(const pixfmt_type& pixf) : 
+            m_pixf(&pixf) 
+        {
+			pixfmt_type::make_pix(m_zero_buf, color_type());
+		}
+
+        void attach(const pixfmt_type& pixf)
+        {
+            m_pixf = &pixf;
+        }
+
+    private:
+        AGG_INLINE const int8u* pixel() const
+        {
+            register int x = m_x;
+            register int y = m_y;
+            if(x < 0) x = 0;
+            if(y < 0) y = 0;
+            if(x >= (int)m_pixf->width())  x = m_pixf->width() - 1;
+            if(y >= (int)m_pixf->height()) y = m_pixf->height() - 1;
+            const int8u* ptr = m_pixf->pix_ptr(x, y);
+
+			int8u a = ptr[order_type::A];
+
+			if (a == pixfmt_type::base_mask)
+			{
+				return ptr;
+			}
+			if (a == 0)
+			{
+				return m_zero_buf;
+			}
+
+			int8u r = ptr[order_type::R];
+			int8u g = ptr[order_type::G];
+			int8u b = ptr[order_type::B];
+			
+			r = int8u((r * a) >> 8);
+			g = int8u((g * a) >> 8);
+			b = int8u((b * a) >> 8);
+			
+			m_tmp_buf[order_type::R] = r;
+			m_tmp_buf[order_type::G] = g;
+			m_tmp_buf[order_type::B] = b;
+			m_tmp_buf[order_type::A] = a;
+			
+			return m_tmp_buf;
+        }
+
+    public:
+        AGG_INLINE const int8u* span(int x, int y, unsigned len)
+        {
+            m_x = m_x0 = x;
+            m_y = y;
+            return pixel();
+        }
+
+        AGG_INLINE const int8u* next_x()
+        {
+            ++m_x;
+            return pixel();
+        }
+
+        AGG_INLINE const int8u* next_y()
+        {
+            ++m_y;
+            m_x = m_x0;
+            return pixel();
+        }
+
+    private:
+        const pixfmt_type* m_pixf;
+        int                m_x, m_x0, m_y;
+		mutable int8u      m_tmp_buf[4];
+		int8u              m_zero_buf[4];
+    };
+}
 
 class the_application : public agg::platform_support
 {
     typedef agg::pixfmt_bgra32 pixfmt;
     typedef agg::pixfmt_bgra32_pre pixfmt_pre;
+    typedef agg::pixfmt_bgra32_plain pixfmt_plain;
     typedef agg::renderer_base<pixfmt> renderer_base;
     typedef agg::renderer_base<pixfmt_pre> renderer_base_pre;
 
@@ -111,8 +318,8 @@ public:
 
     virtual void on_draw()
     {
-        pixfmt pixf(rbuf_window());
-        renderer_base rb(pixf);
+        pixfmt_pre pixf(rbuf_window());
+        renderer_base_pre rb(pixf);
 
         rb.clear(agg::rgba(1.0, 1.0, 1.0));
         rb.copy_from(rbuf_img(0), 0, 110, 35);
@@ -130,8 +337,8 @@ public:
         agg::span_allocator<agg::rgba8> sa;
 
         pixfmt img_pixf(img_rbuf);
-        typedef agg::image_accessor_clone<pixfmt> img_source_type;
-        img_source_type source(img_pixf);
+        typedef agg::image_accessor_clone_convert_pre<pixfmt> img_source_type;
+		img_source_type source(img_pixf);
 
         ras.reset();
         ras.move_to_d(para[0], para[1]);
@@ -152,7 +359,16 @@ public:
             break;
 
         case 1:
-        case 2:
+            {
+				typedef agg::span_image_filter_rgba_bilinear<img_source_type,
+                                                       interpolator_type> span_gen_type;
+
+                span_gen_type sg(source, interpolator);
+                agg::render_scanlines_aa(ras, sl, rb, sa, sg);
+            }
+            break;
+        
+		case 2:
         case 3:
         case 4:
         case 5:

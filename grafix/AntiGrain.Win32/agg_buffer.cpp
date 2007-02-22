@@ -161,7 +161,7 @@ AggBufferResize(AggBuffer* buffer, unsigned dx, unsigned dy, unsigned bpp)
 		
 		buffer->buffer.attach (buffer->pixmap.buf (), buffer->pixmap.width (), buffer->pixmap.height (), buffer->pixmap.stride ());
 		buffer->renderer->ren_base.reset_clipping (true);
-		buffer->renderer_pre->ren_base_pre.reset_clipping (true);
+		buffer->renderer_pre->ren_base.reset_clipping (true);
 	}
 }
 
@@ -339,21 +339,21 @@ void
 AggBufferInfiniteClipping(AggBuffer* buffer)
 {
 	buffer->renderer->ren_base.reset_clipping(true);
-	buffer->renderer_pre->ren_base_pre.reset_clipping(true);
+	buffer->renderer_pre->ren_base.reset_clipping(true);
 }
 
 void
 AggBufferEmptyClipping(AggBuffer* buffer)
 {
 	buffer->renderer->ren_base.reset_clipping(false);
-	buffer->renderer_pre->ren_base_pre.reset_clipping(false);
+	buffer->renderer_pre->ren_base.reset_clipping(false);
 }
 
 void
 AggBufferAddClipBox(AggBuffer* buffer, int x1, int y1, int x2, int y2)
 {
 	buffer->renderer->ren_base.add_clip_box (x1, y1, x2, y2);
-	buffer->renderer_pre->ren_base_pre.add_clip_box (x1, y1, x2, y2);
+	buffer->renderer_pre->ren_base.add_clip_box (x1, y1, x2, y2);
 }
 
 /*****************************************************************************/

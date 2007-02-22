@@ -530,10 +530,6 @@
 					>
 				</File>
 				<File
-					RelativePath="..\agg2\include\agg_pixfmt_rgba32.h"
-					>
-				</File>
-				<File
 					RelativePath="..\agg2\include\agg_pixfmt_transposer.h"
 					>
 				</File>

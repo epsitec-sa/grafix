@@ -173,7 +173,7 @@ struct AggRendererCommonPre
 {
 	agg::scanline_u8		scanline;
 	pixfmt_pre				pixf;
-	renderer_base_pre		ren_base_pre;
+	renderer_base_pre		ren_base;
 	
 	int						active_mask_component;
 	
@@ -193,7 +193,7 @@ struct AggRendererCommonPre
 	sl_alpha_mask_a			sl_a;
 	
 	AggRendererCommonPre(agg::rendering_buffer& buffer)
-	  : scanline(), pixf(buffer), ren_base_pre(pixf),
+	  : scanline(), pixf(buffer), ren_base(pixf),
 		active_mask_component (-1),
 		sl_r (am_r), sl_g (am_g), sl_b (am_b), sl_a (am_a)
 	{
@@ -251,6 +251,100 @@ struct AggRendererSmooth : AggRendererBase
 
 /*****************************************************************************/
 
+namespace agg
+{
+    //----------------------------------------------------image_accessor_clone_convert_pre
+    template<class PixFmt> class image_accessor_clone_convert_pre
+    {
+    public:
+        typedef PixFmt   pixfmt_type;
+        typedef typename pixfmt_type::color_type color_type;
+        typedef typename pixfmt_type::order_type order_type;
+        typedef typename pixfmt_type::value_type value_type;
+        enum pix_width_e { pix_width = pixfmt_type::pix_width };
+
+        image_accessor_clone_convert_pre() {}
+        explicit image_accessor_clone_convert_pre(const pixfmt_type& pixf) : 
+            m_pixf(&pixf) 
+        {
+			m_zero_buf[0] = 0;
+			m_zero_buf[1] = 0;
+			m_zero_buf[2] = 0;
+			m_zero_buf[3] = 0;
+		}
+
+        void attach(const pixfmt_type& pixf)
+        {
+            m_pixf = &pixf;
+        }
+
+    private:
+        AGG_INLINE const int8u* pixel() const
+        {
+            register int x = m_x;
+            register int y = m_y;
+            if(x < 0) x = 0;
+            if(y < 0) y = 0;
+            if(x >= (int)m_pixf->width())  x = m_pixf->width() - 1;
+            if(y >= (int)m_pixf->height()) y = m_pixf->height() - 1;
+            const int8u* ptr = m_pixf->pix_ptr(x, y);
+
+			int8u a = ptr[order_type::A];
+
+			if (a == pixfmt_type::base_mask)
+			{
+				return ptr;
+			}
+			if (a == 0)
+			{
+				return m_zero_buf;
+			}
+
+			int8u r = ptr[order_type::R];
+			int8u g = ptr[order_type::G];
+			int8u b = ptr[order_type::B];
+			
+			r = int8u((r * a) >> 8);
+			g = int8u((g * a) >> 8);
+			b = int8u((b * a) >> 8);
+			
+			m_tmp_buf[order_type::R] = r;
+			m_tmp_buf[order_type::G] = g;
+			m_tmp_buf[order_type::B] = b;
+			m_tmp_buf[order_type::A] = a;
+			
+			return m_tmp_buf;
+        }
+
+    public:
+        AGG_INLINE const int8u* span(int x, int y, unsigned len)
+        {
+            m_x = m_x0 = x;
+            m_y = y;
+            return pixel();
+        }
+
+        AGG_INLINE const int8u* next_x()
+        {
+            ++m_x;
+            return pixel();
+        }
+
+        AGG_INLINE const int8u* next_y()
+        {
+            ++m_y;
+            m_x = m_x0;
+            return pixel();
+        }
+
+    private:
+        const pixfmt_type* m_pixf;
+        int                m_x, m_x0, m_y;
+		mutable int8u      m_tmp_buf[4];
+		int8u              m_zero_buf[4];
+    };
+}
+
 /*
  *	The image renderer manipulates pixels stored in a source buffer. This
  *	source buffer may not move once it has been attached to the renderer.
@@ -258,19 +352,20 @@ struct AggRendererSmooth : AggRendererBase
 
 struct AggRendererImage
 {
-	AggRendererCommon*			renderer;
-	
+	AggRendererCommonPre*		renderer;
+
+	typedef pixfmt																			img_pixfmt;
 	typedef agg::span_interpolator_linear<>													interpolator_type;
-	typedef agg::image_accessor_clip<pixfmt>												img_source_type;
-	typedef agg::span_image_filter_rgba_bilinear<img_source_type, interpolator_type>		span_gen_type;		//@
-	typedef agg::span_image_filter_rgba_nn<img_source_type, interpolator_type>				span_gen_type_nn;	//@
+	typedef agg::image_accessor_clone_convert_pre<img_pixfmt>								img_source_type;
+	typedef agg::span_image_filter_rgba_bilinear<img_source_type, interpolator_type>		span_gen_type;
+	typedef agg::span_image_filter_rgba_nn<img_source_type, interpolator_type>				span_gen_type_nn;
 	typedef agg::span_image_filter_rgba<img_source_type, interpolator_type>					span_gen_type_general;
 	typedef agg::span_image_resample_rgba_affine<img_source_type>							span_gen_type_resample;
 	
 	agg::trans_affine			matrix;
 	interpolator_type			interpolator;
 	agg::rendering_buffer		source_buffer;
-	pixfmt						img_pixf;		//@
+	img_pixfmt					img_pixf;
 	img_source_type				img_src;
 	agg::image_filter_lut		filter;
 	span_alloc_type				span_alloc;
@@ -287,19 +382,17 @@ struct AggRendererImage
 	unsigned int				fence;
 	
 	AggRendererImage (AggBuffer* buffer)
-		: renderer(buffer->renderer),
+		: renderer(buffer->renderer_pre),
 		  matrix (),
 		  interpolator (matrix),
 		  source_buffer (),
-		  img_pixf (source_buffer),		//@
-		  img_src (img_pixf, agg::rgba (1, 0, 0, 1)),			//@
+		  img_pixf (source_buffer),
+		  img_src (img_pixf /*, agg::rgba (0, 0, 0, 0)*/),
 		  span_alloc (),
-		  span_gen (img_src, interpolator),	//@ supprimé agg::rgba (1, 0, 0, 1), 
+		  span_gen (img_src, interpolator),
 		  span_gen_nn (img_src, interpolator),
 		  span_gen_general (img_src, interpolator, filter),
 		  span_gen_resample (img_src, interpolator, filter),
-//@		  ren_image(renderer->ren_base, span_gen),
-//@		  ren_image_nn(renderer->ren_base, span_gen_nn),
 		  is_source_ok (false),
 		  is_ready (false),
 		  use_nn (false),
