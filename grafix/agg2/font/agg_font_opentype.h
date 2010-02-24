@@ -573,6 +573,21 @@ namespace agg
 			bool PerformSubstitution (const int16u* glyphs, int16u& glyph, int16u& skip) const;
 		};
 		
+		struct single_subst_format1
+		{
+			int16u		subst_format;				//	1
+			Offset		coverage;
+			int16		delta_glyph_id;
+		};
+		
+		struct single_subst_format2
+		{
+			int16u		subst_format;				//	1
+			Offset		coverage;
+			uint16		glyph_count;
+			uint16		substitute[1];
+		};
+		
 		//	See http://www.microsoft.com/typography/otspec/GSUB.htm for GSUB table
 		//	See http://www.microsoft.com/typography/otspec/chapter2.htm for the common table format
 		//	See http://www.microsoft.com/typography/otspec/featurelist.htm for 'liga' and others.

@@ -588,16 +588,39 @@ namespace AntiGrain
 		{
 			if (n > 0)
 			{
-				int* types_copy = reinterpret_cast<int*> (_alloca (sizeof (int)*n));
-				double* x_copy  = reinterpret_cast<double*> (_alloca (sizeof (double)*n));
-				double* y_copy  = reinterpret_cast<double*> (_alloca (sizeof (double)*n));
-				
-				AggPathElemGet (reinterpret_cast<AggPath*> (path.ToPointer ()),
-								n, types_copy, x_copy, y_copy);
-				
-				System::Runtime::InteropServices::Marshal::Copy (System::IntPtr (types_copy), types, 0, n);
-				System::Runtime::InteropServices::Marshal::Copy (System::IntPtr (x_copy), x, 0, n);
-				System::Runtime::InteropServices::Marshal::Copy (System::IntPtr (y_copy), y, 0, n);
+				if (n < 1000)
+				{
+					int* types_copy = reinterpret_cast<int*> (_alloca (sizeof (int)*n));
+					double* x_copy  = reinterpret_cast<double*> (_alloca (sizeof (double)*n));
+					double* y_copy  = reinterpret_cast<double*> (_alloca (sizeof (double)*n));
+					
+					AggPathElemGet (reinterpret_cast<AggPath*> (path.ToPointer ()),
+									n, types_copy, x_copy, y_copy);
+					
+					System::Runtime::InteropServices::Marshal::Copy (System::IntPtr (types_copy), types, 0, n);
+					System::Runtime::InteropServices::Marshal::Copy (System::IntPtr (x_copy), x, 0, n);
+					System::Runtime::InteropServices::Marshal::Copy (System::IntPtr (y_copy), y, 0, n);
+				}
+				else
+				{
+					//	If there is really a lot of data to store in temporary storage, do not
+					//	use the stack for it, since it is not infinite :
+
+					int* types_copy = reinterpret_cast<int*> (malloc (sizeof (int)*n));
+					double* x_copy  = reinterpret_cast<double*> (malloc (sizeof (double)*n));
+					double* y_copy  = reinterpret_cast<double*> (malloc (sizeof (double)*n));
+					
+					AggPathElemGet (reinterpret_cast<AggPath*> (path.ToPointer ()),
+									n, types_copy, x_copy, y_copy);
+					
+					System::Runtime::InteropServices::Marshal::Copy (System::IntPtr (types_copy), types, 0, n);
+					System::Runtime::InteropServices::Marshal::Copy (System::IntPtr (x_copy), x, 0, n);
+					System::Runtime::InteropServices::Marshal::Copy (System::IntPtr (y_copy), y, 0, n);
+
+					free (types_copy);
+					free (x_copy);
+					free (y_copy);
+				}
 			}
 		}
 		

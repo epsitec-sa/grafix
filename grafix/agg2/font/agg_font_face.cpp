@@ -28,6 +28,8 @@
 #include "agg_font_opentype.h"
 #include "agg_strsafe.h"
 
+#include <stdio.h>
+
 #undef	ACTIVE_DEBUG_TRACE
 
 #if defined(ACTIVE_DEBUG_TRACE)
@@ -159,7 +161,8 @@ int
 font_face::FillOpenTypeLigatureSubstArray (const open_type::feature_table* features,
 										  const open_type::ligature_subst** array)
 {
-	if (features == 0) {
+	if (features == 0)
+	{
 		return 0;
 	}
 	
@@ -172,23 +175,36 @@ font_face::FillOpenTypeLigatureSubstArray (const open_type::feature_table* featu
 		
 		lookup_table  = this->RetOpenTypeGSUBLookupTable (features->RetIndex (i));
 		int subst_num = lookup_table->RetSubTableCount ();
+		open_type::lookup_table::GSUB_Type gsub_type = lookup_table->RetLookupType ();
 
-		if (lookup_table->RetLookupType () == open_type::lookup_table::GSUB_TYPE_ChainingContext)
+		if (gsub_type == open_type::lookup_table::GSUB_TYPE_ChainingContext)
 		{
 			continue;
 		}
 		
-		assert (lookup_table->RetLookupType () == open_type::lookup_table::GSUB_TYPE_Ligature);
-		
-		if (array)
+		if (gsub_type == open_type::lookup_table::GSUB_TYPE_Single)
 		{
-			for (int j = 0; j < subst_num; j++)
-			{
-				array[total_subst+j] = reinterpret_cast<const open_type::ligature_subst*> (lookup_table->RetSubTable (j));
-			}
+			//	...
 		}
 		
-		total_subst += subst_num;
+		if (gsub_type == open_type::lookup_table::GSUB_TYPE_Ligature)
+		{
+			if (array)
+			{
+				for (int j = 0; j < subst_num; j++)
+				{
+					array[total_subst+j] = reinterpret_cast<const open_type::ligature_subst*> (lookup_table->RetSubTable (j));
+				}
+			}
+			
+			total_subst += subst_num;
+		}
+		else
+		{
+			char message[100];
+			sprintf (message, "Unsupported GSUB_TYPE=%d found", (int)gsub_type);
+			OS::OutputDebugStringA (message);
+		}
 	}
 	
 	return total_subst;
