@@ -584,8 +584,8 @@ namespace agg
 		{
 			int16u		subst_format;				//	1
 			Offset		coverage;
-			uint16		glyph_count;
-			uint16		substitute[1];
+			int16u		glyph_count;
+			int16u		substitute[1];
 		};
 		
 		//	See http://www.microsoft.com/typography/otspec/GSUB.htm for GSUB table
