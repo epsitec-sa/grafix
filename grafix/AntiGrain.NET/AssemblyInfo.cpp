@@ -16,11 +16,11 @@ using namespace System::Runtime::CompilerServices;
 [assembly:AssemblyConfigurationAttribute("")];
 [assembly:AssemblyCompanyAttribute("OPaC bright ideas")];
 [assembly:AssemblyProductAttribute("Anti-Grain Geometry Graphics Library for .NET")];
-[assembly:AssemblyCopyrightAttribute("Copyright © 2003-2010, Pierre Arnaud, OPaC bright ideas")];
+[assembly:AssemblyCopyrightAttribute("Copyright © 2003-2013, Pierre Arnaud, OPaC bright ideas")];
 [assembly:AssemblyTrademarkAttribute("")];
 [assembly:AssemblyCultureAttribute("")];		
 
-[assembly:AssemblyVersionAttribute("2.4.1016.0")];
+[assembly:AssemblyVersionAttribute("2.4.1304.0")];
 
 [assembly:AssemblyDelaySignAttribute(false)];
 [assembly:AssemblyKeyFileAttribute("..\\Epsitec.Cresus.snk")];

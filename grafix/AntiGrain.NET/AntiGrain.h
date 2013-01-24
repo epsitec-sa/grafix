@@ -69,9 +69,9 @@ namespace AntiGrain
 			return System::IntPtr ((void*) AggBufferNewFrom (dx, dy, bpp, stride, ptr.ToPointer (), copyBits));
 		}
 		
-		static void Resize(System::IntPtr buffer, int dx, int dy, int bpp)
+		static bool Resize(System::IntPtr buffer, int dx, int dy, int bpp)
 		{
-			AggBufferResize (reinterpret_cast<AggBuffer*> (buffer.ToPointer ()), dx, dy, bpp);
+			return AggBufferResize (reinterpret_cast<AggBuffer*> (buffer.ToPointer ()), dx, dy, bpp);
 		}
 		
 		static void InfiniteClipping(System::IntPtr buffer)

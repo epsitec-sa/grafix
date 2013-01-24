@@ -76,7 +76,7 @@
       <TargetMachine>MachineX86</TargetMachine>
     </Link>
     <PostBuildEvent>
-      <Command>sn -Ra $(OutDir)AntiGrain.NET.dll S:\Epsitec.Cresus\Epsitec.Cresus.snk</Command>
+      <Command>sn -Ra $(OutDir)AntiGrain.NET.dll "S:\Epsitec.Cresus\Solution Items\Epsitec.Cresus.snk"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -103,7 +103,9 @@
       <TargetMachine>MachineX86</TargetMachine>
     </Link>
     <PostBuildEvent>
-      <Command>sn -Ra $(OutDir)AntiGrain.NET.dll S:\Epsitec.Cresus\Epsitec.Cresus.snk</Command>
+      <Command>sn -Ra $(OutDir)AntiGrain.NET.dll "S:\Epsitec.Cresus\Solution Items\Epsitec.Cresus.snk"
+echo OK...
+</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>

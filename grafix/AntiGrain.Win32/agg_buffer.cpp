@@ -124,7 +124,7 @@ AggBufferNewFrom(unsigned dx, unsigned dy, unsigned bpp, int stride, void* bits,
 }
 
 
-void
+bool
 AggBufferResize(AggBuffer* buffer, unsigned dx, unsigned dy, unsigned bpp)
 {
 	if (buffer)
@@ -137,8 +137,15 @@ AggBufferResize(AggBuffer* buffer, unsigned dx, unsigned dy, unsigned bpp)
 			
 			buffer->bitmap = 0;
 			buffer->bitmap = buffer->pixmap.create_dib_section (buffer->bitmap_dc, dx, dy, (agg::org_e) bpp, 0xff);
-			
-			buffer->bitmap_old = ::SelectObject (buffer->bitmap_dc, buffer->bitmap);
+
+			if (buffer->bitmap)
+			{
+				buffer->bitmap_old = ::SelectObject (buffer->bitmap_dc, buffer->bitmap);
+			}
+			else
+			{
+				return false;
+			}
 		}
 		else
 		{
@@ -162,6 +169,8 @@ AggBufferResize(AggBuffer* buffer, unsigned dx, unsigned dy, unsigned bpp)
 		buffer->buffer.attach (buffer->pixmap.buf (), buffer->pixmap.width (), buffer->pixmap.height (), buffer->pixmap.stride ());
 		buffer->renderer->ren_base.reset_clipping (true);
 		buffer->renderer_pre->ren_base.reset_clipping (true);
+
+		return true;
 	}
 }
 
