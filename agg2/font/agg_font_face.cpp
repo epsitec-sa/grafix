@@ -1071,9 +1071,7 @@ font_face::cache_record::FindSizeInfo (int16u glyph)
 								{
 									POINTFX pfx = curve->apfx[i];
 									
-									//	...pas supporté...
-									
-									__asm int 3;
+                  //__debugbreak();
 									
 									sx = pfx.x.value;
 									sy = pfx.y.value;
