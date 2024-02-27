@@ -1,0 +1,37 @@
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{5306DBD9-033F-426B-A88C-7D7207DC5C6E}"
+	ProjectSection(SolutionItems) = preProject
+		AGGWcopy.bat = AGGWcopy.bat
+		HowToBuild.txt = HowToBuild.txt
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AntiGrain.Win32", "AntiGrain.Win32\AntiGrain.Win32.vcproj", "{01A5A54B-EEF0-492B-90E0-412DFF1B2657}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AntiGrain.NET", "AntiGrain.NET\AntiGrain.NET.vcproj", "{5B06F6A2-61B0-4405-9B4A-DB806E199B56}"
+	ProjectSection(ProjectDependencies) = postProject
+		{01A5A54B-EEF0-492B-90E0-412DFF1B2657} = {01A5A54B-EEF0-492B-90E0-412DFF1B2657}
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{01A5A54B-EEF0-492B-90E0-412DFF1B2657}.Debug|Win32.ActiveCfg = Debug|Win32
+		{01A5A54B-EEF0-492B-90E0-412DFF1B2657}.Debug|Win32.Build.0 = Debug|Win32
+		{01A5A54B-EEF0-492B-90E0-412DFF1B2657}.Release|Win32.ActiveCfg = Release|Win32
+		{01A5A54B-EEF0-492B-90E0-412DFF1B2657}.Release|Win32.Build.0 = Release|Win32
+		{5B06F6A2-61B0-4405-9B4A-DB806E199B56}.Debug|Win32.ActiveCfg = Debug|Win32
+		{5B06F6A2-61B0-4405-9B4A-DB806E199B56}.Debug|Win32.Build.0 = Debug|Win32
+		{5B06F6A2-61B0-4405-9B4A-DB806E199B56}.Release|Win32.ActiveCfg = Release|Win32
+		{5B06F6A2-61B0-4405-9B4A-DB806E199B56}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(DPCodeReviewSolutionGUID) = preSolution
+		DPCodeReviewSolutionGUID = {00000000-0000-0000-0000-000000000000}
+	EndGlobalSection
+EndGlobal
