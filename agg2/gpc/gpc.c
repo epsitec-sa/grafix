@@ -1780,7 +1780,7 @@ void gpc_tristrip_clip(gpc_op op, gpc_polygon *subj, gpc_polygon *clip,
   sb_tree       *sbtree= NULL;
   it_node       *it= NULL, *intersect;
   edge_node     *edge, *prev_edge, *next_edge, *succ_edge, *e0, *e1;
-  edge_node     *aet= NULL, *c_heap= NULL, *s_heap= NULL, *cf;
+  edge_node     *aet= NULL, *c_heap= NULL, *s_heap= NULL, *cf= NULL;
   lmt_node      *lmt= NULL, *local_min;
   polygon_node  *tlist= NULL, *tn, *tnn, *p, *q;
   vertex_node   *lt, *ltn, *rt, *rtn;
