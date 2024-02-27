@@ -172,6 +172,7 @@ AggBufferResize(AggBuffer* buffer, unsigned dx, unsigned dy, unsigned bpp)
 
 		return true;
 	}
+  return false;
 }
 
 void
