@@ -1,0 +1,10 @@
+<Project>
+  <Import Project="Version.props" />
+  <Import Project="$([MSBuild]::GetPathOfFileAbove('$(MSBuildThisFile)', '$(MSBuildThisFileDirectory)../'))" />
+  <PropertyGroup>
+    <TargetFramework>$(CoreTargetFramework)</TargetFramework>
+
+    <PackageTags>grafix;agg</PackageTags>
+    <PackageProjectUrl>https://git.epsitec.ch/core/grafix</PackageProjectUrl>
+  </PropertyGroup>
+</Project>
