@@ -48,7 +48,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <AdditionalIncludeDirectories>$(ModuleDir)IPP\include;$(ModuleDir)agg2\include;$(ModuleDir)agg2\font;$(SolutionDir)agg2\gpc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ModuleDir)IPP\include;$(ModuleDir)agg2\include;$(ModuleDir)agg2\font;$(ModuleDir)freetype\include;$(ModuleDir)agg2\gpc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;AGGWRAPPER_EXPORTS;AGG_BMP_ALPHA_BLEND;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeader>
       </PrecompiledHeader>
