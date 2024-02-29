@@ -1,0 +1,14 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <!-- C++ interop -->
+  <ItemGroup>
+    <ImportProject Include="..\AntiGrain.Win32\AntiGrain.Win32.vcxproj" />
+  </ItemGroup>
+  <Import Project="$(ZouDir)Cs.Interop.targets" />
+</Project>

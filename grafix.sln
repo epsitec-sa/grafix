@@ -2,43 +2,55 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.8.34511.84
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{5306DBD9-033F-426B-A88C-7D7207DC5C6E}"
-	ProjectSection(SolutionItems) = preProject
-		AGGWcopy.bat = AGGWcopy.bat
-		HowToBuild.txt = HowToBuild.txt
-	EndProjectSection
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".build", ".build", "{5306DBD9-033F-426B-A88C-7D7207DC5C6E}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AntiGrain.CSharp", "AntiGrain.CSharp\AntiGrain.CSharp.csproj", "{3F62C3D8-3AFF-4C09-B106-71618DA35BEB}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AntiGrain.NET", "AntiGrain.NET\AntiGrain.NET.vcxproj", "{5B06F6A2-61B0-4405-9B4A-DB806E199B56}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AntiGrain.Win32", "AntiGrain.Win32\AntiGrain.Win32.vcxproj", "{01A5A54B-EEF0-492B-90E0-412DFF1B2657}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "_deprecated", "_deprecated", "{BE9AD955-239E-41A9-8458-E358AFCAB381}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".bundle", ".bundle", "{56D8124D-41A0-4773-B24B-B90B30773EEA}"
+	ProjectSection(SolutionItems) = preProject
+		..\Directory.Build.props = ..\Directory.Build.props
+		..\Directory.Build.targets = ..\Directory.Build.targets
+		..\NuGet.config = ..\NuGet.config
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "grafix", "grafix", "{7510BBE6-0102-410E-85D0-5ADCE22D321D}"
+	ProjectSection(SolutionItems) = preProject
+		AGGWcopy.bat = AGGWcopy.bat
+		Directory.Build.props = Directory.Build.props
+		HowToBuild.txt = HowToBuild.txt
+		Version.props = Version.props
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
-		Debug|Win32 = Debug|Win32
 		Debug|x86 = Debug|x86
-		Release|Win32 = Release|Win32
 		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{5B06F6A2-61B0-4405-9B4A-DB806E199B56}.Debug|Win32.ActiveCfg = Debug|Win32
-		{5B06F6A2-61B0-4405-9B4A-DB806E199B56}.Debug|Win32.Build.0 = Debug|Win32
+		{3F62C3D8-3AFF-4C09-B106-71618DA35BEB}.Debug|x86.ActiveCfg = Debug|x86
+		{3F62C3D8-3AFF-4C09-B106-71618DA35BEB}.Debug|x86.Build.0 = Debug|x86
+		{3F62C3D8-3AFF-4C09-B106-71618DA35BEB}.Release|x86.ActiveCfg = Release|x86
+		{3F62C3D8-3AFF-4C09-B106-71618DA35BEB}.Release|x86.Build.0 = Release|x86
 		{5B06F6A2-61B0-4405-9B4A-DB806E199B56}.Debug|x86.ActiveCfg = Debug|Win32
-		{5B06F6A2-61B0-4405-9B4A-DB806E199B56}.Debug|x86.Build.0 = Debug|Win32
-		{5B06F6A2-61B0-4405-9B4A-DB806E199B56}.Release|Win32.ActiveCfg = Release|Win32
-		{5B06F6A2-61B0-4405-9B4A-DB806E199B56}.Release|Win32.Build.0 = Release|Win32
 		{5B06F6A2-61B0-4405-9B4A-DB806E199B56}.Release|x86.ActiveCfg = Release|Win32
-		{5B06F6A2-61B0-4405-9B4A-DB806E199B56}.Release|x86.Build.0 = Release|Win32
-		{01A5A54B-EEF0-492B-90E0-412DFF1B2657}.Debug|Win32.ActiveCfg = Debug|Win32
-		{01A5A54B-EEF0-492B-90E0-412DFF1B2657}.Debug|Win32.Build.0 = Debug|Win32
 		{01A5A54B-EEF0-492B-90E0-412DFF1B2657}.Debug|x86.ActiveCfg = Debug|Win32
 		{01A5A54B-EEF0-492B-90E0-412DFF1B2657}.Debug|x86.Build.0 = Debug|Win32
-		{01A5A54B-EEF0-492B-90E0-412DFF1B2657}.Release|Win32.ActiveCfg = Release|Win32
-		{01A5A54B-EEF0-492B-90E0-412DFF1B2657}.Release|Win32.Build.0 = Release|Win32
 		{01A5A54B-EEF0-492B-90E0-412DFF1B2657}.Release|x86.ActiveCfg = Release|Win32
 		{01A5A54B-EEF0-492B-90E0-412DFF1B2657}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{5B06F6A2-61B0-4405-9B4A-DB806E199B56} = {BE9AD955-239E-41A9-8458-E358AFCAB381}
+		{56D8124D-41A0-4773-B24B-B90B30773EEA} = {5306DBD9-033F-426B-A88C-7D7207DC5C6E}
+		{7510BBE6-0102-410E-85D0-5ADCE22D321D} = {5306DBD9-033F-426B-A88C-7D7207DC5C6E}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {19973702-164D-41BD-B397-750959EFA40D}
