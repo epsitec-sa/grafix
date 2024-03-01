@@ -254,6 +254,9 @@
     <ResourceCompile Include="AntiGrain.Win32.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <PropertyGroup Label="zou">
+    <DoNotUseBoost>true</DoNotUseBoost>
+  </PropertyGroup>
   <ImportGroup Label="ExtensionTargets">
     <Import Project="$(ZouDir)Zou.Cpp.targets" />
   </ImportGroup>
