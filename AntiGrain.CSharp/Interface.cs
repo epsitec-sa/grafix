@@ -2,33 +2,9 @@
 // Author: Pierre ARNAUD, Roger VUISTINER, Maintainer: Roger VUISTINER
 
 using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 
-namespace AntiGrain
-{
-    public static partial class Interface
-    {
-        [DllImport("AntiGrain.Win32", CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
-        [return: MarshalAs(UnmanagedType.U1)]
-        internal static extern bool AggInitialise();
+using static AntiGrain.Native;
 
-        [DllImport("AntiGrain.Win32", CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
-        internal static extern void AggShutDown();
-
-        [DllImport("AntiGrain.Win32", CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
-        internal static extern void AggNoOp();
-
-        [DllImport("AntiGrain.Win32", CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
-        internal static extern void AggNoOpString(string text);
-
-        [DllImport("AntiGrain.Win32", CallingConvention = CallingConvention.Cdecl, SetLastError = true, CharSet = CharSet.Unicode)]
-        internal static extern string AggGetVersion();
-
-        [DllImport("AntiGrain.Win32", CallingConvention = CallingConvention.Cdecl, SetLastError = true, CharSet = CharSet.Unicode)]
-        internal static extern string AggGetProductName();
-
-    }
-}
 namespace AntiGrain
 {
     public static partial class Interface

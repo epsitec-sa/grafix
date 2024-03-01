@@ -1,65 +1,8 @@
 ﻿// Copyright © 2003-2024, EPSITEC SA, CH-1400 Yverdon-les-Bains, Switzerland
 // Author: Pierre ARNAUD, Roger VUISTINER, Maintainer: Roger VUISTINER
 
-using System.Runtime.InteropServices;
+using static AntiGrain.Native;
 
-namespace AntiGrain
-{
-    public static partial class Rasterizer
-    {
-        [DllImport("AntiGrain.Win32", CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
-        internal static extern IntPtr AggRasterizerNew();
-
-        [DllImport("AntiGrain.Win32", CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
-        internal static extern void AggRasterizerClear(IntPtr rasterizer);
-
-        [DllImport("AntiGrain.Win32", CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
-        [return: MarshalAs(UnmanagedType.U1)]
-        internal static extern bool AggRasterizerHitTest(IntPtr rasterizer, int x, int y);
-
-        [DllImport("AntiGrain.Win32", CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
-        internal static extern void AggRasterizerFillingRule(IntPtr rasterizer, int mode);
-
-        [DllImport("AntiGrain.Win32", CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
-        internal static extern void AggRasterizerGamma(IntPtr rasterizer, double gamma);
-
-        [DllImport("AntiGrain.Win32", CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
-        internal static extern void AggRasterizerSetTransform(IntPtr rasterizer, double xx, double xy, double yx, double yy, double tx, double ty);
-
-        [DllImport("AntiGrain.Win32", CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
-        internal static extern void AggRasterizerSetClipBox(IntPtr rasterizer, double x1, double y1, double x2, double y2);
-
-        [DllImport("AntiGrain.Win32", CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
-        internal static extern void AggRasterizerResetClipBox(IntPtr rasterizer);
-
-        [DllImport("AntiGrain.Win32", CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
-        internal static extern void AggRasterizerAddPath(IntPtr rasterizer, IntPtr path, [MarshalAs(UnmanagedType.U1)] bool curves);
-
-        [DllImport("AntiGrain.Win32", CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
-        internal static extern void AggRasterizerAddGlyph(IntPtr rasterizer, IntPtr face, int glyph, double x, double y, double scale);
-
-        [DllImport("AntiGrain.Win32", CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
-        internal static extern void AggRasterizerAddGlyphXY(IntPtr rasterizer, IntPtr face, int glyph, double x, double y, double scale_x, double scale_y);
-
-        [DllImport("AntiGrain.Win32", CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
-        internal static extern void AggRasterizerAddPathStroke1(IntPtr rasterizer, IntPtr path, double width, [MarshalAs(UnmanagedType.U1)] bool curves);
-
-        [DllImport("AntiGrain.Win32", CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
-        internal static extern void AggRasterizerAddPathStroke2(IntPtr rasterizer, IntPtr path, double width, int cap, int join, double miter_limit, [MarshalAs(UnmanagedType.U1)] bool curves);
-
-        [DllImport("AntiGrain.Win32", CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
-        internal static extern void AggRasterizerRenderSolid(IntPtr rasterizer, IntPtr renderer);
-
-        [DllImport("AntiGrain.Win32", CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
-        internal static extern void AggRasterizerRenderImage(IntPtr rasterizer, IntPtr renderer);
-
-        [DllImport("AntiGrain.Win32", CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
-        internal static extern void AggRasterizerRenderGradient(IntPtr rasterizer, IntPtr renderer);
-
-        [DllImport("AntiGrain.Win32", CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
-        internal static extern void AggRasterizerDelete(IntPtr rasterizer);
-    }
-}
 namespace AntiGrain
 {
     public static partial class Rasterizer

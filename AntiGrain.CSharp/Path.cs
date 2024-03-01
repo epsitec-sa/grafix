@@ -1,77 +1,8 @@
 ﻿// Copyright © 2003-2024, EPSITEC SA, CH-1400 Yverdon-les-Bains, Switzerland
 // Author: Pierre ARNAUD, Roger VUISTINER, Maintainer: Roger VUISTINER
 
-using System.Runtime.InteropServices;
+using static AntiGrain.Native;
 
-namespace AntiGrain
-{
-    public static partial class Path
-    {
-        [DllImport("AntiGrain.Win32", CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
-        internal static extern IntPtr AggPathNew();
-
-        [DllImport("AntiGrain.Win32", CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
-        internal static extern void AggPathMoveTo(IntPtr path, double x, double y);
-
-        [DllImport("AntiGrain.Win32", CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
-        internal static extern void AggPathLineTo(IntPtr path, double x, double y);
-
-        [DllImport("AntiGrain.Win32", CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
-        internal static extern void AggPathCurve3(IntPtr path, double x_c, double y_c, double x, double y);
-
-        [DllImport("AntiGrain.Win32", CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
-        internal static extern void AggPathCurve4(IntPtr path, double x_c1, double y_c1, double x_c2, double y_c2, double x, double y);
-
-        [DllImport("AntiGrain.Win32", CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
-        internal static extern void AggPathClose(IntPtr path);
-
-        [DllImport("AntiGrain.Win32", CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
-        internal static extern void AggPathAddNewPath(IntPtr path);
-
-        [DllImport("AntiGrain.Win32", CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
-        internal static extern void AggPathAppendGlyph(IntPtr path, IntPtr face, int glyph, double xx, double xy, double yx, double yy, double tx, double ty, double bold);
-
-        [DllImport("AntiGrain.Win32", CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
-        internal static extern void AggPathAppendPathStroke(IntPtr path, IntPtr path2, double width, int cap, int join, double miter_limit, double scale, [MarshalAs(UnmanagedType.U1)] bool curved);
-
-        [DllImport("AntiGrain.Win32", CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
-        internal static extern void AggPathAppendPath(IntPtr path, IntPtr path2, double xx, double xy, double yx, double yy, double tx, double ty, double scale, double bold);
-
-        [DllImport("AntiGrain.Win32", CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
-        internal static extern void AggPathAppendArc(IntPtr path, double x, double y, double rx, double ry, double a1, double a2, [MarshalAs(UnmanagedType.U1)] bool ccw, double scale, [MarshalAs(UnmanagedType.U1)] bool continue_pa);
-
-        [DllImport("AntiGrain.Win32", CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
-        internal static extern void AggPathAppendDashedPath(IntPtr path, IntPtr dash, double scale);
-
-        [DllImport("AntiGrain.Win32", CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
-        internal static extern void AggPathCombinePathsUsingGpc(IntPtr path1, IntPtr path2, IntPtr result, int operation);
-
-        [DllImport("AntiGrain.Win32", CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
-        internal static extern void AggPathComputeBounds(IntPtr path, out double x1, out double y1, out double x2, out double y2);
-
-        [DllImport("AntiGrain.Win32", CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
-        internal static extern void AggPathRemoveAll(IntPtr path);
-
-        [DllImport("AntiGrain.Win32", CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
-        internal static extern int AggPathElemCount(IntPtr path);
-
-        [DllImport("AntiGrain.Win32", CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
-        internal static extern void AggPathElemGet(IntPtr path, int n, int[] types, double[] x, double[] y);
-
-        [DllImport("AntiGrain.Win32", CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
-        internal static extern void AggPathDelete(IntPtr path);
-
-        [DllImport("AntiGrain.Win32", CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
-        internal static extern void AggPathDashReset(IntPtr path);
-
-        [DllImport("AntiGrain.Win32", CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
-        internal static extern void AggPathDashAdd(IntPtr path, double dash_length, double gap_length);
-
-        [DllImport("AntiGrain.Win32", CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
-        internal static extern void AggPathDashSetStart(IntPtr path, double start);
-
-    }
-}
 namespace AntiGrain
 {
     public static partial class Path
