@@ -9,10 +9,10 @@
 #include "interface.h"
 #include "structures.h"
 
-#include "agg_font_face.h"
+#include "font/agg_font_face.h"
 
 #include "agg_bounding_rect.h"
-#include "agg_font_path_provider.h"
+#include "font/agg_font_path_provider.h"
 #include "agg_conv_contour.h"
 #include "agg_conv_curve.h"
 

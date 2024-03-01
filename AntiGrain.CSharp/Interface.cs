@@ -18,12 +18,6 @@ namespace AntiGrain
         [DllImport("AntiGrain.Win32", CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
         internal static extern void AggNoOpString(string text);
 
-        [DllImport("AntiGrain.Win32", CallingConvention = CallingConvention.Cdecl, SetLastError = true, CharSet = CharSet.Unicode)]
-        internal static extern string AggGetVersion();
-
-        [DllImport("AntiGrain.Win32", CallingConvention = CallingConvention.Cdecl, SetLastError = true, CharSet = CharSet.Unicode)]
-        internal static extern string AggGetProductName();
-
     }
 }
 namespace AntiGrain
@@ -46,14 +40,6 @@ namespace AntiGrain
         public static void   NoOpString(string text)
         {
             AggNoOpString(text.Substring(Internals.OffsetToStringData));
-        }
-        public static string GetVersion()
-        {
-            return AggGetVersion();
-        }
-        public static string GetProductName()
-        {
-            return AggGetProductName();
         }
     }
 }

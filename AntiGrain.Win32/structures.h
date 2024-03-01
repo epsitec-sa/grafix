@@ -289,31 +289,31 @@ namespace agg
             if(y >= (int)m_pixf->height()) y = m_pixf->height() - 1;
             const int8u* ptr = m_pixf->pix_ptr(x, y);
 
-			int8u a = ptr[order_type::A];
+            int8u a = ptr[order_type::A];
 
-			if (a == pixfmt_type::base_mask)
-			{
-				return ptr;
-			}
-			if (a == 0)
-			{
-				return m_zero_buf;
-			}
+            if (a == pixfmt_type::color_type::base_mask)
+            {
+              return ptr;
+            }
+            if (a == 0)
+            {
+              return m_zero_buf;
+            }
 
-			int8u r = ptr[order_type::R];
-			int8u g = ptr[order_type::G];
-			int8u b = ptr[order_type::B];
-			
-			r = int8u((r * a) >> 8);
-			g = int8u((g * a) >> 8);
-			b = int8u((b * a) >> 8);
-			
-			m_tmp_buf[order_type::R] = r;
-			m_tmp_buf[order_type::G] = g;
-			m_tmp_buf[order_type::B] = b;
-			m_tmp_buf[order_type::A] = a;
-			
-			return m_tmp_buf;
+            int8u r = ptr[order_type::R];
+            int8u g = ptr[order_type::G];
+            int8u b = ptr[order_type::B];
+            
+            r = int8u((r * a) >> 8);
+            g = int8u((g * a) >> 8);
+            b = int8u((b * a) >> 8);
+            
+            m_tmp_buf[order_type::R] = r;
+            m_tmp_buf[order_type::G] = g;
+            m_tmp_buf[order_type::B] = b;
+            m_tmp_buf[order_type::A] = a;
+            
+            return m_tmp_buf;
         }
 
     public:
