@@ -97,9 +97,9 @@
     </ClCompile>
     <ClCompile Include="..\agg-2.6\agg-src\src\ctrl\agg_gamma_spline.cpp" />
     <ClCompile Include="..\agg-2.6\agg-src\src\platform\win32\agg_win32_bmp.cpp" />
-    <ClCompile Include="font\agg_font_face.cpp" />
-    <ClCompile Include="font\agg_font_opentype.cpp" />
-    <ClCompile Include="font\agg_font_path_provider.cpp" />
+    <ClCompile Include="agg_font_face.cpp" />
+    <ClCompile Include="agg_font_opentype.cpp" />
+    <ClCompile Include="agg_font_path_provider.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DLL.h" />
@@ -245,12 +245,12 @@
     <ClInclude Include="..\agg-2.6\agg-src\include\util\agg_color_conv.h" />
     <ClInclude Include="..\agg-2.6\agg-src\include\util\agg_color_conv_rgb16.h" />
     <ClInclude Include="..\agg-2.6\agg-src\include\util\agg_color_conv_rgb8.h" />
-    <ClInclude Include="font\agg_font_face.h" />
-    <ClInclude Include="font\agg_font_opentype.h" />
-    <ClInclude Include="font\agg_font_path_provider.h" />
-    <ClInclude Include="font\agg_read_big_endian.h" />
-    <ClInclude Include="font\agg_strsafe.h" />
-    <ClInclude Include="font\agg_turboheap.h" />
+    <ClInclude Include="agg_font_face.h" />
+    <ClInclude Include="agg_font_opentype.h" />
+    <ClInclude Include="agg_font_path_provider.h" />
+    <ClInclude Include="agg_read_big_endian.h" />
+    <ClInclude Include="agg_strsafe.h" />
+    <ClInclude Include="agg_turboheap.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="AntiGrain.Win32.rc" />

@@ -9,7 +9,7 @@
 #include "interface.h"
 #include "structures.h"
 
-#include "font/agg_font_path_provider.h"
+#include "agg_font_path_provider.h"
 #include "agg_conv_curve.h"
 
 /*****************************************************************************/
