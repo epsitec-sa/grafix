@@ -1,25 +1,10 @@
-﻿using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
+﻿// Copyright © 2003-2024, EPSITEC SA, CH-1400 Yverdon-les-Bains, Switzerland
+// Author: Pierre ARNAUD, Roger VUISTINER, Maintainer: Roger VUISTINER
 
-namespace AntiGrain
-{
-    public static partial class Interface
-    {
-        [DllImport("AntiGrain.Win32", CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
-        [return: MarshalAs(UnmanagedType.U1)]
-        internal static extern bool AggInitialise();
+using System.Runtime.CompilerServices;
 
-        [DllImport("AntiGrain.Win32", CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
-        internal static extern void AggShutDown();
+using static AntiGrain.Native;
 
-        [DllImport("AntiGrain.Win32", CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
-        internal static extern void AggNoOp();
-
-        [DllImport("AntiGrain.Win32", CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
-        internal static extern void AggNoOpString(string text);
-
-    }
-}
 namespace AntiGrain
 {
     public static partial class Interface
@@ -32,14 +17,6 @@ namespace AntiGrain
         public static void   ShutDown()
         {
             AggShutDown();
-        }
-        public static void   NoOp()
-        {
-            AggNoOp();
-        }
-        public static void   NoOpString(string text)
-        {
-            AggNoOpString(text.Substring(Internals.OffsetToStringData));
         }
     }
 }

@@ -1,62 +1,10 @@
-﻿using System.Runtime.InteropServices;
+﻿// Copyright © 2003-2024, EPSITEC SA, CH-1400 Yverdon-les-Bains, Switzerland
+// Author: Pierre ARNAUD, Roger VUISTINER, Maintainer: Roger VUISTINER
 
-namespace AntiGrain
-{
-    public static partial class Buffer
-    {
-        [DllImport("AntiGrain.Win32", CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
-        internal static extern IntPtr AggBufferNew(uint dx, uint dy, uint bpp);
+using System.Runtime.InteropServices;
 
-        [DllImport("AntiGrain.Win32", CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
-        internal static extern IntPtr AggBufferNewFrom(uint dx, uint dy, uint bpp, int stride, IntPtr ptr, [MarshalAs(UnmanagedType.U1)] bool copyBits);
+using static AntiGrain.Native;
 
-        [DllImport("AntiGrain.Win32", CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
-        [return: MarshalAs(UnmanagedType.U1)]
-        internal static extern bool AggBufferResize(IntPtr buffer, uint dx, uint dy, uint bpp);
-
-        [DllImport("AntiGrain.Win32", CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
-        internal static extern void AggBufferInfiniteClipping(IntPtr buffer);
-
-        [DllImport("AntiGrain.Win32", CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
-        internal static extern void AggBufferEmptyClipping(IntPtr buffer);
-
-        [DllImport("AntiGrain.Win32", CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
-        internal static extern void AggBufferAddClipBox(IntPtr buffer, int x1, int y1, int x2, int y2);
-
-        [DllImport("AntiGrain.Win32", CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
-        internal static extern void AggBufferDrawGlyphs(IntPtr buffer, IntPtr hfont, int x, int y, ushort[] glyphs, int[] dx_array, uint count, uint color);
-
-        [DllImport("AntiGrain.Win32", CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
-        internal static extern void AggBufferPaint(IntPtr buffer, IntPtr hdc, int x1, int y1, int x2, int y2);
-
-        [DllImport("AntiGrain.Win32", CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
-        internal static extern void AggBufferPaintOffset(IntPtr buffer, IntPtr hdc, int ox, int oy, int x1, int y1, int x2, int y2);
-
-        [DllImport("AntiGrain.Win32", CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
-        internal static extern void AggBufferBlendOffset(IntPtr buffer, IntPtr hdc, int ox, int oy, int x1, int y1, int x2, int y2);
-
-        [DllImport("AntiGrain.Win32", CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
-        internal static extern void AggBufferClear(IntPtr buffer);
-
-        [DllImport("AntiGrain.Win32", CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
-        internal static extern void AggBufferClearRect(IntPtr buffer, int x1, int y1, int x2, int y2);
-
-        [DllImport("AntiGrain.Win32", CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
-        internal static extern void AggBufferGetMemoryLayout(IntPtr buffer, out int width, out int height, out int stride, out IntPtr value);
-
-        [DllImport("AntiGrain.Win32", CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
-        internal static extern IntPtr AggBufferGetMemoryBitmapHandle(IntPtr buffer);
-
-        [DllImport("AntiGrain.Win32", CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
-        internal static extern void AggBufferBltBuffer(IntPtr buffer, int xd, int yd, IntPtr source, int xs, int ys, int dx, int dy);
-
-        [DllImport("AntiGrain.Win32", CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
-        internal static extern void AggBufferComposeBuffer(IntPtr buffer, int xd, int yd, IntPtr source, int xs, int ys, int dx, int dy);
-
-        [DllImport("AntiGrain.Win32", CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
-        internal static extern void AggBufferDelete(IntPtr buffer);
-    }
-}
 namespace AntiGrain
 {
     public static partial class Buffer
