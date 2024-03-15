@@ -10,14 +10,9 @@
     <Exec Command="python aggcpp/build_lib.py" />
   </Target>
   <ItemGroup>
-    <Reference Include="AntigrainCPP">
-      <HintPath>aggcpp\libs\AntigrainCPP.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="aggcpp/libs/AntigrainCPP.dll">
-      <Link>AntigrainCPP.dll</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
+    <ContentWithTargetPath 
+      Include="aggcpp/libs/**" 
+      CopyToOutputDirectory="PreserveNewest"
+      TargetPath="%(Filename)%(Extension)" />
   </ItemGroup>
 </Project>

@@ -7,4 +7,3 @@ build_dir = source_dir / 'build'
 
 subprocess.run(['cmake', '-S', source_dir, '-B', build_dir])
 subprocess.run(['cmake', '--build', build_dir])
-# subprocess.run(['cmake', '--install', build_dir])
