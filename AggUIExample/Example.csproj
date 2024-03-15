@@ -1,0 +1,12 @@
+﻿<!-- vim: expandtab sw=2 
+-->
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\AggUI\AggUI.csproj" />
+  </ItemGroup>
+</Project>

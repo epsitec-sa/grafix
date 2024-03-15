@@ -1,0 +1,23 @@
+﻿<!-- vim: expandtab sw=2 
+-->
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Library</OutputType>
+    <TargetFramework>net8</TargetFramework>
+  </PropertyGroup>
+  <Target Name="BuildSharedLib" BeforeTargets="Build">
+    <Exec Command="python aggcpp/build_lib.py" />
+  </Target>
+  <ItemGroup>
+    <Reference Include="AntigrainCPP">
+      <HintPath>aggcpp\libs\AntigrainCPP.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="aggcpp/libs/AntigrainCPP.dll">
+      <Link>AntigrainCPP.dll</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+</Project>
