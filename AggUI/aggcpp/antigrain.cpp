@@ -1,5 +1,12 @@
 #include "antigrain.h"
 #include <iostream>
+#include "screeninfo/screeninfo.h"
+
+namespace ScreenInfo {
+	extern "C" DECLSPEC void GetScreenResolution(int &width, int &height){
+		getScreenResolution(width, height);
+	}
+}
 
 namespace AntigrainCPP {
     extern "C" agg::platform_support* NewPlatformSupport(agg::pix_format_e format, bool flip_y){

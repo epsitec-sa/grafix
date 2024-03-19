@@ -44,6 +44,9 @@ namespace Example {
             System.Console.WriteLine("main.cs:Main()");
             System.Console.WriteLine("Create Application");
             Application app = new Application(PixFmt.pix_format_bgr24, true);
+            System.Console.WriteLine("get screen resolution");
+			ScreenInfo.Rect res = ScreenInfo.GetResolution();
+            System.Console.WriteLine($"Resolution: {res.Width}, {res.Height}");
             System.Console.WriteLine("set caption");
             app.caption("AggUI example");
 

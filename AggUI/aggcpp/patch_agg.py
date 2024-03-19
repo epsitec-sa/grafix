@@ -13,6 +13,8 @@ Each patch consists in a tuple of three strings: `(comment_message, old_string, 
 When applying a patch, `old_string` is search in the source file and replaced with `new_string`.
 A comment is also added on the line above the patched line.
 It contains the word "PATCHED" followed by `comment_message` that indicate the reason for this patch.
+
+/!\ WHEN ADDING PATCH ENTRIES, MAKE SURE THEY ARE IDEMPOTENT.
 """
 PATCHES = {
     "CMakeLists.txt": [
@@ -40,6 +42,36 @@ PATCHES = {
             'use absolute path for includes',
             'SET( AGG_INCLUDE_DIRS ${AGG_INCLUDE_DIRS} agg2d )',
             'SET( AGG_INCLUDE_DIRS ${AGG_INCLUDE_DIRS} ${antigrain_SOURCE_DIR}/agg2d )'
+        ),
+        (
+            'do not link library to itself',
+            'LINK_LIBRARIES( gpcbool )',
+            '# link_libraries( gpcbool )'
+        ),
+        (
+            'do not link library to itself',
+            'LINK_LIBRARIES( controls sdlplatform antigrain )',
+            '# link_libraries( controls sdlplatform antigrain )',
+        ),
+        (
+            'do not link library to itself',
+            'LINK_LIBRARIES( controls platform antigrain )',
+            '# link_libraries( controls platform antigrain )',
+        ),
+        (
+            'set the original names in AGG_LIBRARIES',
+            'SET( AGG_LIBRARIES ${AGG_LIBRARIES} gpc${PFDEBUG} )',
+            'SET( AGG_LIBRARIES ${AGG_LIBRARIES} gpcbool${PFDEBUG} )',
+        ),
+        (
+            'set the original names in AGG_LIBRARIES',
+            'SET( AGG_LIBRARIES ${AGG_LIBRARIES} aggctrl${PFDEBUG} aggsdlplatform${PFDEBUG} agg${PFDEBUG} )',
+            'SET( AGG_LIBRARIES ${AGG_LIBRARIES} controls${PFDEBUG} sdlplatform${PFDEBUG} antigrain${PFDEBUG} )',
+        ),
+        (
+            'set the original names in AGG_LIBRARIES',
+            'SET( AGG_LIBRARIES ${AGG_LIBRARIES} aggctrl${PFDEBUG} aggplatform${PFDEBUG} agg${PFDEBUG} )',
+            'SET( AGG_LIBRARIES ${AGG_LIBRARIES} controls${PFDEBUG} platform${PFDEBUG} antigrain${PFDEBUG} )',
         ),
         (
             'do not build examples',

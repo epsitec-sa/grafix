@@ -104,6 +104,9 @@ ENDIF( agg_USE_FREETYPE )
 # C++ shared library
 ##############################################################################
 
+# screeninfo subdirectory
+add_subdirectory(screeninfo)
+
 add_library(AntigrainCPP SHARED
     agg_buffer.cpp
     agg_font.cpp
@@ -114,9 +117,6 @@ add_library(AntigrainCPP SHARED
     agg_rasterizer.cpp
     agg_renderer.cpp
     antigrain.cpp
-    glue.cpp
-    #interface.cpp
-    #main.cpp
     structures.cpp
 )
 set_target_properties(AntigrainCPP PROPERTIES
@@ -142,7 +142,7 @@ target_compile_options(compiler_flags INTERFACE
   "$<${msvc_cxx}:$<BUILD_INTERFACE:-W3>>"
 )
 
-target_link_libraries(AntigrainCPP PRIVATE compiler_flags antigrain)
+target_link_libraries(AntigrainCPP PRIVATE compiler_flags screeninfo ${AGG_LIBRARIES})
 
 file(MAKE_DIRECTORY "${CMAKE_SOURCE_DIR}/libs")
 add_custom_command(TARGET AntigrainCPP POST_BUILD
