@@ -22,6 +22,26 @@ PATCHES = {
             'SET( AGG_INCLUDE_DIRS ${AGG_INCLUDE_DIRS} ${antigrain_SOURCE_DIR}/include )'
         ),
         (
+            'use absolute path for includes',
+            'SET( AGG_INCLUDE_DIRS ${AGG_INCLUDE_DIRS} font_win32_tt )',
+            'SET( AGG_INCLUDE_DIRS ${AGG_INCLUDE_DIRS} ${antigrain_SOURCE_DIR}/font_win32_tt )'
+        ),
+        (
+            'use absolute path for includes',
+            'SET( AGG_INCLUDE_DIRS ${AGG_INCLUDE_DIRS} font_freetype )',
+            'SET( AGG_INCLUDE_DIRS ${AGG_INCLUDE_DIRS} ${antigrain_SOURCE_DIR}/font_freetype )'
+        ),
+        (
+            'use absolute path for includes',
+            'SET( AGG_INCLUDE_DIRS ${AGG_INCLUDE_DIRS} gpc )',
+            'SET( AGG_INCLUDE_DIRS ${AGG_INCLUDE_DIRS} ${antigrain_SOURCE_DIR}/gpc )'
+        ),
+        (
+            'use absolute path for includes',
+            'SET( AGG_INCLUDE_DIRS ${AGG_INCLUDE_DIRS} agg2d )',
+            'SET( AGG_INCLUDE_DIRS ${AGG_INCLUDE_DIRS} ${antigrain_SOURCE_DIR}/agg2d )'
+        ),
+        (
             'do not build examples',
             'ADD_SUBDIRECTORY( examples )',
             '# add_subdirectory( examples )'

@@ -38,6 +38,7 @@ FetchContent_Declare(
   PATCH_COMMAND  ${antigrain_patch}
   OVERRIDE_FIND_PACKAGE
 )
+set(agg_USE_GPC ON)
 FetchContent_MakeAvailable(antigrain)
 
 # for the moment this decides the platform code.
@@ -100,7 +101,21 @@ ENDIF( agg_USE_FREETYPE )
 # C++ shared library
 ##############################################################################
 
-add_library(AntigrainCPP SHARED antigrain.cpp)
+add_library(AntigrainCPP SHARED
+    agg_buffer.cpp
+    agg_font.cpp
+    agg_font_face.cpp
+    agg_font_opentype.cpp
+    agg_font_path_provider.cpp
+    agg_path.cpp
+    agg_rasterizer.cpp
+    agg_renderer.cpp
+    antigrain.cpp
+    glue.cpp
+    interface.cpp
+    main.cpp
+    structures.cpp
+)
 set_target_properties(AntigrainCPP PROPERTIES
                       POSITION_INDEPENDENT_CODE ON)
 target_compile_definitions(AntigrainCPP PRIVATE "EXPORTING_ANTIGRAIN_CPP")

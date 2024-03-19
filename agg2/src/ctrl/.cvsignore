@@ -1,5 +1,0 @@
-.libs
-*.lo
-Makefile
-Makefile.in
-libaggctrl.la

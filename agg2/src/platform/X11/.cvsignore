@@ -1,5 +1,0 @@
-.libs
-*.lo
-Makefile
-Makefile.in
-libaggplatformX11.la
