@@ -18,8 +18,8 @@ function(dump_cmake_variables)
     endforeach()
 endfunction()
 
-# message("patch path: ${CMAKE_CURRENT_SOURCE_DIR}/antigrain.patch")
-# set(antigrain_patch git apply "${CMAKE_CURRENT_SOURCE_DIR}/antigrain.patch")
+# We use a python script to patch agg before building it.
+# See inside the script for details about what is being patched.
 set(antigrain_patch python "${CMAKE_CURRENT_SOURCE_DIR}/patch_agg.py" "agg-src")
 
 # this option is necessary to avoid link errors
@@ -27,7 +27,7 @@ set(antigrain_patch python "${CMAKE_CURRENT_SOURCE_DIR}/patch_agg.py" "agg-src")
 # so we need to enable PIC
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
-message("Fetching antigrain… This can take some time.")
+message("Fetching antigrain. This can take some time.")
 include(FetchContent)
 FetchContent_Declare(
   antigrain
@@ -38,13 +38,16 @@ FetchContent_Declare(
   PATCH_COMMAND  ${antigrain_patch}
   OVERRIDE_FIND_PACKAGE
 )
+# Our code is using GPC so we enable it here.
 set(agg_USE_GPC ON)
 FetchContent_MakeAvailable(antigrain)
 
 # for the moment this decides the platform code.
 IF(WIN32)
     message("windows configuration")
-    ADD_DEFINITIONS( -D_MSWVC_ -D_CRT_SECURE_NO_WARNINGS -D_CRT_SECURE_NO_DEPRECATE )
+    ADD_DEFINITIONS( -D_MSWVC_ -D_CRT_SECURE_NO_WARNINGS -D_CRT_SECURE_NO_DEPRECATE
+	                 -D_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES=1
+	)
     SET( WIN32GUI WIN32 )    
     INCLUDE_DIRECTORIES( ${antigrain_SOURCE_DIR}/font_win32_tt )
     INCLUDE_DIRECTORIES( ${antigrain_SOURCE_DIR}/font_freetype )
@@ -112,8 +115,8 @@ add_library(AntigrainCPP SHARED
     agg_renderer.cpp
     antigrain.cpp
     glue.cpp
-    interface.cpp
-    main.cpp
+    #interface.cpp
+    #main.cpp
     structures.cpp
 )
 set_target_properties(AntigrainCPP PROPERTIES
@@ -139,9 +142,6 @@ target_compile_options(compiler_flags INTERFACE
   "$<${msvc_cxx}:$<BUILD_INTERFACE:-W3>>"
 )
 
-#set_target_properties(AntigrainCPP PROPERTIES
-#    LIBRARY_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/libs"
-#)
 target_link_libraries(AntigrainCPP PRIVATE compiler_flags antigrain)
 
 file(MAKE_DIRECTORY "${CMAKE_SOURCE_DIR}/libs")

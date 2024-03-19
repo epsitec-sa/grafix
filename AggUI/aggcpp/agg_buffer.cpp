@@ -6,7 +6,7 @@
 //	Contact: pierre.arnaud@opac.ch, http://www.opac.ch
 //	License: see license.txt
 
-#include "interface.h"
+#include "antigrain.h"
 #include "structures.h"
 
 /*****************************************************************************/
@@ -45,7 +45,7 @@ AggBufferNew(unsigned dx, unsigned dy, unsigned bpp)
 	
 	if (buffer)
 	{
-#if defined(USE_WIN32_API)
+#if defined(_WIN32)
 		buffer->bitmap_dc  = ::CreateCompatibleDC (NULL);
 		buffer->bitmap     = buffer->pixmap.create_dib_section (buffer->bitmap_dc, dx, dy, (agg::org_e) bpp, 0xff);
 		buffer->bitmap_old = ::SelectObject (buffer->bitmap_dc, buffer->bitmap);
@@ -74,7 +74,7 @@ AggBufferNewFrom(unsigned dx, unsigned dy, unsigned bpp, int stride, void* bits,
 	{
 		if (copy_bits)
 		{
-#if defined(USE_WIN32_API)
+#if defined(_WIN32)
 			buffer->bitmap_dc  = ::CreateCompatibleDC (NULL);
 			buffer->bitmap     = buffer->pixmap.create_dib_section (buffer->bitmap_dc, dx, dy, (agg::org_e) bpp, 0xff);
 			buffer->bitmap_old = ::SelectObject (buffer->bitmap_dc, buffer->bitmap);
@@ -106,7 +106,7 @@ AggBufferNewFrom(unsigned dx, unsigned dy, unsigned bpp, int stride, void* bits,
 		}
 		else
 		{
-#if defined(USE_WIN32_API)
+#if defined(_WIN32)
 			buffer->bitmap_dc  = NULL;
 			buffer->bitmap     = NULL;
 			buffer->bitmap_old = NULL;
@@ -129,7 +129,7 @@ AggBufferResize(AggBuffer* buffer, unsigned dx, unsigned dy, unsigned bpp)
 {
 	if (buffer)
 	{
-#if defined(USE_WIN32_API)
+#if defined(_WIN32)
 		if (buffer->bitmap_dc && buffer->bitmap)
 		{
 			::SelectObject (buffer->bitmap_dc, buffer->bitmap_old);
@@ -178,7 +178,7 @@ AggBufferResize(AggBuffer* buffer, unsigned dx, unsigned dy, unsigned bpp)
 void
 AggBufferDrawGlyphs(AggBuffer* buffer, void* hfont, int x, int y, unsigned short* glyphs, int* dx_array, unsigned int count, unsigned int color)
 {
-#if defined(USE_WIN32_API)
+#if defined(_WIN32)
 	if (buffer && buffer->bitmap_dc && buffer->bitmap && hfont)
 	{
 		HGDIOBJ old_hfont = ::SelectObject (buffer->bitmap_dc, (HFONT) hfont);
@@ -280,7 +280,7 @@ AggBufferGetMemoryBitmapHandle(AggBuffer* buffer)
 {
 	if (buffer)
 	{
-#if defined(USE_WIN32_API)
+#if defined(_WIN32)
 		return buffer->bitmap;
 #endif
 	}
@@ -321,7 +321,7 @@ AggBufferClearRect(AggBuffer* buffer, int x1, int y1, int x2, int y2)
 void
 AggBufferDelete(AggBuffer* buffer)
 {
-#if defined(USE_WIN32_API)
+#if defined(_WIN32)
 	if (buffer->bitmap_dc && buffer->bitmap)
 	{
 		::SelectObject (buffer->bitmap_dc, buffer->bitmap_old);

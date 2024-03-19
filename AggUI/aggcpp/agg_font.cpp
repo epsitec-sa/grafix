@@ -6,7 +6,7 @@
 //	Contact: pierre.arnaud@opac.ch, http://www.opac.ch
 //	License: see license.txt
 
-#include "interface.h"
+#include "antigrain.h"
 #include "structures.h"
 
 #include "agg_font_face.h"
