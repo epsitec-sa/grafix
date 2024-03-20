@@ -1,5 +1,7 @@
 #pragma once
 
+#include <memory> // unique_ptr
+
 
 #if defined(_WIN32)
 #  if defined(EXPORTING_ANTIGRAIN_CPP)
@@ -13,20 +15,94 @@
 
 #include "platform/agg_platform_support.h"
 
+// ************************* drawing ********************************
+#include "agg_rasterizer_scanline_aa.h"
+#include "agg_scanline_p.h"
+#include "agg_ellipse.h"
+
+#include "agg_pixfmt_rgb.h"
+const agg::pix_format_e pix_format = agg::pix_format_bgr24;
+typedef agg::pixfmt_bgr24 pixfmt;
+typedef agg::pixfmt_bgr24_pre pixfmt_pre;
+#define pixfmt_gamma agg::pixfmt_bgr24_gamma
+typedef agg::rgba8 color_type;
+typedef agg::order_bgr component_order;
+typedef agg::gray8 gray_type;
+
+typedef agg::renderer_base<pixfmt> renderer_base_t;
+typedef agg::renderer_scanline_aa_solid<renderer_base_t> renderer_solid_t;
+// ******************************************************************
+
 namespace ScreenInfo {
 	extern "C" DECLSPEC void GetScreenResolution(int &width, int &height);
 }
 
 namespace AntigrainCPP {
-    extern "C" DECLSPEC agg::platform_support* NewPlatformSupport(agg::pix_format_e format, bool flip_y);
+    class Application : public agg::platform_support {
+        public:
+            Application(
+                bool flip_y,
+                void (*on_draw)(),
+                void (*on_resize)(int sx, int sy),
+                void (*on_mouse_move)(int x, int y, unsigned flags),
+                void (*on_mouse_button_down)(int x, int y, unsigned flags),
+                void (*on_mouse_button_up)(int x, int y, unsigned flags),
+                void (*on_key)(int x, int y, unsigned key, unsigned flags)
+            );
+            void set_color(int r, int g, int b);
+            void draw_ellipse(double x, double y, double rx, double ry);
+        private:
+            // user callbacks
+            void (*on_resize_callback)(int sx, int sy);
+            void (*on_mouse_move_callback)(int x, int y, unsigned flags);
+            void (*on_mouse_button_down_callback)(int x, int y, unsigned flags);
+            void (*on_mouse_button_up_callback)(int x, int y, unsigned flags);
+            void (*on_key_callback)(int x, int y, unsigned key, unsigned flags);
+            void (*on_draw_callback)();
 
-    extern "C" DECLSPEC void PlatformSupport_Caption(agg::platform_support* ps, const char* text);
+            // event handlers
+            void on_resize(int sx, int sy);
+            void on_mouse_move(int x, int y, unsigned flags);
+            void on_mouse_button_down(int x, int y, unsigned flags);
+            void on_mouse_button_up(int x, int y, unsigned flags);
+            void on_key(int x, int y, unsigned key, unsigned flags);
+            void on_draw();
 
-    extern "C" DECLSPEC bool PlatformSupport_Init(agg::platform_support* ps, 
-                                                  unsigned width, unsigned height,
-                                                  agg::window_flag_e flags);
+            // renderers
+            std::unique_ptr<renderer_solid_t> renderer_solid;
+    };
 
-    extern "C" DECLSPEC int PlatformSupport_Run(agg::platform_support* ps);
+    extern "C" DECLSPEC Application* NewApplication(
+        bool flip_y,
+        void (*on_draw)(),
+        void (*on_resize)(int sx, int sy),
+        void (*on_mouse_move)(int x, int y, unsigned flags),
+        void (*on_mouse_button_down)(int x, int y, unsigned flags),
+        void (*on_mouse_button_up)(int x, int y, unsigned flags),
+        void (*on_key)(int x, int y, unsigned key, unsigned flags)
+    );
+
+    extern "C" DECLSPEC void Application_Caption(Application* ps, 
+        const char* text
+    );
+
+    extern "C" DECLSPEC bool Application_Init(Application* ps,
+        unsigned width, unsigned height,
+        agg::window_flag_e flags
+    );
+
+    extern "C" DECLSPEC int Application_Run(Application* ps);
+
+    extern "C" DECLSPEC void Application_ForceRedraw(Application* ps);
+
+    extern "C" DECLSPEC void Application_SetColor(Application* ps,
+        int r, int g, int b
+    );
+
+    extern "C" DECLSPEC void Application_DrawEllipse(Application* ps,
+        double x, double y,
+        double rx, double ry
+    );
 }
 
 /*****************************************************************************/

@@ -1,3 +1,6 @@
+using System;
+using System.Collections.Generic;
+
 using AggUI;
 using SystemTools;
 
@@ -7,33 +10,66 @@ namespace Example {
     {
 
 
-        public Application(PixFmt format, bool flip_y) : base(format, flip_y)
+        public Application(bool flip_y) : base(flip_y)
         {
         }
 
-        public virtual void on_resize(int cx, int cy)
+        public override void OnDraw()
         {
+            foreach (var point in points){
+                (int x, int y, int r, int g, int b, int s) = point;
+                this.SetColor(r, g, b);
+                this.DrawEllipse(x, y, s, s);
+            }
         }
 
-        public virtual void on_draw()
-        {
+        public override void OnKey(int x, int y, uint key, uint flags){
+            points = new();
+            this.ForceRedraw();
         }
 
-
-        public void transform(double width, double height, double x, double y)
-        {
+        public override void OnMouseButtonDown(int x, int y, uint flags){
+            OnMouseMove(x, y, flags);
         }
 
-
-        public virtual void on_mouse_button_down(int x, int y, uint flags)
+        public override void OnMouseMove(int x, int y, uint flags)
         {
+            if (flags == 0){
+                return;
+            }
+            if (count <= 0){
+                count = rnd.Next(100, 500);
+                size = rnd.Next(10, 50);
+                color = (
+                    rnd.Next(0, 256),
+                    rnd.Next(0, 256),
+                    rnd.Next(0, 256)
+                );
+            }
+            count -= size;
+            (int r, int g, int b) = color;
+            int f;
+            int s;
+            if (flags == 1){
+                f = 300;
+                s = size;
+            } else {
+                f = 10;
+                s = 15;
+            } 
+            double m = f / Math.Sqrt(r*r + g*g + b*b);
+            r = (int)Math.Round(r*m);
+            g = (int)Math.Round(g*m);
+            b = (int)Math.Round(b*m);
+            points.Add((x, y, r, g, b, s));
+            this.ForceRedraw();
         }
 
-
-        public virtual void on_mouse_move(int x, int y, uint flags)
-        {
-            on_mouse_button_down(x, y, flags);
-        }
+        private List<(int, int, int, int, int, int)> points = new();
+        private Random rnd = new();
+        private (int, int, int) color = (0, 0, 0);
+        private int size = 0;
+        private int count = 0;
 
     }
 
@@ -42,20 +78,16 @@ namespace Example {
 
         public static int Main(string[] args)
         {
-            System.Console.WriteLine("main.cs:Main()");
             System.Console.WriteLine("Create Application");
-            Application app = new Application(PixFmt.pix_format_bgr24, true);
-            System.Console.WriteLine("get screen resolution");
-			ScreenInfo.Rect res = ScreenInfo.GetResolution();
-            System.Console.WriteLine($"Resolution: {res.Width}, {res.Height}");
-            System.Console.WriteLine("set caption");
-            app.caption("AggUI example");
+            Application app = new Application(true);
+            ScreenInfo.Rect res = ScreenInfo.GetResolution();
+            System.Console.WriteLine($"Screen resolution: {res.Width}, {res.Height}");
+            app.SetCaption("AggUI example");
 
-            System.Console.WriteLine("try init");
-            if(app.init(800, 600, WindowFlags.Resize))
+            if(app.Init(800, 600, WindowFlags.Resize))
             {
-                System.Console.WriteLine("run");
-                return app.run();
+                System.Console.WriteLine("Run");
+                return app.Run();
             }
             return 1;
         }

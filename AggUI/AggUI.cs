@@ -3,29 +3,29 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 
 namespace SystemTools {
-	public class ScreenInfo {
-		private const string LibAgg = "AntigrainCPP";
-		
-		[DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
-		private static extern void GetScreenResolution(out int width, out int height);
-		
-		public static Rect GetResolution() {
-			int width;
-			int height;
-			GetScreenResolution(out width, out height);
-			return new Rect(width, height);
-		}
-		
-		public struct Rect {
-			public Rect(int width, int height){
-				this.Width = width;
-				this.Height = height;
-			}
-			
-			public int Width {get; set;}
-			public int Height {get; set;}
-		}
-	}
+    public class ScreenInfo {
+        private const string LibAgg = "AntigrainCPP";
+
+        [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
+        private static extern void GetScreenResolution(out int width, out int height);
+
+        public static Rect GetResolution() {
+            int width;
+            int height;
+            GetScreenResolution(out width, out height);
+            return new Rect(width, height);
+        }
+
+        public struct Rect {
+            public Rect(int width, int height){
+                this.Width = width;
+                this.Height = height;
+            }
+
+            public int Width {get; set;}
+            public int Height {get; set;}
+        }
+    }
 }
 
 namespace AggUI {
@@ -80,53 +80,106 @@ namespace AggUI {
   
         end_of_pix_formats
     };
-    /* using pixfmt = Agg.PixFmt.pixfmt_bgr24; */
-    /* class pixfmt{} */
-
-    /* using renderer_base = Agg.renderer_base<pixfmt>; */
-    /* class renderer_base{} */
-    /* using renderer_solid = Agg.renderer_scanline_aa_solid<renderer_base>; */
-    /* class renderer_solid{} */
 
     public class AggWindow
     {
         private const string LibAgg = "AntigrainCPP";
 
+        delegate void OnResizeT(int sx, int sy);
+        delegate void OnMouseMoveT(int x, int y, uint flags);
+        delegate void OnMouseButtonDownT(int x, int y, uint flags);
+        delegate void OnMouseButtonUpT(int x, int y, uint flags);
+        delegate void OnKeyT(int x, int y, uint key, uint flags);
+
         [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
-        private static extern IntPtr NewPlatformSupport(int format, bool flip_y);
+        private static extern IntPtr NewApplication(
+            bool flip_y,
+            Action on_draw,
+            OnResizeT on_resize,
+            OnMouseMoveT on_mouse_move,
+            OnMouseButtonDownT on_mouse_button_down,
+            OnMouseButtonUpT on_mouse_button_up,
+            OnKeyT on_key
+        );
 
         /* [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)] */
-        /* private static extern IntPtr PlatformSupport_(); */
+        /* private static extern IntPtr Application_(); */
 
         [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
-        private static extern void PlatformSupport_Caption(IntPtr ps, string text);
+        private static extern void Application_Caption(IntPtr app, string text);
 
         [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
-        private static extern bool PlatformSupport_Init(IntPtr ps, 
+        private static extern bool Application_Init(IntPtr app, 
                                                         uint width, uint height,
                                                         WindowFlags flags);
 
         [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
-        private static extern int PlatformSupport_Run(IntPtr ps);
+        private static extern void Application_ForceRedraw(IntPtr app);
 
-        public AggWindow(PixFmt format, bool flip_y)
+        [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
+        private static extern void Application_SetColor(IntPtr app, int r, int g, int b);
+
+        [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
+        private static extern void Application_DrawEllipse(IntPtr app,
+                                                           double x, double y,
+                                                           double rx, double ry);
+
+        [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
+        private static extern int Application_Run(IntPtr app);
+
+        public AggWindow(bool flip_y)
         {
-            this.platformSupport = NewPlatformSupport((int)format, flip_y);
+            this.app = NewApplication(
+                flip_y,
+                OnDraw,
+                OnResize,
+                OnMouseMove,
+                OnMouseButtonDown,
+                OnMouseButtonUp,
+                OnKey
+            );
         }
 
-        public void caption(string text)
+        public void SetCaption(string text)
         {
-            PlatformSupport_Caption(this.platformSupport, text);
+            Application_Caption(this.app, text);
         }
 
-        public bool init(uint width, uint height, WindowFlags flags){
-            return PlatformSupport_Init(this.platformSupport, width, height, flags);
+        public bool Init(uint width, uint height, WindowFlags flags){
+            return Application_Init(this.app, width, height, flags);
         }
 
-        public int run(){
-            return PlatformSupport_Run(this.platformSupport);
+        public int Run(){
+            return Application_Run(this.app);
         }
 
-        private IntPtr platformSupport;
+        public void ForceRedraw()
+        {
+            Application_ForceRedraw(this.app);
+        }
+
+        public void SetColor(int r, int g, int b)
+        {
+            Application_SetColor(this.app, r, g, b);
+        }
+
+        public void DrawEllipse(double x, double y, double rx, double ry)
+        {
+            Application_DrawEllipse(this.app, x, y, rx, ry);
+        }
+
+        public virtual void OnDraw(){}
+
+        public virtual void OnResize(int sx, int sy){}
+
+        public virtual void OnMouseMove(int x, int y, uint flags){}
+
+        public virtual void OnMouseButtonDown(int x, int y, uint flags){}
+
+        public virtual void OnMouseButtonUp(int x, int y, uint flags){}
+
+        public virtual void OnKey(int x, int y, uint key, uint flags){}
+
+        private IntPtr app;
     }
 }
