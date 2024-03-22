@@ -61,7 +61,12 @@ IF(UNIX)
 
     FIND_PACKAGE(X11)
     IF(X11_FOUND)  
+        message("aggcpp: found x11")
         INCLUDE_DIRECTORIES(${X11_INCLUDE_DIRS})
+        if(APPLE)
+            message("add /opt/local/include to find x11 on macos")
+            include_directories("/opt/local/include")
+        endif()
         LINK_LIBRARIES(${X11_LIBRARIES})
     ENDIF(X11_FOUND)
 

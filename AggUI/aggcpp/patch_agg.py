@@ -1,4 +1,5 @@
 import sys
+import re
 import textwrap
 from pathlib import Path
 
@@ -121,12 +122,19 @@ def patch_file(file_to_patch, patch):
         file.write(new_content)
 
 def patch_source(source, patch, comment_string):
-    result = source
+    return "\n".join(
+        (patch_line(line, patch, comment_string)
+         for line in source.split("\n"))
+    )
+
+def patch_line(line, patch, comment_string):
+    result = line
     for justification, old, new in patch:
         dedent = textwrap.dedent(justification)
         formatted_justification = textwrap.indent(dedent, f"{comment_string} ")
         replace = f'{comment_string} PATCHED: {formatted_justification}\n{new}'
-        result = result.replace(old, replace)
+        if line.strip() == old:
+            result = line.replace(old, replace)
     return result
 
 def main():
@@ -146,4 +154,5 @@ try:
     main()
 except Exception as ex:
     with open(SCRIPT_ROOT  / 'log.txt', 'w') as file:
-        file.write(ex)
+        file.write(str(ex))
+        sys.exit(1)

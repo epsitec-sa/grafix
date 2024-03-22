@@ -4,6 +4,7 @@
 
 namespace ScreenInfo {
     extern "C" DECLSPEC void GetScreenResolution(int &width, int &height){
+        std::cout << "[C++] GetScreenResolution" << std::endl;
         getScreenResolution(width, height);
     }
 }
@@ -117,16 +118,19 @@ namespace AntigrainCPP {
     }
 
     extern "C" void Application_Caption(Application* app, const char* text){
+        std::cout << "[C++] Application Caption" << std::endl;
         app->caption(text);
     }
 
     extern "C" bool Application_Init(Application* app, 
                                          unsigned width, unsigned height,
                                          agg::window_flag_e flags){
+        std::cout << "[C++] Application Init" << std::endl;
         return app->init(width, height, flags);
     }
 
     extern "C" int Application_Run(Application* app){
+        std::cout << "[C++] Application Run" << std::endl;
         return app->run();
     }
 
