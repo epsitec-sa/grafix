@@ -16,8 +16,6 @@ SET( AGG_LIBRARIES "" )
 
 SET (LIBRARY_OUTPUT_PATH ${antigrain_BINARY_DIR}/lib/ CACHE PATH "Single output directory for building all libraries." FORCE )
 SET( AGG_LIBRARY_DIRS  lib )
-#SET (EXECUTABLE_OUTPUT_PATH ${antigrain_BINARY_DIR}/exe/ CACHE PATH "Single output directory for building all executables.")
-#MARK_AS_ADVANCED(LIBRARY_OUTPUT_PATH EXECUTABLE_OUTPUT_PATH)
 
 LINK_DIRECTORIES(  ${antigrain_BINARY_DIR}/lib )
 
@@ -39,9 +37,9 @@ IF(WIN32)
     ADD_DEFINITIONS( -D_MSWVC_ -D_CRT_SECURE_NO_WARNINGS -D_CRT_SECURE_NO_DEPRECATE )
     SET( WIN32GUI WIN32 )    
     INCLUDE_DIRECTORIES( ${antigrain_SOURCE_DIR}/font_win32_tt )
-    # PATCHED: # use absolute path for includes
-SET( AGG_INCLUDE_DIRS ${AGG_INCLUDE_DIRS} ${antigrain_SOURCE_DIR}/font_win32_tt )    
-ENDIF(WIN32)
+# PATCHED: use absolute path for includes
+set( AGG_INCLUDE_DIRS ${AGG_INCLUDE_DIRS} ${antigrain_SOURCE_DIR}/font_win32_tt )    
+ENDIF()
 
 IF(UNIX)
     ADD_DEFINITIONS( -D__UNIX__  )
@@ -51,7 +49,7 @@ IF(UNIX)
     IF(X11_FOUND)  
         message("found x11 at ${X11_INCLUDE_DIRS}")
         INCLUDE_DIRECTORIES(${X11_INCLUDE_DIRS})
-            # PATCH -> special include dir for x11 on macos
+            # PATCHED: special include dir for x11 on macos
             if(APPLE)
                 message("add /opt/local/include to find x11 on macos")
                 include_directories("/opt/local/include")
@@ -63,27 +61,27 @@ ENDIF(UNIX)
 
 # more specific set platform code part to use for different compilers/tool sets
 IF ( ${CMAKE_GENERATOR} STREQUAL "MSYS Makefiles" )
-	SET (CMAKE_CXX_FLAGS_RELEASE "-DNDEBUG" CACHE STRING
-		"Flags used by the compiler during release builds" FORCE)
-	SET (CMAKE_CX_FLAGS_RELEASE "-DNDEBUG" CACHE STRING
-		"Flags used by the compiler during release builds" FORCE)		
+    SET (CMAKE_CXX_FLAGS_RELEASE "-DNDEBUG" CACHE STRING
+        "Flags used by the compiler during release builds" FORCE)
+    SET (CMAKE_CX_FLAGS_RELEASE "-DNDEBUG" CACHE STRING
+        "Flags used by the compiler during release builds" FORCE)       
 ENDIF ( ${CMAKE_GENERATOR} STREQUAL "MSYS Makefiles" )
 
 IF ( ${CMAKE_GENERATOR} STREQUAL "MinGW Makefiles" )
-	
+    
 ENDIF ( ${CMAKE_GENERATOR} STREQUAL "MinGW Makefiles" )
 
 IF ( ${CMAKE_GENERATOR} STREQUAL "Unix Makefiles" )
     IF( CYGWIN OR MINGW )
-		SET (CMAKE_CXX_FLAGS_RELEASE "-DNDEBUG" CACHE STRING
-			"Flags used by the compiler during release builds" FORCE)
-		SET (CMAKE_C_FLAGS_RELEASE "-DNDEBUG" CACHE STRING
-			"Flags used by the compiler during release builds" FORCE)
-    ENDIF( CYGWIN OR MINGW )	
+        SET (CMAKE_CXX_FLAGS_RELEASE "-DNDEBUG" CACHE STRING
+            "Flags used by the compiler during release builds" FORCE)
+        SET (CMAKE_C_FLAGS_RELEASE "-DNDEBUG" CACHE STRING
+            "Flags used by the compiler during release builds" FORCE)
+    ENDIF( CYGWIN OR MINGW )    
 ENDIF ( ${CMAKE_GENERATOR} STREQUAL "Unix Makefiles" )
 
 IF ( ${CMAKE_GENERATOR} MATCHES "Visual Studio.*" )
-	
+    
 ENDIF ( ${CMAKE_GENERATOR} MATCHES "Visual Studio.*" )
 
 IF ( ${CMAKE_GENERATOR} MATCHES "Borland Makefiles" )
@@ -115,7 +113,7 @@ IF( agg_USE_FREETYPE )
     IF( FREETYPE_FOUND )
         INCLUDE_DIRECTORIES( ${FREETYPE_INCLUDE_DIRS} )
         LINK_LIBRARIES( ${FREETYPE_LIBRARIES} )
-        LINK_DIRECTORIES( ${FREETYPE_LINK_DIR} )		
+        LINK_DIRECTORIES( ${FREETYPE_LINK_DIR} )        
     ELSE( FREETYPE_FOUND )
         MESSAGE(SEND_ERROR "freetype not found")
     ENDIF( FREETYPE_FOUND )
@@ -139,14 +137,14 @@ ENDIF( SDL_FOUND )
 
 # the main include dir of Agg
 INCLUDE_DIRECTORIES( ${antigrain_SOURCE_DIR}/include )
-# PATCHED: # use absolute path for includes
+# PATCHED: use absolute path for includes
 SET( AGG_INCLUDE_DIRS ${AGG_INCLUDE_DIRS} ${antigrain_SOURCE_DIR}/include )    
 
 # freetype specific lib of Agg
 IF( agg_USE_FREETYPE )
-    INCLUDE_DIRECTORIES( ${antigrain_SOURCE_DIR}/font_freetype )	
-    # PATCHED: # use absolute path for includes
-SET( AGG_INCLUDE_DIRS ${AGG_INCLUDE_DIRS} ${antigrain_SOURCE_DIR}/font_freetype )    
+    INCLUDE_DIRECTORIES( ${antigrain_SOURCE_DIR}/font_freetype )    
+    # PATCHED: use absolute path for includes
+    SET( AGG_INCLUDE_DIRS ${AGG_INCLUDE_DIRS} ${antigrain_SOURCE_DIR}/font_freetype )    
     ADD_DEFINITIONS( -DAGG_USE_FREETYPE )
     SET( AGG_FLAGS ${AGG_FLAGS} -DAGG_USE_FREETYPE )    
     LINK_LIBRARIES( freetypefont )
@@ -156,21 +154,21 @@ ENDIF( agg_USE_FREETYPE )
 # GPC lib if used within Agg
 IF ( agg_USE_GPC )
     INCLUDE_DIRECTORIES( ${antigrain_SOURCE_DIR}/gpc )
-    # PATCHED: # use absolute path for includes
-SET( AGG_INCLUDE_DIRS ${AGG_INCLUDE_DIRS} ${antigrain_SOURCE_DIR}/gpc )    
+    # PATCHED: use absolute path for includes
+    SET( AGG_INCLUDE_DIRS ${AGG_INCLUDE_DIRS} ${antigrain_SOURCE_DIR}/gpc )    
     ADD_DEFINITIONS( -DAGG_USE_GPC )
     SET( AGG_FLAGS ${AGG_FLAGS} -DAGG_USE_GPC )    
-    # PATCHED: # do not link library to itself
-# link_libraries( gpcbool )
-    # PATCHED: # set the original names in AGG_LIBRARIES
-SET( AGG_LIBRARIES ${AGG_LIBRARIES} gpcbool${PFDEBUG} ) 
+    # PATCHED: do not link library to itself
+    # link_libraries( gpcbool )
+    # PATCHED: set the original names in AGG_LIBRARIES
+    SET( AGG_LIBRARIES ${AGG_LIBRARIES} gpcbool${PFDEBUG} ) 
 ENDIF ( agg_USE_GPC )
 
 # agg2d lib if used within Agg
 IF ( agg_USE_AGG2D )
     INCLUDE_DIRECTORIES( ${antigrain_SOURCE_DIR}/agg2d )
-    # PATCHED: # use absolute path for includes
-SET( AGG_INCLUDE_DIRS ${AGG_INCLUDE_DIRS} ${antigrain_SOURCE_DIR}/agg2d )    
+    # PATCHED: use absolute path for includes
+    SET( AGG_INCLUDE_DIRS ${AGG_INCLUDE_DIRS} ${antigrain_SOURCE_DIR}/agg2d )    
     ADD_DEFINITIONS( -DAGG_USE_AGG2D )
     OPTION( agg_USE_AGG2D_FREETYPE "Agg 2D graphical context uses freetype" OFF)    
     SET( AGG_FLAGS ${AGG_FLAGS} -DAGG_USE_AGG2D )    
@@ -185,15 +183,15 @@ ENDIF ( agg_USE_AGG2D_FREETYPE )
 
 # sld as platform or os
 IF( SDL_FOUND AND agg_USE_SDL_PLATFORM )
-    # PATCHED: # do not link library to itself
-# link_libraries( controls sdlplatform antigrain )
-    # PATCHED: # set the original names in AGG_LIBRARIES
-SET( AGG_LIBRARIES ${AGG_LIBRARIES} controls${PFDEBUG} sdlplatform${PFDEBUG} antigrain${PFDEBUG} )
+    # PATCHED: do not link library to itself
+    # link_libraries( controls sdlplatform antigrain )
+    # PATCHED: set the original names in AGG_LIBRARIES
+    SET( AGG_LIBRARIES ${AGG_LIBRARIES} controls${PFDEBUG} sdlplatform${PFDEBUG} antigrain${PFDEBUG} )
 ELSE( SDL_FOUND AND agg_USE_SDL_PLATFORM )
-    # PATCHED: # do not link library to itself
-# link_libraries( controls platform antigrain )
-    # PATCHED: # set the original names in AGG_LIBRARIES
-SET( AGG_LIBRARIES ${AGG_LIBRARIES} controls${PFDEBUG} platform${PFDEBUG} antigrain${PFDEBUG} )
+    # PATCHED: do not link library to itself
+    # link_libraries( controls platform antigrain )
+    # PATCHED: set the original names in AGG_LIBRARIES
+    SET( AGG_LIBRARIES ${AGG_LIBRARIES} controls${PFDEBUG} platform${PFDEBUG} antigrain${PFDEBUG} )
 ENDIF( SDL_FOUND AND agg_USE_SDL_PLATFORM )
 
 SET( AGG_FLAGS ${AGG_FLAGS} CACHE STRING "Agg package flags" FORCE )
@@ -203,7 +201,7 @@ SET( AGG_LIBRARIES ${AGG_LIBRARIES} CACHE STRING "Agg package libraries" FORCE )
 
 ADD_SUBDIRECTORY( src )
 
-# PATCHED: # do not build examples
+# PATCHED: do not build examples
 # add_subdirectory( examples )
 
 CONFIGURE_FILE( ${antigrain_SOURCE_DIR}/bin/AggConfig.cmake.in
@@ -231,7 +229,7 @@ CONFIGURE_FILE( ${antigrain_SOURCE_DIR}/libagg.pc.in libagg.pc
                 @ONLY )
 
 
-# PATCHED: # do not build example app
+# PATCHED: do not build example app
 # add_subdirectory( myapp )
 
 INSTALL( FILES ${antigrain_BINARY_DIR}/bin/AggConfigOutBuild.cmake DESTINATION "bin" RENAME AggConfig.cmake )

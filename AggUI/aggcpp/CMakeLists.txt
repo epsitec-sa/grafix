@@ -20,7 +20,7 @@ endfunction()
 
 # We use a python script to patch agg before building it.
 # See inside the script for details about what is being patched.
-set(antigrain_patch python "${CMAKE_CURRENT_SOURCE_DIR}/patch_agg.py" "agg-src")
+set(antigrain_patch bash "${CMAKE_CURRENT_SOURCE_DIR}/patch_agg.sh" "agg-src")
 
 # this option is necessary to avoid link errors
 # antigrain is a static library, but we will link it into a dynamic library
@@ -46,8 +46,8 @@ FetchContent_MakeAvailable(antigrain)
 IF(WIN32)
     message("windows configuration")
     ADD_DEFINITIONS( -D_MSWVC_ -D_CRT_SECURE_NO_WARNINGS -D_CRT_SECURE_NO_DEPRECATE
-	                 -D_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES=1
-	)
+                     -D_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES=1
+    )
     SET( WIN32GUI WIN32 )    
     INCLUDE_DIRECTORIES( ${antigrain_SOURCE_DIR}/font_win32_tt )
     INCLUDE_DIRECTORIES( ${antigrain_SOURCE_DIR}/font_freetype )

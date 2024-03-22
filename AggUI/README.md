@@ -13,10 +13,11 @@ dotnet build
 ### Installing build dependencies
 
 - dotnet
-- python
 - cmake
 
-On windows and linux, no other additional dependencies are needed.
+On linux, no other additional dependencies are needed.
+
+On windows, you need to have git-bash installed.
 
 On macos, AggUI relies on Xorg to display it's windows.
 Install Xorg through [macports](https://www.macports.org/install.php):
@@ -38,9 +39,7 @@ dotnet run
 
 If you have installed the build dependencies above, you already have everything required and can skip this section.
 
-Install the following tools:
-- dotnet
-- python
+To run this software, you need a dotnet runtime.
 
 On windows and linux, no other additional dependencies are needed.
 

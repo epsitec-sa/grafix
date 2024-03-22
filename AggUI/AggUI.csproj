@@ -8,7 +8,10 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <Target Name="BuildSharedLib" BeforeTargets="Build">
-    <Exec Command="python aggcpp/build_lib.py" />
+    <Exec Condition=" '$(OS)' == 'Windows_NT' "
+      Command='"$(PROGRAMFILES)\Git\bin\sh.exe" "$(MSBuildThisFileDirectory)aggcpp\build_lib.sh"' /> 
+    <Exec Command="aggcpp/build_lib.sh" 
+          Condition=" '$(OS)' != 'Windows_NT' " />
   </Target>
   <ItemGroup>
     <ContentWithTargetPath 
