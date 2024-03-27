@@ -19,4 +19,8 @@
       CopyToOutputDirectory="PreserveNewest"
       TargetPath="%(Filename)%(Extension)" />
   </ItemGroup>
+  <ItemGroup>
+    <Compile Remove="old/*.cs" />
+    <None Include="old/*.cs" />
+  </ItemGroup>
 </Project>

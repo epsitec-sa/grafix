@@ -123,6 +123,7 @@ add_library(AntigrainCPP SHARED
     # agg_renderer.cpp
     antigrain.cpp
     graphic_context.cpp
+    path.cpp
     # structures.cpp
 )
 set_target_properties(AntigrainCPP PROPERTIES

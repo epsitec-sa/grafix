@@ -5,91 +5,113 @@ using static AntigrainCPP.Native;
 
 namespace AntigrainCPP
 {
-    public static partial class Path
+    public class Path
     {
-        public static IntPtr New()
+        public Path()
         {
-            return AggPathNew();
+            this.path = Path_New();
         }
-        public static void   MoveTo(IntPtr path, double x, double y)
+
+        ~Path()
         {
-            AggPathMoveTo(path, x, y);
+            Path_Delete(path);
         }
-        public static void   LineTo(IntPtr path, double x, double y)
+
+        public void MoveTo(double x, double y)
         {
-            AggPathLineTo(path, x, y);
+            Path_MoveTo(path, x, y);
         }
-        public static void   Curve3(IntPtr path, double x_c, double y_c, double x, double y)
+
+        public void LineTo(double x, double y)
         {
-            AggPathCurve3(path, x_c, y_c, x, y);
+            Path_LineTo(path, x, y);
         }
-        public static void   Curve4(IntPtr path, double x_c1, double y_c1, double x_c2, double y_c2, double x, double y)
+
+        public void Curve3(double x_c, double y_c, double x, double y)
         {
-            AggPathCurve4(path, x_c1, y_c1, x_c2, y_c2, x, y);
+            Path_Curve3(path, x_c, y_c, x, y);
         }
-        public static void   Close(IntPtr path)
+
+        public void Curve4(double x_c1, double y_c1, double x_c2, double y_c2, double x, double y)
         {
-            AggPathClose(path);
+            Path_Curve4(path, x_c1, y_c1, x_c2, y_c2, x, y);
         }
-        public static void   AddNewPath(IntPtr path)
+
+        public void Close()
         {
-            AggPathAddNewPath(path);
+            Path_Close(path);
         }
-        public static void   AppendGlyph(IntPtr path, IntPtr face, int glyph, double xx, double xy, double yx, double yy, double tx, double ty, double bold)
+
+        public void AddNewPath()
         {
-            AggPathAppendGlyph(path, face, glyph, xx, xy, yx, yy, tx, ty, bold);
+            Path_AddNewPath(path);
         }
-        public static void   AppendPath(IntPtr path, IntPtr path2, double width, int cap, int join, double miter_limit, double scale, bool curved)
+
+        public void AppendGlyph(IntPtr face, int glyph, double xx, double xy, double yx, double yy, double tx, double ty, double bold)
         {
-            AggPathAppendPathStroke(path, path2, width, cap, join, miter_limit, scale, curved);
+            Path_AppendGlyph(path, face, glyph, xx, xy, yx, yy, tx, ty, bold);
         }
-        public static void   AppendPath(IntPtr path, IntPtr path2, double xx, double xy, double yx, double yy, double tx, double ty, double scale, double bold)
+
+        public void AppendPath(Path otherPath, double width, int cap, int join, double miter_limit, double scale, bool curved)
         {
-            AggPathAppendPath(path, path2, xx, xy, yx, yy, tx, ty, scale, bold);
+            Path_AppendPathStroke(path, otherPath.path, width, cap, join, miter_limit, scale, curved);
         }
-        public static void   AppendArc(IntPtr path, double x, double y, double rx, double ry, double a1, double a2, bool ccw, double scale, bool continue_path)
+
+        public void AppendPath(Path otherPath, double xx, double xy, double yx, double yy, double tx, double ty, double scale, double bold)
         {
-            AggPathAppendArc(path, x, y, rx, ry, a1, a2, ccw, scale, continue_path);
+            Path_AppendPath(path, otherPath.path, xx, xy, yx, yy, tx, ty, scale, bold);
         }
-        public static void   AppendDashedPath(IntPtr path, IntPtr dash, double scale)
+
+        public void AppendArc(double x, double y, double rx, double ry, double a1, double a2, bool ccw, double scale, bool continue_path)
         {
-            AggPathAppendDashedPath(path, dash, scale);
+            Path_AppendArc(path, x, y, rx, ry, a1, a2, ccw, scale, continue_path);
         }
-        public static void   CombinePathsUsingGpc(IntPtr path1, IntPtr path2, IntPtr result, int operation)
+
+        public void AppendDashedPath(Path dash, double scale)
         {
-            AggPathCombinePathsUsingGpc(path1, path2, result, operation);
+            Path_AppendDashedPath(path, dash.path, scale);
         }
-        public static void   ComputeBounds(IntPtr path, out double x1, out double y1, out double x2, out double y2)
+
+        public void CombinePathsUsingGpc(Path path1, Path path2, IntPtr result, int operation)
         {
-            AggPathComputeBounds(path, out x1, out y1, out x2, out y2);
+            Path_CombinePathsUsingGpc(path1.path, path2.path, result, operation);
         }
-        public static void   RemoveAll(IntPtr path)
+
+        public void ComputeBounds(out double x1, out double y1, out double x2, out double y2)
         {
-            AggPathRemoveAll(path);
+            Path_ComputeBounds(path, out x1, out y1, out x2, out y2);
         }
-        public static int    ElemCount(IntPtr path)
+
+        public void RemoveAll()
         {
-            return AggPathElemCount(path);
+            Path_RemoveAll(path);
         }
-        public static void   ElemGet(IntPtr path, int n, int[] types, double[] x, double[] y)
+
+        public int ElemCount()
         {
-            AggPathElemGet(path, n, types, x, y);
+            return Path_ElemCount(path);
         }
-        public static void   Delete(IntPtr path)
+
+        public void ElemGet(int n, int[] types, double[] x, double[] y)
         {
-            AggPathDelete(path);
+            Path_ElemGet(path, n, types, x, y);
         }
-        public static void   ResetDash(IntPtr path)
+
+        public void ResetDash()
         {
-            AggPathDashReset(path);
+            Path_DashReset(path);
         }
-        public static void   AddDash(IntPtr path, double dash_length, double gap_length)
+
+        public void AddDash(double dash_length, double gap_length)
         {
-            AggPathDashAdd(path, dash_length, gap_length);
+            Path_DashAdd(path, dash_length, gap_length);
         }
-        public static void   SetDashOffset(IntPtr path, double start)
+
+        public void SetDashOffset(double start)
         {
-            AggPathDashSetStart(path, start);
+            Path_DashSetStart(path, start);
         }
+
+        private IntPtr path;
     }
 }
