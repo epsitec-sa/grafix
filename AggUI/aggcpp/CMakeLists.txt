@@ -113,16 +113,17 @@ ENDIF( agg_USE_FREETYPE )
 add_subdirectory(screeninfo)
 
 add_library(AntigrainCPP SHARED
-    agg_buffer.cpp
-    agg_font.cpp
-    agg_font_face.cpp
-    agg_font_opentype.cpp
-    agg_font_path_provider.cpp
-    agg_path.cpp
-    agg_rasterizer.cpp
-    agg_renderer.cpp
+    # agg_buffer.cpp
+    # agg_font.cpp
+    # agg_font_face.cpp
+    # agg_font_opentype.cpp
+    # agg_font_path_provider.cpp
+    # agg_path.cpp
+    # agg_rasterizer.cpp
+    # agg_renderer.cpp
     antigrain.cpp
-    structures.cpp
+    graphic_context.cpp
+    # structures.cpp
 )
 set_target_properties(AntigrainCPP PROPERTIES
                       POSITION_INDEPENDENT_CODE ON)

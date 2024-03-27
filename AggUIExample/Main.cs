@@ -14,12 +14,12 @@ namespace Example {
         {
         }
 
-        public override void OnDraw()
+        public override void OnDraw(GraphicContext gctx)
         {
             foreach (var point in points){
                 (int x, int y, int r, int g, int b, int s) = point;
-                this.SetColor(r, g, b);
-                this.DrawEllipse(x, y, s, s);
+                gctx.SetColor(r, g, b);
+                gctx.DrawEllipse(x, y, s, s);
             }
         }
 
