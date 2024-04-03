@@ -22,6 +22,7 @@ namespace AntigrainCPP {
             pixfmt pixf;
         public:
             RendererSolid renderer_solid;
+            RendererSmooth renderer_smooth;
             /* renderer_base_t renderer_base; */
             /* agg::renderer_scanline_aa_solid<renderer_base_t> renderer_solid; */
     };
@@ -33,4 +34,6 @@ namespace AntigrainCPP {
                                             double rx, double ry);
 
     extern "C" DECLSPEC RendererSolid* GraphicContext_GetSolidRenderer(GraphicContext* gctx);
+
+    extern "C" DECLSPEC RendererSmooth* GraphicContext_GetSmoothRenderer(GraphicContext* gctx);
 }

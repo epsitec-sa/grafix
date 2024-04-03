@@ -6,6 +6,8 @@ using SystemTools;
 
 namespace Example {
 
+    using AntigrainCPP;
+
     class Application : AggWindow
     {
 
@@ -16,11 +18,26 @@ namespace Example {
 
         public override void OnDraw(GraphicContext gctx)
         {
+            Path path = new Path();
+            gctx.renderer_smooth.Color(0, 0, 0, 1);
+            gctx.renderer_smooth.Setup(7, 2,
+                1, 0,
+                0, 1,
+                0, 0
+            );
+            bool first = true;
             foreach (var point in points){
                 (int x, int y, int r, int g, int b, int s) = point;
+                if (first) {
+                    path.MoveTo(x, y);
+                    first = false;
+                } else {
+                    path.LineTo(x, y);
+                }
                 gctx.SetColor(r, g, b);
                 gctx.DrawEllipse(x, y, s, s);
             }
+            gctx.renderer_smooth.AddPath(path);
         }
 
         public override void OnKey(int x, int y, uint key, uint flags){
@@ -28,12 +45,11 @@ namespace Example {
             this.ForceRedraw();
         }
 
-        public override void OnMouseButtonDown(int x, int y, uint flags){
-            OnMouseMove(x, y, flags);
+        public override void OnMouseMove(int x, int y, uint flags){
+            /* OnMouseMove(x, y, flags); */
         }
 
-        public override void OnMouseMove(int x, int y, uint flags)
-        {
+        public override void OnMouseButtonDown(int x, int y, uint flags){
             if (flags == 0){
                 return;
             }

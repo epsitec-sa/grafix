@@ -6,7 +6,8 @@ namespace AntigrainCPP {
         pixf(buffer),
         /* renderer_base(pixf), */
         /* renderer_solid(renderer_base) */
-        renderer_solid(pixf)
+        renderer_solid(pixf),
+        renderer_smooth(pixf)
     {
         std::cout << "[C++] create GraphicContext" << std::endl;
         //AggRendererBase renderer_base(pixf);
@@ -45,5 +46,10 @@ namespace AntigrainCPP {
     RendererSolid* GraphicContext_GetSolidRenderer(GraphicContext* gctx){
         std::cout << "[C++] get solid renderer" << std::endl;
         return &(gctx->renderer_solid);
+    }
+
+    RendererSmooth* GraphicContext_GetSmoothRenderer(GraphicContext* gctx){
+        std::cout << "[C++] get smooth renderer" << std::endl;
+        return &(gctx->renderer_smooth);
     }
 }

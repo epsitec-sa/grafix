@@ -20,10 +20,15 @@ namespace AggUI {
         [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
         private static extern IntPtr GraphicContext_GetSolidRenderer(IntPtr gctx);
 
+        [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
+        private static extern IntPtr GraphicContext_GetSmoothRenderer(IntPtr gctx);
+
         internal GraphicContext(IntPtr gctx){
             this.gctx = gctx;
-            IntPtr sr = GraphicContext_GetSolidRenderer(gctx);
-            this.renderer = new AntigrainCPP.Renderer.Solid(sr);
+            IntPtr solid_ren = GraphicContext_GetSolidRenderer(gctx);
+            this.renderer_solid = new AntigrainCPP.Renderer.Solid(solid_ren);
+            IntPtr smooth_ren = GraphicContext_GetSmoothRenderer(gctx);
+            this.renderer_smooth = new AntigrainCPP.Renderer.Smooth(smooth_ren);
         }
 
         public void SetColor(int r, int g, int b)
@@ -36,7 +41,8 @@ namespace AggUI {
             GraphicContext_DrawEllipse(this.gctx, x, y, rx, ry);
         }
 
-        public AntigrainCPP.Renderer.Solid renderer;
+        public AntigrainCPP.Renderer.Solid renderer_solid;
+        public AntigrainCPP.Renderer.Smooth renderer_smooth;
 
         private IntPtr gctx;
     }

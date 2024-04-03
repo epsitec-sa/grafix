@@ -88,9 +88,9 @@ namespace AntigrainCPP
                 RendererSmooth_Setup(renderer, r1, r2, xx, xy, yx, yy, tx, ty);
             }
 
-            public void AddPath(IntPtr path)
+            public void AddPath(Path path)
             {
-                RendererSmooth_AddPath(renderer, path);
+                RendererSmooth_AddPath(renderer, path.path);
             }
 
             /* public void SetAlphaMask(IntPtr buffer, Renderer.MaskComponent component) */
