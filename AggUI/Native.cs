@@ -73,5 +73,59 @@ namespace AntigrainCPP
         [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
         public static extern void Path_DashSetStart(IntPtr path, double start);
         #endregion
+
+        #region Rasterizer
+        [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
+        public static extern IntPtr Rasterizer_New();
+
+        [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
+        public static extern void Rasterizer_Clear(IntPtr rasterizer);
+
+        [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.U1)]
+        public static extern bool Rasterizer_HitTest(IntPtr rasterizer, int x, int y);
+
+        [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
+        public static extern void Rasterizer_FillingRule(IntPtr rasterizer, int mode);
+
+        [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
+        public static extern void Rasterizer_Gamma(IntPtr rasterizer, double gamma);
+
+        [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
+        public static extern void Rasterizer_SetTransform(IntPtr rasterizer, double xx, double xy, double yx, double yy, double tx, double ty);
+
+        [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
+        public static extern void Rasterizer_SetClipBox(IntPtr rasterizer, double x1, double y1, double x2, double y2);
+
+        [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
+        public static extern void Rasterizer_ResetClipBox(IntPtr rasterizer);
+
+        [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
+        public static extern void Rasterizer_AddPath(IntPtr rasterizer, IntPtr path, [MarshalAs(UnmanagedType.U1)] bool curves);
+
+        /* [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)] */
+        /* public static extern void Rasterizer_AddGlyph(IntPtr rasterizer, IntPtr face, int glyph, double x, double y, double scale); */
+
+        /* [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)] */
+        /* public static extern void Rasterizer_AddGlyphXY(IntPtr rasterizer, IntPtr face, int glyph, double x, double y, double scale_x, double scale_y); */
+
+        [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
+        public static extern void Rasterizer_AddPathStroke1(IntPtr rasterizer, IntPtr path, double width, [MarshalAs(UnmanagedType.U1)] bool curves);
+
+        [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
+        public static extern void Rasterizer_AddPathStroke2(IntPtr rasterizer, IntPtr path, double width, int cap, int join, double miter_limit, [MarshalAs(UnmanagedType.U1)] bool curves);
+
+        /* [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)] */
+        /* public static extern void Rasterizer_RenderSolid(IntPtr rasterizer, IntPtr renderer); */
+
+        /* [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)] */
+        /* public static extern void Rasterizer_RenderImage(IntPtr rasterizer, IntPtr renderer); */
+
+        /* [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)] */
+        /* public static extern void Rasterizer_RenderGradient(IntPtr rasterizer, IntPtr renderer); */
+
+        [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
+        public static extern void Rasterizer_Delete(IntPtr rasterizer);
+        #endregion
     }
 }

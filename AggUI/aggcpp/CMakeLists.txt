@@ -118,8 +118,8 @@ add_library(AntigrainCPP SHARED
     # agg_font_face.cpp
     # agg_font_opentype.cpp
     # agg_font_path_provider.cpp
-    # agg_path.cpp
     # agg_rasterizer.cpp
+    rasterizer.cpp
     # agg_renderer.cpp
     antigrain.cpp
     graphic_context.cpp
