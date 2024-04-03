@@ -9,7 +9,7 @@
 #include "antigrain.h"
 #include "rasterizer.h"
 
-#include "agg_font_path_provider.h"
+/* #include "agg_font_path_provider.h" */
 #include "agg_conv_curve.h"
 #include "agg_conv_clip_polygon.h"
 

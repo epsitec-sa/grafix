@@ -127,5 +127,63 @@ namespace AntigrainCPP
         [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
         public static extern void Rasterizer_Delete(IntPtr rasterizer);
         #endregion
+
+        #region Renderer
+
+        [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
+        public static extern void RendererFill4Colors(IntPtr renderer, int x, int y, int dx, int dy, double r1, double g1, double b1, double r2, double g2, double b2, double r3, double g3, double b3, double r4, double g4, double b4);
+
+        [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
+        public static extern void RendererSolid_Clear(IntPtr renderer, double r, double g, double b, double a);
+
+        [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
+        public static extern void RendererSolid_Color(IntPtr renderer, double r, double g, double b, double a);
+
+        /* [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)] */
+        /* public static extern void RendererSolid_SetAlphaMask(IntPtr renderer, IntPtr buffer, int component); */
+
+        [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
+        public static extern void RendererSmooth_Color(IntPtr renderer, double r, double g, double b, double a);
+
+        [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
+        public static extern void RendererSmooth_Setup(IntPtr renderer, double r1, double r2, double xx, double xy, double yx, double yy, double tx, double ty);
+
+        [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
+        public static extern void RendererSmooth_AddPath(IntPtr renderer, IntPtr path);
+
+        /* [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)] */
+        /* public static extern void RendererSmooth_SetAlphaMask(IntPtr renderer, IntPtr buffer, int component); */
+
+        [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
+        public static extern void RendererImage_Matrix(IntPtr renderer, double xx, double xy, double yx, double yy, double tx, double ty);
+
+        /* [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)] */
+        /* public static extern void RendererImage_Source1(IntPtr renderer, IntPtr buffer); */
+
+        /* [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)] */
+        /* public static extern void RendererImage_Source2(IntPtr renderer, IntPtr byte_buffer, int dx, int dy, int stride); */
+
+        [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
+        public static extern void RendererImage_SetStretchMode(IntPtr renderer, int mode, double radius);
+
+        /* [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)] */
+        /* public static extern void RendererImage_SetAlphaMask(IntPtr renderer, IntPtr buffer, int component); */
+
+        [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
+        public static extern void RendererGradient_Select(IntPtr renderer, int id);
+
+        [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
+        public static extern void RendererGradient_Color1(IntPtr renderer, double[] r, double[] g, double[] b, double[] a);
+
+        [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
+        public static extern void RendererGradient_Range(IntPtr renderer, double r1, double r2);
+
+        [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
+        public static extern void RendererGradient_Matrix(IntPtr renderer, double xx, double xy, double yx, double yy, double tx, double ty);
+
+        /* [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)] */
+        /* public static extern void RendererGradient_SetAlphaMask(IntPtr renderer, IntPtr buffer, int component); */
+
+        #endregion
     }
 }

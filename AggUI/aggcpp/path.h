@@ -6,7 +6,7 @@
 
 #include "agg_arc.h"
 #include "agg_bounding_rect.h"
-#include "agg_font_path_provider.h"
+/* #include "agg_font_path_provider.h" */
 #include "agg_conv_contour.h"
 #include "agg_conv_curve.h"
 #include "agg_conv_dash.h"
@@ -55,14 +55,14 @@ extern "C" DECLSPEC void Path_Close(Path* path
 extern "C" DECLSPEC void Path_AddNewPath(Path* path
 );
 
-extern "C" DECLSPEC void Path_AppendGlyph(Path* path,
-    agg::font_face* face,
-    int glyph,
-    double xx, double xy,
-    double yx, double yy,
-    double tx, double ty,
-    double bold
-);
+/* extern "C" DECLSPEC void Path_AppendGlyph(Path* path, */
+/*     agg::font_face* face, */
+/*     int glyph, */
+/*     double xx, double xy, */
+/*     double yx, double yy, */
+/*     double tx, double ty, */
+/*     double bold */
+/* ); */
 
 extern "C" DECLSPEC void Path_AppendPath(Path* path,
     Path* path2,

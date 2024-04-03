@@ -135,47 +135,47 @@ void Path_ElemGet(Path* path,
 
 /*****************************************************************************/
 
-void Path_AppendGlyph(Path* path,
-    agg::font_face* face,
-    int glyph,
-    double xx, double xy,
-    double yx, double yy,
-    double tx, double ty,
-    double bold
-){
-    if (path && path && face->UpdateCache () && (glyph >= 0) && (glyph < 0xff00))
-    {
-        agg::font_face::cache_record::size_info_record* info = face->FindSizeInfo (glyph);
+/* void Path_AppendGlyph(Path* path, */
+/*     agg::font_face* face, */
+/*     int glyph, */
+/*     double xx, double xy, */
+/*     double yx, double yy, */
+/*     double tx, double ty, */
+/*     double bold */
+/* ){ */
+/*     if (path && path && face->UpdateCache () && (glyph >= 0) && (glyph < 0xff00)) */
+/*     { */
+/*         agg::font_face::cache_record::size_info_record* info = face->FindSizeInfo (glyph); */
         
-        if ( (info)
-          && (info->num_coord) )
-        {
-            agg::trans_affine matrix = agg::trans_affine (xx, yx, xy, yy, tx, ty);
+/*         if ( (info) */
+/*           && (info->num_coord) ) */
+/*         { */
+/*             agg::trans_affine matrix = agg::trans_affine (xx, yx, xy, yy, tx, ty); */
             
-            if (bold)
-            {
-                agg::font_path_provider font_path = agg::font_path_provider (face, glyph, info, 0, 0, 1, 1);
-                agg::conv_transform<agg::font_path_provider, agg::trans_affine> conv (font_path, matrix);
-                agg::conv_curve<agg::conv_transform<agg::font_path_provider, agg::trans_affine> > curve (conv);
-                agg::conv_contour<agg::conv_curve<agg::conv_transform<agg::font_path_provider, agg::trans_affine> > > contour (curve);
+/*             if (bold) */
+/*             { */
+/*                 agg::font_path_provider font_path = agg::font_path_provider (face, glyph, info, 0, 0, 1, 1); */
+/*                 agg::conv_transform<agg::font_path_provider, agg::trans_affine> conv (font_path, matrix); */
+/*                 agg::conv_curve<agg::conv_transform<agg::font_path_provider, agg::trans_affine> > curve (conv); */
+/*                 agg::conv_contour<agg::conv_curve<agg::conv_transform<agg::font_path_provider, agg::trans_affine> > > contour (curve); */
                 
-                curve.approximation_scale (2);
+/*                 curve.approximation_scale (2); */
                 
-                contour.auto_detect_orientation (false);
-                contour.width (- bold);
+/*                 contour.auto_detect_orientation (false); */
+/*                 contour.width (- bold); */
                 
-                path->path.concat_path (contour, 0);
-            }
-            else
-            {
-                agg::font_path_provider font_path = agg::font_path_provider (face, glyph, info, 0, 0, 1, 1);
-                agg::conv_transform<agg::font_path_provider, agg::trans_affine> conv (font_path, matrix);
+/*                 path->path.concat_path (contour, 0); */
+/*             } */
+/*             else */
+/*             { */
+/*                 agg::font_path_provider font_path = agg::font_path_provider (face, glyph, info, 0, 0, 1, 1); */
+/*                 agg::conv_transform<agg::font_path_provider, agg::trans_affine> conv (font_path, matrix); */
                 
-                path->path.concat_path (conv, 0);
-            }
-        }
-    }
-}
+/*                 path->path.concat_path (conv, 0); */
+/*             } */
+/*         } */
+/*     } */
+/* } */
 
 /*****************************************************************************/
 

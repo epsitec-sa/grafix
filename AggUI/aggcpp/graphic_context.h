@@ -4,6 +4,7 @@
 #include "declspec.h"
 #include "pixelfmt.h"
 
+#include "renderer.h"
 // ************************* drawing ********************************
 #include "agg_rasterizer_scanline_aa.h"
 #include "agg_scanline_p.h"
@@ -16,10 +17,13 @@ namespace AntigrainCPP {
 
             void set_color(int r, int g, int b);
             void draw_ellipse(double x, double y, double rx, double ry);
+
         private:
             pixfmt pixf;
-            renderer_base_t renderer_base;
-            agg::renderer_scanline_aa_solid<renderer_base_t> renderer_solid;
+        public:
+            RendererSolid renderer_solid;
+            /* renderer_base_t renderer_base; */
+            /* agg::renderer_scanline_aa_solid<renderer_base_t> renderer_solid; */
     };
 
     extern "C" DECLSPEC void GraphicContext_SetColor(GraphicContext* gctx, int r, int g, int b);
@@ -27,4 +31,6 @@ namespace AntigrainCPP {
     extern "C" DECLSPEC void GraphicContext_DrawEllipse(GraphicContext* gctx,
                                             double x, double y,
                                             double rx, double ry);
+
+    extern "C" DECLSPEC RendererSolid* GraphicContext_GetSolidRenderer(GraphicContext* gctx);
 }

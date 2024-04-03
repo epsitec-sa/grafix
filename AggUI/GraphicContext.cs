@@ -17,8 +17,13 @@ namespace AggUI {
             double x, double y, double rx, double ry
         );
 
+        [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
+        private static extern IntPtr GraphicContext_GetSolidRenderer(IntPtr gctx);
+
         internal GraphicContext(IntPtr gctx){
             this.gctx = gctx;
+            IntPtr sr = GraphicContext_GetSolidRenderer(gctx);
+            this.renderer = new AntigrainCPP.Renderer.Solid(sr);
         }
 
         public void SetColor(int r, int g, int b)
@@ -30,6 +35,8 @@ namespace AggUI {
         {
             GraphicContext_DrawEllipse(this.gctx, x, y, rx, ry);
         }
+
+        public AntigrainCPP.Renderer.Solid renderer;
 
         private IntPtr gctx;
     }
