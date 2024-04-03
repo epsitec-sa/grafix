@@ -58,10 +58,10 @@ namespace AntigrainCPP
         }
 
         public void AddPath(
-            IntPtr path,
+            Path path,
             bool curves
         ){
-            Rasterizer_AddPath(rasterizer, path, curves);
+            Rasterizer_AddPath(rasterizer, path.path, curves);
         }
 
         /* public void AddGlyph( */
@@ -122,22 +122,22 @@ namespace AntigrainCPP
         /* } */
 
         public void AddPathStroke1(
-            IntPtr path,
+            Path path,
             double width,
             bool curves
         ){
-            Rasterizer_AddPathStroke1(rasterizer, path, width, curves);
+            Rasterizer_AddPathStroke1(rasterizer, path.path, width, curves);
         }
 
         public void AddPathStroke2(
-            IntPtr path,
+            Path path,
             double width,
             int cap,
             int join,
             double miter_limit,
             bool curves
         ){
-            Rasterizer_AddPathStroke2(rasterizer, path, width, cap, join, miter_limit, curves);
+            Rasterizer_AddPathStroke2(rasterizer, path.path, width, cap, join, miter_limit, curves);
         }
 
         /* public void RenderSolid(IntPtr renderer) */

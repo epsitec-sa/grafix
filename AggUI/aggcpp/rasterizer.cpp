@@ -790,161 +790,161 @@ void Rasterizer_AddPathStroke2(Rasterizer* rasterizer,
 
 /*****************************************************************************/
 
-/* void */
-/* Rasterizer_RenderSolid(Rasterizer* rasterizer, AggRendererSolid* renderer) */
-/* { */
-/*     if ( (rasterizer) */
-/*       && (renderer) ) */
-/*     { */
-/*         switch (renderer->renderer->active_mask_component) */
-/*         { */
-/*             case 0: */
-/*                 agg::render_scanlines (rasterizer->rasterizer, renderer->renderer->sl_a, renderer->ren_solid); */
-/*                 break; */
+void
+Rasterizer_RenderSolid(Rasterizer* rasterizer, RendererSolid* renderer)
+{
+    if ( (rasterizer)
+      && (renderer) )
+    {
+        switch (renderer->active_mask_component)
+        {
+            case 0:
+                agg::render_scanlines (rasterizer->rasterizer, renderer->sl_a, renderer->ren_solid);
+                break;
                 
-/*             case 1: */
-/*                 agg::render_scanlines (rasterizer->rasterizer, renderer->renderer->sl_r, renderer->ren_solid); */
-/*                 break; */
+            case 1:
+                agg::render_scanlines (rasterizer->rasterizer, renderer->sl_r, renderer->ren_solid);
+                break;
             
-/*             case 2: */
-/*                 agg::render_scanlines (rasterizer->rasterizer, renderer->renderer->sl_g, renderer->ren_solid); */
-/*                 break; */
+            case 2:
+                agg::render_scanlines (rasterizer->rasterizer, renderer->sl_g, renderer->ren_solid);
+                break;
             
-/*             case 3: */
-/*                 agg::render_scanlines (rasterizer->rasterizer, renderer->renderer->sl_b, renderer->ren_solid); */
-/*                 break; */
+            case 3:
+                agg::render_scanlines (rasterizer->rasterizer, renderer->sl_b, renderer->ren_solid);
+                break;
             
-/*             default: */
-/*                 agg::render_scanlines (rasterizer->rasterizer, renderer->renderer->scanline, renderer->ren_solid); */
-/*                 break; */
-/*         } */
-/*     } */
-/* } */
+            default:
+                agg::render_scanlines (rasterizer->rasterizer, renderer->scanline, renderer->ren_solid);
+                break;
+        }
+    }
+}
 
-/* void */
-/* Rasterizer_RenderImage(Rasterizer* rasterizer, AggRendererImage* renderer) */
-/* { */
-/*     if ( (rasterizer) */
-/*       && (renderer) */
-/*       && (renderer->Validate ()) ) */
-/*     { */
-/*         switch (renderer->renderer->active_mask_component) */
-/*         { */
-/*             case 0: */
-/*                 if (renderer->use_nn) */
-/*                 { */
-/*                     agg::render_scanlines_aa (rasterizer->rasterizer, renderer->renderer->sl_a, renderer->renderer->ren_base, renderer->span_alloc, renderer->span_gen_nn); */
-/*                 } */
-/*                 else if (renderer->mode == 1) */
-/*                 { */
-/*                     agg::render_scanlines_aa (rasterizer->rasterizer, renderer->renderer->sl_a, renderer->renderer->ren_base, renderer->span_alloc, renderer->span_gen); */
-/*                 } */
-/*                 else if (renderer->mode > 1) */
-/*                 { */
-/*                     agg::render_scanlines_aa (rasterizer->rasterizer, renderer->renderer->sl_a, renderer->renderer->ren_base, renderer->span_alloc, renderer->span_gen_general); */
-/*                 } */
-/*                 else */
-/*                 { */
-/*                     agg::render_scanlines_aa (rasterizer->rasterizer, renderer->renderer->sl_a, renderer->renderer->ren_base, renderer->span_alloc, renderer->span_gen_resample); */
-/*                 } */
-/*                 break; */
+void
+Rasterizer_RenderImage(Rasterizer* rasterizer, RendererImage* renderer)
+{
+    if ( (rasterizer)
+      && (renderer)
+      && (renderer->Validate ()) )
+    {
+        switch (renderer->active_mask_component)
+        {
+            case 0:
+                if (renderer->use_nn)
+                {
+                    agg::render_scanlines_aa (rasterizer->rasterizer, renderer->sl_a, renderer->ren_base, renderer->span_alloc, renderer->span_gen_nn);
+                }
+                else if (renderer->mode == 1)
+                {
+                    agg::render_scanlines_aa (rasterizer->rasterizer, renderer->sl_a, renderer->ren_base, renderer->span_alloc, renderer->span_gen);
+                }
+                else if (renderer->mode > 1)
+                {
+                    agg::render_scanlines_aa (rasterizer->rasterizer, renderer->sl_a, renderer->ren_base, renderer->span_alloc, renderer->span_gen_general);
+                }
+                else
+                {
+                    agg::render_scanlines_aa (rasterizer->rasterizer, renderer->sl_a, renderer->ren_base, renderer->span_alloc, renderer->span_gen_resample);
+                }
+                break;
             
-/*             case 1: */
-/*                 if (renderer->use_nn) */
-/*                 { */
-/*                     agg::render_scanlines_aa (rasterizer->rasterizer, renderer->renderer->sl_r, renderer->renderer->ren_base, renderer->span_alloc, renderer->span_gen_nn); */
-/*                 } */
-/*                 else if (renderer->mode == 1) */
-/*                 { */
-/*                     agg::render_scanlines_aa (rasterizer->rasterizer, renderer->renderer->sl_r, renderer->renderer->ren_base, renderer->span_alloc, renderer->span_gen); */
-/*                 } */
-/*                 else if (renderer->mode > 1) */
-/*                 { */
-/*                     agg::render_scanlines_aa (rasterizer->rasterizer, renderer->renderer->sl_r, renderer->renderer->ren_base, renderer->span_alloc, renderer->span_gen_general); */
-/*                 } */
-/*                 else */
-/*                 { */
-/*                     agg::render_scanlines_aa (rasterizer->rasterizer, renderer->renderer->sl_r, renderer->renderer->ren_base, renderer->span_alloc, renderer->span_gen_resample); */
-/*                 } */
-/*                 break; */
+            case 1:
+                if (renderer->use_nn)
+                {
+                    agg::render_scanlines_aa (rasterizer->rasterizer, renderer->sl_r, renderer->ren_base, renderer->span_alloc, renderer->span_gen_nn);
+                }
+                else if (renderer->mode == 1)
+                {
+                    agg::render_scanlines_aa (rasterizer->rasterizer, renderer->sl_r, renderer->ren_base, renderer->span_alloc, renderer->span_gen);
+                }
+                else if (renderer->mode > 1)
+                {
+                    agg::render_scanlines_aa (rasterizer->rasterizer, renderer->sl_r, renderer->ren_base, renderer->span_alloc, renderer->span_gen_general);
+                }
+                else
+                {
+                    agg::render_scanlines_aa (rasterizer->rasterizer, renderer->sl_r, renderer->ren_base, renderer->span_alloc, renderer->span_gen_resample);
+                }
+                break;
             
-/*             case 2: */
-/*                 if (renderer->use_nn) */
-/*                 { */
-/*                     agg::render_scanlines_aa (rasterizer->rasterizer, renderer->renderer->sl_g, renderer->renderer->ren_base, renderer->span_alloc, renderer->span_gen_nn); */
-/*                 } */
-/*                 else if (renderer->mode == 1) */
-/*                 { */
-/*                     agg::render_scanlines_aa (rasterizer->rasterizer, renderer->renderer->sl_g, renderer->renderer->ren_base, renderer->span_alloc, renderer->span_gen); */
-/*                 } */
-/*                 else if (renderer->mode > 1) */
-/*                 { */
-/*                     agg::render_scanlines_aa (rasterizer->rasterizer, renderer->renderer->sl_g, renderer->renderer->ren_base, renderer->span_alloc, renderer->span_gen_resample); */
-/*                 } */
-/*                 else */
-/*                 { */
-/*                     agg::render_scanlines_aa (rasterizer->rasterizer, renderer->renderer->sl_g, renderer->renderer->ren_base, renderer->span_alloc, renderer->span_gen_general); */
-/*                 } */
-/*                 break; */
+            case 2:
+                if (renderer->use_nn)
+                {
+                    agg::render_scanlines_aa (rasterizer->rasterizer, renderer->sl_g, renderer->ren_base, renderer->span_alloc, renderer->span_gen_nn);
+                }
+                else if (renderer->mode == 1)
+                {
+                    agg::render_scanlines_aa (rasterizer->rasterizer, renderer->sl_g, renderer->ren_base, renderer->span_alloc, renderer->span_gen);
+                }
+                else if (renderer->mode > 1)
+                {
+                    agg::render_scanlines_aa (rasterizer->rasterizer, renderer->sl_g, renderer->ren_base, renderer->span_alloc, renderer->span_gen_resample);
+                }
+                else
+                {
+                    agg::render_scanlines_aa (rasterizer->rasterizer, renderer->sl_g, renderer->ren_base, renderer->span_alloc, renderer->span_gen_general);
+                }
+                break;
             
-/*             case 3: */
-/*                 if (renderer->use_nn) */
-/*                 { */
-/*                     agg::render_scanlines_aa (rasterizer->rasterizer, renderer->renderer->sl_b, renderer->renderer->ren_base, renderer->span_alloc, renderer->span_gen_nn); */
-/*                 } */
-/*                 else if (renderer->mode == 1) */
-/*                 { */
-/*                     agg::render_scanlines_aa (rasterizer->rasterizer, renderer->renderer->sl_b, renderer->renderer->ren_base, renderer->span_alloc, renderer->span_gen); */
-/*                 } */
-/*                 else if (renderer->mode > 1) */
-/*                 { */
-/*                     agg::render_scanlines_aa (rasterizer->rasterizer, renderer->renderer->sl_b, renderer->renderer->ren_base, renderer->span_alloc, renderer->span_gen_general); */
-/*                 } */
-/*                 else */
-/*                 { */
-/*                     agg::render_scanlines_aa (rasterizer->rasterizer, renderer->renderer->sl_b, renderer->renderer->ren_base, renderer->span_alloc, renderer->span_gen_resample); */
-/*                 } */
-/*                 break; */
+            case 3:
+                if (renderer->use_nn)
+                {
+                    agg::render_scanlines_aa (rasterizer->rasterizer, renderer->sl_b, renderer->ren_base, renderer->span_alloc, renderer->span_gen_nn);
+                }
+                else if (renderer->mode == 1)
+                {
+                    agg::render_scanlines_aa (rasterizer->rasterizer, renderer->sl_b, renderer->ren_base, renderer->span_alloc, renderer->span_gen);
+                }
+                else if (renderer->mode > 1)
+                {
+                    agg::render_scanlines_aa (rasterizer->rasterizer, renderer->sl_b, renderer->ren_base, renderer->span_alloc, renderer->span_gen_general);
+                }
+                else
+                {
+                    agg::render_scanlines_aa (rasterizer->rasterizer, renderer->sl_b, renderer->ren_base, renderer->span_alloc, renderer->span_gen_resample);
+                }
+                break;
             
-/*             default: */
-/*                 if (renderer->use_nn) */
-/*                 { */
-/*                     agg::render_scanlines_aa (rasterizer->rasterizer, renderer->renderer->scanline, renderer->renderer->ren_base, renderer->span_alloc, renderer->span_gen_nn); */
-/*                 } */
-/*                 else if (renderer->mode == 1) */
-/*                 { */
-/*                     agg::render_scanlines_aa (rasterizer->rasterizer, renderer->renderer->scanline, renderer->renderer->ren_base, renderer->span_alloc, renderer->span_gen); */
-/*                 } */
-/*                 else if (renderer->mode > 1) */
-/*                 { */
-/*                     agg::render_scanlines_aa (rasterizer->rasterizer, renderer->renderer->scanline, renderer->renderer->ren_base, renderer->span_alloc, renderer->span_gen_general); */
-/*                 } */
-/*                 else */
-/*                 { */
-/*                     agg::render_scanlines_aa (rasterizer->rasterizer, renderer->renderer->scanline, renderer->renderer->ren_base, renderer->span_alloc, renderer->span_gen_resample); */
-/*                 } */
-/*                 break; */
+            default:
+                if (renderer->use_nn)
+                {
+                    agg::render_scanlines_aa (rasterizer->rasterizer, renderer->scanline, renderer->ren_base, renderer->span_alloc, renderer->span_gen_nn);
+                }
+                else if (renderer->mode == 1)
+                {
+                    agg::render_scanlines_aa (rasterizer->rasterizer, renderer->scanline, renderer->ren_base, renderer->span_alloc, renderer->span_gen);
+                }
+                else if (renderer->mode > 1)
+                {
+                    agg::render_scanlines_aa (rasterizer->rasterizer, renderer->scanline, renderer->ren_base, renderer->span_alloc, renderer->span_gen_general);
+                }
+                else
+                {
+                    agg::render_scanlines_aa (rasterizer->rasterizer, renderer->scanline, renderer->ren_base, renderer->span_alloc, renderer->span_gen_resample);
+                }
+                break;
             
-/*         } */
-/*     } */
-/* } */
+        }
+    }
+}
 
-/* void */
-/* Rasterizer_RenderGradient(Rasterizer* rasterizer, AggRendererGradient* renderer) */
-/* { */
-/*     if ( (rasterizer) */
-/*       && (renderer) */
-/*       && (renderer->Validate ()) ) */
-/*     { */
-/*         switch (renderer->renderer->active_mask_component) */
-/*         { */
-/*             case 0:  agg::render_scanlines (rasterizer->rasterizer, renderer->renderer->sl_a, renderer->ren_gradient); break; */
-/*             case 1:  agg::render_scanlines (rasterizer->rasterizer, renderer->renderer->sl_r, renderer->ren_gradient); break; */
-/*             case 2:  agg::render_scanlines (rasterizer->rasterizer, renderer->renderer->sl_g, renderer->ren_gradient); break; */
-/*             case 3:  agg::render_scanlines (rasterizer->rasterizer, renderer->renderer->sl_b, renderer->ren_gradient); break; */
-/*             default: agg::render_scanlines (rasterizer->rasterizer, renderer->renderer->scanline, renderer->ren_gradient); break; */
-/*         } */
-/*     } */
-/* } */
+void
+Rasterizer_RenderGradient(Rasterizer* rasterizer, RendererGradient* renderer)
+{
+    if ( (rasterizer)
+      && (renderer)
+      && (renderer->Validate ()) )
+    {
+        switch (renderer->active_mask_component)
+        {
+            case 0:  agg::render_scanlines (rasterizer->rasterizer, renderer->sl_a, renderer->ren_gradient); break;
+            case 1:  agg::render_scanlines (rasterizer->rasterizer, renderer->sl_r, renderer->ren_gradient); break;
+            case 2:  agg::render_scanlines (rasterizer->rasterizer, renderer->sl_g, renderer->ren_gradient); break;
+            case 3:  agg::render_scanlines (rasterizer->rasterizer, renderer->sl_b, renderer->ren_gradient); break;
+            default: agg::render_scanlines (rasterizer->rasterizer, renderer->scanline, renderer->ren_gradient); break;
+        }
+    }
+}
 
 /*****************************************************************************/

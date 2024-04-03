@@ -9,6 +9,7 @@
 #pragma once
 
 //#include "settings.h"
+#ifdef ANIETASRIUETNAUSIETN
 
 #include "agg_alpha_mask_u8.h"
 #include "agg_bounding_rect.h"
@@ -43,7 +44,7 @@
 
 #include "ctrl/agg_gamma_spline.h"
 
-#include "platform/win32/agg_win32_bmp.h"
+//#include "platform/win32/agg_win32_bmp.h"
 
 /*****************************************************************************/
 
@@ -118,6 +119,7 @@ struct AggRendererCommonPre;
 
 /*****************************************************************************/
 
+/*
 struct AggBuffer
 {
 	agg::pixel_map			pixmap;
@@ -133,6 +135,7 @@ struct AggBuffer
 
 	bool					use_shared_memory;
 };
+*/
 
 /*****************************************************************************/
 
@@ -567,3 +570,4 @@ struct BreakContext
 };
 
 /*****************************************************************************/
+#endif

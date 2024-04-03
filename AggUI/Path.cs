@@ -112,6 +112,6 @@ namespace AntigrainCPP
             Path_DashSetStart(path, start);
         }
 
-        private IntPtr path;
+        internal IntPtr path;
     }
 }

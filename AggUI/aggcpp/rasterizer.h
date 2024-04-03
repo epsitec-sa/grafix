@@ -3,6 +3,7 @@
 /*****************************************************************************/
 /* from agg_rasterizer.cpp */
 #include "path.h"
+#include "renderer.h"
 
 struct Rasterizer
 {
@@ -100,20 +101,20 @@ extern "C" DECLSPEC void RasterizerAddPathStroke2(
     bool curved
 );
 
-/* extern "C" DECLSPEC void RasterizerRenderSolid( */
-/*     Rasterizer* rasterizer, */ 
-/*     AggRendererSolid* renderer */
-/* ); */
+extern "C" DECLSPEC void RasterizerRenderSolid(
+    Rasterizer* rasterizer, 
+    RendererSolid* renderer
+);
 
-/* extern "C" DECLSPEC void RasterizerRenderImage( */
-/*     Rasterizer* rasterizer, */ 
-/*     AggRendererImage* renderer */
-/* ); */
+extern "C" DECLSPEC void RasterizerRenderImage(
+    Rasterizer* rasterizer, 
+    RendererImage* renderer
+);
 
-/* extern "C" DECLSPEC void RasterizerRenderGradient( */
-/*     Rasterizer* rasterizer, */ 
-/*     AggRendererGradient* renderer */
-/* ); */
+extern "C" DECLSPEC void RasterizerRenderGradient(
+    Rasterizer* rasterizer, 
+    RendererGradient* renderer
+);
 
 extern "C" DECLSPEC void RasterizerDelete(
     Rasterizer* rasterizer
