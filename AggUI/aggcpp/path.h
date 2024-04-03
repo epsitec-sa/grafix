@@ -9,6 +9,9 @@
 #include "agg_font_path_provider.h"
 #include "agg_conv_contour.h"
 #include "agg_conv_curve.h"
+#include "agg_conv_dash.h"
+#include "agg_conv_stroke.h"
+#include "agg_path_storage.h"
 
 struct Path
 {
