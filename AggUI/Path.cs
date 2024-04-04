@@ -72,9 +72,11 @@ namespace AntigrainCPP
             Path_AppendDashedPath(path, dash.path, scale);
         }
 
-        public void CombinePathsUsingGpc(Path path1, Path path2, IntPtr result, int operation)
+        public Path CombinePathUsingGpc(Path otherPath, int operation)
         {
-            Path_CombinePathsUsingGpc(path1.path, path2.path, result, operation);
+            Path result = new Path();
+            Path_CombinePathsUsingGpc(this.path, otherPath.path, result.path, operation);
+            return result;
         }
 
         public void ComputeBounds(out double x1, out double y1, out double x2, out double y2)
