@@ -292,6 +292,7 @@ struct RendererImage : RendererBasePre
     bool Validate ();
 };
 
+
 /*****************************************************************************/
 
 class gradient_polymorphic_wrapper_base
@@ -305,10 +306,10 @@ public:
 class gradient_full_conic
 {
 public:
-	static int calculate(int x, int y, int d)
-	{
-		return int((atan2(double(y), double(x))+agg::pi) * double(d) / (agg::pi*2));
-	}
+    static int calculate(int x, int y, int d)
+    {
+        return int((atan2(double(y), double(x))+agg::pi) * double(d) / (agg::pi*2));
+    }
 };
 
 /*****************************************************************************/
