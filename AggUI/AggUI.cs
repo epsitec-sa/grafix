@@ -62,14 +62,20 @@ namespace AggUI {
 
         public AggWindow(bool flip_y)
         {
+            onDrawDelegate = InternalOnDraw;
+            onResizeDelegate = OnResize;
+            onMouseMoveDelegate = OnMouseMove;
+            onMouseButtonDownDelegate = OnMouseButtonDown;
+            onMouseButtonUpDelegate = OnMouseButtonUp;
+            onKeyDelegate = OnKey;
             this.app = NewApplication(
                 flip_y,
-                InternalOnDraw,
-                OnResize,
-                OnMouseMove,
-                OnMouseButtonDown,
-                OnMouseButtonUp,
-                OnKey
+                onDrawDelegate,
+                onResizeDelegate,
+                onMouseMoveDelegate,
+                onMouseButtonDownDelegate,
+                onMouseButtonUpDelegate,
+                onKeyDelegate
             );
         }
 
@@ -109,5 +115,11 @@ namespace AggUI {
         public virtual void OnKey(int x, int y, uint key, uint flags){}
 
         private IntPtr app;
+        private OnDrawT onDrawDelegate;
+        private OnResizeT onResizeDelegate;
+        private OnMouseMoveT onMouseMoveDelegate;
+        private OnMouseButtonDownT onMouseButtonDownDelegate;
+        private OnMouseButtonUpT onMouseButtonUpDelegate;
+        private OnKeyT onKeyDelegate;
     }
 }
