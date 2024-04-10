@@ -5,26 +5,24 @@
 #include "pixelfmt.h"
 
 #include "renderer.h"
-// ************************* drawing ********************************
-#include "agg_rasterizer_scanline_aa.h"
-#include "agg_scanline_p.h"
-#include "agg_ellipse.h"
+#include "freetype_font.h"
 
 namespace AntigrainCPP {
     class GraphicContext {
         public:
-            GraphicContext(agg::rendering_buffer& buffer);
+            GraphicContext(agg::rendering_buffer& buffer, FontEngine& font_engine);
 
             void set_color(int r, int g, int b);
             void draw_ellipse(double x, double y, double rx, double ry);
+            void draw_char(char character, double x, double y);
 
         private:
             pixfmt pixf;
         public:
             RendererSolid renderer_solid;
             RendererSmooth renderer_smooth;
-            /* renderer_base_t renderer_base; */
-            /* agg::renderer_scanline_aa_solid<renderer_base_t> renderer_solid; */
+            RendererBin renderer_bin;
+            FontEngine& font_engine;
     };
 
     extern "C" DECLSPEC void GraphicContext_SetColor(GraphicContext* gctx, int r, int g, int b);

@@ -40,6 +40,7 @@ FetchContent_Declare(
 )
 # Our code is using GPC so we enable it here.
 set(agg_USE_GPC ON)
+set(agg_USE_FREETYPE ON)
 FetchContent_MakeAvailable(antigrain)
 
 # for the moment this decides the platform code.
@@ -123,6 +124,7 @@ add_library(AntigrainCPP SHARED
     antigrain.cpp
     graphic_context.cpp
     path.cpp
+    freetype_font.cpp
     # structures.cpp
 )
 set_target_properties(AntigrainCPP PROPERTIES

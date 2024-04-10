@@ -115,6 +115,19 @@ struct RendererSolid : RendererBase
 
 /*****************************************************************************/
 
+struct RendererBin : RendererBase
+{
+    typedef agg::renderer_scanline_bin_solid<renderer_base_t> renderer_bin;
+    
+    renderer_bin          ren_bin;
+    
+    RendererBin (pixfmt& pixf) : RendererBase(pixf), ren_bin(ren_base)
+    {
+    }
+};
+
+/*****************************************************************************/
+
 struct RendererSmooth : RendererBase
 {
     typedef agg::renderer_outline_aa<renderer_base_t> renderer_smooth;

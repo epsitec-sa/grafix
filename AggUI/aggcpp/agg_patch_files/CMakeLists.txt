@@ -148,7 +148,8 @@ IF( agg_USE_FREETYPE )
     ADD_DEFINITIONS( -DAGG_USE_FREETYPE )
     SET( AGG_FLAGS ${AGG_FLAGS} -DAGG_USE_FREETYPE )    
     LINK_LIBRARIES( freetypefont )
-    SET( AGG_LIBRARIES ${AGG_LIBRARIES} aggfontfreetype${PFDEBUG} ) 
+    # PATCHED: set the original names in AGG_LIBRARIES
+    SET( AGG_LIBRARIES ${AGG_LIBRARIES} freetypefont${PFDEBUG} ) 
 ENDIF( agg_USE_FREETYPE )
 
 # GPC lib if used within Agg

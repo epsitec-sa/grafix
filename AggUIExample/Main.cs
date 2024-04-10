@@ -14,6 +14,8 @@ namespace Example {
 
         public Application(bool flip_y) : base(flip_y)
         {
+
+            this.fontEngine.loadFont("/home/baptiste/.local/share/fonts/LiberationSans-Regular.ttf");
         }
 
         public override void OnDraw(GraphicContext gctx)

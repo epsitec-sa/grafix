@@ -5,6 +5,7 @@
 #include "declspec.h"
 #include "pixelfmt.h"
 #include "graphic_context.h"
+#include "freetype_font.h"
 
 #include "platform/agg_platform_support.h"
 
@@ -28,8 +29,8 @@ namespace AntigrainCPP {
                 void (*on_mouse_button_up)(int x, int y, unsigned flags),
                 void (*on_key)(int x, int y, unsigned key, unsigned flags)
             );
-            void set_color(int r, int g, int b);
-            void draw_ellipse(double x, double y, double rx, double ry);
+
+            FontEngine font_engine;
         private:
             // user callbacks
             void (*on_resize_callback)(int sx, int sy);
@@ -71,53 +72,5 @@ namespace AntigrainCPP {
 
     extern "C" DECLSPEC void Application_ForceRedraw(Application* ps);
 
+    extern "C" DECLSPEC FontEngine* Application_GetFontEngine(Application* ps);
 }
-
-/*****************************************************************************/
-
-//#if defined(AGG_DUMMY_TYPES)
-
-/*
- *  If we just want to expose the raw API entry points (which are plain "C"
- *  functions) we don't need to know precisely about all the internal types
- *  which are required.
- *
- *  We map structures to void and enums to int.
- */
-
-/*
-typedef void AggBuffer;
-typedef void AggPath;
-typedef void AggRasterizer;
-typedef void AggRendererGradient;
-typedef void AggRendererImage;
-typedef void AggRendererSolid;
-typedef void AggRendererSmooth;
-typedef void AggRendererBase;
-
-namespace agg
-{
-    typedef void font_face;
-    typedef void text_break;
-}
-
-#else
-
-struct AggBuffer;
-struct AggPath;
-struct AggRasterizer;
-struct AggRendererGradient;
-struct AggRendererImage;
-struct AggRendererSolid;
-struct AggRendererSmooth;
-struct AggRendererBase;
-
-namespace agg
-{
-    class font_face;
-    class text_break;
-}
-#endif
-*/
-
-

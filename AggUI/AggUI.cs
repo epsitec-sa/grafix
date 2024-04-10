@@ -60,6 +60,9 @@ namespace AggUI {
         [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
         private static extern IntPtr Application_GetRendererSolid(IntPtr app);
 
+        [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
+        private static extern IntPtr Application_GetFontEngine(IntPtr app);
+
         public AggWindow(bool flip_y)
         {
             onDrawDelegate = InternalOnDraw;
@@ -77,6 +80,8 @@ namespace AggUI {
                 onMouseButtonUpDelegate,
                 onKeyDelegate
             );
+            IntPtr fe = Application_GetFontEngine(this.app);
+            this.fontEngine = new AntigrainCPP.FontEngine(fe);
         }
 
         public void SetCaption(string text)
@@ -113,6 +118,8 @@ namespace AggUI {
         public virtual void OnMouseButtonUp(int x, int y, uint flags){}
 
         public virtual void OnKey(int x, int y, uint key, uint flags){}
+
+        public AntigrainCPP.FontEngine fontEngine;
 
         private IntPtr app;
         private OnDrawT onDrawDelegate;
