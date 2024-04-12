@@ -14,8 +14,10 @@ namespace Example {
 
         public Application(bool flip_y) : base(flip_y)
         {
-
-            this.fontEngine.loadFont("/home/baptiste/.local/share/fonts/LiberationSans-Regular.ttf");
+            this.fontEngine.LoadFont("Impacted.ttf");
+            bool isBold = this.fontEngine.IsCurrentFaceBold;
+            bool isItalic = this.fontEngine.IsCurrentFaceItalic;
+            Console.WriteLine($"bold: {isBold} italic: {isItalic}");
         }
 
         public override void OnDraw(GraphicContext gctx)

@@ -24,4 +24,29 @@ namespace AntigrainCPP {
         return fe->load_font(font_name);
     }
 
+    bool FontEngine_IsCurrentFaceBold(FontEngine* fe){
+        return fe->m_feng.is_cur_face_bold();
+    }
+
+    bool FontEngine_IsCurrentFaceItalic(FontEngine* fe){
+        return fe->m_feng.is_cur_face_italic();
+    }
+
+    bool extended_font_engine::is_cur_face_bold() const
+    {
+        if(m_cur_face)
+        {
+            return m_cur_face->style_flags & FT_STYLE_FLAG_BOLD;
+        }
+        return false;
+    }
+
+    bool extended_font_engine::is_cur_face_italic() const
+    {
+        if(m_cur_face)
+        {
+            return m_cur_face->style_flags & FT_STYLE_FLAG_ITALIC;
+        }
+        return false;
+    }
 }

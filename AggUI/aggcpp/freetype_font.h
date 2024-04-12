@@ -10,17 +10,22 @@
 
 namespace AntigrainCPP {
 
+    class extended_font_engine : public agg::font_engine_freetype_int32 {
+        public:
+            bool is_cur_face_bold() const;
+            bool is_cur_face_italic() const;
+    };
+
     class FontEngine {
 
-        typedef agg::font_engine_freetype_int32 font_engine_type;
-        typedef agg::font_cache_manager<font_engine_type> font_manager_type;
+        typedef agg::font_cache_manager<extended_font_engine> font_manager_type;
 
         public:
             FontEngine();
 
             bool load_font(const char* font_name);
 
-            font_engine_type             m_feng;
+            extended_font_engine         m_feng;
             font_manager_type            m_fman;
 
             // Pipeline to process the vectors glyph paths (curves + contour)
@@ -32,4 +37,8 @@ namespace AntigrainCPP {
     extern "C" DECLSPEC bool FontEngine_LoadFont(FontEngine* fe,
         const char* font_name
     );
+
+    extern "C" DECLSPEC bool FontEngine_IsCurrentFaceBold(FontEngine* fe);
+
+    extern "C" DECLSPEC bool FontEngine_IsCurrentFaceItalic(FontEngine* fe);
 }
