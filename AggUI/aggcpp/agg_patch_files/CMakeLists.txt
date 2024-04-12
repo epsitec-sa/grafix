@@ -3,7 +3,7 @@ PROJECT( antigrain )
 # additional are modified Find routines
 SET ( CMAKE_MODULE_PATH "${antigrain_SOURCE_DIR}/bin" )
 
-CMAKE_MINIMUM_REQUIRED( VERSION 2.4.8 )
+CMAKE_MINIMUM_REQUIRED( VERSION 3.13 )
 
 SET(AGG_MAJOR_VERSION 0 )
 SET(AGG_MINOR_VERSION 1 )
@@ -108,10 +108,16 @@ ENDIF( agg_USE_EXPAT )
 # Set all includes, flags, libraries, related to freetype
 ##################################################
 
+message("antigrain main CMakeLists check freetype")
 IF( agg_USE_FREETYPE )
-    FIND_PACKAGE( Freetype )                    
+	message("find package freetype")
+    FIND_PACKAGE( Freetype )
+	message("FREETYPE_FOUND: ${FREETYPE_FOUND}")
+	message("FREETYPE_LIBRARY: ${FREETYPE_LIBRARY}")
     IF( FREETYPE_FOUND )
+		message("include directories")
         INCLUDE_DIRECTORIES( ${FREETYPE_INCLUDE_DIRS} )
+		message("link libraries")
         LINK_LIBRARIES( ${FREETYPE_LIBRARIES} )
         LINK_DIRECTORIES( ${FREETYPE_LINK_DIR} )        
     ELSE( FREETYPE_FOUND )
@@ -146,8 +152,9 @@ IF( agg_USE_FREETYPE )
     # PATCHED: use absolute path for includes
     SET( AGG_INCLUDE_DIRS ${AGG_INCLUDE_DIRS} ${antigrain_SOURCE_DIR}/font_freetype )    
     ADD_DEFINITIONS( -DAGG_USE_FREETYPE )
-    SET( AGG_FLAGS ${AGG_FLAGS} -DAGG_USE_FREETYPE )    
-    LINK_LIBRARIES( freetypefont )
+    SET( AGG_FLAGS ${AGG_FLAGS} -DAGG_USE_FREETYPE )
+	# PATCHED: do not link freetypefont to itself
+    # LINK_LIBRARIES( freetypefont )
     # PATCHED: set the original names in AGG_LIBRARIES
     SET( AGG_LIBRARIES ${AGG_LIBRARIES} freetypefont${PFDEBUG} ) 
 ENDIF( agg_USE_FREETYPE )
