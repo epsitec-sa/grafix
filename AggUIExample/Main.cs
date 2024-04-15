@@ -23,8 +23,8 @@ namespace Example {
         public override void OnDraw(GraphicContext gctx)
         {
             Path path = new Path();
-            gctx.renderer_smooth.Color(0, 0, 0, 1);
-            gctx.renderer_smooth.Setup(7, 2,
+            gctx.RendererSmooth.Color(0, 0, 0, 1);
+            gctx.RendererSmooth.Setup(7, 2,
                 1, 0,
                 0, 1,
                 0, 0
@@ -41,7 +41,7 @@ namespace Example {
                 gctx.SetColor(r, g, b);
                 gctx.DrawEllipse(x, y, s, s);
             }
-            gctx.renderer_smooth.AddPath(path);
+            gctx.RendererSmooth.AddPath(path);
         }
 
         public override void OnKey(int x, int y, uint key, uint flags){

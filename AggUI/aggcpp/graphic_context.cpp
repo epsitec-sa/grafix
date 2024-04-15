@@ -9,8 +9,11 @@
 namespace AntigrainCPP {
     GraphicContext::GraphicContext(agg::rendering_buffer& buffer, FontEngine& fe) :
         pixf(buffer),
+        pixf_pre(buffer),
         renderer_solid(pixf),
         renderer_smooth(pixf),
+        renderer_image(pixf_pre),
+        renderer_gradient(pixf),
         renderer_bin(pixf),
         font_engine(fe)
     {
@@ -116,12 +119,18 @@ namespace AntigrainCPP {
     }
 
     RendererSolid* GraphicContext_GetSolidRenderer(GraphicContext* gctx){
-        std::cout << "[C++] get solid renderer" << std::endl;
         return &(gctx->renderer_solid);
     }
 
     RendererSmooth* GraphicContext_GetSmoothRenderer(GraphicContext* gctx){
-        std::cout << "[C++] get smooth renderer" << std::endl;
         return &(gctx->renderer_smooth);
+    }
+
+    RendererImage* GraphicContext_GetImageRenderer(GraphicContext* gctx){
+        return &(gctx->renderer_image);
+    }
+
+    RendererGradient* GraphicContext_GetGradientRenderer(GraphicContext* gctx){
+        return &(gctx->renderer_gradient);
     }
 }

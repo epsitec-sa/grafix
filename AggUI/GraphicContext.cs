@@ -23,12 +23,22 @@ namespace AggUI {
         [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
         private static extern IntPtr GraphicContext_GetSmoothRenderer(IntPtr gctx);
 
+        [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
+        private static extern IntPtr GraphicContext_GetImageRenderer(IntPtr gctx);
+
+        [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
+        private static extern IntPtr GraphicContext_GetGradientRenderer(IntPtr gctx);
+
         internal GraphicContext(IntPtr gctx){
             this.gctx = gctx;
             IntPtr solid_ren = GraphicContext_GetSolidRenderer(gctx);
-            this.renderer_solid = new AntigrainCPP.Renderer.Solid(solid_ren);
+            this.RendererSolid = new AntigrainCPP.Renderer.Solid(solid_ren);
             IntPtr smooth_ren = GraphicContext_GetSmoothRenderer(gctx);
-            this.renderer_smooth = new AntigrainCPP.Renderer.Smooth(smooth_ren);
+            this.RendererSmooth = new AntigrainCPP.Renderer.Smooth(smooth_ren);
+            IntPtr image_ren = GraphicContext_GetImageRenderer(gctx);
+            this.RendererImage = new AntigrainCPP.Renderer.Image(image_ren);
+            IntPtr gradient_ren = GraphicContext_GetGradientRenderer(gctx);
+            this.RendererGradient = new AntigrainCPP.Renderer.Gradient(gradient_ren);
         }
 
         public void SetColor(int r, int g, int b)
@@ -139,8 +149,10 @@ namespace AggUI {
         /*     ); */
         /* } */
 
-        public AntigrainCPP.Renderer.Solid renderer_solid;
-        public AntigrainCPP.Renderer.Smooth renderer_smooth;
+        public AntigrainCPP.Renderer.Solid RendererSolid;
+        public AntigrainCPP.Renderer.Smooth RendererSmooth;
+        public AntigrainCPP.Renderer.Image RendererImage;
+        public AntigrainCPP.Renderer.Gradient RendererGradient;
 
         private IntPtr gctx;
     }

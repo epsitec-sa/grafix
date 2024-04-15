@@ -18,9 +18,12 @@ namespace AntigrainCPP {
 
         private:
             pixfmt pixf;
+            pixfmt_pre pixf_pre;
         public:
             RendererSolid renderer_solid;
             RendererSmooth renderer_smooth;
+            RendererImage renderer_image;
+            RendererGradient renderer_gradient;
             RendererBin renderer_bin;
             FontEngine& font_engine;
     };
@@ -34,4 +37,8 @@ namespace AntigrainCPP {
     extern "C" DECLSPEC RendererSolid* GraphicContext_GetSolidRenderer(GraphicContext* gctx);
 
     extern "C" DECLSPEC RendererSmooth* GraphicContext_GetSmoothRenderer(GraphicContext* gctx);
+
+    extern "C" DECLSPEC RendererImage* GraphicContext_GetImageRenderer(GraphicContext* gctx);
+
+    extern "C" DECLSPEC RendererGradient* GraphicContext_GetGradientRenderer(GraphicContext* gctx);
 }
