@@ -140,20 +140,20 @@ namespace AntigrainCPP
             Rasterizer_AddPathStroke2(rasterizer, path.path, width, cap, join, miter_limit, curves);
         }
 
-        /* public void RenderSolid(IntPtr renderer) */
-        /* { */
-        /*     Rasterizer_RenderSolid(rasterizer, renderer); */
-        /* } */
+        public void RenderSolid(Renderer.Solid renderer)
+        {
+            Rasterizer_RenderSolid(rasterizer, renderer.renderer);
+        }
 
-        /* public void RenderImage(IntPtr renderer) */
-        /* { */
-        /*     Rasterizer_RenderImage(rasterizer, renderer); */
-        /* } */
+        public void RenderImage(Renderer.Image renderer)
+        {
+            Rasterizer_RenderImage(rasterizer, renderer.renderer);
+        }
 
-        /* public void RenderGradient(IntPtr renderer) */
-        /* { */
-        /*     Rasterizer_RenderGradient(rasterizer, renderer); */
-        /* } */
+        public void RenderGradient(Renderer.Gradient renderer)
+        {
+            Rasterizer_RenderGradient(rasterizer, renderer.renderer);
+        }
 
         private IntPtr rasterizer;
     }
