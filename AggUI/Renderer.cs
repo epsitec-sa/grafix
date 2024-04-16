@@ -23,7 +23,7 @@ namespace AntigrainCPP
                 this.renderer = renderer;
             }
 
-            protected IntPtr renderer;
+            protected internal IntPtr renderer;
         }
 
         public class Special : Renderer.Base

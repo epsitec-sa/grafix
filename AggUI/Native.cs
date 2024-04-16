@@ -115,14 +115,14 @@ namespace AntigrainCPP
         [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
         public static extern void Rasterizer_AddPathStroke2(IntPtr rasterizer, IntPtr path, double width, int cap, int join, double miter_limit, [MarshalAs(UnmanagedType.U1)] bool curves);
 
-        /* [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)] */
-        /* public static extern void Rasterizer_RenderSolid(IntPtr rasterizer, IntPtr renderer); */
+        [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
+        public static extern void Rasterizer_RenderSolid(IntPtr rasterizer, IntPtr renderer);
 
-        /* [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)] */
-        /* public static extern void Rasterizer_RenderImage(IntPtr rasterizer, IntPtr renderer); */
+        [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
+        public static extern void Rasterizer_RenderImage(IntPtr rasterizer, IntPtr renderer);
 
-        /* [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)] */
-        /* public static extern void Rasterizer_RenderGradient(IntPtr rasterizer, IntPtr renderer); */
+        [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
+        public static extern void Rasterizer_RenderGradient(IntPtr rasterizer, IntPtr renderer);
 
         [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
         public static extern void Rasterizer_Delete(IntPtr rasterizer);
