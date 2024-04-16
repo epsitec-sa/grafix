@@ -14,6 +14,7 @@ namespace AntigrainCPP {
         public:
             bool is_cur_face_bold() const;
             bool is_cur_face_italic() const;
+            unsigned get_char_index(unsigned long charcode) const;
     };
 
     class FontEngine {
@@ -41,4 +42,8 @@ namespace AntigrainCPP {
     extern "C" DECLSPEC bool FontEngine_IsCurrentFaceBold(FontEngine* fe);
 
     extern "C" DECLSPEC bool FontEngine_IsCurrentFaceItalic(FontEngine* fe);
+
+    extern "C" DECLSPEC unsigned FontEngine_GetCharIndex(FontEngine* fe,
+        unsigned long charcode
+    );
 }

@@ -28,6 +28,10 @@ namespace AntigrainCPP
             }
         }
 
+        public uint GetCharIndex(ulong charcode){
+            return FontEngine_GetCharIndex(this.engine, charcode);
+        }
+
         [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
         [return: MarshalAs(UnmanagedType.U1)]
         private static extern bool FontEngine_LoadFont(IntPtr fe,
@@ -41,6 +45,9 @@ namespace AntigrainCPP
         [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
         [return: MarshalAs(UnmanagedType.U1)]
         private static extern bool FontEngine_IsCurrentFaceItalic(IntPtr fe);
+
+        [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
+        private static extern uint FontEngine_GetCharIndex(IntPtr fe, ulong charcode);
 
         private IntPtr engine;
     }

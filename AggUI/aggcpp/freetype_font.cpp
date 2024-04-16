@@ -8,9 +8,6 @@ namespace AntigrainCPP {
         m_fman(m_feng),
         m_curves(m_fman.path_adaptor()),
         m_contour(m_curves)
-        /* ren_base(pixf), */
-        /* ren_solid(ren_base), */
-        /* ren_bin(ren_base) */
     {
         m_curves.approximation_scale(2.0);
         m_contour.auto_detect_orientation(false);
@@ -32,6 +29,12 @@ namespace AntigrainCPP {
         return fe->m_feng.is_cur_face_italic();
     }
 
+    unsigned FontEngine_GetCharIndex(FontEngine* fe,
+        unsigned long charcode
+    ){
+        return fe->m_feng.get_char_index(charcode);
+    }
+
     bool extended_font_engine::is_cur_face_bold() const
     {
         if(m_cur_face)
@@ -48,5 +51,14 @@ namespace AntigrainCPP {
             return m_cur_face->style_flags & FT_STYLE_FLAG_ITALIC;
         }
         return false;
+    }
+
+    unsigned extended_font_engine::get_char_index(unsigned long charcode) const
+    {
+        if(m_cur_face)
+        {
+            return FT_Get_Char_Index(m_cur_face, charcode);
+        }
+        return 0;
     }
 }

@@ -11,13 +11,13 @@ namespace Example {
     class Application : AggWindow
     {
 
-
         public Application(bool flip_y) : base(flip_y)
         {
             this.fontEngine.LoadFont("Impacted.ttf");
             bool isBold = this.fontEngine.IsCurrentFaceBold;
             bool isItalic = this.fontEngine.IsCurrentFaceItalic;
-            Console.WriteLine($"bold: {isBold} italic: {isItalic}");
+            uint code = this.fontEngine.GetCharIndex((ulong)'A');
+            Console.WriteLine($"bold: {isBold} italic: {isItalic} | code for 'A': {code}");
         }
 
         public override void OnDraw(GraphicContext gctx)
