@@ -7,7 +7,7 @@
 #include "agg_ellipse.h"
 
 namespace AntigrainCPP {
-    GraphicContext::GraphicContext(agg::rendering_buffer& buffer, FontEngine& fe) :
+    GraphicContext::GraphicContext(agg::rendering_buffer& buffer, FontDrawer& fe) :
         pixf(buffer),
         pixf_pre(buffer),
         renderer_solid(pixf),

@@ -17,12 +17,12 @@ namespace AntigrainCPP {
             unsigned get_char_index(unsigned long charcode) const;
     };
 
-    class FontEngine {
+    class FontDrawer {
 
         typedef agg::font_cache_manager<extended_font_engine> font_manager_type;
 
         public:
-            FontEngine();
+            FontDrawer();
 
             bool load_font(const char* font_name);
 
@@ -35,15 +35,15 @@ namespace AntigrainCPP {
 
     };
 
-    extern "C" DECLSPEC bool FontEngine_LoadFont(FontEngine* fe,
+    extern "C" DECLSPEC bool FontDrawer_LoadFont(FontDrawer* fe,
         const char* font_name
     );
 
-    extern "C" DECLSPEC bool FontEngine_IsCurrentFaceBold(FontEngine* fe);
+    extern "C" DECLSPEC bool FontDrawer_IsCurrentFaceBold(FontDrawer* fe);
 
-    extern "C" DECLSPEC bool FontEngine_IsCurrentFaceItalic(FontEngine* fe);
+    extern "C" DECLSPEC bool FontDrawer_IsCurrentFaceItalic(FontDrawer* fe);
 
-    extern "C" DECLSPEC unsigned FontEngine_GetCharIndex(FontEngine* fe,
+    extern "C" DECLSPEC unsigned FontDrawer_GetCharIndex(FontDrawer* fe,
         unsigned long charcode
     );
 }

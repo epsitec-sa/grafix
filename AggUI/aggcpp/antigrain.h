@@ -1,11 +1,9 @@
 #pragma once
 
-//#include <memory> // unique_ptr
-
 #include "declspec.h"
 #include "pixelfmt.h"
 #include "graphic_context.h"
-#include "freetype_font.h"
+#include "font_drawer.h"
 
 #include "platform/agg_platform_support.h"
 
@@ -30,7 +28,7 @@ namespace AntigrainCPP {
                 void (*on_key)(int x, int y, unsigned key, unsigned flags)
             );
 
-            FontEngine font_engine;
+            FontDrawer font_drawer;
         private:
             // user callbacks
             void (*on_resize_callback)(int sx, int sy);
@@ -72,5 +70,5 @@ namespace AntigrainCPP {
 
     extern "C" DECLSPEC void Application_ForceRedraw(Application* ps);
 
-    extern "C" DECLSPEC FontEngine* Application_GetFontEngine(Application* ps);
+    extern "C" DECLSPEC FontDrawer* Application_GetFontDrawer(Application* ps);
 }

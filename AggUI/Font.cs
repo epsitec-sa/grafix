@@ -4,51 +4,59 @@ using System.Runtime.InteropServices;
 
 namespace AntigrainCPP
 {
-    public class FontEngine
+    public class Font
     {
         private const string LibAgg = "AntigrainCPP";
 
-        internal FontEngine(IntPtr engine){
-            this.engine = engine;
+        public static Font LoadFromFile(string fontname){
+            IntPtr face = FreetypeInfo_LoadFromFile(Font.library, fontname);
+            return new Font(face, fontname);
         }
 
-        public bool LoadFont(string fontname){
-            return FontEngine_LoadFont(this.engine, fontname);
+        internal Font(IntPtr face, string fontname){
+            this.face = face;
+            this.fontname = fontname;
         }
 
-        public bool IsCurrentFaceBold {
+        public bool IsBold {
             get {
-                return FontEngine_IsCurrentFaceBold(this.engine);
+                return FreetypeInfo_IsFaceBold(this.face);
             }
         }
 
-        public bool IsCurrentFaceItalic {
+        public bool IsItalic {
             get {
-                return FontEngine_IsCurrentFaceItalic(this.engine);
+                return FreetypeInfo_IsFaceItalic(this.face);
             }
         }
 
         public uint GetCharIndex(ulong charcode){
-            return FontEngine_GetCharIndex(this.engine, charcode);
+            return FreetypeInfo_GetCharIndex(this.face, charcode);
         }
 
         [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
-        [return: MarshalAs(UnmanagedType.U1)]
-        private static extern bool FontEngine_LoadFont(IntPtr fe,
+        private static extern IntPtr FreetypeInfo_CreateLibrary();
+
+        [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
+        private static extern IntPtr FreetypeInfo_LoadFromFile(
+            IntPtr library,
             [MarshalAs(UnmanagedType.LPStr)] string font_name
         );
 
         [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
         [return: MarshalAs(UnmanagedType.U1)]
-        private static extern bool FontEngine_IsCurrentFaceBold(IntPtr fe);
+        private static extern bool FreetypeInfo_IsFaceBold(IntPtr face);
 
         [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
         [return: MarshalAs(UnmanagedType.U1)]
-        private static extern bool FontEngine_IsCurrentFaceItalic(IntPtr fe);
+        private static extern bool FreetypeInfo_IsFaceItalic(IntPtr face);
 
         [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
-        private static extern uint FontEngine_GetCharIndex(IntPtr fe, ulong charcode);
+        private static extern uint FreetypeInfo_GetCharIndex(IntPtr face, ulong charcode);
 
-        private IntPtr engine;
+        private IntPtr face;
+        internal string fontname;
+
+        private static IntPtr library = FreetypeInfo_CreateLibrary();
     }
 }

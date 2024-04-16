@@ -1,9 +1,9 @@
-#include "freetype_font.h"
+#include "font_drawer.h"
 
 
 namespace AntigrainCPP {
 
-    FontEngine::FontEngine() :
+    FontDrawer::FontDrawer() :
         m_feng(),
         m_fman(m_feng),
         m_curves(m_fman.path_adaptor()),
@@ -13,23 +13,23 @@ namespace AntigrainCPP {
         m_contour.auto_detect_orientation(false);
     }
 
-    bool FontEngine::load_font(const char* font_name){
+    bool FontDrawer::load_font(const char* font_name){
         return m_feng.load_font(font_name, 0, agg::glyph_ren_agg_gray8);
     }
 
-    bool FontEngine_LoadFont(FontEngine* fe, const char* font_name){
+    bool FontDrawer_LoadFont(FontDrawer* fe, const char* font_name){
         return fe->load_font(font_name);
     }
 
-    bool FontEngine_IsCurrentFaceBold(FontEngine* fe){
+    bool FontDrawer_IsCurrentFaceBold(FontDrawer* fe){
         return fe->m_feng.is_cur_face_bold();
     }
 
-    bool FontEngine_IsCurrentFaceItalic(FontEngine* fe){
+    bool FontDrawer_IsCurrentFaceItalic(FontDrawer* fe){
         return fe->m_feng.is_cur_face_italic();
     }
 
-    unsigned FontEngine_GetCharIndex(FontEngine* fe,
+    unsigned FontDrawer_GetCharIndex(FontDrawer* fe,
         unsigned long charcode
     ){
         return fe->m_feng.get_char_index(charcode);
