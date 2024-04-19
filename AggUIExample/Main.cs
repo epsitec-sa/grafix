@@ -18,10 +18,12 @@ namespace Example {
             bool isItalic = font.IsItalic;
             double fontSize = 12;
             Console.WriteLine($"bold: {isBold} italic: {isItalic} font size: {fontSize}");
+            double xMin, xMax, yMin, yMax;
             foreach (char testChar in "abcdœéß!+-¿ÆæÊ"){
                 uint code = font.GetCharIndex((ulong)testChar);
                 double advance = font.GetGlyphAdvance(code, fontSize);
-                Console.WriteLine($"'{testChar}': code {code}, advance {advance}");
+                font.GetGlyphBBox(code, fontSize, out xMin, out xMax, out yMin, out yMax);
+                Console.WriteLine($"'{testChar}': code {code}, advance {advance} bbox x[{xMin}, {xMax}] y[{yMin}, {yMax}]");
             }
             this.FontDrawer.SetFont(font);
         }

@@ -38,6 +38,18 @@ namespace AntigrainCPP
             return FreetypeInfo_GetCharIndex(this.face, charcode);
         }
 
+        public void GetGlyphBBox(uint glyph, double size,
+            out double xMin,
+            out double xMax,
+            out double yMin,
+            out double yMax
+        ){
+            FreetypeInfo_GetGlyphBBox(this.face, glyph, size, 
+                out xMin, out xMax, 
+                out yMin, out yMax
+            );
+        }
+
         [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
         private static extern IntPtr FreetypeInfo_CreateLibrary();
 
@@ -60,6 +72,16 @@ namespace AntigrainCPP
 
         [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
         private static extern double FreetypeInfo_GetGlyphAdvance(IntPtr face, uint glyph_index, double size);
+
+        [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
+        private static extern void FreetypeInfo_GetGlyphBBox(IntPtr face,
+            uint glyph_index,
+            double size,
+            out double xMin,
+            out double xMax,
+            out double yMin,
+            out double yMax
+        );
 
         private IntPtr face;
         internal string fontname;

@@ -1,4 +1,6 @@
 #include <ft2build.h>
+#include <freetype/ftglyph.h>
+
 #include "font.h"
 #include "freetype_utils.h"
 
@@ -34,10 +36,34 @@ namespace AntigrainCPP {
     }
 
     double FreetypeInfo_GetGlyphAdvance(FT_Face face, unsigned glyph_index, double size){
+        LoadGlyph(face, glyph_index, size);
+        return F26Dot6ToDouble(face->glyph->metrics.horiAdvance);
+    }
+
+    void LoadGlyph(FT_Face face, unsigned glyph_index, double size){
         FT_F26Dot6 height = doubleToF26Dot6(size);
         int err = FT_Set_Char_Size(face, 0, height, 0, 0);
         err = FT_Load_Glyph(face, glyph_index, FT_LOAD_NO_BITMAP);
-        return F26Dot6ToDouble(face->glyph->metrics.horiAdvance);
+    }
+
+    void FreetypeInfo_GetGlyphBBox(FT_Face face,
+        unsigned glyph_index,
+        double size,
+        double &xMin,
+        double &xMax,
+        double &yMin,
+        double &yMax
+    ){
+        LoadGlyph(face, glyph_index, size);
+        FT_BBox bbox;
+        FT_Glyph glyph;
+        FT_Get_Glyph(face->glyph, &glyph);
+        FT_Glyph_Get_CBox(glyph, FT_GLYPH_BBOX_GRIDFIT, &bbox);
+        FT_Done_Glyph(glyph);
+        xMin = F26Dot6ToDouble(bbox.xMin);
+        xMax = F26Dot6ToDouble(bbox.xMax);
+        yMin = F26Dot6ToDouble(bbox.yMin);
+        yMax = F26Dot6ToDouble(bbox.yMax);
     }
 
 }

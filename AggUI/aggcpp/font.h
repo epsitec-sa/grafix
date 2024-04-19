@@ -28,4 +28,17 @@ namespace AntigrainCPP {
         unsigned glyph_index,
         double size
     );
+
+    extern "C" DECLSPEC void FreetypeInfo_GetGlyphBBox(FT_Face face,
+        unsigned glyph_index,
+        double size,
+        double &xMin,
+        double &xMax,
+        double &yMin,
+        double &yMax
+    );
+
+    // INTERNAL FUNCTIONS
+
+    void LoadGlyph(FT_Face face, unsigned glyph_index, double size);
 }
