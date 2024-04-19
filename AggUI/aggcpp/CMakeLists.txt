@@ -120,7 +120,7 @@ add_library(AntigrainCPP SHARED
     graphic_context.cpp
     path.cpp
     font.cpp
-    font_drawer.cpp
+    font_manager.cpp
     freetype_utils.cpp
 )
 set_target_properties(AntigrainCPP PROPERTIES

@@ -5,12 +5,12 @@
 #include "pixelfmt.h"
 
 #include "renderer.h"
-#include "font_drawer.h"
+#include "font_manager.h"
 
 namespace AntigrainCPP {
     class GraphicContext {
         public:
-            GraphicContext(agg::rendering_buffer& buffer, FontDrawer& font_engine);
+            GraphicContext(agg::rendering_buffer& buffer, FontManager& font_manager);
 
             void set_color(int r, int g, int b);
             void draw_ellipse(double x, double y, double rx, double ry);
@@ -25,7 +25,7 @@ namespace AntigrainCPP {
             RendererImage renderer_image;
             RendererGradient renderer_gradient;
             RendererBin renderer_bin;
-            FontDrawer& font_engine;
+            FontManager& font_manager;
     };
 
     extern "C" DECLSPEC void GraphicContext_SetColor(GraphicContext* gctx, int r, int g, int b);

@@ -4,24 +4,24 @@ using System.Runtime.InteropServices;
 
 namespace AntigrainCPP
 {
-    public class FontDrawer
+    public class FontManager
     {
         private const string LibAgg = "AntigrainCPP";
 
-        internal FontDrawer(IntPtr drawer){
-            this.drawer = drawer;
+        internal FontManager(IntPtr manager){
+            this.manager = manager;
         }
 
         public bool SetFont(Font font){
-            return FontDrawer_LoadFont(this.drawer, font.fontname);
+            return FontManager_LoadFont(this.manager, font.fontname);
         }
 
         [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
         [return: MarshalAs(UnmanagedType.U1)]
-        private static extern bool FontDrawer_LoadFont(IntPtr fe,
+        private static extern bool FontManager_LoadFont(IntPtr fm,
             [MarshalAs(UnmanagedType.LPStr)] string font_name
         );
 
-        private IntPtr drawer;
+        private IntPtr manager;
     }
 }

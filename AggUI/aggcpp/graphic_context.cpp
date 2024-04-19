@@ -7,7 +7,7 @@
 #include "agg_ellipse.h"
 
 namespace AntigrainCPP {
-    GraphicContext::GraphicContext(agg::rendering_buffer& buffer, FontDrawer& fe) :
+    GraphicContext::GraphicContext(agg::rendering_buffer& buffer, FontManager& fm) :
         pixf(buffer),
         pixf_pre(buffer),
         renderer_solid(pixf),
@@ -15,7 +15,7 @@ namespace AntigrainCPP {
         renderer_image(pixf_pre),
         renderer_gradient(pixf),
         renderer_bin(pixf),
-        font_engine(fe)
+        font_manager(fm)
     {
         std::cout << "[C++] create GraphicContext" << std::endl;
         /* renderer_solid.reset(new AggRendererSolid(pixf)); */
@@ -43,7 +43,7 @@ namespace AntigrainCPP {
         char character,
         double x, double y
     ){
-        const agg::glyph_cache* glyph = font_engine.m_fman.glyph(character);
+        const agg::glyph_cache* glyph = font_manager.m_fman.glyph(character);
         if(glyph)
         {
             /* if(m_kerning.status()) */
@@ -59,22 +59,22 @@ namespace AntigrainCPP {
             /*     y = y0; */
             /* } */
 
-            font_engine.m_fman.init_embedded_adaptors(glyph, x, y);
+            font_manager.m_fman.init_embedded_adaptors(glyph, x, y);
 
             switch(glyph->data_type)
             {
             default: break;
             case agg::glyph_data_mono:
                 renderer_bin.ren_bin.color(agg::srgba8(0, 0, 0));
-                agg::render_scanlines(font_engine.m_fman.mono_adaptor(), 
-                                      font_engine.m_fman.mono_scanline(), 
+                agg::render_scanlines(font_manager.m_fman.mono_adaptor(), 
+                                      font_manager.m_fman.mono_scanline(), 
                                       renderer_bin.ren_bin);
                 break;
 
             case agg::glyph_data_gray8:
                 renderer_solid.ren_solid.color(agg::srgba8(0, 0, 0));
-                agg::render_scanlines(font_engine.m_fman.gray8_adaptor(), 
-                                      font_engine.m_fman.gray8_scanline(), 
+                agg::render_scanlines(font_manager.m_fman.gray8_adaptor(), 
+                                      font_manager.m_fman.gray8_scanline(), 
                                       renderer_solid.ren_solid);
                 break;
 
@@ -91,7 +91,7 @@ namespace AntigrainCPP {
                 /* } */
                 /* else */
                 /* { */
-                    ras.add_path(font_engine.m_contour);
+                    ras.add_path(font_manager.m_contour);
                 /* } */
                 renderer_solid.ren_solid.color(agg::srgba8(0, 0, 0));
                 agg::render_scanlines(ras, sl, renderer_solid.ren_solid);

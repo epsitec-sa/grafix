@@ -58,10 +58,7 @@ namespace AggUI {
         private static extern int Application_Run(IntPtr app);
 
         [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
-        private static extern IntPtr Application_GetRendererSolid(IntPtr app);
-
-        [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
-        private static extern IntPtr Application_GetFontDrawer(IntPtr app);
+        private static extern IntPtr Application_GetFontManager(IntPtr app);
 
         public AggWindow(bool flip_y)
         {
@@ -80,8 +77,8 @@ namespace AggUI {
                 onMouseButtonUpDelegate,
                 onKeyDelegate
             );
-            IntPtr fd = Application_GetFontDrawer(this.app);
-            this.FontDrawer = new AntigrainCPP.FontDrawer(fd);
+            IntPtr fd = Application_GetFontManager(this.app);
+            this.FontManager = new AntigrainCPP.FontManager(fd);
         }
 
         public void SetCaption(string text)
@@ -119,7 +116,7 @@ namespace AggUI {
 
         public virtual void OnKey(int x, int y, uint key, uint flags){}
 
-        public AntigrainCPP.FontDrawer FontDrawer;
+        public AntigrainCPP.FontManager FontManager;
 
         private IntPtr app;
         private OnDrawT onDrawDelegate;

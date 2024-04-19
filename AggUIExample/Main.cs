@@ -25,7 +25,7 @@ namespace Example {
                 font.GetGlyphBBox(code, fontSize, out xMin, out xMax, out yMin, out yMax);
                 Console.WriteLine($"'{testChar}': code {code}, advance {advance} bbox x[{xMin}, {xMax}] y[{yMin}, {yMax}]");
             }
-            this.FontDrawer.SetFont(font);
+            this.FontManager.SetFont(font);
         }
 
         public override void OnDraw(GraphicContext gctx)

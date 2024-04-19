@@ -3,7 +3,7 @@
 #include "declspec.h"
 #include "pixelfmt.h"
 #include "graphic_context.h"
-#include "font_drawer.h"
+#include "font_manager.h"
 
 #include "platform/agg_platform_support.h"
 
@@ -28,7 +28,7 @@ namespace AntigrainCPP {
                 void (*on_key)(int x, int y, unsigned key, unsigned flags)
             );
 
-            FontDrawer font_drawer;
+            FontManager font_manager;
         private:
             // user callbacks
             void (*on_resize_callback)(int sx, int sy);
@@ -70,5 +70,5 @@ namespace AntigrainCPP {
 
     extern "C" DECLSPEC void Application_ForceRedraw(Application* ps);
 
-    extern "C" DECLSPEC FontDrawer* Application_GetFontDrawer(Application* ps);
+    extern "C" DECLSPEC FontManager* Application_GetFontManager(Application* ps);
 }

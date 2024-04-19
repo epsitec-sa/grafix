@@ -30,7 +30,7 @@ namespace AntigrainCPP {
         on_mouse_button_down_callback(on_mouse_button_down),
         on_mouse_button_up_callback(on_mouse_button_up),
         on_key_callback(on_key),
-        font_drawer()
+        font_manager()
     {
     }
 
@@ -39,7 +39,7 @@ namespace AntigrainCPP {
     void Application::on_draw(){
         std::cout << "[C++] Application on_draw" << std::endl;
         // initialise drawing context
-        GraphicContext context(rbuf_window(), font_drawer);
+        GraphicContext context(rbuf_window(), font_manager);
 
         // call user-defined drawing
         if (on_draw_callback){
@@ -122,8 +122,8 @@ namespace AntigrainCPP {
         app->force_redraw();
     }
 
-    extern "C" FontDrawer* Application_GetFontDrawer(Application* app){
-        return &(app->font_drawer);
+    extern "C" FontManager* Application_GetFontManager(Application* app){
+        return &(app->font_manager);
     }
 }
 
