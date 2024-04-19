@@ -50,6 +50,11 @@ namespace Example {
                 gctx.DrawEllipse(x, y, s, s);
             }
             gctx.RendererSmooth.AddPath(path);
+            double xp = 0;
+            foreach (char c in "Hello, world !"){
+                gctx.DrawChar(c, xp, 50);
+                xp += 20;
+            }
         }
 
         public override void OnKey(int x, int y, uint key, uint flags){

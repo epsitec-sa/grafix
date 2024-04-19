@@ -18,6 +18,12 @@ namespace AggUI {
         );
 
         [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
+        private static extern void GraphicContext_DrawChar(IntPtr gctx,
+            char character,
+            double x, double y
+        );
+
+        [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
         private static extern IntPtr GraphicContext_GetSolidRenderer(IntPtr gctx);
 
         [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
@@ -49,6 +55,10 @@ namespace AggUI {
         public void DrawEllipse(double x, double y, double rx, double ry)
         {
             GraphicContext_DrawEllipse(this.gctx, x, y, rx, ry);
+        }
+
+        public void DrawChar(char character, double x, double y){
+            GraphicContext_DrawChar(this.gctx, character, x, y);
         }
 
         /* public static void Paint( */

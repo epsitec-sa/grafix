@@ -34,6 +34,11 @@ namespace AntigrainCPP {
                                             double x, double y,
                                             double rx, double ry);
 
+    extern "C" DECLSPEC void GraphicContext_DrawChar(GraphicContext* gctx,
+        char character,
+        double x, double y
+    );
+
     extern "C" DECLSPEC RendererSolid* GraphicContext_GetSolidRenderer(GraphicContext* gctx);
 
     extern "C" DECLSPEC RendererSmooth* GraphicContext_GetSmoothRenderer(GraphicContext* gctx);
