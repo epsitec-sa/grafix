@@ -1,5 +1,6 @@
 #include <ft2build.h>
 #include "font.h"
+#include "freetype_utils.h"
 
 
 namespace AntigrainCPP {
@@ -31,4 +32,12 @@ namespace AntigrainCPP {
     ){
         return FT_Get_Char_Index(face, charcode);
     }
+
+    double FreetypeInfo_GetGlyphAdvance(FT_Face face, unsigned glyph_index, double size){
+        FT_F26Dot6 height = doubleToF26Dot6(size);
+        int err = FT_Set_Char_Size(face, 0, height, 0, 0);
+        err = FT_Load_Glyph(face, glyph_index, FT_LOAD_NO_BITMAP);
+        return F26Dot6ToDouble(face->glyph->metrics.horiAdvance);
+    }
+
 }

@@ -30,6 +30,10 @@ namespace AntigrainCPP
             }
         }
 
+        public double GetGlyphAdvance(uint glyph, double size){
+            return FreetypeInfo_GetGlyphAdvance(this.face, glyph, size);
+        }
+
         public uint GetCharIndex(ulong charcode){
             return FreetypeInfo_GetCharIndex(this.face, charcode);
         }
@@ -53,6 +57,9 @@ namespace AntigrainCPP
 
         [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
         private static extern uint FreetypeInfo_GetCharIndex(IntPtr face, ulong charcode);
+
+        [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
+        private static extern double FreetypeInfo_GetGlyphAdvance(IntPtr face, uint glyph_index, double size);
 
         private IntPtr face;
         internal string fontname;

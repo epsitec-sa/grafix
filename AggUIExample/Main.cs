@@ -16,8 +16,13 @@ namespace Example {
             Font font = Font.LoadFromFile("Impacted.ttf");
             bool isBold = font.IsBold;
             bool isItalic = font.IsItalic;
-            uint code = font.GetCharIndex((ulong)'A');
-            Console.WriteLine($"bold: {isBold} italic: {isItalic} | code for 'A': {code}");
+            double fontSize = 12;
+            Console.WriteLine($"bold: {isBold} italic: {isItalic} font size: {fontSize}");
+            foreach (char testChar in "abcdœéß!+-¿ÆæÊ"){
+                uint code = font.GetCharIndex((ulong)testChar);
+                double advance = font.GetGlyphAdvance(code, fontSize);
+                Console.WriteLine($"'{testChar}': code {code}, advance {advance}");
+            }
             this.FontDrawer.SetFont(font);
         }
 

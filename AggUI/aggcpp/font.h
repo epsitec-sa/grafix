@@ -23,4 +23,9 @@ namespace AntigrainCPP {
     extern "C" DECLSPEC unsigned FreetypeInfo_GetCharIndex(FT_Face face,
         unsigned long charcode
     );
+
+    extern "C" DECLSPEC double FreetypeInfo_GetGlyphAdvance(FT_Face face, 
+        unsigned glyph_index,
+        double size
+    );
 }

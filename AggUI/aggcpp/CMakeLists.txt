@@ -121,6 +121,7 @@ add_library(AntigrainCPP SHARED
     path.cpp
     font.cpp
     font_drawer.cpp
+    freetype_utils.cpp
 )
 set_target_properties(AntigrainCPP PROPERTIES
                       POSITION_INDEPENDENT_CODE ON)
