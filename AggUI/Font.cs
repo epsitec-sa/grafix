@@ -50,6 +50,10 @@ namespace AntigrainCPP
             );
         }
 
+        public double GetKerning(uint left_glyph, uint right_glyph, double size){
+            return FreetypeInfo_GetKerning(this.face, left_glyph, right_glyph, size);
+        }
+
         [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
         private static extern IntPtr FreetypeInfo_CreateLibrary();
 
@@ -81,6 +85,13 @@ namespace AntigrainCPP
             out double xMax,
             out double yMin,
             out double yMax
+        );
+
+        [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
+        private static extern double FreetypeInfo_GetKerning(IntPtr face, 
+            uint left_glyph,
+            uint right_glyph,
+            double size
         );
 
         private IntPtr face;

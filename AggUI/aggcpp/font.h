@@ -38,7 +38,15 @@ namespace AntigrainCPP {
         double &yMax
     );
 
+    extern "C" DECLSPEC double FreetypeInfo_GetKerning(FT_Face face, 
+        unsigned left_glyph,
+        unsigned right_glyph,
+        double size
+    );
+
     // INTERNAL FUNCTIONS
 
     void LoadGlyph(FT_Face face, unsigned glyph_index, double size);
+
+    void SetFaceSize(FT_Face face, double size);
 }

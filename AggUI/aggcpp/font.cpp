@@ -40,10 +40,25 @@ namespace AntigrainCPP {
         return F26Dot6ToDouble(face->glyph->metrics.horiAdvance);
     }
 
+    double FreetypeInfo_GetKerning(FT_Face face, 
+        unsigned left_glyph,
+        unsigned right_glyph,
+        double size
+    ){
+        SetFaceSize(face, size);
+        FT_Vector kerning;
+        FT_Get_Kerning(face, left_glyph, right_glyph, FT_KERNING_DEFAULT, &kerning);
+        return F26Dot6ToDouble(kerning.x);
+    }
+
     void LoadGlyph(FT_Face face, unsigned glyph_index, double size){
+        SetFaceSize(face, size);
+        FT_Load_Glyph(face, glyph_index, FT_LOAD_NO_BITMAP);
+    }
+
+    void SetFaceSize(FT_Face face, double size){
         FT_F26Dot6 height = doubleToF26Dot6(size);
-        int err = FT_Set_Char_Size(face, 0, height, 0, 0);
-        err = FT_Load_Glyph(face, glyph_index, FT_LOAD_NO_BITMAP);
+        FT_Set_Char_Size(face, 0, height, 0, 0);
     }
 
     void FreetypeInfo_GetGlyphBBox(FT_Face face,
@@ -65,5 +80,4 @@ namespace AntigrainCPP {
         yMin = F26Dot6ToDouble(bbox.yMin);
         yMax = F26Dot6ToDouble(bbox.yMax);
     }
-
 }
