@@ -38,16 +38,31 @@ namespace AntigrainCPP {
         agg::render_scanlines(ras, sl, renderer_solid.ren_solid);
     }
 
+    void GraphicContext::draw_glyph(
+        unsigned glyph,
+        double x, double y
+    ){
+        if(!font_manager.m_feng.prepare_glyph_from_index(glyph))
+        {
+            return;
+        }
+        internal_draw_glyph(x, y);
+    }
+
     void GraphicContext::draw_char(
         char character,
         double x, double y
     ){
-        typedef agg::serialized_scanlines_adaptor_aa<agg::int8u> adaptor_type;
-
         if(!font_manager.m_feng.prepare_glyph(character))
         {
             return;
         }
+        internal_draw_glyph(x, y);
+    }
+
+    void GraphicContext::internal_draw_glyph(double x, double y) {
+
+        typedef agg::serialized_scanlines_adaptor_aa<agg::int8u> adaptor_type;
 
         agg::int8u* glyph_data = (agg::int8u*)std::malloc(font_manager.m_feng.data_size());
         font_manager.m_feng.write_glyph_to(glyph_data);
@@ -79,6 +94,13 @@ namespace AntigrainCPP {
         double x, double y
     ){
         gctx->draw_char(character, x, y);
+    }
+
+    void GraphicContext_DrawGlyph(GraphicContext* gctx,
+        unsigned glyph,
+        double x, double y
+    ){
+        gctx->draw_glyph(glyph, x, y);
     }
 
     RendererSolid* GraphicContext_GetSolidRenderer(GraphicContext* gctx){

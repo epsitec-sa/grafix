@@ -15,10 +15,12 @@ namespace AntigrainCPP {
             void set_color(int r, int g, int b);
             void draw_ellipse(double x, double y, double rx, double ry);
             void draw_char(char character, double x, double y);
+            void draw_glyph(unsigned glyph, double x, double y);
 
         private:
             pixfmt pixf;
             pixfmt_pre pixf_pre;
+
         public:
             RendererSolid renderer_solid;
             RendererSmooth renderer_smooth;
@@ -26,6 +28,9 @@ namespace AntigrainCPP {
             RendererGradient renderer_gradient;
             RendererBin renderer_bin;
             FontManager& font_manager;
+
+        private:
+            void internal_draw_glyph(double x, double y);
     };
 
     extern "C" DECLSPEC void GraphicContext_SetColor(GraphicContext* gctx, int r, int g, int b);
