@@ -17,7 +17,11 @@ namespace Example {
             bool isBold = font.IsBold;
             bool isItalic = font.IsItalic;
             double fontSize = 12;
+            double ascender = font.GetAscender();
+            double descender = font.GetDescender();
+            double height = font.GetHeight();
             Console.WriteLine($"bold: {isBold} italic: {isItalic} font size: {fontSize}");
+            Console.WriteLine($"ascender {ascender} descender {descender} height {height}");
             double xMin, xMax, yMin, yMax;
             foreach (char testChar in "abcdœéß!+-¿ÆæÊ"){
                 uint code = font.GetCharIndex((ulong)testChar);

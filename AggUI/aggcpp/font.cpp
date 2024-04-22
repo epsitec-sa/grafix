@@ -18,6 +18,7 @@ namespace AntigrainCPP {
     ){
         FT_Face face;
         FT_New_Face(library, font_name, 0, &face); 
+        SetFaceSize(face, 1.0);
         return face;
     }
 
@@ -81,13 +82,18 @@ namespace AntigrainCPP {
         yMax = F26Dot6ToDouble(bbox.yMax);
     }
 
-    double FreetypeInfo_GetAscender(FT_Face face, double size)
+    double FreetypeInfo_GetAscender(FT_Face face)
     {
-        return face->ascender * size / face->height;
+        return F26Dot6ToDouble(face->size->metrics.ascender);
     }
 
-    double FreetypeInfo_GetDescender(FT_Face face, double size)
+    double FreetypeInfo_GetDescender(FT_Face face)
     {
-        return face->descender * size / face->height;
+        return F26Dot6ToDouble(face->size->metrics.descender);
+    }
+
+    double FreetypeInfo_GetHeight(FT_Face face)
+    {
+        return F26Dot6ToDouble(face->size->metrics.height);
     }
 }
