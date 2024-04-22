@@ -47,6 +47,9 @@ namespace AggUI {
         [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
         private static extern IntPtr GraphicContext_GetGradientRenderer(IntPtr gctx);
 
+        [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
+        private static extern IntPtr GraphicContext_GetFontManager(IntPtr gctx);
+
         internal GraphicContext(IntPtr gctx){
             this.gctx = gctx;
             IntPtr solid_ren = GraphicContext_GetSolidRenderer(gctx);
@@ -57,6 +60,8 @@ namespace AggUI {
             this.RendererImage = new AntigrainCPP.Renderer.Image(image_ren);
             IntPtr gradient_ren = GraphicContext_GetGradientRenderer(gctx);
             this.RendererGradient = new AntigrainCPP.Renderer.Gradient(gradient_ren);
+            IntPtr font_manager = GraphicContext_GetFontManager(gctx);
+            this.FontManager = new AntigrainCPP.FontManager(font_manager);
         }
 
         public void SetColor(double r, double g, double b, double a)
@@ -183,6 +188,7 @@ namespace AggUI {
         public AntigrainCPP.Renderer.Smooth RendererSmooth;
         public AntigrainCPP.Renderer.Image RendererImage;
         public AntigrainCPP.Renderer.Gradient RendererGradient;
+        public AntigrainCPP.FontManager FontManager;
 
         private IntPtr gctx;
     }

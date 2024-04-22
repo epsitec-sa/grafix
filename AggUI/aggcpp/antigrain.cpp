@@ -3,7 +3,7 @@
 #include "screeninfo/screeninfo.h"
 
 namespace ScreenInfo {
-    extern "C" DECLSPEC void GetScreenResolution(int &width, int &height){
+    void GetScreenResolution(int &width, int &height){
         std::cout << "[C++] GetScreenResolution" << std::endl;
         getScreenResolution(width, height);
     }
@@ -80,7 +80,7 @@ namespace AntigrainCPP {
 
     // ************************************************************************ 
 
-    extern "C" Application* NewApplication(
+    Application* NewApplication(
         bool flip_y,
         void (*on_draw)(GraphicContext* gctx),
         void (*on_resize)(int sx, int sy),
@@ -101,28 +101,28 @@ namespace AntigrainCPP {
         );
     }
 
-    extern "C" void Application_Caption(Application* app, const char* text){
+    void Application_Caption(Application* app, const char* text){
         std::cout << "[C++] Application Caption" << std::endl;
         app->caption(text);
     }
 
-    extern "C" bool Application_Init(Application* app, 
+    bool Application_Init(Application* app, 
                                          unsigned width, unsigned height,
                                          agg::window_flag_e flags){
         std::cout << "[C++] Application Init" << std::endl;
         return app->init(width, height, flags);
     }
 
-    extern "C" int Application_Run(Application* app){
+    int Application_Run(Application* app){
         std::cout << "[C++] Application Run" << std::endl;
         return app->run();
     }
 
-    extern "C" void Application_ForceRedraw(Application* app){
+    void Application_ForceRedraw(Application* app){
         app->force_redraw();
     }
 
-    extern "C" FontManager* Application_GetFontManager(Application* app){
+    FontManager* Application_GetFontManager(Application* app){
         return &(app->font_manager);
     }
 }

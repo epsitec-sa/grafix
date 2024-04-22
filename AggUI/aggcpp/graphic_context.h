@@ -57,4 +57,6 @@ namespace AntigrainCPP {
     extern "C" DECLSPEC RendererImage* GraphicContext_GetImageRenderer(GraphicContext* gctx);
 
     extern "C" DECLSPEC RendererGradient* GraphicContext_GetGradientRenderer(GraphicContext* gctx);
+
+    extern "C" DECLSPEC FontManager* GraphicContext_GetFontManager(GraphicContext* gctx);
 }

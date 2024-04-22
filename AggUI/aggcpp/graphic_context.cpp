@@ -148,4 +148,8 @@ namespace AntigrainCPP {
     RendererGradient* GraphicContext_GetGradientRenderer(GraphicContext* gctx){
         return &(gctx->renderer_gradient);
     }
+
+    FontManager* GraphicContext_GetFontManager(GraphicContext* gctx){
+        return &(gctx->font_manager);
+    }
 }
