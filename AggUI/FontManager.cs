@@ -12,6 +12,10 @@ namespace AntigrainCPP
             this.manager = manager;
         }
 
+        public bool SetFont(string fontname){
+            return FontManager_LoadFont(this.manager, fontname);
+        }
+
         public bool SetFont(Font font){
             return FontManager_LoadFont(this.manager, font.fontname);
         }
