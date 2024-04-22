@@ -82,18 +82,21 @@ namespace AntigrainCPP {
         yMax = F26Dot6ToDouble(bbox.yMax);
     }
 
-    double FreetypeInfo_GetAscender(FT_Face face)
+    double FreetypeInfo_GetAscender(FT_Face face, double size)
     {
+        SetFaceSize(face, size);
         return F26Dot6ToDouble(face->size->metrics.ascender);
     }
 
-    double FreetypeInfo_GetDescender(FT_Face face)
+    double FreetypeInfo_GetDescender(FT_Face face, double size)
     {
+        SetFaceSize(face, size);
         return F26Dot6ToDouble(face->size->metrics.descender);
     }
 
-    double FreetypeInfo_GetHeight(FT_Face face)
+    double FreetypeInfo_GetHeight(FT_Face face, double size)
     {
+        SetFaceSize(face, size);
         return F26Dot6ToDouble(face->size->metrics.height);
     }
 }

@@ -17,9 +17,9 @@ namespace Example {
             bool isBold = font.IsBold;
             bool isItalic = font.IsItalic;
             double fontSize = 12;
-            double ascender = font.GetAscender();
-            double descender = font.GetDescender();
-            double height = font.GetHeight();
+            double ascender = font.GetAscender(fontSize);
+            double descender = font.GetDescender(fontSize);
+            double height = font.GetHeight(fontSize);
             Console.WriteLine($"bold: {isBold} italic: {isItalic} font size: {fontSize}");
             Console.WriteLine($"ascender {ascender} descender {descender} height {height}");
             double xMin, xMax, yMin, yMax;

@@ -44,11 +44,11 @@ namespace AntigrainCPP {
         double size
     );
 
-    extern "C" DECLSPEC double FreetypeInfo_GetAscender(FT_Face face);
+    extern "C" DECLSPEC double FreetypeInfo_GetAscender(FT_Face face, double size);
 
-    extern "C" DECLSPEC double FreetypeInfo_GetDescender(FT_Face face);
+    extern "C" DECLSPEC double FreetypeInfo_GetDescender(FT_Face face, double size);
 
-    extern "C" DECLSPEC double FreetypeInfo_GetHeight(FT_Face face);
+    extern "C" DECLSPEC double FreetypeInfo_GetHeight(FT_Face face, double size);
 
     // INTERNAL FUNCTIONS
 
