@@ -18,19 +18,19 @@ namespace AggUI {
         );
 
         [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
-        private static extern void GraphicContext_DrawChar(IntPtr gctx,
+        private static extern double GraphicContext_DrawChar(IntPtr gctx,
             char character,
             double x, double y
         );
 
         [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
-        private static extern void GraphicContext_DrawText(IntPtr gctx,
+        private static extern double GraphicContext_DrawText(IntPtr gctx,
             [MarshalAs(UnmanagedType.LPStr)] string text,
             double x, double y
         );
 
         [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
-        private static extern void GraphicContext_DrawGlyph(IntPtr gctx,
+        private static extern double GraphicContext_DrawGlyph(IntPtr gctx,
             uint glyph,
             double x, double y
         );
@@ -74,16 +74,16 @@ namespace AggUI {
             GraphicContext_DrawEllipse(this.gctx, x, y, rx, ry);
         }
 
-        public void DrawChar(char character, double x, double y){
-            GraphicContext_DrawChar(this.gctx, character, x, y);
+        public double DrawChar(char character, double x, double y){
+            return GraphicContext_DrawChar(this.gctx, character, x, y);
         }
 
-        public void DrawText(string text, double x, double y){
-            GraphicContext_DrawText(this.gctx, text, x, y);
+        public double DrawText(string text, double x, double y){
+            return GraphicContext_DrawText(this.gctx, text, x, y);
         }
 
-        public void DrawGlyph(uint glyph, double x, double y){
-            GraphicContext_DrawGlyph(this.gctx, glyph, x, y);
+        public double DrawGlyph(uint glyph, double x, double y){
+            return GraphicContext_DrawGlyph(this.gctx, glyph, x, y);
         }
 
         /* public static void Paint( */

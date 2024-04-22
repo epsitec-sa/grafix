@@ -38,29 +38,29 @@ namespace AntigrainCPP {
         agg::render_scanlines(ras, sl, renderer_solid.ren_solid);
     }
 
-    void GraphicContext::draw_glyph(
+    double GraphicContext::draw_glyph(
         unsigned glyph,
         double x, double y
     ){
         if(!font_manager.m_feng.prepare_glyph_from_index(glyph))
         {
-            return;
+            return 0;
         }
-        internal_draw_glyph(x, y);
+        return internal_draw_glyph(x, y);
     }
 
-    void GraphicContext::draw_char(
+    double GraphicContext::draw_char(
         char character,
         double x, double y
     ){
         if(!font_manager.m_feng.prepare_glyph(character))
         {
-            return;
+            return 0;
         }
-        internal_draw_glyph(x, y);
+        return internal_draw_glyph(x, y);
     }
 
-    void GraphicContext::draw_text(
+    double GraphicContext::draw_text(
         const char* text,
         double x, double y
     ){
@@ -82,9 +82,10 @@ namespace AntigrainCPP {
             yp += font_manager.m_feng.advance_y();
             currChar++;
         }
+        return xp - x;
     }
 
-    void GraphicContext::internal_draw_glyph(double x, double y) {
+    double GraphicContext::internal_draw_glyph(double x, double y) {
 
         typedef agg::serialized_scanlines_adaptor_aa<agg::int8u> adaptor_type;
 
@@ -97,6 +98,7 @@ namespace AntigrainCPP {
 
         agg::render_scanlines(adaptor, sl, renderer_solid.ren_solid);
         std::free(glyph_data);
+        return font_manager.m_feng.advance_x();
     }
 
     void GraphicContext_SetColor(GraphicContext* gctx,
@@ -112,25 +114,25 @@ namespace AntigrainCPP {
         gctx->draw_ellipse(x, y, rx, ry);
     }
 
-    void GraphicContext_DrawChar(GraphicContext* gctx,
+    double GraphicContext_DrawChar(GraphicContext* gctx,
         char character,
         double x, double y
     ){
-        gctx->draw_char(character, x, y);
+        return gctx->draw_char(character, x, y);
     }
 
-    void GraphicContext_DrawText(GraphicContext* gctx,
+    double GraphicContext_DrawText(GraphicContext* gctx,
         const char* text,
         double x, double y
     ){
-        gctx->draw_text(text, x, y);
+        return gctx->draw_text(text, x, y);
     }
 
-    void GraphicContext_DrawGlyph(GraphicContext* gctx,
+    double GraphicContext_DrawGlyph(GraphicContext* gctx,
         unsigned glyph,
         double x, double y
     ){
-        gctx->draw_glyph(glyph, x, y);
+        return gctx->draw_glyph(glyph, x, y);
     }
 
     RendererSolid* GraphicContext_GetSolidRenderer(GraphicContext* gctx){

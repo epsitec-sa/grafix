@@ -14,9 +14,9 @@ namespace AntigrainCPP {
 
             void set_color(double r, double g, double b, double a);
             void draw_ellipse(double x, double y, double rx, double ry);
-            void draw_char(char character, double x, double y);
-            void draw_text(const char* text, double x, double y);
-            void draw_glyph(unsigned glyph, double x, double y);
+            double draw_char(char character, double x, double y);
+            double draw_text(const char* text, double x, double y);
+            double draw_glyph(unsigned glyph, double x, double y);
 
         private:
             pixfmt pixf;
@@ -31,7 +31,7 @@ namespace AntigrainCPP {
             FontManager& font_manager;
 
         private:
-            void internal_draw_glyph(double x, double y);
+            double internal_draw_glyph(double x, double y);
     };
 
     extern "C" DECLSPEC void GraphicContext_SetColor(GraphicContext* gctx, double r, double g, double b, double a);
@@ -40,12 +40,17 @@ namespace AntigrainCPP {
                                             double x, double y,
                                             double rx, double ry);
 
-    extern "C" DECLSPEC void GraphicContext_DrawChar(GraphicContext* gctx,
+    extern "C" DECLSPEC double GraphicContext_DrawChar(GraphicContext* gctx,
         char character,
         double x, double y
     );
 
-    extern "C" DECLSPEC void GraphicContext_DrawText(GraphicContext* gctx,
+    extern "C" DECLSPEC double GraphicContext_DrawGlyph(GraphicContext* gctx,
+        unsigned glyph,
+        double x, double y
+    );
+
+    extern "C" DECLSPEC double GraphicContext_DrawText(GraphicContext* gctx,
         const char* text,
         double x, double y
     );
