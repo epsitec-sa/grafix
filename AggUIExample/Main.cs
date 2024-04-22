@@ -51,11 +51,8 @@ namespace Example {
             }
             gctx.RendererSmooth.AddPath(path);
             double xp = 0;
-            foreach (char c in "Hello, world !"){
-                gctx.DrawChar(c, xp, 50);
-                xp += 20;
-                this.FontManager.SetFontSize((double)xp);
-            }
+            this.FontManager.SetFontSize(55);
+            gctx.DrawText("Hello, world !", 50, 50);
         }
 
         public override void OnKey(int x, int y, uint key, uint flags){

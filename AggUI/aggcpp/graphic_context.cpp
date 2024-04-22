@@ -60,6 +60,30 @@ namespace AntigrainCPP {
         internal_draw_glyph(x, y);
     }
 
+    void GraphicContext::draw_text(
+        const char* text,
+        double x, double y
+    ){
+        double xp = x;
+        double yp = y;
+        const char* currChar = text;
+        unsigned prevGlyph = 0;
+        while (*currChar){
+            if(!font_manager.m_feng.prepare_glyph(*currChar))
+            {
+                currChar++;
+                continue;
+            }
+            unsigned currGlyph = font_manager.m_feng.glyph_index();
+            font_manager.m_feng.add_kerning(prevGlyph, currGlyph, &xp, &yp);
+            internal_draw_glyph(xp, yp);
+            prevGlyph = currGlyph;
+            xp += font_manager.m_feng.advance_x();
+            yp += font_manager.m_feng.advance_y();
+            currChar++;
+        }
+    }
+
     void GraphicContext::internal_draw_glyph(double x, double y) {
 
         typedef agg::serialized_scanlines_adaptor_aa<agg::int8u> adaptor_type;
@@ -94,6 +118,13 @@ namespace AntigrainCPP {
         double x, double y
     ){
         gctx->draw_char(character, x, y);
+    }
+
+    void GraphicContext_DrawText(GraphicContext* gctx,
+        const char* text,
+        double x, double y
+    ){
+        gctx->draw_text(text, x, y);
     }
 
     void GraphicContext_DrawGlyph(GraphicContext* gctx,

@@ -24,6 +24,12 @@ namespace AggUI {
         );
 
         [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
+        private static extern void GraphicContext_DrawText(IntPtr gctx,
+            [MarshalAs(UnmanagedType.LPStr)] string text,
+            double x, double y
+        );
+
+        [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
         private static extern void GraphicContext_DrawGlyph(IntPtr gctx,
             uint glyph,
             double x, double y
@@ -65,6 +71,10 @@ namespace AggUI {
 
         public void DrawChar(char character, double x, double y){
             GraphicContext_DrawChar(this.gctx, character, x, y);
+        }
+
+        public void DrawText(string text, double x, double y){
+            GraphicContext_DrawText(this.gctx, text, x, y);
         }
 
         public void DrawGlyph(uint glyph, double x, double y){

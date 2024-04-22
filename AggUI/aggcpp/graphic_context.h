@@ -15,6 +15,7 @@ namespace AntigrainCPP {
             void set_color(int r, int g, int b, int a);
             void draw_ellipse(double x, double y, double rx, double ry);
             void draw_char(char character, double x, double y);
+            void draw_text(const char* text, double x, double y);
             void draw_glyph(unsigned glyph, double x, double y);
 
         private:
@@ -41,6 +42,11 @@ namespace AntigrainCPP {
 
     extern "C" DECLSPEC void GraphicContext_DrawChar(GraphicContext* gctx,
         char character,
+        double x, double y
+    );
+
+    extern "C" DECLSPEC void GraphicContext_DrawText(GraphicContext* gctx,
+        const char* text,
         double x, double y
     );
 
