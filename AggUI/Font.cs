@@ -54,6 +54,14 @@ namespace AntigrainCPP
             return FreetypeInfo_GetKerning(this.face, left_glyph, right_glyph, size);
         }
 
+        public double GetAscender(double size){
+            return FreetypeInfo_GetAscender(this.face, size);
+        }
+
+        public double GetDescender(double size){
+            return FreetypeInfo_GetDescender(this.face, size);
+        }
+
         [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
         private static extern IntPtr FreetypeInfo_CreateLibrary();
 
@@ -93,6 +101,12 @@ namespace AntigrainCPP
             uint right_glyph,
             double size
         );
+
+        [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
+        private static extern double FreetypeInfo_GetAscender(IntPtr face, double size);
+
+        [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
+        private static extern double FreetypeInfo_GetDescender(IntPtr face, double size);
 
         private IntPtr face;
         internal string fontname;

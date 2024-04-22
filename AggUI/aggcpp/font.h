@@ -44,6 +44,10 @@ namespace AntigrainCPP {
         double size
     );
 
+    extern "C" DECLSPEC double FreetypeInfo_GetAscender(FT_Face face, double size);
+
+    extern "C" DECLSPEC double FreetypeInfo_GetDescender(FT_Face face, double size);
+
     // INTERNAL FUNCTIONS
 
     void LoadGlyph(FT_Face face, unsigned glyph_index, double size);

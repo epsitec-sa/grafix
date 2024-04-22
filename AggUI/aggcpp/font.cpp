@@ -80,4 +80,14 @@ namespace AntigrainCPP {
         yMin = F26Dot6ToDouble(bbox.yMin);
         yMax = F26Dot6ToDouble(bbox.yMax);
     }
+
+    double FreetypeInfo_GetAscender(FT_Face face, double size)
+    {
+        return face->ascender * size / face->height;
+    }
+
+    double FreetypeInfo_GetDescender(FT_Face face, double size)
+    {
+        return face->descender * size / face->height;
+    }
 }
