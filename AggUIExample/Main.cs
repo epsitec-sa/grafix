@@ -54,6 +54,7 @@ namespace Example {
             foreach (char c in "Hello, world !"){
                 gctx.DrawChar(c, xp, 50);
                 xp += 20;
+                this.FontManager.SetFontSize((double)xp);
             }
         }
 
