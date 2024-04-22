@@ -9,7 +9,7 @@ namespace AggUI {
 
         [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
         private static extern void GraphicContext_SetColor(IntPtr gctx,
-            int r, int g, int b
+            int r, int g, int b, int a
         );
 
         [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
@@ -53,9 +53,9 @@ namespace AggUI {
             this.RendererGradient = new AntigrainCPP.Renderer.Gradient(gradient_ren);
         }
 
-        public void SetColor(int r, int g, int b)
+        public void SetColor(int r, int g, int b, int a)
         {
-            GraphicContext_SetColor(this.gctx, r, g, b);
+            GraphicContext_SetColor(this.gctx, r, g, b, a);
         }
 
         public void DrawEllipse(double x, double y, double rx, double ry)

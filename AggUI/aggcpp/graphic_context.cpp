@@ -23,8 +23,8 @@ namespace AntigrainCPP {
         renderer_solid.ren_base.clear(agg::rgba(1,1,1));
     }
 
-    void GraphicContext::set_color(int r, int g, int b){
-        renderer_solid.ren_solid.color(agg::rgba(r, g, b));
+    void GraphicContext::set_color(int r, int g, int b, int a){
+        renderer_solid.ren_solid.color(agg::rgba(r, g, b, a));
     }
 
     void GraphicContext::draw_ellipse(double x, double y, double rx, double ry){
@@ -77,9 +77,9 @@ namespace AntigrainCPP {
     }
 
     void GraphicContext_SetColor(GraphicContext* gctx,
-        int r, int g, int b
+        int r, int g, int b, int a
     ){
-        gctx->set_color(r, g, b);
+        gctx->set_color(r, g, b, a);
     }
 
     void GraphicContext_DrawEllipse(GraphicContext* gctx,
