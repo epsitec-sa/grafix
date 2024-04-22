@@ -46,7 +46,7 @@ namespace Example {
                 } else {
                     path.LineTo(x, y);
                 }
-                gctx.SetColor(r, g, b, 200);
+                gctx.SetColor(r / 255.0, g / 255.0, b / 255.0, 0.8);
                 gctx.DrawEllipse(x, y, s, s);
             }
             gctx.RendererSmooth.AddPath(path);

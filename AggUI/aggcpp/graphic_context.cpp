@@ -23,7 +23,7 @@ namespace AntigrainCPP {
         renderer_solid.ren_base.clear(agg::rgba(1,1,1));
     }
 
-    void GraphicContext::set_color(int r, int g, int b, int a){
+    void GraphicContext::set_color(double r, double g, double b, double a){
         renderer_solid.ren_solid.color(agg::rgba(r, g, b, a));
     }
 
@@ -95,13 +95,12 @@ namespace AntigrainCPP {
         adaptor_type::embedded_scanline sl;
         adaptor.init(glyph_data, font_manager.m_feng.data_size(), x, y);
 
-        renderer_solid.ren_solid.color(agg::srgba8(0, 0, 0));
         agg::render_scanlines(adaptor, sl, renderer_solid.ren_solid);
         std::free(glyph_data);
     }
 
     void GraphicContext_SetColor(GraphicContext* gctx,
-        int r, int g, int b, int a
+        double r, double g, double b, double a
     ){
         gctx->set_color(r, g, b, a);
     }

@@ -12,7 +12,7 @@ namespace AntigrainCPP {
         public:
             GraphicContext(agg::rendering_buffer& buffer, FontManager& font_manager);
 
-            void set_color(int r, int g, int b, int a);
+            void set_color(double r, double g, double b, double a);
             void draw_ellipse(double x, double y, double rx, double ry);
             void draw_char(char character, double x, double y);
             void draw_text(const char* text, double x, double y);
@@ -34,7 +34,7 @@ namespace AntigrainCPP {
             void internal_draw_glyph(double x, double y);
     };
 
-    extern "C" DECLSPEC void GraphicContext_SetColor(GraphicContext* gctx, int r, int g, int b, int a);
+    extern "C" DECLSPEC void GraphicContext_SetColor(GraphicContext* gctx, double r, double g, double b, double a);
 
     extern "C" DECLSPEC void GraphicContext_DrawEllipse(GraphicContext* gctx,
                                             double x, double y,
