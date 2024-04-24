@@ -116,10 +116,10 @@ namespace AntigrainCPP
             /*     RendererImage_Source1(renderer, buffer); */
             /* } */
 
-            /* public void Source2(IntPtr byte_buffer, int dx, int dy, int stride) */
-            /* { */
-            /*     RendererImage_Source2(renderer, byte_buffer, dx, dy, stride); */
-            /* } */
+            public void AttachSource(byte[] byte_buffer, int dx, int dy, int stride)
+            {
+                RendererImage_AttachSource(renderer, byte_buffer, dx, dy, stride);
+            }
 
             public void SetStretchMode(int mode, double radius)
             {

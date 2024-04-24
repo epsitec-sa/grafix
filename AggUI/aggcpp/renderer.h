@@ -5,6 +5,7 @@
 
 #include "path.h"
 #include "pixelfmt.h"
+#include "agg_image_accessors.h"
 #include "agg_scanline_p.h"
 #include "agg_scanline_u.h"
 #include "agg_renderer_base.h"
@@ -86,17 +87,6 @@ struct RendererBasePre
     {
     }
 };
-
-/*****************************************************************************/
-
-/* struct RendererBase */
-/* { */
-/*     RendererCommon*      renderer; */
-    
-/*     RendererBase(AggBuffer* buffer) : renderer(buffer->renderer) */
-/*     { */
-/*     } */
-/* }; */
 
 /*****************************************************************************/
 
@@ -256,6 +246,8 @@ struct RendererImage : RendererBasePre
 
     /* typedef pixfmt                                                                          img_pixfmt; */
     typedef agg::span_interpolator_linear<>                                                 interpolator_type;
+    // in example
+    //typedef agg::image_accessor_clip<pixfmt>                               img_source_type;
     typedef agg::image_accessor_clone_convert_pre<pixfmt_pre>                               img_source_type;
     typedef agg::span_image_filter_rgba_bilinear<img_source_type, interpolator_type>        span_gen_type;
     typedef agg::span_image_filter_rgba_nn<img_source_type, interpolator_type>              span_gen_type_nn;
@@ -265,7 +257,7 @@ struct RendererImage : RendererBasePre
     agg::trans_affine           matrix;
     interpolator_type           interpolator;
     agg::rendering_buffer       source_buffer;
-    //img_pixfmt                  img_pixf;
+    pixfmt_pre                  img_pixf;
     img_source_type             img_src;
     agg::image_filter_lut       filter;
     span_alloc_type_t           span_alloc;
@@ -286,8 +278,8 @@ struct RendererImage : RendererBasePre
           matrix (),
           interpolator (matrix),
           source_buffer (),
-          //img_pixf (source_buffer),
-          img_src (pixf /*, agg::rgba (0, 0, 0, 0)*/),
+          img_pixf (source_buffer),
+          img_src (img_pixf /*, agg::rgba (0, 0, 0, 0)*/),
           span_alloc (),
           span_gen (img_src, interpolator),
           span_gen_nn (img_src, interpolator),
@@ -295,7 +287,7 @@ struct RendererImage : RendererBasePre
           span_gen_resample (img_src, interpolator, filter),
           is_source_ok (false),
           is_ready (false),
-          use_nn (false),
+          use_nn (true), // changed to true for tests
           mode (0)
     {
         this->span_gen.filter_offset (0);
@@ -507,12 +499,12 @@ extern "C" DECLSPEC void RendererImage_Matrix(
 /*     AggBuffer* buffer */
 /* ); */
 
-/* extern "C" DECLSPEC void RendererImage_Source2( */
-/*     RendererImage* renderer, */
-/*     void* buffer, */
-/*     int dx, int dy, */
-/*     int stride */
-/* ); */
+extern "C" DECLSPEC void RendererImage_AttachSource(
+    RendererImage* renderer,
+    unsigned char* buffer,
+    int dx, int dy,
+    int stride
+);
 
 extern "C" DECLSPEC void RendererImage_SetStretchMode(
     RendererImage* renderer,

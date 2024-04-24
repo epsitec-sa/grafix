@@ -92,13 +92,6 @@
 
 /*****************************************************************************/
 
-/* RendererSolid* */
-/* RendererSolid_New(AggBuffer* buffer) */
-/* { */
-/*     RendererSolid* renderer = new RendererSolid (buffer); */
-/*     return renderer; */
-/* } */
-
 void
 RendererSolid_Delete(RendererSolid* renderer)
 {
@@ -130,13 +123,6 @@ RendererSolid_Color(RendererSolid* renderer, double r, double g, double b, doubl
 }
 
 /*****************************************************************************/
-
-/* RendererSmooth* */
-/* RendererSmooth_New(AggBuffer* buffer) */
-/* { */
-/*     RendererSmooth* renderer = new RendererSmooth (buffer); */
-/*     return renderer; */
-/* } */
 
 void
 RendererSmooth_Delete(RendererSmooth* renderer)
@@ -227,13 +213,6 @@ void RendererGradient::Select(RendererGradient::GradientID id){
     this->is_ready = false;
 }
 
-/* RendererGradient* */
-/* RendererGradient_New(AggBuffer* buffer) */
-/* { */
-/*     RendererGradient* renderer = new RendererGradient (buffer); */
-/*     return renderer; */
-/* } */
-
 void
 RendererGradient_Delete(RendererGradient* renderer)
 {
@@ -299,7 +278,7 @@ bool RendererImage::Validate(){
         {
             this->interpolator.transformer (this->matrix);
 //-         this->img_src.background_color (agg::rgba(0.0, 0.0, 0.0, 0.0));
-            //this->img_pixf.attach (this->source_buffer); //@
+            this->img_pixf.attach (this->source_buffer); //@
             this->span_gen.interpolator (this->interpolator);
             this->is_ready = true;
         }
@@ -307,17 +286,6 @@ bool RendererImage::Validate(){
     
     return this->is_ready;
 }
-
-/* RendererImage* */
-/* RendererImage_New(AggBuffer* buffer) */
-/* { */
-/*     RendererImage* renderer = new RendererImage (buffer); */
-    
-/*     renderer->filter.calculate (agg::image_filter_bilinear ()); */
-/*     renderer->span_gen_resample.filter (renderer->filter); */
-    
-/*     return renderer; */
-/* } */
 
 void
 RendererImage_Delete(RendererImage* renderer)
@@ -409,24 +377,24 @@ RendererImage_Matrix(RendererImage* renderer,
 /*     } */
 /* } */
 
-/* void */
-/* RendererImage_Source2(RendererImage* renderer, void* buffer, int dx, int dy, int stride) */
-/* { */
-/*     if (renderer) */
-/*     { */
-/*         if (buffer) */
-/*         { */
-/*             renderer->source_buffer.attach (reinterpret_cast<unsigned char*> (buffer), dx, dy, stride); */
-/*             renderer->is_source_ok = true; */
-/*             renderer->is_ready = false; */
-/*         } */
-/*         else */
-/*         { */
-/*             renderer->is_source_ok = false; */
-/*             renderer->is_ready = false; */
-/*         } */
-/*     } */
-/* } */
+void
+RendererImage_AttachSource(RendererImage* renderer, unsigned char* buffer, int dx, int dy, int stride)
+{
+    if (renderer)
+    {
+        if (buffer)
+        {
+            renderer->source_buffer.attach (buffer, dx, dy, stride);
+            renderer->is_source_ok = true;
+            renderer->is_ready = false;
+        }
+        else
+        {
+            renderer->is_source_ok = false;
+            renderer->is_ready = false;
+        }
+    }
+}
 
 /*****************************************************************************/
 

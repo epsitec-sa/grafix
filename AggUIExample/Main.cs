@@ -34,29 +34,58 @@ namespace Example {
 
         public override void OnDraw(GraphicContext gctx)
         {
-            Path path = new Path();
-            gctx.RendererSmooth.Color(0, 0, 0, 1);
-            gctx.RendererSmooth.Setup(7, 2,
+            /* Path path = new Path(); */
+            /* gctx.RendererSmooth.Color(0, 0, 0, 1); */
+            /* gctx.RendererSmooth.Setup(7, 2, */
+            /*     1, 0, */
+            /*     0, 1, */
+            /*     0, 0 */
+            /* ); */
+            /* bool first = true; */
+            /* foreach (var point in points){ */
+            /*     (int x, int y, int r, int g, int b, int s) = point; */
+            /*     if (first) { */
+            /*         path.MoveTo(x, y); */
+            /*         first = false; */
+            /*     } else { */
+            /*         path.LineTo(x, y); */
+            /*     } */
+            /*     gctx.SetColor(r / 255.0, g / 255.0, b / 255.0, 0.8); */
+            /*     gctx.DrawEllipse(x, y, s, s); */
+            /* } */
+            /* gctx.RendererSmooth.AddPath(path); */
+            /* double xp = 0; */
+
+            using ImageMagick.MagickImage image = new ImageMagick.MagickImage("godfather.png");
+            byte[] buffer = image.GetPixels().ToByteArray(ImageMagick.PixelMapping.BGRA);
+            Console.WriteLine($"Got an image: {image.Width}x{image.Height} buffer size {buffer.Length}");
+            gctx.RendererImage.Matrix(
                 1, 0,
                 0, 1,
                 0, 0
             );
-            bool first = true;
-            foreach (var point in points){
-                (int x, int y, int r, int g, int b, int s) = point;
-                if (first) {
-                    path.MoveTo(x, y);
-                    first = false;
-                } else {
-                    path.LineTo(x, y);
-                }
-                gctx.SetColor(r / 255.0, g / 255.0, b / 255.0, 0.8);
-                gctx.DrawEllipse(x, y, s, s);
-            }
-            gctx.RendererSmooth.AddPath(path);
-            double xp = 0;
-            this.FontManager.SetFontSize(55);
-            gctx.DrawText("Hello, world !", 50, 50);
+            gctx.RendererImage.AttachSource(
+                buffer,
+                image.Width,
+                image.Height,
+                -sizeof(byte)*image.Width*4
+            );
+            /* gctx.RendererImage.SetStretchMode(2, 10.0); */
+            var rast = new AntigrainCPP.Rasterizer();
+            Console.WriteLine($"Make rect");
+            var rect = new AntigrainCPP.RectanglePath(
+                0, 0,
+                image.Width,
+                image.Height
+            );
+            Console.WriteLine($"Add rect to rasterizer");
+            rast.AddPath(rect, false);
+            Console.WriteLine($"render image");
+            rast.RenderImage(gctx.RendererImage);
+
+            /* gctx.SetColor(0.7, 0.4, 0.5, 0.8); */
+            /* this.FontManager.SetFontSize(55); */
+            /* gctx.DrawText("Hello, world !", 50, 50); */
         }
 
         public override void OnKey(int x, int y, uint key, uint flags){

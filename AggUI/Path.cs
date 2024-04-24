@@ -5,6 +5,18 @@ using static AntigrainCPP.Native;
 
 namespace AntigrainCPP
 {
+    public class RectanglePath : Path
+    {
+        public RectanglePath(double x1, double y1, double x2, double y2) : base() 
+        {
+            this.MoveTo(x1, y1);
+            this.LineTo(x1, y2);
+            this.LineTo(x2, y2);
+            this.LineTo(x2, y1);
+            this.Close();
+        }
+    }
+
     public class Path
     {
         public Path()

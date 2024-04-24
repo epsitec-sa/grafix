@@ -160,8 +160,8 @@ namespace AntigrainCPP
         /* [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)] */
         /* public static extern void RendererImage_Source1(IntPtr renderer, IntPtr buffer); */
 
-        /* [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)] */
-        /* public static extern void RendererImage_Source2(IntPtr renderer, IntPtr byte_buffer, int dx, int dy, int stride); */
+        [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
+        public static extern void RendererImage_AttachSource(IntPtr renderer, [In] byte[] byte_buffer, int dx, int dy, int stride);
 
         [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
         public static extern void RendererImage_SetStretchMode(IntPtr renderer, int mode, double radius);
