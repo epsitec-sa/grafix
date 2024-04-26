@@ -2,7 +2,7 @@ using System;
 using System.Reflection;
 using System.Runtime.InteropServices;
 
-namespace AggUI {
+namespace AntigrainCPP {
 
     [Flags]
     public enum WindowFlags : uint

@@ -1,12 +1,10 @@
 using System;
 using System.Collections.Generic;
 
-using AggUI;
+using AntigrainCPP;
 using SystemTools;
 
 namespace Example {
-
-    using AntigrainCPP;
 
     class Application : AggWindow
     {

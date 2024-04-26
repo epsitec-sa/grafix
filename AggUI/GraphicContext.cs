@@ -2,7 +2,7 @@ using System;
 using System.Reflection;
 using System.Runtime.InteropServices;
 
-namespace AggUI {
+namespace AntigrainCPP {
 
     public class GraphicContext {
         private const string LibAgg = "AntigrainCPP";
