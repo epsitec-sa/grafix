@@ -256,6 +256,7 @@ struct RendererImage : RendererBasePre
     
     agg::trans_affine           matrix;
     interpolator_type           interpolator;
+    unsigned char *             source_buffer_data;
     agg::rendering_buffer       source_buffer;
     pixfmt_pre                  img_pixf;
     img_source_type             img_src;
@@ -277,6 +278,7 @@ struct RendererImage : RendererBasePre
         : RendererBasePre(pixf),
           matrix (),
           interpolator (matrix),
+          source_buffer_data(nullptr),
           source_buffer (),
           img_pixf (source_buffer),
           img_src (img_pixf /*, agg::rgba (0, 0, 0, 0)*/),
@@ -287,7 +289,7 @@ struct RendererImage : RendererBasePre
           span_gen_resample (img_src, interpolator, filter),
           is_source_ok (false),
           is_ready (false),
-          use_nn (true), // changed to true for tests
+          use_nn (false), // changed to true for tests
           mode (0)
     {
         this->span_gen.filter_offset (0);

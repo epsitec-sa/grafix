@@ -19,8 +19,10 @@ namespace AntigrainCPP {
         font_manager(fm)
     {
         std::cout << "[C++] create GraphicContext" << std::endl;
+    }
 
-        renderer_solid.ren_base.clear(agg::rgba(1,1,1));
+    void GraphicContext::clear(double r, double g, double b, double a){
+        renderer_solid.ren_base.clear(agg::rgba(r, g, b, a));
     }
 
     void GraphicContext::set_color(double r, double g, double b, double a){

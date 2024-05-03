@@ -6,6 +6,8 @@
 //  Contact: pierre.arnaud@opac.ch, http://www.opac.ch
 //  License: see license.txt
 
+#include <iostream>
+
 #include "antigrain.h"
 #include "rasterizer.h"
 
@@ -828,6 +830,10 @@ Rasterizer_RenderImage(Rasterizer* rasterizer, RendererImage* renderer)
       && (renderer)
       && (renderer->Validate ()) )
     {
+        std::cout << "RenderImage"
+                  << " use_nn " << renderer->use_nn 
+                  << " mode " << renderer->mode
+                  << std::endl;
         switch (renderer->active_mask_component)
         {
             case 0:

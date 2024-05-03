@@ -6,6 +6,8 @@
 //	Contact: pierre.arnaud@opac.ch, http://www.opac.ch
 //	License: see license.txt
 
+#include <iostream>
+
 #include "structures.h"
 
 /*****************************************************************************/
@@ -17,6 +19,7 @@ AggRendererImage::Validate ()
 	{
 		if (this->is_source_ok)
 		{
+            std::cout << "RendererImage Validate attach source" << std::endl;
 			this->interpolator.transformer (this->matrix);
 //-			this->img_src.background_color (agg::rgba(0.0, 0.0, 0.0, 0.0));
 			this->img_pixf.attach (this->source_buffer); //@

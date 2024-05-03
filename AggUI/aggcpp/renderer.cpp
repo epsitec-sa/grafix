@@ -6,6 +6,8 @@
 //  Contact: pierre.arnaud@opac.ch, http://www.opac.ch
 //  License: see license.txt
 
+#include <iostream>
+
 #include "antigrain.h"
 #include "renderer.h"
 
@@ -276,6 +278,7 @@ bool RendererImage::Validate(){
     {
         if (this->is_source_ok)
         {
+            std::cout << "RendererImage Validate" << std::endl;
             this->interpolator.transformer (this->matrix);
 //-         this->img_src.background_color (agg::rgba(0.0, 0.0, 0.0, 0.0));
             this->img_pixf.attach (this->source_buffer); //@
@@ -382,9 +385,17 @@ RendererImage_AttachSource(RendererImage* renderer, unsigned char* buffer, int d
 {
     if (renderer)
     {
+        delete [] renderer->source_buffer_data;
+        renderer->source_buffer_data = nullptr;
         if (buffer)
         {
-            renderer->source_buffer.attach (buffer, dx, dy, stride);
+            size_t data_size = dy*std::abs(stride);
+            std::cout << "AttachSource "
+                      << dx << "x" << dy << " stride " << stride 
+                      << " data size " << data_size << std::endl;
+            renderer->source_buffer_data = new unsigned char[data_size]{0};
+            memcpy(renderer->source_buffer_data, buffer, data_size);
+            renderer->source_buffer.attach (renderer->source_buffer_data, dx, dy, stride);
             renderer->is_source_ok = true;
             renderer->is_ready = false;
         }

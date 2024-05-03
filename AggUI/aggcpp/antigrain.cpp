@@ -40,6 +40,7 @@ namespace AntigrainCPP {
         std::cout << "[C++] Application on_draw" << std::endl;
         // initialise drawing context
         GraphicContext context(rbuf_window(), font_manager);
+        context.clear(1, 1, 1, 1);
 
         // call user-defined drawing
         if (on_draw_callback){

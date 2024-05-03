@@ -12,6 +12,7 @@ namespace AntigrainCPP {
         public:
             GraphicContext(agg::rendering_buffer& buffer, FontManager& font_manager);
 
+            void clear(double r, double g, double b, double a);
             void set_color(double r, double g, double b, double a);
             void draw_ellipse(double x, double y, double rx, double ry);
             double draw_char(char character, double x, double y);

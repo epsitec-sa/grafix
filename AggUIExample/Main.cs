@@ -53,20 +53,63 @@ namespace Example {
             /* } */
             /* gctx.RendererSmooth.AddPath(path); */
             /* double xp = 0; */
+        }
 
-            using ImageMagick.MagickImage image = new ImageMagick.MagickImage("godfather.png");
+        public void PrintByteArray(byte[] arr){
+            int colorStep = 4;
+            int width = 3;
+            Console.WriteLine($"---");
+            int step = 0;
+            for (int i = 0; i < arr.Length; i += colorStep){
+                string elem = Convert.ToHexString(new ArraySegment<byte>(arr, i, colorStep));
+                Console.Write($"{elem} ");
+                step++;
+                if (step % width == 0){
+                    Console.WriteLine("");
+                }
+            }
+            Console.WriteLine($"---");
+        }
+
+        public void GenerateOutputImage(){
+            Console.WriteLine($"==============================================");
+            Console.WriteLine($"Generate output image");
+
+            Console.WriteLine($"read image");
+            using ImageMagick.MagickImage image = new ImageMagick.MagickImage("grid.png");
             byte[] buffer = image.GetPixels().ToByteArray(ImageMagick.PixelMapping.BGRA);
             Console.WriteLine($"Got an image: {image.Width}x{image.Height} buffer size {buffer.Length}");
+            this.PrintByteArray(buffer);
+
+            Console.WriteLine($"create graphic buffer");
+            int stride = -sizeof(byte)*image.Width*4;
+            GraphicBuffer gbuff = new GraphicBuffer(
+                (uint)image.Width,
+                (uint)image.Height,
+                stride,
+                this.FontManager
+            );
+            Console.WriteLine($"graphic buffer size {gbuff.Width}x{gbuff.Height}");
+
+            Console.WriteLine($"get buffer pixels before paint");
+            byte[] pre_buffer = gbuff.GetBufferData();
+            Console.WriteLine($"buffer length: {pre_buffer.Length}");
+            this.PrintByteArray(pre_buffer);
+
+            var gctx = gbuff.GraphicContext;
+
             gctx.RendererImage.Matrix(
                 1, 0,
                 0, 1,
                 0, 0
             );
+            Console.WriteLine($"attach input buffer: {buffer.Length}");
+            this.PrintByteArray(buffer);
             gctx.RendererImage.AttachSource(
                 buffer,
                 image.Width,
                 image.Height,
-                -sizeof(byte)*image.Width*4
+                stride
             );
             /* gctx.RendererImage.SetStretchMode(2, 10.0); */
             var rast = new AntigrainCPP.Rasterizer();
@@ -81,13 +124,43 @@ namespace Example {
             Console.WriteLine($"render image");
             rast.RenderImage(gctx.RendererImage);
 
+            var settings = new ImageMagick.PixelImportSettings(
+                /* image.Width, */
+                /* image.Height, */
+                (int)gbuff.Width,
+                (int)gbuff.Height,
+                ImageMagick.StorageType.Char,
+                ImageMagick.PixelMapping.BGRA
+            );
+            Console.WriteLine($"create output image");
+            using var outputImage = new ImageMagick.MagickImage(
+                new ImageMagick.MagickColor("#ffffffff"),
+                image.Width,
+                image.Height
+            );
+
+            Console.WriteLine($"get buffer pixels after paint");
+            byte[] out_buffer = gbuff.GetBufferData();
+            Console.WriteLine($"buffer length: {out_buffer.Length}");
+            this.PrintByteArray(out_buffer);
+
+            Console.WriteLine($"import pixels");
+            outputImage.ImportPixels(
+                out_buffer,
+                settings
+            );
+            Console.WriteLine($"write output image");
+            outputImage.Write("output.ppm");
+
             /* gctx.SetColor(0.7, 0.4, 0.5, 0.8); */
             /* this.FontManager.SetFontSize(55); */
             /* gctx.DrawText("Hello, world !", 50, 50); */
+            Console.WriteLine($"done");
         }
 
         public override void OnKey(int x, int y, uint key, uint flags){
             points = new();
+            this.GenerateOutputImage();
             this.ForceRedraw();
         }
 

@@ -33,6 +33,6 @@ namespace AntigrainCPP
         [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
         private static extern void FontManager_SetFontSize(IntPtr fm, double size);
 
-        private IntPtr manager;
+        internal IntPtr manager;
     }
 }
