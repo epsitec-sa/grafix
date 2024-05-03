@@ -162,6 +162,11 @@ ADD_LIBRARY( antigrain
     ${antigrain_HEADERS}
 )
 
+#PATCHED: disable warnings
+target_compile_options(antigrain PUBLIC
+  "-w"
+)
+
 #controls code for interactive modifying samples
 SET( controls_HEADERS
     ${antigrain_SOURCE_DIR}/include/ctrl/agg_slider_ctrl.h
@@ -189,6 +194,10 @@ ADD_LIBRARY( controls
 
     ${controls_HEADERS}
 )
+#PATCHED: disable warnings
+target_compile_options(controls PUBLIC
+  "-w"
+)
 
 #freetype library
 
@@ -200,6 +209,10 @@ IF ( agg_USE_FREETYPE )
         ../font_freetype/agg_font_freetype.h
         ../font_freetype/agg_font_freetype.cpp
     )
+	#PATCHED: disable warnings
+	target_compile_options(freetypefont PUBLIC
+	  "-w"
+	)
     SET_TARGET_PROPERTIES( freetypefont  PROPERTIES OUTPUT_NAME aggfontfreetype${PFDEBUG} )
     INSTALL( TARGETS freetypefont DESTINATION lib )
     INSTALL( FILES ../font_freetype/agg_font_freetype.h DESTINATION agg/font_freetype )
@@ -219,7 +232,11 @@ IF(WIN32)
         ../font_win32_tt/agg_font_win32_tt.cpp
 
         ${platform_HEADERS}
-    )
+    )	
+	#PATCHED: disable warnings
+	target_compile_options(platform PUBLIC
+	  "-w"
+	)
     INSTALL( FILES ../font_win32_tt/agg_font_win32_tt.h DESTINATION agg/font_win32_tt )
 ENDIF(WIN32)
 IF(UNIX)
@@ -228,6 +245,10 @@ IF(UNIX)
 
         ${platform_HEADERS}
     )
+	#PATCHED: disable warnings
+	target_compile_options(platform PUBLIC
+	  "-w"
+	)
 ENDIF(UNIX)
 
 # PATCHED: do not build deprecated carbon thing
@@ -259,6 +280,10 @@ IF ( agg_USE_GPC )
         ../gpc/gpc.c
         ../gpc/gpc.h
     )
+	#PATCHED: disable warnings
+	target_compile_options(gpcbool PUBLIC
+	  "-w"
+	)
     INSTALL( TARGETS gpcbool DESTINATION lib )
     INSTALL( FILES ../gpc/gpc.h DESTINATION agg/gpc )
     SET_TARGET_PROPERTIES( gpcbool   PROPERTIES OUTPUT_NAME gpc${PFDEBUG} )

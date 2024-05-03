@@ -1,15 +1,14 @@
 using System;
 using System.Collections.Generic;
-
 using AntigrainCPP;
 using SystemTools;
 
-namespace Example {
-
+namespace Example
+{
     class Application : AggWindow
     {
-
-        public Application(bool flip_y) : base(flip_y)
+        public Application(bool flip_y)
+            : base(flip_y)
         {
             Font font = Font.LoadFromFile("Impacted.ttf");
             bool isBold = font.IsBold;
@@ -20,14 +19,23 @@ namespace Example {
             double height = font.GetHeight(fontSize);
             Console.WriteLine($"bold: {isBold} italic: {isItalic} font size: {fontSize}");
             Console.WriteLine($"ascender {ascender} descender {descender} height {height}");
-            double xMin, xMax, yMin, yMax;
-            foreach (char testChar in "abcdœéß!+-¿ÆæÊ"){
+            double xMin,
+                xMax,
+                yMin,
+                yMax;
+            foreach (char testChar in "abcdœéß!+-¿ÆæÊ")
+            {
                 uint code = font.GetCharIndex((ulong)testChar);
                 double advance = font.GetGlyphAdvance(code, fontSize);
                 font.GetGlyphBBox(code, fontSize, out xMin, out xMax, out yMin, out yMax);
-                Console.WriteLine($"'{testChar}': code {code}, advance {advance} bbox x[{xMin}, {xMax}] y[{yMin}, {yMax}]");
+                Console.WriteLine(
+                    $"'{testChar}': code {code}, advance {advance} bbox x[{xMin}, {xMax}] y[{yMin}, {yMax}]"
+                );
             }
             this.FontManager.SetFont(font);
+
+            Console.WriteLine($"read image");
+            this.inputImage = new ImageMagick.MagickImage("grid.png");
         }
 
         public override void OnDraw(GraphicContext gctx)
@@ -53,80 +61,84 @@ namespace Example {
             /* } */
             /* gctx.RendererSmooth.AddPath(path); */
             /* double xp = 0; */
+            GenerateOutputImage(gctx, this.inputImage);
         }
 
-        public void PrintByteArray(byte[] arr){
+        public void PrintByteArray(byte[] arr)
+        {
             int colorStep = 4;
             int width = 3;
             Console.WriteLine($"---");
             int step = 0;
-            for (int i = 0; i < arr.Length; i += colorStep){
+            for (int i = 0; i < arr.Length; i += colorStep)
+            {
                 string elem = Convert.ToHexString(new ArraySegment<byte>(arr, i, colorStep));
                 Console.Write($"{elem} ");
                 step++;
-                if (step % width == 0){
+                if (step % width == 0)
+                {
                     Console.WriteLine("");
                 }
             }
             Console.WriteLine($"---");
         }
 
-        public void GenerateOutputImage(){
-            Console.WriteLine($"==============================================");
-            Console.WriteLine($"Generate output image");
+        public void GenerateOutputImage(GraphicContext gctx, ImageMagick.MagickImage image)
+        {
+            //byte[] buffer = image.GetPixels().ToByteArray(ImageMagick.PixelMapping.BGRA);
+            //Console.WriteLine(
+            //    $"GenerateOutputImage: got an image {image.Width}x{image.Height} buffer size {buffer.Length}"
+            //);
+            //this.PrintByteArray(buffer);
+            //int stride = -sizeof(byte) * image.Width * 4;
 
-            Console.WriteLine($"read image");
-            using ImageMagick.MagickImage image = new ImageMagick.MagickImage("grid.png");
-            byte[] buffer = image.GetPixels().ToByteArray(ImageMagick.PixelMapping.BGRA);
-            Console.WriteLine($"Got an image: {image.Width}x{image.Height} buffer size {buffer.Length}");
-            this.PrintByteArray(buffer);
+            //gctx.RendererImage.Matrix(1, 0, 0, 1, 0, 0);
+            //Console.WriteLine($"attach input buffer: {buffer.Length}");
+            //this.PrintByteArray(buffer);
+            //gctx.RendererImage.AttachSource(buffer, image.Width, image.Height, stride);
+            //gctx.RendererImage.SetStretchMode(0, 0.0); // important to call after attach source
+            //var rast = new AntigrainCPP.Rasterizer();
+            //Console.WriteLine($"Make rect");
+            //var rect = new AntigrainCPP.RectanglePath(0, 0, image.Width, image.Height);
+            //Console.WriteLine($"Add rect to rasterizer");
+            //rast.AddPath(rect, false);
+            //Console.WriteLine($"render image");
+            //rast.RenderImage(gctx.RendererImage);
 
+            gctx.SetColor(0.9, 0.0, 0.0, 1.0);
+            //this.FontManager.SetFontSize(155);
+            //gctx.DrawText("M", -10, 0);
+            gctx.DrawEllipse(0, 0, 10, 10);
+            Console.WriteLine($"GenerateOutputImage done");
+        }
+
+        public override void OnKey(int x, int y, uint key, uint flags)
+        {
+            points = new();
+
+            Console.WriteLine(
+                $"=============================== START FILE OUTPUT IMAGE ==============================="
+            );
             Console.WriteLine($"create graphic buffer");
-            int stride = -sizeof(byte)*image.Width*4;
+            int stride = -sizeof(byte) * this.inputImage.Width * 4;
             GraphicBuffer gbuff = new GraphicBuffer(
-                (uint)image.Width,
-                (uint)image.Height,
+                (uint)this.inputImage.Width,
+                (uint)this.inputImage.Height,
                 stride,
                 this.FontManager
             );
             Console.WriteLine($"graphic buffer size {gbuff.Width}x{gbuff.Height}");
 
-            Console.WriteLine($"get buffer pixels before paint");
-            byte[] pre_buffer = gbuff.GetBufferData();
-            Console.WriteLine($"buffer length: {pre_buffer.Length}");
-            this.PrintByteArray(pre_buffer);
+            //Console.WriteLine($"get buffer pixels before paint");
+            //byte[] pre_buffer = gbuff.GetBufferData();
+            //Console.WriteLine($"buffer length: {pre_buffer.Length}");
+            //this.PrintByteArray(pre_buffer);
 
-            var gctx = gbuff.GraphicContext;
-
-            gctx.RendererImage.Matrix(
-                1, 0,
-                0, 1,
-                0, 0
-            );
-            Console.WriteLine($"attach input buffer: {buffer.Length}");
-            this.PrintByteArray(buffer);
-            gctx.RendererImage.AttachSource(
-                buffer,
-                image.Width,
-                image.Height,
-                stride
-            );
-            /* gctx.RendererImage.SetStretchMode(2, 10.0); */
-            var rast = new AntigrainCPP.Rasterizer();
-            Console.WriteLine($"Make rect");
-            var rect = new AntigrainCPP.RectanglePath(
-                0, 0,
-                image.Width,
-                image.Height
-            );
-            Console.WriteLine($"Add rect to rasterizer");
-            rast.AddPath(rect, false);
-            Console.WriteLine($"render image");
-            rast.RenderImage(gctx.RendererImage);
+            this.GenerateOutputImage(gbuff.GraphicContext, this.inputImage);
 
             var settings = new ImageMagick.PixelImportSettings(
-                /* image.Width, */
-                /* image.Height, */
+                // image.Width,
+                // image.Height,
                 (int)gbuff.Width,
                 (int)gbuff.Height,
                 ImageMagick.StorageType.Char,
@@ -135,8 +147,8 @@ namespace Example {
             Console.WriteLine($"create output image");
             using var outputImage = new ImageMagick.MagickImage(
                 new ImageMagick.MagickColor("#ffffffff"),
-                image.Width,
-                image.Height
+                (int)gbuff.Width,
+                (int)gbuff.Height
             );
 
             Console.WriteLine($"get buffer pixels after paint");
@@ -145,57 +157,52 @@ namespace Example {
             this.PrintByteArray(out_buffer);
 
             Console.WriteLine($"import pixels");
-            outputImage.ImportPixels(
-                out_buffer,
-                settings
-            );
+            outputImage.ImportPixels(out_buffer, settings);
             Console.WriteLine($"write output image");
-            outputImage.Write("output.ppm");
+            outputImage.Write("output.png");
 
-            /* gctx.SetColor(0.7, 0.4, 0.5, 0.8); */
-            /* this.FontManager.SetFontSize(55); */
-            /* gctx.DrawText("Hello, world !", 50, 50); */
-            Console.WriteLine($"done");
-        }
+            Console.WriteLine(
+                $"=============================== END FILE OUTPUT IMAGE ==============================="
+            );
 
-        public override void OnKey(int x, int y, uint key, uint flags){
-            points = new();
-            this.GenerateOutputImage();
             this.ForceRedraw();
         }
 
-        public override void OnMouseMove(int x, int y, uint flags){
+        public override void OnMouseMove(int x, int y, uint flags)
+        {
             /* OnMouseMove(x, y, flags); */
         }
 
-        public override void OnMouseButtonDown(int x, int y, uint flags){
-            if (flags == 0){
+        public override void OnMouseButtonDown(int x, int y, uint flags)
+        {
+            if (flags == 0)
+            {
                 return;
             }
-            if (count <= 0){
+            if (count <= 0)
+            {
                 count = rnd.Next(100, 500);
                 size = rnd.Next(10, 50);
-                color = (
-                    rnd.Next(0, 256),
-                    rnd.Next(0, 256),
-                    rnd.Next(0, 256)
-                );
+                color = (rnd.Next(0, 256), rnd.Next(0, 256), rnd.Next(0, 256));
             }
             count -= size;
             (int r, int g, int b) = color;
             int f;
             int s;
-            if (flags == 1){
+            if (flags == 1)
+            {
                 f = 300;
                 s = size;
-            } else {
+            }
+            else
+            {
                 f = 10;
                 s = 15;
-            } 
-            double m = f / Math.Sqrt(r*r + g*g + b*b);
-            r = (int)Math.Round(r*m);
-            g = (int)Math.Round(g*m);
-            b = (int)Math.Round(b*m);
+            }
+            double m = f / Math.Sqrt(r * r + g * g + b * b);
+            r = (int)Math.Round(r * m);
+            g = (int)Math.Round(g * m);
+            b = (int)Math.Round(b * m);
             points.Add((x, y, r, g, b, s));
             this.ForceRedraw();
         }
@@ -206,11 +213,11 @@ namespace Example {
         private int size = 0;
         private int count = 0;
 
+        private ImageMagick.MagickImage inputImage;
     }
 
     public static class Program
     {
-
         public static int Main(string[] args)
         {
             System.Console.WriteLine("Create Application");
@@ -219,7 +226,7 @@ namespace Example {
             System.Console.WriteLine($"Screen resolution: {res.Width}, {res.Height}");
             app.SetCaption("AggUI example");
 
-            if(app.Init(800, 600, WindowFlags.Resize))
+            if (app.Init(800, 600, WindowFlags.Resize))
             {
                 System.Console.WriteLine("Run");
                 return app.Run();

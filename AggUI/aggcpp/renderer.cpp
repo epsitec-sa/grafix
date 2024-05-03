@@ -381,7 +381,7 @@ RendererImage_Matrix(RendererImage* renderer,
 /* } */
 
 void
-RendererImage_AttachSource(RendererImage* renderer, unsigned char* buffer, int dx, int dy, int stride)
+RendererImage_AttachSource(RendererImage* renderer, unsigned char* buffer, int width, int height, int stride)
 {
     if (renderer)
     {
@@ -389,13 +389,13 @@ RendererImage_AttachSource(RendererImage* renderer, unsigned char* buffer, int d
         renderer->source_buffer_data = nullptr;
         if (buffer)
         {
-            size_t data_size = dy*std::abs(stride);
+            size_t data_size = height*std::abs(stride);
             std::cout << "AttachSource "
-                      << dx << "x" << dy << " stride " << stride 
+                      << width << "x" << height << " stride " << stride 
                       << " data size " << data_size << std::endl;
             renderer->source_buffer_data = new unsigned char[data_size]{0};
             memcpy(renderer->source_buffer_data, buffer, data_size);
-            renderer->source_buffer.attach (renderer->source_buffer_data, dx, dy, stride);
+            renderer->source_buffer.attach (renderer->source_buffer_data, width, height, stride);
             renderer->is_source_ok = true;
             renderer->is_ready = false;
         }

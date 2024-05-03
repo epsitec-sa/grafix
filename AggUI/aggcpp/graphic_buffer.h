@@ -11,6 +11,8 @@ namespace AntigrainCPP {
     class GraphicBuffer {
         public:
             unsigned char* data_buffer;
+            agg::rendering_buffer rendering_buffer;
+            GraphicContext gctx;
 
         public:
             GraphicBuffer(
@@ -20,8 +22,6 @@ namespace AntigrainCPP {
 
             ~GraphicBuffer();
 
-            GraphicContext gctx;
-            agg::rendering_buffer rendering_buffer;
 
     };
 

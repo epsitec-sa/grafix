@@ -1,5 +1,7 @@
 #pragma once
 
+#include <assert.h>
+
 #include "declspec.h"
 
 
@@ -100,6 +102,7 @@ struct RendererSolid : RendererBase
     RendererSolid (pixfmt& pixf) : RendererBase(pixf), ren_solid(ren_base)
     {
         this->fence = 0x5AA55AA5;
+		assert(ren_base.xmax() > 0);
     }
 };
 
