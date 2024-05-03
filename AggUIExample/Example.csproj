@@ -10,6 +10,6 @@
     <PackageReference Include="Magick.NET-Q8-AnyCPU" Version="13.6.0" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\AggUI\AntigrainCPP.csproj" />
+    <ProjectReference Include="..\AggUI\AntigrainCPPSharp.csproj" />
   </ItemGroup>
 </Project>
