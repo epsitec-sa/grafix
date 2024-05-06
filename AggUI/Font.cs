@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
 
@@ -9,6 +10,9 @@ namespace AntigrainCPP
         private const string LibAgg = "AntigrainCPP";
 
         public static Font LoadFromFile(string fontname){
+			if (!File.Exists(fontname)){
+				throw new FileNotFoundException($"No font file {fontname}");
+			}
             IntPtr face = FreetypeInfo_LoadFromFile(Font.library, fontname);
             return new Font(face, fontname);
         }
