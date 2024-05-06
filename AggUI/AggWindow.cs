@@ -1,65 +1,21 @@
 using System;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using static AntigrainSharp.Native;
 
-namespace AntigrainCPP {
-
+namespace AntigrainSharp
+{
     [Flags]
     public enum WindowFlags : uint
     {
-        Resize          = 1,
-        HWBuffer        = 2,
+        Resize = 1,
+        HWBuffer = 2,
         KeepAspectRatio = 4,
-        ProcessAllKeys  = 8
+        ProcessAllKeys = 8
     };
 
     public class AggWindow
     {
-        private const string LibAgg = "AntigrainCPP";
-
-        delegate void OnDrawT(IntPtr gctx);
-        delegate void OnResizeT(int sx, int sy);
-        delegate void OnMouseMoveT(int x, int y, uint flags);
-        delegate void OnMouseButtonDownT(int x, int y, uint flags);
-        delegate void OnMouseButtonUpT(int x, int y, uint flags);
-        delegate void OnKeyT(int x, int y, uint key, uint flags);
-
-        [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
-        private static extern IntPtr NewApplication(
-            bool flip_y,
-            OnDrawT on_draw,
-            OnResizeT on_resize,
-            OnMouseMoveT on_mouse_move,
-            OnMouseButtonDownT on_mouse_button_down,
-            OnMouseButtonUpT on_mouse_button_up,
-            OnKeyT on_key
-        );
-
-        [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
-        private static extern void Application_Caption(IntPtr app, string text);
-
-        [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
-        private static extern bool Application_Init(IntPtr app, 
-                                                        uint width, uint height,
-                                                        WindowFlags flags);
-
-        [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
-        private static extern void Application_ForceRedraw(IntPtr app);
-
-        [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
-        private static extern void Application_SetColor(IntPtr app, int r, int g, int b);
-
-        [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
-        private static extern void Application_DrawEllipse(IntPtr app,
-                                                           double x, double y,
-                                                           double rx, double ry);
-
-        [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
-        private static extern int Application_Run(IntPtr app);
-
-        [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
-        private static extern IntPtr Application_GetFontManager(IntPtr app);
-
         public AggWindow(bool flip_y)
         {
             onDrawDelegate = InternalOnDraw;
@@ -78,7 +34,7 @@ namespace AntigrainCPP {
                 onKeyDelegate
             );
             IntPtr fd = Application_GetFontManager(this.app);
-            this.FontManager = new AntigrainCPP.FontManager(fd);
+            this.FontManager = new AntigrainSharp.FontManager(fd);
         }
 
         public void SetCaption(string text)
@@ -86,11 +42,13 @@ namespace AntigrainCPP {
             Application_Caption(this.app, text);
         }
 
-        public bool Init(uint width, uint height, WindowFlags flags){
+        public bool Init(uint width, uint height, WindowFlags flags)
+        {
             return Application_Init(this.app, width, height, flags);
         }
 
-        public int Run(){
+        public int Run()
+        {
             return Application_Run(this.app);
         }
 
@@ -99,24 +57,25 @@ namespace AntigrainCPP {
             Application_ForceRedraw(this.app);
         }
 
-        internal void InternalOnDraw(IntPtr gctx){
+        internal void InternalOnDraw(IntPtr gctx)
+        {
             GraphicContext graphicContext = new GraphicContext(gctx);
             this.OnDraw(graphicContext);
         }
 
-        public virtual void OnDraw(GraphicContext gctx){}
+        public virtual void OnDraw(GraphicContext gctx) { }
 
-        public virtual void OnResize(int sx, int sy){}
+        public virtual void OnResize(int sx, int sy) { }
 
-        public virtual void OnMouseMove(int x, int y, uint flags){}
+        public virtual void OnMouseMove(int x, int y, uint flags) { }
 
-        public virtual void OnMouseButtonDown(int x, int y, uint flags){}
+        public virtual void OnMouseButtonDown(int x, int y, uint flags) { }
 
-        public virtual void OnMouseButtonUp(int x, int y, uint flags){}
+        public virtual void OnMouseButtonUp(int x, int y, uint flags) { }
 
-        public virtual void OnKey(int x, int y, uint key, uint flags){}
+        public virtual void OnKey(int x, int y, uint key, uint flags) { }
 
-        public AntigrainCPP.FontManager FontManager;
+        public AntigrainSharp.FontManager FontManager;
 
         private IntPtr app;
         private OnDrawT onDrawDelegate;

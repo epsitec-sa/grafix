@@ -1,24 +1,25 @@
 ﻿// Copyright © 2003-2024, EPSITEC SA, CH-1400 Yverdon-les-Bains, Switzerland
 // Author: Pierre ARNAUD, Roger VUISTINER, Maintainer: Roger VUISTINER
 
-using static AntigrainCPP.Native;
+using static AntigrainSharp.Native;
 
-namespace AntigrainCPP
+namespace AntigrainSharp
 {
     public static class Renderer
     {
         public enum MaskComponent
         {
             None = -1,
-            A    = 0,
-            R    = 1,
-            G    = 2,
-            B    = 3,
+            A = 0,
+            R = 1,
+            G = 2,
+            B = 3,
         }
 
-        public class Base { 
-
-            protected Base(IntPtr renderer){
+        public class Base
+        {
+            protected Base(IntPtr renderer)
+            {
                 System.Console.WriteLine("Init Base Renderer");
                 this.renderer = renderer;
             }
@@ -28,31 +29,54 @@ namespace AntigrainCPP
 
         public class Special : Renderer.Base
         {
-            internal Special(IntPtr renderer) : base(renderer) {}
+            internal Special(IntPtr renderer)
+                : base(renderer) { }
 
             public void Fill4Colors(
-                int x, int y,
-                int dx, int dy,
-                double r1, double g1, double b1,
-                double r2, double g2, double b2,
-                double r3, double g3, double b3,
-                double r4, double g4, double b4
-            ){
+                int x,
+                int y,
+                int dx,
+                int dy,
+                double r1,
+                double g1,
+                double b1,
+                double r2,
+                double g2,
+                double b2,
+                double r3,
+                double g3,
+                double b3,
+                double r4,
+                double g4,
+                double b4
+            )
+            {
                 RendererFill4Colors(
                     renderer,
-                    x, y,
-                    dx, dy,
-                    r1, g1, b1,
-                    r2, g2, b2,
-                    r3, g3, b3,
-                    r4, g4, b4
+                    x,
+                    y,
+                    dx,
+                    dy,
+                    r1,
+                    g1,
+                    b1,
+                    r2,
+                    g2,
+                    b2,
+                    r3,
+                    g3,
+                    b3,
+                    r4,
+                    g4,
+                    b4
                 );
             }
         }
 
         public class Solid : Renderer.Base
         {
-            internal Solid(IntPtr renderer) : base(renderer) {}
+            internal Solid(IntPtr renderer)
+                : base(renderer) { }
 
             public void Clear(double r, double g, double b, double a)
             {
@@ -72,7 +96,8 @@ namespace AntigrainCPP
 
         public class Smooth : Renderer.Base
         {
-            internal Smooth(IntPtr renderer) : base(renderer) {}
+            internal Smooth(IntPtr renderer)
+                : base(renderer) { }
 
             public void Color(double r, double g, double b, double a)
             {
@@ -80,11 +105,16 @@ namespace AntigrainCPP
             }
 
             public void Setup(
-                double r1, double r2,
-                double xx, double xy,
-                double yx, double yy,
-                double tx, double ty
-            ){
+                double r1,
+                double r2,
+                double xx,
+                double xy,
+                double yx,
+                double yy,
+                double tx,
+                double ty
+            )
+            {
                 RendererSmooth_Setup(renderer, r1, r2, xx, xy, yx, yy, tx, ty);
             }
 
@@ -101,13 +131,11 @@ namespace AntigrainCPP
 
         public class Image : Renderer.Base
         {
-            internal Image(IntPtr renderer) : base(renderer) {}
+            internal Image(IntPtr renderer)
+                : base(renderer) { }
 
-            public void Matrix(
-                double xx, double xy,
-                double yx, double yy,
-                double tx, double ty
-            ){
+            public void Matrix(double xx, double xy, double yx, double yy, double tx, double ty)
+            {
                 RendererImage_Matrix(renderer, xx, xy, yx, yy, tx, ty);
             }
 
@@ -134,7 +162,8 @@ namespace AntigrainCPP
 
         public class Gradient : Renderer.Base
         {
-            internal Gradient(IntPtr renderer) : base(renderer) {}
+            internal Gradient(IntPtr renderer)
+                : base(renderer) { }
 
             public void Select(int id)
             {
@@ -151,11 +180,8 @@ namespace AntigrainCPP
                 RendererGradient_Range(renderer, r1, r2);
             }
 
-            public void Matrix(
-                double xx, double xy,
-                double yx, double yy,
-                double tx, double ty
-            ){
+            public void Matrix(double xx, double xy, double yx, double yy, double tx, double ty)
+            {
                 RendererGradient_Matrix(renderer, xx, xy, yx, yy, tx, ty);
             }
 

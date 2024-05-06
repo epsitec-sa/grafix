@@ -1,9 +1,9 @@
 ﻿// Copyright © 2003-2024, EPSITEC SA, CH-1400 Yverdon-les-Bains, Switzerland
 // Author: Pierre ARNAUD, Roger VUISTINER, Maintainer: Roger VUISTINER
 
-using static AntigrainCPP.Native;
+using static AntigrainSharp.Native;
 
-namespace AntigrainCPP
+namespace AntigrainSharp
 {
     public class Rasterizer
     {
@@ -37,18 +37,13 @@ namespace AntigrainCPP
             Rasterizer_Gamma(rasterizer, gamma);
         }
 
-        public void SetTransform(
-            double xx, double xy,
-            double yx, double yy,
-            double tx, double ty
-        ){
+        public void SetTransform(double xx, double xy, double yx, double yy, double tx, double ty)
+        {
             Rasterizer_SetTransform(rasterizer, xx, xy, yx, yy, tx, ty);
         }
 
-        public void SetClipBox(
-            double x1, double y1,
-            double x2, double y2
-        ){
+        public void SetClipBox(double x1, double y1, double x2, double y2)
+        {
             Rasterizer_SetClipBox(rasterizer, x1, y1, x2, y2);
         }
 
@@ -57,10 +52,8 @@ namespace AntigrainCPP
             Rasterizer_ResetClipBox(rasterizer);
         }
 
-        public void AddPath(
-            Path path,
-            bool curves
-        ){
+        public void AddPath(Path path, bool curves)
+        {
             Rasterizer_AddPath(rasterizer, path.path, curves);
         }
 
@@ -121,11 +114,8 @@ namespace AntigrainCPP
         /*     } */
         /* } */
 
-        public void AddPathStroke1(
-            Path path,
-            double width,
-            bool curves
-        ){
+        public void AddPathStroke1(Path path, double width, bool curves)
+        {
             Rasterizer_AddPathStroke1(rasterizer, path.path, width, curves);
         }
 
@@ -136,7 +126,8 @@ namespace AntigrainCPP
             int join,
             double miter_limit,
             bool curves
-        ){
+        )
+        {
             Rasterizer_AddPathStroke2(rasterizer, path.path, width, cap, join, miter_limit, curves);
         }
 

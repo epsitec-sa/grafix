@@ -1,13 +1,14 @@
 ﻿// Copyright © 2003-2024, EPSITEC SA, CH-1400 Yverdon-les-Bains, Switzerland
 // Author: Pierre ARNAUD, Roger VUISTINER, Maintainer: Roger VUISTINER
 
-using static AntigrainCPP.Native;
+using static AntigrainSharp.Native;
 
-namespace AntigrainCPP
+namespace AntigrainSharp
 {
     public class RectanglePath : Path
     {
-        public RectanglePath(double x1, double y1, double x2, double y2) : base() 
+        public RectanglePath(double x1, double y1, double x2, double y2)
+            : base()
         {
             this.MoveTo(x1, y1);
             this.LineTo(x1, y2);
@@ -59,22 +60,69 @@ namespace AntigrainCPP
             Path_AddNewPath(path);
         }
 
-        public void AppendGlyph(IntPtr face, int glyph, double xx, double xy, double yx, double yy, double tx, double ty, double bold)
+        public void AppendGlyph(
+            IntPtr face,
+            int glyph,
+            double xx,
+            double xy,
+            double yx,
+            double yy,
+            double tx,
+            double ty,
+            double bold
+        )
         {
             Path_AppendGlyph(path, face, glyph, xx, xy, yx, yy, tx, ty, bold);
         }
 
-        public void AppendPath(Path otherPath, double width, int cap, int join, double miter_limit, double scale, bool curved)
+        public void AppendPath(
+            Path otherPath,
+            double width,
+            int cap,
+            int join,
+            double miter_limit,
+            double scale,
+            bool curved
+        )
         {
-            Path_AppendPathStroke(path, otherPath.path, width, cap, join, miter_limit, scale, curved);
+            Path_AppendPathStroke(
+                path,
+                otherPath.path,
+                width,
+                cap,
+                join,
+                miter_limit,
+                scale,
+                curved
+            );
         }
 
-        public void AppendPath(Path otherPath, double xx, double xy, double yx, double yy, double tx, double ty, double scale, double bold)
+        public void AppendPath(
+            Path otherPath,
+            double xx,
+            double xy,
+            double yx,
+            double yy,
+            double tx,
+            double ty,
+            double scale,
+            double bold
+        )
         {
             Path_AppendPath(path, otherPath.path, xx, xy, yx, yy, tx, ty, scale, bold);
         }
 
-        public void AppendArc(double x, double y, double rx, double ry, double a1, double a2, bool ccw, double scale, bool continue_path)
+        public void AppendArc(
+            double x,
+            double y,
+            double rx,
+            double ry,
+            double a1,
+            double a2,
+            bool ccw,
+            double scale,
+            bool continue_path
+        )
         {
             Path_AppendArc(path, x, y, rx, ry, a1, a2, ccw, scale, continue_path);
         }
