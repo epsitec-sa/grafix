@@ -38,6 +38,8 @@ namespace AntigrainCPP {
 
     extern "C" DECLSPEC unsigned GraphicBuffer_GetHeight(GraphicBuffer* gbuff);
 
+    extern "C" DECLSPEC unsigned GraphicBuffer_GetStride(GraphicBuffer* gbuff);
+
     extern "C" DECLSPEC unsigned GraphicBuffer_GetBufferLength(GraphicBuffer* gbuff);
 
     extern "C" DECLSPEC void GraphicBuffer_GetBufferData(GraphicBuffer* gbuff, unsigned char* output_buffer);

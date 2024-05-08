@@ -45,6 +45,10 @@ namespace AntigrainCPP {
         return gbuff->rendering_buffer.height();
     }
 
+    unsigned GraphicBuffer_GetStride(GraphicBuffer* gbuff){
+        return gbuff->rendering_buffer.stride();
+    }
+
     unsigned GraphicBuffer_GetBufferLength(GraphicBuffer* gbuff){
         return gbuff->rendering_buffer.height() * gbuff->rendering_buffer.stride_abs();
     }

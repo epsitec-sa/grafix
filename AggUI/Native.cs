@@ -514,6 +514,9 @@ namespace AntigrainSharp
         public static extern uint GraphicBuffer_GetHeight(IntPtr gbuff);
 
         [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
+        public static extern uint GraphicBuffer_GetStride(IntPtr gbuff);
+
+        [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
         public static extern uint GraphicBuffer_GetBufferLength(IntPtr gbuff);
 
         [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
