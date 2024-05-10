@@ -8,7 +8,6 @@
 
 #include <iostream>
 
-#include "antigrain.h"
 #include "rasterizer.h"
 
 /* #include "agg_font_path_provider.h" */

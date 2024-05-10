@@ -1,7 +1,8 @@
 #pragma once
 
 /*****************************************************************************/
-/* from agg_rasterizer.cpp */
+#include "agg_rasterizer_scanline_aa.h"
+
 #include "path.h"
 #include "renderer.h"
 

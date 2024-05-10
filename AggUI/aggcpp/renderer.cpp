@@ -8,7 +8,6 @@
 
 #include <iostream>
 
-#include "antigrain.h"
 #include "renderer.h"
 
 /* #include "agg_conv_curve.h" */

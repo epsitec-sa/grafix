@@ -114,7 +114,7 @@ ENDIF( agg_USE_FREETYPE )
 add_subdirectory(screeninfo)
 
 add_library(AntigrainCPP SHARED
-    antigrain.cpp
+    application.cpp
     font.cpp
     font_manager.cpp
     freetype_utils.cpp
