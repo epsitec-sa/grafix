@@ -1,6 +1,6 @@
 //  AntiGrain.Win32/agg_renderer.cpp
 //
-//  Copyright © 2003-2007, Pierre ARNAUD, OPaC bright ideas, Ch. du Fontenay 6,
+//  Copyright ï¿½ 2003-2007, Pierre ARNAUD, OPaC bright ideas, Ch. du Fontenay 6,
 //                         CH-1400 YVERDON, Switzerland. All rights reserved. 
 //
 //  Contact: pierre.arnaud@opac.ch, http://www.opac.ch
@@ -277,7 +277,7 @@ bool RendererImage::Validate(){
     {
         if (this->is_source_ok)
         {
-            std::cout << "RendererImage Validate" << std::endl;
+            //std::cout << "RendererImage Validate" << std::endl;
             this->interpolator.transformer (this->matrix);
 //-         this->img_src.background_color (agg::rgba(0.0, 0.0, 0.0, 0.0));
             this->img_pixf.attach (this->source_buffer); //@
@@ -389,9 +389,11 @@ RendererImage_AttachSource(RendererImage* renderer, unsigned char* buffer, int w
         if (buffer)
         {
             size_t data_size = height*std::abs(stride);
+            /*
             std::cout << "AttachSource "
                       << width << "x" << height << " stride " << stride 
                       << " data size " << data_size << std::endl;
+                      */
             renderer->source_buffer_data = new unsigned char[data_size]{0};
             memcpy(renderer->source_buffer_data, buffer, data_size);
             renderer->source_buffer.attach (renderer->source_buffer_data, width, height, stride);

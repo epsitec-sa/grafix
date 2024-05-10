@@ -12,7 +12,7 @@ namespace AntigrainCPP {
         data_buffer { new unsigned char[height*abs(stride)]{0} } ,
         rendering_buffer(data_buffer, width, height, stride),
         gctx(rendering_buffer, font_manager) {
-            std::cout << "[C++] GraphicBuffer set to zero " << std::endl;
+            //std::cout << "[C++] GraphicBuffer set to zero " << std::endl;
             gctx.clear(0, 0, 0, 0);
             /* std::cout << "[C++] sizeof unsigned char " << sizeof(unsigned char) << std::endl; */
             /* rendering_buffer.clear(0); */
@@ -55,8 +55,9 @@ namespace AntigrainCPP {
 
     void GraphicBuffer_GetBufferData(GraphicBuffer* gbuff, unsigned char* output_buffer){
         unsigned length = GraphicBuffer_GetBufferLength(gbuff);
-        std::cout << "[C++] GetBufferData " << length << std::endl;
+        //std::cout << "[C++] GetBufferData " << length << std::endl;
         unsigned char* buf = gbuff->rendering_buffer.buf();
+        /*
         std::cout << "[C++] data buffer 0 is " << ((int)(gbuff->data_buffer[0])) << std::endl;
         std::cout << "[C++] data buffer 1 is " << ((int)(gbuff->data_buffer[1])) << std::endl;
         std::cout << "[C++] data buffer 2 is " << ((int)(gbuff->data_buffer[2])) << std::endl;
@@ -66,7 +67,8 @@ namespace AntigrainCPP {
         std::cout << "[C++] buffer 1 is " << ((int)buf[1]) << std::endl;
         std::cout << "[C++] buffer 2 is " << ((int)buf[2]) << std::endl;
         std::cout << "[C++] buffer 3 is " << ((int)buf[3]) << std::endl;
+        */
         std::memcpy(output_buffer, buf, length);
-        std::cout << "[C++] GetBufferData done" << std::endl;
+        //std::cout << "[C++] GetBufferData done" << std::endl;
     }
 }

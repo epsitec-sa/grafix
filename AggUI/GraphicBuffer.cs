@@ -9,7 +9,7 @@ namespace AntigrainSharp
     {
         public GraphicBuffer(uint width, uint height, int stride, FontManager fm)
         {
-            System.Console.WriteLine($"GraphicBuffer with {width}x{height} stride {stride}");
+            //System.Console.WriteLine($"GraphicBuffer with {width}x{height} stride {stride}");
             this.buffer = GraphicBuffer_NewGraphicBuffer(width, height, stride, fm.manager);
             IntPtr gctxHandle = GraphicBuffer_GetGraphicContext(this.buffer);
             this.gctx = new GraphicContext(gctxHandle);

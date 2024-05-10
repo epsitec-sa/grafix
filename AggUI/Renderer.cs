@@ -20,7 +20,7 @@ namespace AntigrainSharp
         {
             protected Base(IntPtr renderer)
             {
-                System.Console.WriteLine("Init Base Renderer");
+                //System.Console.WriteLine("Init Base Renderer");
                 this.renderer = renderer;
             }
 

@@ -1,6 +1,6 @@
 //  AntiGrain.Win32/agg_rasterizer.cpp
 //
-//  Copyright © 2003-2007, Pierre ARNAUD, OPaC bright ideas, Ch. du Fontenay 6,
+//  Copyright ï¿½ 2003-2007, Pierre ARNAUD, OPaC bright ideas, Ch. du Fontenay 6,
 //                         CH-1400 YVERDON, Switzerland. All rights reserved. 
 //
 //  Contact: pierre.arnaud@opac.ch, http://www.opac.ch
@@ -829,10 +829,12 @@ Rasterizer_RenderImage(Rasterizer* rasterizer, RendererImage* renderer)
       && (renderer)
       && (renderer->Validate ()) )
     {
+        /*
         std::cout << "RenderImage"
                   << " use_nn " << renderer->use_nn 
                   << " mode " << renderer->mode
                   << std::endl;
+                  */
         switch (renderer->active_mask_component)
         {
             case 0:

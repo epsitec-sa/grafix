@@ -18,7 +18,7 @@ namespace AntigrainCPP {
         renderer_bin(pixf),
         font_manager(fm)
     {
-        std::cout << "[C++] create GraphicContext" << std::endl;
+        //std::cout << "[C++] create GraphicContext" << std::endl;
     }
 
     void GraphicContext::clear(double r, double g, double b, double a){
@@ -30,7 +30,7 @@ namespace AntigrainCPP {
     }
 
     void GraphicContext::draw_ellipse(double x, double y, double rx, double ry){
-        std::cout << "[C++] draw ellipse" << std::endl;
+        //std::cout << "[C++] draw ellipse" << std::endl;
 
         agg::rasterizer_scanline_aa<> ras;
         agg::scanline_p8 sl;
