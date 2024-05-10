@@ -13,7 +13,7 @@ namespace AntigrainCPP {
         rendering_buffer(data_buffer, width, height, stride),
         gctx(rendering_buffer, font_manager) {
             std::cout << "[C++] GraphicBuffer set to zero " << std::endl;
-            gctx.clear(0, 0, 0, 1);
+            gctx.clear(0, 0, 0, 0);
             /* std::cout << "[C++] sizeof unsigned char " << sizeof(unsigned char) << std::endl; */
             /* rendering_buffer.clear(0); */
             /* memset(data_buffer, 0, height*abs(stride)); */

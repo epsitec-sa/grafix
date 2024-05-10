@@ -34,7 +34,7 @@ namespace Example
             this.FontManager.SetFont(font);
 
             Console.WriteLine($"read image");
-            this.inputImage = new ImageMagick.MagickImage("grid.png");
+            this.inputImage = new ImageMagick.MagickImage("transparent.png");
         }
 
         public override void OnDraw(GraphicContext gctx)
@@ -66,7 +66,7 @@ namespace Example
         public void PrintByteArray(byte[] arr)
         {
             int colorStep = 4;
-            int width = 3;
+            int width = 5;
             Console.WriteLine($"---");
             int step = 0;
             for (int i = 0; i < arr.Length; i += colorStep)
@@ -84,30 +84,32 @@ namespace Example
 
         public void GenerateOutputImage(GraphicContext gctx, ImageMagick.MagickImage image)
         {
-            //byte[] buffer = image.GetPixels().ToByteArray(ImageMagick.PixelMapping.BGRA);
+            gctx.SetColor(0.0, 0.5, 0.0, 1.0);
+            gctx.DrawEllipse(0, 0, 10, 10);
+
+            byte[] buffer = image.GetPixels().ToByteArray(ImageMagick.PixelMapping.BGRA);
             //Console.WriteLine(
             //    $"GenerateOutputImage: got an image {image.Width}x{image.Height} buffer size {buffer.Length}"
             //);
             //this.PrintByteArray(buffer);
-            //int stride = -sizeof(byte) * image.Width * 4;
+            int stride = -sizeof(byte) * image.Width * 4;
 
-            //gctx.RendererImage.Matrix(1, 0, 0, 1, 0, 0);
-            //Console.WriteLine($"attach input buffer: {buffer.Length}");
-            //this.PrintByteArray(buffer);
-            //gctx.RendererImage.AttachSource(buffer, image.Width, image.Height, stride);
-            //gctx.RendererImage.SetStretchMode(0, 0.0); // important to call after attach source
-            //var rast = new AntigrainCPP.Rasterizer();
-            //Console.WriteLine($"Make rect");
-            //var rect = new AntigrainCPP.RectanglePath(0, 0, image.Width, image.Height);
-            //Console.WriteLine($"Add rect to rasterizer");
-            //rast.AddPath(rect, false);
-            //Console.WriteLine($"render image");
-            //rast.RenderImage(gctx.RendererImage);
+            int shift = 3;
+            gctx.RendererImage.Matrix(1, 0, 0, 1, -shift, -shift);
+            Console.WriteLine($"attach input buffer: {buffer.Length}");
+            this.PrintByteArray(buffer);
+            gctx.RendererImage.AttachSource(buffer, image.Width, image.Height, stride);
+            gctx.RendererImage.SetStretchMode(0, 0.0); // important to call after attach source
+            var rast = new Rasterizer();
+            Console.WriteLine($"Make rect");
+            var rect = new RectanglePath(0+shift, 0+shift, image.Width+shift, image.Height+shift);
+            Console.WriteLine($"Add rect to rasterizer");
+            rast.AddPath(rect, false);
+            Console.WriteLine($"render image");
+            rast.RenderImage(gctx.RendererImage);
 
-            gctx.SetColor(0.9, 0.0, 0.0, 1.0);
             //this.FontManager.SetFontSize(155);
             //gctx.DrawText("M", -10, 0);
-            gctx.DrawEllipse(0, 0, 10, 10);
             Console.WriteLine($"GenerateOutputImage done");
         }
 
@@ -119,25 +121,20 @@ namespace Example
                 $"=============================== START FILE OUTPUT IMAGE ==============================="
             );
             Console.WriteLine($"create graphic buffer");
-            int stride = -sizeof(byte) * this.inputImage.Width * 4;
+            uint width = 15;
+            uint height = 15;
+            int stride = -sizeof(byte) * (int)width * 4;
             GraphicBuffer gbuff = new GraphicBuffer(
-                (uint)this.inputImage.Width,
-                (uint)this.inputImage.Height,
+                width,
+                height,
                 stride,
                 this.FontManager
             );
             Console.WriteLine($"graphic buffer size {gbuff.Width}x{gbuff.Height}");
 
-            //Console.WriteLine($"get buffer pixels before paint");
-            //byte[] pre_buffer = gbuff.GetBufferData();
-            //Console.WriteLine($"buffer length: {pre_buffer.Length}");
-            //this.PrintByteArray(pre_buffer);
-
             this.GenerateOutputImage(gbuff.GraphicContext, this.inputImage);
 
             var settings = new ImageMagick.PixelImportSettings(
-                // image.Width,
-                // image.Height,
                 (int)gbuff.Width,
                 (int)gbuff.Height,
                 ImageMagick.StorageType.Char,
