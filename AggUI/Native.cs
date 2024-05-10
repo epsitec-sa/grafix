@@ -26,7 +26,8 @@ namespace AntigrainSharp
             OnMouseMoveT on_mouse_move,
             OnMouseButtonDownT on_mouse_button_down,
             OnMouseButtonUpT on_mouse_button_up,
-            OnKeyT on_key
+            OnKeyT on_key,
+            IntPtr fm
         );
 
         [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
@@ -57,9 +58,6 @@ namespace AntigrainSharp
 
         [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
         public static extern int Application_Run(IntPtr app);
-
-        [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
-        public static extern IntPtr Application_GetFontManager(IntPtr app);
         #endregion
 
         #region Path
@@ -481,6 +479,9 @@ namespace AntigrainSharp
         #region FontManager
 
         [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
+        public static extern IntPtr FontManager_New();
+
+        [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
         [return: MarshalAs(UnmanagedType.U1)]
         public static extern bool FontManager_LoadFont(
             IntPtr fm,
@@ -581,10 +582,6 @@ namespace AntigrainSharp
 
         [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
         public static extern IntPtr GraphicContext_GetGradientRenderer(IntPtr gctx);
-
-        [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
-        public static extern IntPtr GraphicContext_GetFontManager(IntPtr gctx);
-
         #endregion
     }
 }

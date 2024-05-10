@@ -7,8 +7,7 @@ namespace Example
 {
     class Application : AggWindow
     {
-        public Application(bool flip_y)
-            : base(flip_y)
+        public Application(bool flip_y, FontManager fm) : base(flip_y, fm)
         {
             Font font = Font.LoadFromFile("Impacted.ttf");
             bool isBold = font.IsBold;
@@ -221,7 +220,8 @@ namespace Example
         public static int Main(string[] args)
         {
             System.Console.WriteLine("Create Application");
-            Application app = new Application(true);
+            FontManager fm = new FontManager();
+            Application app = new Application(true, fm);
             ScreenInfo.Rect res = ScreenInfo.GetResolution();
             System.Console.WriteLine($"Screen resolution: {res.Width}, {res.Height}");
             app.SetCaption("AggUI example");

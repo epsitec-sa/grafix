@@ -22,7 +22,8 @@ namespace AntigrainCPP {
         void (*on_mouse_move)(int x, int y, unsigned flags),
         void (*on_mouse_button_down)(int x, int y, unsigned flags),
         void (*on_mouse_button_up)(int x, int y, unsigned flags),
-        void (*on_key)(int x, int y, unsigned key, unsigned flags)
+        void (*on_key)(int x, int y, unsigned key, unsigned flags),
+        FontManager& fm
     ) : agg::platform_support(pix_format, flip_y),
         on_draw_callback(on_draw),
         on_resize_callback(on_resize),
@@ -30,7 +31,7 @@ namespace AntigrainCPP {
         on_mouse_button_down_callback(on_mouse_button_down),
         on_mouse_button_up_callback(on_mouse_button_up),
         on_key_callback(on_key),
-        font_manager()
+        font_manager(fm)
     {
     }
 
@@ -88,7 +89,8 @@ namespace AntigrainCPP {
         void (*on_mouse_move)(int x, int y, unsigned flags),
         void (*on_mouse_button_down)(int x, int y, unsigned flags),
         void (*on_mouse_button_up)(int x, int y, unsigned flags),
-        void (*on_key)(int x, int y, unsigned key, unsigned flags)
+        void (*on_key)(int x, int y, unsigned key, unsigned flags),
+        FontManager& fm
     ){
         std::cout << "[C++] new platform_support(flip_y=" << flip_y << ")" << std::endl;
         return new Application(
@@ -98,7 +100,8 @@ namespace AntigrainCPP {
             on_mouse_move,
             on_mouse_button_down,
             on_mouse_button_up,
-            on_key
+            on_key,
+            fm
         );
     }
 
@@ -121,10 +124,6 @@ namespace AntigrainCPP {
 
     void Application_ForceRedraw(Application* app){
         app->force_redraw();
-    }
-
-    FontManager* Application_GetFontManager(Application* app){
-        return &(app->font_manager);
     }
 }
 

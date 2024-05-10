@@ -20,8 +20,6 @@ namespace AntigrainSharp
             this.RendererImage = new AntigrainSharp.Renderer.Image(image_ren);
             IntPtr gradient_ren = GraphicContext_GetGradientRenderer(gctx);
             this.RendererGradient = new AntigrainSharp.Renderer.Gradient(gradient_ren);
-            IntPtr font_manager = GraphicContext_GetFontManager(gctx);
-            this.FontManager = new AntigrainSharp.FontManager(font_manager);
         }
 
         public void SetColor(double r, double g, double b, double a)
@@ -151,7 +149,6 @@ namespace AntigrainSharp
         public AntigrainSharp.Renderer.Smooth RendererSmooth;
         public AntigrainSharp.Renderer.Image RendererImage;
         public AntigrainSharp.Renderer.Gradient RendererGradient;
-        public AntigrainSharp.FontManager FontManager;
 
         private IntPtr gctx;
     }

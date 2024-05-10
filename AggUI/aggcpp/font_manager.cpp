@@ -7,6 +7,7 @@ namespace AntigrainCPP {
         m_feng()
     {}
 
+
     bool FontManager::load_font(const char* font_name){
         return m_feng.load_font(font_name, 0, agg::glyph_ren_agg_gray8);
     }
@@ -14,6 +15,10 @@ namespace AntigrainCPP {
     void FontManager::set_font_size(double size){
         m_feng.width(size);
         m_feng.height(size);
+    }
+
+    FontManager* FontManager_New(){
+        return new FontManager();
     }
 
     bool FontManager_LoadFont(FontManager* fm, const char* font_name){

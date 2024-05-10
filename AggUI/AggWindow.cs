@@ -16,7 +16,7 @@ namespace AntigrainSharp
 
     public class AggWindow
     {
-        public AggWindow(bool flip_y)
+        public AggWindow(bool flip_y, FontManager fm)
         {
             onDrawDelegate = InternalOnDraw;
             onResizeDelegate = OnResize;
@@ -31,10 +31,10 @@ namespace AntigrainSharp
                 onMouseMoveDelegate,
                 onMouseButtonDownDelegate,
                 onMouseButtonUpDelegate,
-                onKeyDelegate
+                onKeyDelegate,
+                fm.manager
             );
-            IntPtr fd = Application_GetFontManager(this.app);
-            this.FontManager = new AntigrainSharp.FontManager(fd);
+            this.FontManager = fm;
         }
 
         public void SetCaption(string text)

@@ -7,9 +7,9 @@ namespace AntigrainSharp
 {
     public class FontManager
     {
-        internal FontManager(IntPtr manager)
-        {
-            this.manager = manager;
+
+        public FontManager(){
+            this.manager = FontManager_New();
         }
 
         public bool SetFont(string fontname)

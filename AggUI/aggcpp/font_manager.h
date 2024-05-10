@@ -23,6 +23,8 @@ namespace AntigrainCPP {
             font_engine         m_feng;
     };
 
+    extern "C" DECLSPEC FontManager* FontManager_New();
+
     extern "C" DECLSPEC bool FontManager_LoadFont(FontManager* fm,
         const char* font_name
     );

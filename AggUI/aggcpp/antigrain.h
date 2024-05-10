@@ -25,10 +25,11 @@ namespace AntigrainCPP {
                 void (*on_mouse_move)(int x, int y, unsigned flags),
                 void (*on_mouse_button_down)(int x, int y, unsigned flags),
                 void (*on_mouse_button_up)(int x, int y, unsigned flags),
-                void (*on_key)(int x, int y, unsigned key, unsigned flags)
+                void (*on_key)(int x, int y, unsigned key, unsigned flags),
+                FontManager& fm
             );
 
-            FontManager font_manager;
+            FontManager& font_manager;
         private:
             // user callbacks
             void (*on_resize_callback)(int sx, int sy);
@@ -54,7 +55,8 @@ namespace AntigrainCPP {
         void (*on_mouse_move)(int x, int y, unsigned flags),
         void (*on_mouse_button_down)(int x, int y, unsigned flags),
         void (*on_mouse_button_up)(int x, int y, unsigned flags),
-        void (*on_key)(int x, int y, unsigned key, unsigned flags)
+        void (*on_key)(int x, int y, unsigned key, unsigned flags),
+        FontManager& fm
     );
 
     extern "C" DECLSPEC void Application_Caption(Application* ps, 
@@ -69,6 +71,4 @@ namespace AntigrainCPP {
     extern "C" DECLSPEC int Application_Run(Application* ps);
 
     extern "C" DECLSPEC void Application_ForceRedraw(Application* ps);
-
-    extern "C" DECLSPEC FontManager* Application_GetFontManager(Application* ps);
 }
