@@ -29,10 +29,10 @@ namespace AntigrainSharp
         {
             onDrawDelegate = InternalOnDraw;
             onResizeDelegate = OnResize;
-            onMouseMoveDelegate = OnMouseMove;
-            onMouseButtonDownDelegate = OnMouseButtonDown;
-            onMouseButtonUpDelegate = OnMouseButtonUp;
-            onKeyDelegate = OnKey;
+            onMouseMoveDelegate = InternalOnMouseMove;
+            onMouseButtonDownDelegate = InternalOnMouseButtonDown;
+            onMouseButtonUpDelegate = InternalOnMouseButtonUp;
+            onKeyDelegate = InternalOnKey;
             this.app = NewApplication(
                 flip_y,
                 onDrawDelegate,
@@ -72,17 +72,33 @@ namespace AntigrainSharp
             this.OnDraw(graphicContext);
         }
 
+        internal void InternalOnMouseMove(int x, int y, uint flags) {
+            this.OnMouseMove(x, y, (InputFlags)flags);
+         }
+
+        internal void InternalOnMouseButtonDown(int x, int y, uint flags) { 
+            this.OnMouseButtonDown(x, y, (InputFlags)flags);
+        }
+
+        internal void InternalOnMouseButtonUp(int x, int y, uint flags) { 
+            this.OnMouseButtonUp(x, y, (InputFlags)flags);
+        }
+
+        internal void InternalOnKey(int x, int y, uint key, uint flags) { 
+            this.OnKey(x, y, key, (InputFlags)flags);
+        }
+
         public virtual void OnDraw(GraphicContext gctx) { }
 
         public virtual void OnResize(int sx, int sy) { }
 
-        public virtual void OnMouseMove(int x, int y, uint flags) { }
+        public virtual void OnMouseMove(int x, int y, InputFlags flags) { }
 
-        public virtual void OnMouseButtonDown(int x, int y, uint flags) { }
+        public virtual void OnMouseButtonDown(int x, int y, InputFlags flags) { }
 
-        public virtual void OnMouseButtonUp(int x, int y, uint flags) { }
+        public virtual void OnMouseButtonUp(int x, int y, InputFlags flags) { }
 
-        public virtual void OnKey(int x, int y, uint key, uint flags) { }
+        public virtual void OnKey(int x, int y, uint key, InputFlags flags) { }
 
         public AntigrainSharp.FontManager FontManager;
 
