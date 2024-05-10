@@ -14,6 +14,15 @@ namespace AntigrainSharp
         ProcessAllKeys = 8
     };
 
+    [Flags]
+    public enum InputFlags : uint
+    {
+        MouseLeft  = 1,
+        MouseRight = 2,
+        KbdShift   = 4,
+        KbdCtrl    = 8
+    };
+
     public class AggWindow
     {
         public AggWindow(bool flip_y, FontManager fm)
