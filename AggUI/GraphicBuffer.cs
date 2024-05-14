@@ -5,21 +5,8 @@ using static AntigrainSharp.Native;
 
 namespace AntigrainSharp
 {
-    public class GraphicBuffer : System.IDisposable
+    public abstract class AbstractGraphicBuffer : System.IDisposable
     {
-        public GraphicBuffer(uint width, uint height, int stride, FontManager fm)
-        {
-            //System.Console.WriteLine($"GraphicBuffer with {width}x{height} stride {stride}");
-            this.buffer = GraphicBuffer_NewGraphicBuffer(width, height, stride, fm.manager);
-            IntPtr gctxHandle = GraphicBuffer_GetGraphicContext(this.buffer);
-            this.gctx = new GraphicContext(gctxHandle);
-        }
-
-        public void Dispose()
-        {
-            GraphicBuffer_DeleteGraphicBuffer(this.buffer);
-        }
-
         public GraphicContext GraphicContext
         {
             get { return this.gctx; }
@@ -35,7 +22,7 @@ namespace AntigrainSharp
             get { return GraphicBuffer_GetHeight(this.buffer); }
         }
 
-        public uint Stride
+        public int Stride
         {
             get { return GraphicBuffer_GetStride(this.buffer); }
         }
@@ -52,7 +39,45 @@ namespace AntigrainSharp
             return data;
         }
 
-        private IntPtr buffer;
-        private GraphicContext gctx;
+        public IntPtr GetBufferDataHandle(){
+            return this.buffer;
+        }
+
+        public abstract void Dispose();
+
+        protected IntPtr buffer;
+        protected GraphicContext gctx;
+    }
+
+    public class GraphicBufferExternalData : AbstractGraphicBuffer
+    {
+        public GraphicBufferExternalData(IntPtr data_buffer, uint width, uint height, int stride, FontManager fm)
+        {
+            //System.Console.WriteLine($"GraphicBuffer with {width}x{height} stride {stride}");
+            this.buffer = GraphicBuffer_NewGraphicBufferExternalData(data_buffer, width, height, stride, fm.manager);
+            IntPtr gctxHandle = GraphicBuffer_GetGraphicContext(this.buffer);
+            this.gctx = new GraphicContext(gctxHandle);
+        }
+
+        public override void Dispose()
+        {
+            GraphicBuffer_DeleteGraphicBufferExternalData(this.buffer);
+        }
+    }
+
+    public class GraphicBuffer : AbstractGraphicBuffer
+    {
+        public GraphicBuffer(uint width, uint height, int stride, FontManager fm)
+        {
+            //System.Console.WriteLine($"GraphicBuffer with {width}x{height} stride {stride}");
+            this.buffer = GraphicBuffer_NewGraphicBuffer(width, height, stride, fm.manager);
+            IntPtr gctxHandle = GraphicBuffer_GetGraphicContext(this.buffer);
+            this.gctx = new GraphicContext(gctxHandle);
+        }
+
+        public override void Dispose()
+        {
+            GraphicBuffer_DeleteGraphicBuffer(this.buffer);
+        }
     }
 }

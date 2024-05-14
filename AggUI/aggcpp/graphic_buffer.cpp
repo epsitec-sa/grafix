@@ -6,10 +6,11 @@
 
 namespace AntigrainCPP {
 
-    GraphicBuffer::GraphicBuffer(
+    GraphicBufferExternalData::GraphicBufferExternalData(
+        unsigned char* data_buffer,
         unsigned width, unsigned height, int stride, FontManager& font_manager
     ) :
-        data_buffer { new unsigned char[height*abs(stride)]{0} } ,
+        GraphicBufferBase(),
         rendering_buffer(data_buffer, width, height, stride),
         gctx(rendering_buffer, font_manager) {
             //std::cout << "[C++] GraphicBuffer set to zero " << std::endl;
@@ -17,6 +18,57 @@ namespace AntigrainCPP {
             /* std::cout << "[C++] sizeof unsigned char " << sizeof(unsigned char) << std::endl; */
             /* rendering_buffer.clear(0); */
             /* memset(data_buffer, 0, height*abs(stride)); */
+        }
+
+    GraphicBufferExternalData::~GraphicBufferExternalData(){
+    }
+
+    GraphicBufferExternalData* GraphicBuffer_NewGraphicBufferExternalData(
+        unsigned char* data_buffer,
+        unsigned width, unsigned height, int stride, FontManager& font_manager
+    ){
+        return new GraphicBufferExternalData(data_buffer, width, height, stride, font_manager);
+    }
+
+    void GraphicBuffer_DeleteGraphicBufferExternalData(GraphicBufferExternalData* gbuff){
+        delete gbuff;
+    }
+
+    GraphicContext* GraphicBufferExternalData::GetGraphicContext() {
+        return &(this->gctx);
+    }
+
+    unsigned GraphicBufferExternalData::GetWidth() {
+        return this->rendering_buffer.width();
+    }
+
+    unsigned GraphicBufferExternalData::GetHeight() {
+        return this->rendering_buffer.height();
+    }
+
+    int GraphicBufferExternalData::GetStride() {
+        return this->rendering_buffer.stride();
+    }
+
+    unsigned GraphicBufferExternalData::GetBufferLength() {
+        return this->rendering_buffer.height() * this->rendering_buffer.stride_abs();
+    }
+
+    void GraphicBufferExternalData::GetBufferData(unsigned char* output_buffer) {
+        unsigned length = this->GetBufferLength();
+        unsigned char* buf = this->rendering_buffer.buf();
+        std::memcpy(output_buffer, buf, length);
+    }
+
+    // ---------------------------------------------------------------------------
+
+    GraphicBuffer::GraphicBuffer(
+        unsigned width, unsigned height, int stride, FontManager& font_manager
+    ) :
+        GraphicBufferBase(),
+        data_buffer { new unsigned char[height*abs(stride)]{0} },
+        gbuff(data_buffer, width, height, stride, font_manager)
+        {
         }
 
     GraphicBuffer::~GraphicBuffer(){
@@ -33,42 +85,53 @@ namespace AntigrainCPP {
         delete gbuff;
     }
 
-    GraphicContext* GraphicBuffer_GetGraphicContext(GraphicBuffer* gbuff){
-        return &(gbuff->gctx);
+    GraphicContext* GraphicBuffer::GetGraphicContext() {
+        return this->gbuff.GetGraphicContext();
     }
 
-    unsigned GraphicBuffer_GetWidth(GraphicBuffer* gbuff){
-        return gbuff->rendering_buffer.width();
+    unsigned GraphicBuffer::GetWidth() {
+        return this->gbuff.GetWidth();
     }
 
-    unsigned GraphicBuffer_GetHeight(GraphicBuffer* gbuff){
-        return gbuff->rendering_buffer.height();
+    unsigned GraphicBuffer::GetHeight() {
+        return this->gbuff.GetHeight();
     }
 
-    unsigned GraphicBuffer_GetStride(GraphicBuffer* gbuff){
-        return gbuff->rendering_buffer.stride();
+    int GraphicBuffer::GetStride() {
+        return this->gbuff.GetStride();
     }
 
-    unsigned GraphicBuffer_GetBufferLength(GraphicBuffer* gbuff){
-        return gbuff->rendering_buffer.height() * gbuff->rendering_buffer.stride_abs();
+    unsigned GraphicBuffer::GetBufferLength() {
+        return this->gbuff.GetBufferLength();
     }
 
-    void GraphicBuffer_GetBufferData(GraphicBuffer* gbuff, unsigned char* output_buffer){
-        unsigned length = GraphicBuffer_GetBufferLength(gbuff);
-        //std::cout << "[C++] GetBufferData " << length << std::endl;
-        unsigned char* buf = gbuff->rendering_buffer.buf();
-        /*
-        std::cout << "[C++] data buffer 0 is " << ((int)(gbuff->data_buffer[0])) << std::endl;
-        std::cout << "[C++] data buffer 1 is " << ((int)(gbuff->data_buffer[1])) << std::endl;
-        std::cout << "[C++] data buffer 2 is " << ((int)(gbuff->data_buffer[2])) << std::endl;
-        std::cout << "[C++] data buffer 3 is " << ((int)(gbuff->data_buffer[3])) << std::endl;
+    void GraphicBuffer::GetBufferData(unsigned char* output_buffer) {
+        this->gbuff.GetBufferData(output_buffer);
+    }
 
-        std::cout << "[C++] buffer 0 is " << ((int)buf[0]) << std::endl;
-        std::cout << "[C++] buffer 1 is " << ((int)buf[1]) << std::endl;
-        std::cout << "[C++] buffer 2 is " << ((int)buf[2]) << std::endl;
-        std::cout << "[C++] buffer 3 is " << ((int)buf[3]) << std::endl;
-        */
-        std::memcpy(output_buffer, buf, length);
-        //std::cout << "[C++] GetBufferData done" << std::endl;
+    // ---------------------------------------------------------------------------
+
+    GraphicContext* GraphicBuffer_GetGraphicContext(GraphicBufferBase* gbuff){
+        return gbuff->GetGraphicContext();
+    }
+
+    unsigned GraphicBuffer_GetWidth(GraphicBufferBase* gbuff){
+        return gbuff->GetWidth();
+    }
+
+    unsigned GraphicBuffer_GetHeight(GraphicBufferBase* gbuff){
+        return gbuff->GetHeight();
+    }
+
+    int GraphicBuffer_GetStride(GraphicBufferBase* gbuff){
+        return gbuff->GetStride();
+    }
+
+    unsigned GraphicBuffer_GetBufferLength(GraphicBufferBase* gbuff){
+        return gbuff->GetBufferLength();
+    }
+
+    void GraphicBuffer_GetBufferData(GraphicBufferBase* gbuff, unsigned char* output_buffer){
+        gbuff->GetBufferData(output_buffer);
     }
 }

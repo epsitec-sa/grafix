@@ -506,6 +506,18 @@ namespace AntigrainSharp
         public static extern void GraphicBuffer_DeleteGraphicBuffer(IntPtr gbuff);
 
         [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
+        public static extern IntPtr GraphicBuffer_NewGraphicBufferExternalData(
+            IntPtr data_buffer,
+            uint width,
+            uint height,
+            int stride,
+            IntPtr fm
+        );
+
+        [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
+        public static extern void GraphicBuffer_DeleteGraphicBufferExternalData(IntPtr gbuff);
+
+        [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
         public static extern IntPtr GraphicBuffer_GetGraphicContext(IntPtr gbuff);
 
         [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
@@ -515,7 +527,7 @@ namespace AntigrainSharp
         public static extern uint GraphicBuffer_GetHeight(IntPtr gbuff);
 
         [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
-        public static extern uint GraphicBuffer_GetStride(IntPtr gbuff);
+        public static extern int GraphicBuffer_GetStride(IntPtr gbuff);
 
         [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
         public static extern uint GraphicBuffer_GetBufferLength(IntPtr gbuff);
