@@ -23,6 +23,10 @@ namespace AntigrainCPP {
     GraphicBufferExternalData::~GraphicBufferExternalData(){
     }
 
+    agg::rendering_buffer& GraphicBufferExternalData::GetRenderingBuffer(){
+        return this->rendering_buffer;
+    }
+
     GraphicBufferExternalData* GraphicBuffer_NewGraphicBufferExternalData(
         unsigned char* data_buffer,
         unsigned width, unsigned height, int stride, FontManager& font_manager
@@ -73,6 +77,10 @@ namespace AntigrainCPP {
 
     GraphicBuffer::~GraphicBuffer(){
         delete [] this->data_buffer;
+    }
+
+    agg::rendering_buffer& GraphicBuffer::GetRenderingBuffer(){
+        return this->gbuff.GetRenderingBuffer();
     }
 
     GraphicBuffer* GraphicBuffer_NewGraphicBuffer(

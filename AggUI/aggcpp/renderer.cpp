@@ -15,81 +15,81 @@
 
 /*****************************************************************************/
 
-/* void */
-/* RendererSolid_SetAlphaMask(RendererSolid* renderer, */
-/*                              AggBuffer* buffer, int component) */
-/* { */
-/*     if (renderer) */
-/*     { */
-/*         renderer->renderer->active_mask_component = component; */
+void
+RendererSolid_SetAlphaMask(RendererSolid* renderer,
+                           GraphicBufferBase* buffer, int component)
+{
+    if (renderer)
+    {
+        renderer->active_mask_component = component;
         
-/*         if ( (component >= 0) */
-/*           && (component <= 3) ) */
-/*         { */
-/*             renderer->renderer->am_a.attach (buffer->buffer); */
-/*             renderer->renderer->am_r.attach (buffer->buffer); */
-/*             renderer->renderer->am_g.attach (buffer->buffer); */
-/*             renderer->renderer->am_b.attach (buffer->buffer); */
-/*         } */
-/*     } */
-/* } */
+        if ( (component >= 0)
+          && (component <= 3) )
+        {
+            renderer->am_a.attach(buffer->GetRenderingBuffer());
+            renderer->am_r.attach(buffer->GetRenderingBuffer());
+            renderer->am_g.attach(buffer->GetRenderingBuffer());
+            renderer->am_b.attach(buffer->GetRenderingBuffer());
+        }
+    }
+}
 
-/* void */
-/* RendererSmooth_SetAlphaMask(RendererSmooth* renderer, */
-/*                               AggBuffer* buffer, int component) */
-/* { */
-/*     if (renderer) */
-/*     { */
-/*         renderer->renderer->active_mask_component = component; */
+void
+RendererSmooth_SetAlphaMask(RendererSmooth* renderer,
+                            GraphicBufferBase* buffer, int component)
+{
+    if (renderer)
+    {
+        renderer->active_mask_component = component;
         
-/*         if ( (component >= 0) */
-/*           && (component <= 3) ) */
-/*         { */
-/*             renderer->renderer->am_a.attach (buffer->buffer); */
-/*             renderer->renderer->am_r.attach (buffer->buffer); */
-/*             renderer->renderer->am_g.attach (buffer->buffer); */
-/*             renderer->renderer->am_b.attach (buffer->buffer); */
-/*         } */
-/*     } */
-/* } */
+        if ( (component >= 0)
+          && (component <= 3) )
+        {
+            renderer->am_a.attach(buffer->GetRenderingBuffer());
+            renderer->am_r.attach(buffer->GetRenderingBuffer());
+            renderer->am_g.attach(buffer->GetRenderingBuffer());
+            renderer->am_b.attach(buffer->GetRenderingBuffer());
+        }
+    }
+}
 
-/* void */
-/* RendererImage_SetAlphaMask(RendererImage* renderer, */
-/*                              AggBuffer* buffer, int component) */
-/* { */
-/*     if (renderer) */
-/*     { */
-/*         renderer->renderer->active_mask_component = component; */
+void
+RendererImage_SetAlphaMask(RendererImage* renderer,
+                           GraphicBufferBase* buffer, int component)
+{
+    if (renderer)
+    {
+        renderer->active_mask_component = component;
         
-/*         if ( (component >= 0) */
-/*           && (component <= 3) ) */
-/*         { */
-/*             renderer->renderer->am_a.attach (buffer->buffer); */
-/*             renderer->renderer->am_r.attach (buffer->buffer); */
-/*             renderer->renderer->am_g.attach (buffer->buffer); */
-/*             renderer->renderer->am_b.attach (buffer->buffer); */
-/*         } */
-/*     } */
-/* } */
+        if ( (component >= 0)
+          && (component <= 3) )
+        {
+            renderer->am_a.attach(buffer->GetRenderingBuffer());
+            renderer->am_r.attach(buffer->GetRenderingBuffer());
+            renderer->am_g.attach(buffer->GetRenderingBuffer());
+            renderer->am_b.attach(buffer->GetRenderingBuffer());
+        }
+    }
+}
 
-/* void */
-/* RendererGradient_SetAlphaMask(RendererGradient* renderer, */
-/*                                 AggBuffer* buffer, int component) */
-/* { */
-/*     if (renderer) */
-/*     { */
-/*         renderer->renderer->active_mask_component = component; */
+void
+RendererGradient_SetAlphaMask(RendererGradient* renderer,
+                              GraphicBufferBase* buffer, int component)
+{
+    if (renderer)
+    {
+        renderer->active_mask_component = component;
         
-/*         if ( (component >= 0) */
-/*           && (component <= 3) ) */
-/*         { */
-/*             renderer->renderer->am_a.attach (buffer->buffer); */
-/*             renderer->renderer->am_r.attach (buffer->buffer); */
-/*             renderer->renderer->am_g.attach (buffer->buffer); */
-/*             renderer->renderer->am_b.attach (buffer->buffer); */
-/*         } */
-/*     } */
-/* } */
+        if ( (component >= 0)
+          && (component <= 3) )
+        {
+            renderer->am_a.attach(buffer->GetRenderingBuffer());
+            renderer->am_r.attach(buffer->GetRenderingBuffer());
+            renderer->am_g.attach(buffer->GetRenderingBuffer());
+            renderer->am_b.attach(buffer->GetRenderingBuffer());
+        }
+    }
+}
 
 /*****************************************************************************/
 

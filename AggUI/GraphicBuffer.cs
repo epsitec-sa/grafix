@@ -45,7 +45,7 @@ namespace AntigrainSharp
 
         public abstract void Dispose();
 
-        protected IntPtr buffer;
+        protected internal IntPtr buffer;
         protected GraphicContext gctx;
     }
 

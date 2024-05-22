@@ -88,10 +88,10 @@ namespace AntigrainSharp
                 RendererSolid_Color(renderer, r, g, b, a);
             }
 
-            /* public void SetAlphaMask(IntPtr buffer, Renderer.MaskComponent component) */
-            /* { */
-            /*     RendererSolid_SetAlphaMask(renderer, buffer, (int)component); */
-            /* } */
+            public void SetAlphaMask(AbstractGraphicBuffer buffer, Renderer.MaskComponent component)
+            {
+                RendererSolid_SetAlphaMask(renderer, buffer.buffer, (int)component);
+            }
         }
 
         public class Smooth : Renderer.Base
@@ -123,10 +123,10 @@ namespace AntigrainSharp
                 RendererSmooth_AddPath(renderer, path.path);
             }
 
-            /* public void SetAlphaMask(IntPtr buffer, Renderer.MaskComponent component) */
-            /* { */
-            /*     RendererSmooth_SetAlphaMask(renderer, buffer, (int)component); */
-            /* } */
+            public void SetAlphaMask(AbstractGraphicBuffer buffer, Renderer.MaskComponent component)
+            {
+                RendererSmooth_SetAlphaMask(renderer, buffer.buffer, (int)component);
+            }
         }
 
         public class Image : Renderer.Base
@@ -154,10 +154,10 @@ namespace AntigrainSharp
                 RendererImage_SetStretchMode(renderer, mode, radius);
             }
 
-            /* public void SetAlphaMask(IntPtr buffer, Renderer.MaskComponent component) */
-            /* { */
-            /*     RendererImage_SetAlphaMask(renderer, buffer, (int)component); */
-            /* } */
+            public void SetAlphaMask(AbstractGraphicBuffer buffer, Renderer.MaskComponent component)
+            {
+                RendererImage_SetAlphaMask(renderer, buffer.buffer, (int)component);
+            }
         }
 
         public class Gradient : Renderer.Base
@@ -185,10 +185,10 @@ namespace AntigrainSharp
                 RendererGradient_Matrix(renderer, xx, xy, yx, yy, tx, ty);
             }
 
-            /* public void SetAlphaMask(IntPtr buffer, Renderer.MaskComponent component) */
-            /* { */
-            /*     RendererGradient_SetAlphaMask(renderer, buffer, (int)component); */
-            /* } */
+            public void SetAlphaMask(AbstractGraphicBuffer buffer, Renderer.MaskComponent component)
+            {
+                RendererGradient_SetAlphaMask(renderer, buffer.buffer, (int)component);
+            }
         }
     }
 }

@@ -22,6 +22,13 @@
 #include "agg_alpha_mask_u8.h"
 
 /*****************************************************************************/
+// Forward declare
+class GraphicBufferBase {
+    public:
+        virtual agg::rendering_buffer& GetRenderingBuffer();
+};
+
+/*****************************************************************************/
 /*  from agg_renderer.cpp                                                    */
 
 //struct RendererCommon
@@ -420,29 +427,29 @@ struct RendererGradient : RendererBase
 
 /* exported functions */
 
-/* extern "C" DECLSPEC void RendererSolid_SetAlphaMask( */
-/*     RendererSolid* renderer, */
-/*     AggBuffer* buffer, */
-/*     int component */
-/* ); */
+extern "C" DECLSPEC void RendererSolid_SetAlphaMask(
+    RendererSolid* renderer,
+    GraphicBufferBase* buffer,
+    int component
+);
 
-/* extern "C" DECLSPEC void RendererSmooth_SetAlphaMask( */
-/*     RendererSmooth* renderer, */
-/*     AggBuffer* buffer, */
-/*     int component */
-/* ); */
+extern "C" DECLSPEC void RendererSmooth_SetAlphaMask(
+    RendererSmooth* renderer,
+    GraphicBufferBase* buffer,
+    int component
+);
 
-/* extern "C" DECLSPEC void RendererImage_SetAlphaMask( */
-/*     RendererImage* renderer, */
-/*     AggBuffer* buffer, */
-/*     int component */
-/* ); */
+extern "C" DECLSPEC void RendererImage_SetAlphaMask(
+    RendererImage* renderer,
+    GraphicBufferBase* buffer,
+    int component
+);
 
-/* extern "C" DECLSPEC void RendererGradient_SetAlphaMask( */
-/*     RendererGradient* renderer, */
-/*     AggBuffer* buffer, */
-/*     int component */
-/* ); */
+extern "C" DECLSPEC void RendererGradient_SetAlphaMask(
+    RendererGradient* renderer,
+    GraphicBufferBase* buffer,
+    int component
+);
 
 /* extern "C" DECLSPEC RendererSolid* RendererSolid_New( */
 /*     AggBuffer* buffer */
