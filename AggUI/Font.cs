@@ -6,7 +6,7 @@ using static AntigrainSharp.Native;
 
 namespace AntigrainSharp
 {
-    public class Font
+    public class Font : IDisposable
     {
         public static Font LoadFromFile(string fontname)
         {
@@ -24,23 +24,58 @@ namespace AntigrainSharp
             this.fontname = fontname;
         }
 
+        ~Font(){
+            this.Dispose();
+        }
+
+        public void Dispose(){
+            if (this.face != IntPtr.Zero){
+                FreetypeInfo_DoneFace(this.face);
+                this.face = IntPtr.Zero;
+            }
+            this.fontname = null;
+            GC.SuppressFinalize(this);
+        }
+
+        private void RequireNotDisposed(){
+            if (this.face == IntPtr.Zero){
+                throw new ObjectDisposedException(this.GetType().FullName);
+            }
+        }
+
         public bool IsBold
         {
-            get { return FreetypeInfo_IsFaceBold(this.face); }
+            get { 
+                RequireNotDisposed();
+                return FreetypeInfo_IsFaceBold(this.face);
+            }
         }
 
         public bool IsItalic
         {
-            get { return FreetypeInfo_IsFaceItalic(this.face); }
+            get {
+                RequireNotDisposed();
+                return FreetypeInfo_IsFaceItalic(this.face);
+            }
+        }
+
+        public uint UnitsPerEm
+        {
+            get {
+                RequireNotDisposed();
+                return FreetypeInfo_GetUnitsPerEm(this.face);
+            }
         }
 
         public double GetGlyphAdvance(uint glyph, double size)
         {
+            RequireNotDisposed();
             return FreetypeInfo_GetGlyphAdvance(this.face, glyph, size);
         }
 
         public uint GetCharIndex(ulong charcode)
         {
+            RequireNotDisposed();
             return FreetypeInfo_GetCharIndex(this.face, charcode);
         }
 
@@ -53,6 +88,7 @@ namespace AntigrainSharp
             out double yMax
         )
         {
+            RequireNotDisposed();
             FreetypeInfo_GetGlyphBBox(
                 this.face,
                 glyph,
@@ -66,21 +102,25 @@ namespace AntigrainSharp
 
         public double GetKerning(uint left_glyph, uint right_glyph, double size)
         {
+            RequireNotDisposed();
             return FreetypeInfo_GetKerning(this.face, left_glyph, right_glyph, size);
         }
 
         public double GetAscender(double size)
         {
+            RequireNotDisposed();
             return FreetypeInfo_GetAscender(this.face, size);
         }
 
         public double GetDescender(double size)
         {
+            RequireNotDisposed();
             return FreetypeInfo_GetDescender(this.face, size);
         }
 
         public double GetHeight(double size)
         {
+            RequireNotDisposed();
             return FreetypeInfo_GetHeight(this.face, size);
         }
 

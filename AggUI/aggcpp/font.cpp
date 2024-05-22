@@ -22,12 +22,20 @@ namespace AntigrainCPP {
         return face;
     }
 
+    void FreetypeInfo_DoneFace(FT_Face face){
+        FT_Done_Face(face);
+    }
+
     bool FreetypeInfo_IsFaceBold(FT_Face face){
         return face->style_flags & FT_STYLE_FLAG_BOLD;
     }
 
     bool FreetypeInfo_IsFaceItalic(FT_Face face){
         return face->style_flags & FT_STYLE_FLAG_ITALIC;
+    }
+
+    unsigned FreetypeInfo_GetUnitsPerEm(FT_Face face){
+        return (unsigned)face->units_per_EM;
     }
 
     unsigned FreetypeInfo_GetCharIndex(FT_Face face,

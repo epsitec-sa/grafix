@@ -16,9 +16,13 @@ namespace AntigrainCPP {
         const char* font_name
     );
 
+    extern "C" DECLSPEC void FreetypeInfo_DoneFace(FT_Face face);
+
     extern "C" DECLSPEC bool FreetypeInfo_IsFaceBold(FT_Face face);
 
     extern "C" DECLSPEC bool FreetypeInfo_IsFaceItalic(FT_Face face);
+
+    extern "C" DECLSPEC unsigned FreetypeInfo_GetUnitsPerEm(FT_Face face);
 
     extern "C" DECLSPEC unsigned FreetypeInfo_GetCharIndex(FT_Face face,
         unsigned long charcode

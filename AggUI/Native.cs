@@ -430,12 +430,18 @@ namespace AntigrainSharp
         );
 
         [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
+        public static extern void FreetypeInfo_DoneFace(IntPtr face);
+
+        [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
         [return: MarshalAs(UnmanagedType.U1)]
         public static extern bool FreetypeInfo_IsFaceBold(IntPtr face);
 
         [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
         [return: MarshalAs(UnmanagedType.U1)]
         public static extern bool FreetypeInfo_IsFaceItalic(IntPtr face);
+
+        [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
+        public static extern uint FreetypeInfo_GetUnitsPerEm(IntPtr face);
 
         [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
         public static extern uint FreetypeInfo_GetCharIndex(IntPtr face, ulong charcode);
