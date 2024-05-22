@@ -56,7 +56,7 @@ namespace AntigrainSharp
             //System.Console.WriteLine($"GraphicBuffer with {width}x{height} stride {stride}");
             this.buffer = GraphicBuffer_NewGraphicBufferExternalData(data_buffer, width, height, stride, fm.manager);
             IntPtr gctxHandle = GraphicBuffer_GetGraphicContext(this.buffer);
-            this.gctx = new GraphicContext(gctxHandle);
+            this.gctx = new GraphicContext(gctxHandle, width, height);
         }
 
         public override void Dispose()
@@ -72,7 +72,7 @@ namespace AntigrainSharp
             //System.Console.WriteLine($"GraphicBuffer with {width}x{height} stride {stride}");
             this.buffer = GraphicBuffer_NewGraphicBuffer(width, height, stride, fm.manager);
             IntPtr gctxHandle = GraphicBuffer_GetGraphicContext(this.buffer);
-            this.gctx = new GraphicContext(gctxHandle);
+            this.gctx = new GraphicContext(gctxHandle, width, height);
         }
 
         public override void Dispose()

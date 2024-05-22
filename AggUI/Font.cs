@@ -33,7 +33,7 @@ namespace AntigrainSharp
                 FreetypeInfo_DoneFace(this.face);
                 this.face = IntPtr.Zero;
             }
-            this.fontname = null;
+            this.fontname = "";
             GC.SuppressFinalize(this);
         }
 

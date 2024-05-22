@@ -22,6 +22,12 @@ namespace AntigrainSharp
             this.RendererGradient = new AntigrainSharp.Renderer.Gradient(gradient_ren);
         }
 
+        internal GraphicContext(IntPtr gctx, uint width, uint height) : this(gctx)
+        {
+            this.Width = width;
+            this.Height = height;
+        }
+
         public void SetColor(double r, double g, double b, double a)
         {
             GraphicContext_SetColor(this.gctx, r, g, b, a);
@@ -149,6 +155,9 @@ namespace AntigrainSharp
         public AntigrainSharp.Renderer.Smooth RendererSmooth;
         public AntigrainSharp.Renderer.Image RendererImage;
         public AntigrainSharp.Renderer.Gradient RendererGradient;
+
+        public uint Width;
+        public uint Height;
 
         private IntPtr gctx;
     }
