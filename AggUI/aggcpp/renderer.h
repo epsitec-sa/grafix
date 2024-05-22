@@ -25,7 +25,7 @@
 // Forward declare
 class GraphicBufferBase {
     public:
-        virtual agg::rendering_buffer& GetRenderingBuffer();
+        virtual agg::rendering_buffer& GetRenderingBuffer() = 0;
 };
 
 /*****************************************************************************/

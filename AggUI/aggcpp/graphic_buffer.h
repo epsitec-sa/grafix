@@ -16,7 +16,7 @@ namespace AntigrainCPP {
             virtual int GetStride() = 0;
             virtual unsigned GetBufferLength() = 0;
             virtual void GetBufferData(unsigned char* output_buffer) = 0;
-            virtual agg::rendering_buffer& GetRenderingBuffer();
+            virtual agg::rendering_buffer& GetRenderingBuffer() = 0;
 
             virtual ~GraphicBufferBase() = default;
     };
