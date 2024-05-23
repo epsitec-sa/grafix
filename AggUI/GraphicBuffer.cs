@@ -39,7 +39,8 @@ namespace AntigrainSharp
             return data;
         }
 
-        public IntPtr GetBufferDataHandle(){
+        public IntPtr GetBufferDataHandle()
+        {
             return this.buffer;
         }
 
@@ -51,10 +52,22 @@ namespace AntigrainSharp
 
     public class GraphicBufferExternalData : AbstractGraphicBuffer
     {
-        public GraphicBufferExternalData(IntPtr data_buffer, uint width, uint height, int stride, FontManager fm)
+        public GraphicBufferExternalData(
+            IntPtr data_buffer,
+            uint width,
+            uint height,
+            int stride,
+            FontManager fm
+        )
         {
             //System.Console.WriteLine($"GraphicBuffer with {width}x{height} stride {stride}");
-            this.buffer = GraphicBuffer_NewGraphicBufferExternalData(data_buffer, width, height, stride, fm.manager);
+            this.buffer = GraphicBuffer_NewGraphicBufferExternalData(
+                data_buffer,
+                width,
+                height,
+                stride,
+                fm.manager
+            );
             IntPtr gctxHandle = GraphicBuffer_GetGraphicContext(this.buffer);
             this.gctx = new GraphicContext(gctxHandle, width, height);
         }
@@ -75,8 +88,14 @@ namespace AntigrainSharp
             this.gctx = new GraphicContext(gctxHandle, width, height);
         }
 
+        ~GraphicBuffer()
+        {
+            System.Console.WriteLine("delete GraphicBuffer");
+        }
+
         public override void Dispose()
         {
+            System.Console.WriteLine("Dispose GraphicBuffer");
             GraphicBuffer_DeleteGraphicBuffer(this.buffer);
         }
     }

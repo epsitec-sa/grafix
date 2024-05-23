@@ -156,7 +156,7 @@ namespace AntigrainSharp
 
             public void SetAlphaMask(AbstractGraphicBuffer buffer, Renderer.MaskComponent component)
             {
-                RendererImage_SetAlphaMask(renderer, buffer.buffer, (int)component);
+                RendererImage_SetAlphaMask(renderer, component == Renderer.MaskComponent.None ? IntPtr.Zero : buffer.buffer, (int)component);
             }
         }
 
