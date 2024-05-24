@@ -467,7 +467,7 @@ namespace agg
 }
 
 /*****************************************************************************/
-void RendererFill4Colors(RendererBase* renderer,
+void RendererBase_Fill4Colors(RendererBase* renderer,
                             int x, int y, int dx, int dy,
                             double r1, double g1, double b1,
                             double r2, double g2, double b2,

@@ -20,17 +20,8 @@ namespace AntigrainSharp
         {
             protected Base(IntPtr renderer)
             {
-                //System.Console.WriteLine("Init Base Renderer");
                 this.renderer = renderer;
             }
-
-            protected internal IntPtr renderer;
-        }
-
-        public class Special : Renderer.Base
-        {
-            internal Special(IntPtr renderer)
-                : base(renderer) { }
 
             public void Fill4Colors(
                 int x,
@@ -51,7 +42,7 @@ namespace AntigrainSharp
                 double b4
             )
             {
-                RendererFill4Colors(
+                RendererBase_Fill4Colors(
                     renderer,
                     x,
                     y,
@@ -71,6 +62,8 @@ namespace AntigrainSharp
                     b4
                 );
             }
+
+            protected internal IntPtr renderer;
         }
 
         public class Solid : Renderer.Base

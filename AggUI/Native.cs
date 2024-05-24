@@ -286,7 +286,7 @@ namespace AntigrainSharp
         #region Renderer
 
         [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
-        public static extern void RendererFill4Colors(
+        public static extern void RendererBase_Fill4Colors(
             IntPtr renderer,
             int x,
             int y,

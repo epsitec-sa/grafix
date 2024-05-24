@@ -561,7 +561,7 @@ extern "C" DECLSPEC void RendererGradient_Color1(
     const double a[256]
 );
 
-extern "C" DECLSPEC void RendererFill4Colors(
+extern "C" DECLSPEC void RendererBase_Fill4Colors(
     RendererBase* renderer,
     int x, int y,
     int dx, int dy,
