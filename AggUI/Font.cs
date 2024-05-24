@@ -45,7 +45,7 @@ namespace AntigrainSharp
 
         public bool IsBold
         {
-            get { 
+            get {
                 RequireNotDisposed();
                 return FreetypeInfo_IsFaceBold(this.face);
             }

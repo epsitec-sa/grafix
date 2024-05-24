@@ -31,6 +31,9 @@ namespace AntigrainSharp
         );
 
         [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
+        public static extern void Application_Delete(IntPtr app);
+
+        [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
         public static extern void Application_Caption(IntPtr app, string text);
 
         [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
@@ -486,6 +489,9 @@ namespace AntigrainSharp
 
         [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
         public static extern IntPtr FontManager_New();
+
+        [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
+        public static extern void FontManager_Delete(IntPtr app);
 
         [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
         [return: MarshalAs(UnmanagedType.U1)]

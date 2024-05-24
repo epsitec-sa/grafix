@@ -21,6 +21,10 @@ namespace AntigrainCPP {
         return new FontManager();
     }
 
+    void FontManager_Delete(FontManager* fm){
+        delete fm;
+    }
+
     bool FontManager_LoadFont(FontManager* fm, const char* font_name){
         return fm->load_font(font_name);
     }

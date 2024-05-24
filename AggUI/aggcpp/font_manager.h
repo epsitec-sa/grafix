@@ -25,6 +25,8 @@ namespace AntigrainCPP {
 
     extern "C" DECLSPEC FontManager* FontManager_New();
 
+    extern "C" DECLSPEC void FontManager_Delete(FontManager* fm);
+
     extern "C" DECLSPEC bool FontManager_LoadFont(FontManager* fm,
         const char* font_name
     );

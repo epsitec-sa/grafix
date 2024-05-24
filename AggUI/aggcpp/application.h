@@ -59,16 +59,18 @@ namespace AntigrainCPP {
         FontManager& fm
     );
 
-    extern "C" DECLSPEC void Application_Caption(Application* ps, 
+    extern "C" DECLSPEC void Application_Delete(Application* app);
+
+    extern "C" DECLSPEC void Application_Caption(Application* app, 
         const char* text
     );
 
-    extern "C" DECLSPEC bool Application_Init(Application* ps,
+    extern "C" DECLSPEC bool Application_Init(Application* app,
         unsigned width, unsigned height,
         agg::window_flag_e flags
     );
 
-    extern "C" DECLSPEC int Application_Run(Application* ps);
+    extern "C" DECLSPEC int Application_Run(Application* app);
 
-    extern "C" DECLSPEC void Application_ForceRedraw(Application* ps);
+    extern "C" DECLSPEC void Application_ForceRedraw(Application* app);
 }

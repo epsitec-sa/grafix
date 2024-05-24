@@ -5,7 +5,7 @@ using static AntigrainSharp.Native;
 
 namespace AntigrainSharp
 {
-    public class Rasterizer
+    public class Rasterizer : System.IDisposable
     {
         public Rasterizer()
         {
@@ -14,46 +14,69 @@ namespace AntigrainSharp
 
         ~Rasterizer()
         {
-            Rasterizer_Delete(rasterizer);
+            this.Dispose();
+        }
+
+        public void Dispose(){
+            if (this.rasterizer != IntPtr.Zero){
+                Rasterizer_Delete(rasterizer);
+                this.rasterizer = IntPtr.Zero;
+            }
+            GC.SuppressFinalize(this);
+        }
+
+        private void RequireNotDisposed(){
+            if (this.rasterizer == IntPtr.Zero){
+                throw new ObjectDisposedException(this.GetType().FullName);
+            }
         }
 
         public void Clear()
         {
+            this.RequireNotDisposed();
             Rasterizer_Clear(rasterizer);
         }
 
         public bool HitTest(int x, int y)
         {
+            this.RequireNotDisposed();
             return Rasterizer_HitTest(rasterizer, x, y);
         }
 
         public void FillingRule(int mode)
         {
+            this.RequireNotDisposed();
             Rasterizer_FillingRule(rasterizer, mode);
         }
 
         public void Gamma(double gamma)
         {
+            this.RequireNotDisposed();
             Rasterizer_Gamma(rasterizer, gamma);
         }
 
         public void SetTransform(double xx, double xy, double yx, double yy, double tx, double ty)
         {
+            this.RequireNotDisposed();
             Rasterizer_SetTransform(rasterizer, xx, xy, yx, yy, tx, ty);
         }
 
         public void SetClipBox(double x1, double y1, double x2, double y2)
         {
+            this.RequireNotDisposed();
             Rasterizer_SetClipBox(rasterizer, x1, y1, x2, y2);
         }
 
         public void ResetClipBox()
         {
+            this.RequireNotDisposed();
             Rasterizer_ResetClipBox(rasterizer);
         }
 
         public void AddPath(Path path, bool curves)
         {
+            this.RequireNotDisposed();
+            path.RequireNotDisposed();
             Rasterizer_AddPath(rasterizer, path.path, curves);
         }
 
@@ -116,6 +139,8 @@ namespace AntigrainSharp
 
         public void AddPathStroke1(Path path, double width, bool curves)
         {
+            this.RequireNotDisposed();
+            path.RequireNotDisposed();
             Rasterizer_AddPathStroke1(rasterizer, path.path, width, curves);
         }
 
@@ -128,21 +153,26 @@ namespace AntigrainSharp
             bool curves
         )
         {
+            this.RequireNotDisposed();
+            path.RequireNotDisposed();
             Rasterizer_AddPathStroke2(rasterizer, path.path, width, cap, join, miter_limit, curves);
         }
 
         public void RenderSolid(Renderer.Solid renderer)
         {
+            this.RequireNotDisposed();
             Rasterizer_RenderSolid(rasterizer, renderer.renderer);
         }
 
         public void RenderImage(Renderer.Image renderer)
         {
+            this.RequireNotDisposed();
             Rasterizer_RenderImage(rasterizer, renderer.renderer);
         }
 
         public void RenderGradient(Renderer.Gradient renderer)
         {
+            this.RequireNotDisposed();
             Rasterizer_RenderGradient(rasterizer, renderer.renderer);
         }
 

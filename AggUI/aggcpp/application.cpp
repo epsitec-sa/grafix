@@ -104,6 +104,10 @@ namespace AntigrainCPP {
             fm
         );
     }
+    
+    void Application_Delete(Application* app){
+        delete app;
+    }
 
     void Application_Caption(Application* app, const char* text){
         std::cout << "[C++] Application Caption" << std::endl;

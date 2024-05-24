@@ -9,31 +9,47 @@ namespace AntigrainSharp
     {
         public GraphicContext GraphicContext
         {
-            get { return this.gctx; }
+            get {
+                this.RequireNotDisposed();
+                return this.gctx;
+            }
         }
 
         public uint Width
         {
-            get { return GraphicBuffer_GetWidth(this.buffer); }
+            get {
+                this.RequireNotDisposed();
+                return GraphicBuffer_GetWidth(this.buffer);
+            }
         }
 
         public uint Height
         {
-            get { return GraphicBuffer_GetHeight(this.buffer); }
+            get {
+                this.RequireNotDisposed();
+                return GraphicBuffer_GetHeight(this.buffer);
+            }
         }
 
         public int Stride
         {
-            get { return GraphicBuffer_GetStride(this.buffer); }
+            get {
+                this.RequireNotDisposed();
+                return GraphicBuffer_GetStride(this.buffer);
+            }
         }
 
         public uint Length
         {
-            get { return GraphicBuffer_GetBufferLength(this.buffer); }
+            get {
+                this.RequireNotDisposed();
+                return GraphicBuffer_GetBufferLength(this.buffer);
+            }
         }
 
         public byte[] GetBufferData()
         {
+            this.RequireNotDisposed();
             byte[] data = new byte[this.Length];
             GraphicBuffer_GetBufferData(this.buffer, data);
             return data;
@@ -41,7 +57,14 @@ namespace AntigrainSharp
 
         public IntPtr GetBufferDataHandle()
         {
+            this.RequireNotDisposed();
             return this.buffer;
+        }
+
+        private void RequireNotDisposed(){
+            if (this.buffer == IntPtr.Zero){
+                throw new ObjectDisposedException(this.GetType().FullName);
+            }
         }
 
         public abstract void Dispose();
@@ -60,7 +83,6 @@ namespace AntigrainSharp
             FontManager fm
         )
         {
-            //System.Console.WriteLine($"GraphicBuffer with {width}x{height} stride {stride}");
             this.buffer = GraphicBuffer_NewGraphicBufferExternalData(
                 data_buffer,
                 width,
@@ -72,9 +94,17 @@ namespace AntigrainSharp
             this.gctx = new GraphicContext(gctxHandle, width, height);
         }
 
+        ~GraphicBufferExternalData(){
+            this.Dispose();
+        }
+
         public override void Dispose()
         {
-            GraphicBuffer_DeleteGraphicBufferExternalData(this.buffer);
+            if (this.buffer != IntPtr.Zero){
+                GraphicBuffer_DeleteGraphicBufferExternalData(this.buffer);
+                this.buffer = IntPtr.Zero;
+            }
+            GC.SuppressFinalize(this);
         }
     }
 
@@ -82,21 +112,22 @@ namespace AntigrainSharp
     {
         public GraphicBuffer(uint width, uint height, int stride, FontManager fm)
         {
-            //System.Console.WriteLine($"GraphicBuffer with {width}x{height} stride {stride}");
             this.buffer = GraphicBuffer_NewGraphicBuffer(width, height, stride, fm.manager);
             IntPtr gctxHandle = GraphicBuffer_GetGraphicContext(this.buffer);
             this.gctx = new GraphicContext(gctxHandle, width, height);
         }
 
-        ~GraphicBuffer()
-        {
-            System.Console.WriteLine("delete GraphicBuffer");
+        ~GraphicBuffer(){
+            this.Dispose();
         }
 
         public override void Dispose()
         {
-            System.Console.WriteLine("Dispose GraphicBuffer");
-            GraphicBuffer_DeleteGraphicBuffer(this.buffer);
+            if (this.buffer != IntPtr.Zero){
+                GraphicBuffer_DeleteGraphicBuffer(this.buffer);
+                this.buffer = IntPtr.Zero;
+            }
+            GC.SuppressFinalize(this);
         }
     }
 }
