@@ -33,183 +33,13 @@ namespace Example
             }
             this.FontManager.SetFont(font);
 
-            Console.WriteLine($"read image");
-            this.inputImage = new ImageMagick.MagickImage("transparent.png");
+            /* Console.WriteLine($"read image"); */
+            /* this.inputImage = new ImageMagick.MagickImage("transparent.png"); */
         }
 
         public override void OnDraw(GraphicContext gctx)
         {
-            /* Path path = new Path(); */
-            /* gctx.RendererSmooth.Color(0, 0, 0, 1); */
-            /* gctx.RendererSmooth.Setup(7, 2, */
-            /*     1, 0, */
-            /*     0, 1, */
-            /*     0, 0 */
-            /* ); */
-            /* bool first = true; */
-            /* foreach (var point in points){ */
-            /*     (int x, int y, int r, int g, int b, int s) = point; */
-            /*     if (first) { */
-            /*         path.MoveTo(x, y); */
-            /*         first = false; */
-            /*     } else { */
-            /*         path.LineTo(x, y); */
-            /*     } */
-            /*     gctx.SetColor(r / 255.0, g / 255.0, b / 255.0, 0.8); */
-            /*     gctx.DrawEllipse(x, y, s, s); */
-            /* } */
-            /* gctx.RendererSmooth.AddPath(path); */
-            /* double xp = 0; */
-            GenerateOutputImage(gctx, this.inputImage);
         }
-
-        public void PrintByteArray(byte[] arr)
-        {
-            int colorStep = 4;
-            int width = 5;
-            Console.WriteLine($"---");
-            int step = 0;
-            for (int i = 0; i < arr.Length; i += colorStep)
-            {
-                string elem = Convert.ToHexString(new ArraySegment<byte>(arr, i, colorStep));
-                Console.Write($"{elem} ");
-                step++;
-                if (step % width == 0)
-                {
-                    Console.WriteLine("");
-                }
-            }
-            Console.WriteLine($"---");
-        }
-
-        public void GenerateOutputImage(GraphicContext gctx, ImageMagick.MagickImage image)
-        {
-            gctx.SetColor(0.0, 0.5, 0.0, 1.0);
-            gctx.DrawEllipse(0, 0, 10, 10);
-
-            byte[] buffer = image.GetPixels().ToByteArray(ImageMagick.PixelMapping.BGRA);
-            //Console.WriteLine(
-            //    $"GenerateOutputImage: got an image {image.Width}x{image.Height} buffer size {buffer.Length}"
-            //);
-            //this.PrintByteArray(buffer);
-            int stride = -sizeof(byte) * image.Width * 4;
-
-            int shift = 3;
-            gctx.RendererImage.Matrix(1, 0, 0, 1, -shift, -shift);
-            Console.WriteLine($"attach input buffer: {buffer.Length}");
-            this.PrintByteArray(buffer);
-            gctx.RendererImage.AttachSource(buffer, image.Width, image.Height, stride);
-            gctx.RendererImage.SetStretchMode(0, 0.0); // important to call after attach source
-            var rast = new Rasterizer();
-            Console.WriteLine($"Make rect");
-            var rect = new RectanglePath(0+shift, 0+shift, image.Width+shift, image.Height+shift);
-            Console.WriteLine($"Add rect to rasterizer");
-            rast.AddPath(rect, false);
-            Console.WriteLine($"render image");
-            rast.RenderImage(gctx.RendererImage);
-
-            //this.FontManager.SetFontSize(155);
-            //gctx.DrawText("M", -10, 0);
-            Console.WriteLine($"GenerateOutputImage done");
-        }
-
-        public override void OnKey(int x, int y, uint key, uint flags)
-        {
-            points = new();
-
-            Console.WriteLine(
-                $"=============================== START FILE OUTPUT IMAGE ==============================="
-            );
-            Console.WriteLine($"create graphic buffer");
-            uint width = 15;
-            uint height = 15;
-            int stride = -sizeof(byte) * (int)width * 4;
-            GraphicBuffer gbuff = new GraphicBuffer(
-                width,
-                height,
-                stride,
-                this.FontManager
-            );
-            Console.WriteLine($"graphic buffer size {gbuff.Width}x{gbuff.Height}");
-
-            this.GenerateOutputImage(gbuff.GraphicContext, this.inputImage);
-
-            var settings = new ImageMagick.PixelImportSettings(
-                (int)gbuff.Width,
-                (int)gbuff.Height,
-                ImageMagick.StorageType.Char,
-                ImageMagick.PixelMapping.BGRA
-            );
-            Console.WriteLine($"create output image");
-            using var outputImage = new ImageMagick.MagickImage(
-                new ImageMagick.MagickColor("#ffffffff"),
-                (int)gbuff.Width,
-                (int)gbuff.Height
-            );
-
-            Console.WriteLine($"get buffer pixels after paint");
-            byte[] out_buffer = gbuff.GetBufferData();
-            Console.WriteLine($"buffer length: {out_buffer.Length}");
-            this.PrintByteArray(out_buffer);
-
-            Console.WriteLine($"import pixels");
-            outputImage.ImportPixels(out_buffer, settings);
-            Console.WriteLine($"write output image");
-            outputImage.Write("output.png");
-
-            Console.WriteLine(
-                $"=============================== END FILE OUTPUT IMAGE ==============================="
-            );
-
-            this.ForceRedraw();
-        }
-
-        public override void OnMouseMove(int x, int y, uint flags)
-        {
-            /* OnMouseMove(x, y, flags); */
-        }
-
-        public override void OnMouseButtonDown(int x, int y, uint flags)
-        {
-            if (flags == 0)
-            {
-                return;
-            }
-            if (count <= 0)
-            {
-                count = rnd.Next(100, 500);
-                size = rnd.Next(10, 50);
-                color = (rnd.Next(0, 256), rnd.Next(0, 256), rnd.Next(0, 256));
-            }
-            count -= size;
-            (int r, int g, int b) = color;
-            int f;
-            int s;
-            if (flags == 1)
-            {
-                f = 300;
-                s = size;
-            }
-            else
-            {
-                f = 10;
-                s = 15;
-            }
-            double m = f / Math.Sqrt(r * r + g * g + b * b);
-            r = (int)Math.Round(r * m);
-            g = (int)Math.Round(g * m);
-            b = (int)Math.Round(b * m);
-            points.Add((x, y, r, g, b, s));
-            this.ForceRedraw();
-        }
-
-        private List<(int, int, int, int, int, int)> points = new();
-        private Random rnd = new();
-        private (int, int, int) color = (0, 0, 0);
-        private int size = 0;
-        private int count = 0;
-
-        private ImageMagick.MagickImage inputImage;
     }
 
     public static class Program
@@ -219,8 +49,6 @@ namespace Example
             System.Console.WriteLine("Create Application");
             FontManager fm = new FontManager();
             Application app = new Application(true, fm);
-            ScreenInfo.Rect res = ScreenInfo.GetResolution();
-            System.Console.WriteLine($"Screen resolution: {res.Width}, {res.Height}");
             app.SetCaption("AggUI example");
 
             if (app.Init(800, 600, WindowFlags.Resize))

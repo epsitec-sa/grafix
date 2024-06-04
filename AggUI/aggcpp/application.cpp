@@ -2,6 +2,10 @@
 #include <iostream>
 #include "screeninfo/screeninfo.h"
 
+
+#include "rasterizer.h"
+#include "path.h"
+
 namespace ScreenInfo {
     void GetScreenResolution(int &width, int &height){
         std::cout << "[C++] GetScreenResolution" << std::endl;
@@ -43,6 +47,16 @@ namespace AntigrainCPP {
         GraphicContext context(rbuf_window(), font_manager);
         context.clear(1, 1, 1, 1);
 
+        // TEMP TEST
+        
+        Rasterizer* rast = Rasterizer_New();
+        Rasterizer_AddChar(rast, 'A', 100, 100, &font_manager);
+        RendererSolid_Color(&context.renderer_solid, 1, 0, 0, 1);
+        Rasterizer_RenderSolid(rast, &context.renderer_solid);
+        Rasterizer_Delete(rast);
+
+        //
+        
         // call user-defined drawing
         if (on_draw_callback){
             //std::cout << "[C++] Call user on_draw" << std::endl;

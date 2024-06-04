@@ -12,9 +12,10 @@ namespace AntigrainCPP {
 
     class FontManager {
 
-        typedef agg::font_engine_freetype_int32 font_engine;
-
         public:
+            typedef agg::font_engine_freetype_int32 font_engine;
+            typedef agg::font_engine_freetype_int32::path_adaptor_type path_adaptor_type;
+
             FontManager();
 
             bool load_font(const char* font_name);
