@@ -30,16 +30,20 @@ namespace AntigrainSharp
             }
         }
 
-        public bool SetFont(string fontname)
+        public bool SetFont(string fontname, double size=1.0)
         {
             this.RequireNotDisposed();
-            return FontManager_LoadFont(this.manager, fontname);
+            bool ok = FontManager_LoadFont(this.manager, fontname);
+            this.SetFontSize(size);
+            return ok;
         }
 
-        public bool SetFont(Font font)
+        public bool SetFont(Font font, double size=1.0)
         {
             this.RequireNotDisposed();
-            return FontManager_LoadFont(this.manager, font.fontname);
+            bool ok = FontManager_LoadFont(this.manager, font.fontname);
+            this.SetFontSize(size);
+            return ok;
         }
 
         public void SetFontSize(double size)
