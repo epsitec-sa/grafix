@@ -248,6 +248,26 @@ namespace AntigrainSharp
             [MarshalAs(UnmanagedType.U1)] bool curves
         );
 
+        [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
+        public static extern void Rasterizer_AddGlyph(
+            IntPtr rasterizer,
+            int glyph,
+            double x,
+            double y,
+            double scale,
+            IntPtr font_manager
+        );
+
+        [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
+        public static extern void Rasterizer_AddChar(
+            IntPtr rasterizer,
+            char c,
+            double x,
+            double y,
+            double scale,
+            IntPtr font_manager
+        );
+
         /* [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)] */
         /* public static extern void Rasterizer_AddGlyph(IntPtr rasterizer, IntPtr face, int glyph, double x, double y, double scale); */
 
@@ -328,7 +348,11 @@ namespace AntigrainSharp
         );
 
         [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
-        public static extern void RendererSolid_SetAlphaMask(IntPtr renderer, IntPtr buffer, int component);
+        public static extern void RendererSolid_SetAlphaMask(
+            IntPtr renderer,
+            IntPtr buffer,
+            int component
+        );
 
         [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
         public static extern void RendererSmooth_Color(
@@ -356,7 +380,11 @@ namespace AntigrainSharp
         public static extern void RendererSmooth_AddPath(IntPtr renderer, IntPtr path);
 
         [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
-        public static extern void RendererSmooth_SetAlphaMask(IntPtr renderer, IntPtr buffer, int component);
+        public static extern void RendererSmooth_SetAlphaMask(
+            IntPtr renderer,
+            IntPtr buffer,
+            int component
+        );
 
         [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
         public static extern void RendererImage_Matrix(
@@ -389,7 +417,11 @@ namespace AntigrainSharp
         );
 
         [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
-        public static extern void RendererImage_SetAlphaMask(IntPtr renderer, IntPtr buffer, int component);
+        public static extern void RendererImage_SetAlphaMask(
+            IntPtr renderer,
+            IntPtr buffer,
+            int component
+        );
 
         [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
         public static extern void RendererGradient_Select(IntPtr renderer, int id);
@@ -418,7 +450,11 @@ namespace AntigrainSharp
         );
 
         [DllImport(LibAgg, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
-        public static extern void RendererGradient_SetAlphaMask(IntPtr renderer, IntPtr buffer, int component);
+        public static extern void RendererGradient_SetAlphaMask(
+            IntPtr renderer,
+            IntPtr buffer,
+            int component
+        );
 
         #endregion
 

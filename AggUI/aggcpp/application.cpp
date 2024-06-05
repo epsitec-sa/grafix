@@ -46,16 +46,6 @@ namespace AntigrainCPP {
         // initialise drawing context
         GraphicContext context(rbuf_window(), font_manager);
         context.clear(1, 1, 1, 1);
-
-        // TEMP TEST
-        
-        Rasterizer* rast = Rasterizer_New();
-        Rasterizer_AddChar(rast, 'A', 100, 100, &font_manager);
-        RendererSolid_Color(&context.renderer_solid, 1, 0, 0, 1);
-        Rasterizer_RenderSolid(rast, &context.renderer_solid);
-        Rasterizer_Delete(rast);
-
-        //
         
         // call user-defined drawing
         if (on_draw_callback){

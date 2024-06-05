@@ -242,24 +242,33 @@ namespace AntigrainCPP {
 
     /*****************************************************************************/
 
-    void Rasterizer_AddChar(Rasterizer* rasterizer, char c, double x, double y, FontManager* font_manager) {
-        std::cout << "[C++] make path from char" << std::endl;
+    void Rasterizer_AddGlyph(Rasterizer* rasterizer, int glyph, double x, double y, double scale, FontManager* font_manager) {
+      font_manager->use_outline_mode(true);
+      if (!font_manager->m_feng.prepare_glyph_from_index(glyph))
+      {
+        return;
+      }
+      Rasterizer_InternalAddChar(rasterizer, x, y, scale, font_manager);
+    }
+
+    void Rasterizer_AddChar(Rasterizer* rasterizer, char c, double x, double y, double scale, FontManager* font_manager) {
+        font_manager->use_outline_mode(true);
         if(!font_manager->m_feng.prepare_glyph(c))
         {
-            std::cout << "[C++] glyph prepare failed" << std::endl;
             return;
         }
-        unsigned currGlyph = font_manager->m_feng.glyph_index();
-        std::cout << "[C++] glyph prepare done" << std::endl;
+        Rasterizer_InternalAddChar(rasterizer, x, y, scale, font_manager);
+    }
 
-        typedef typename FontManager::path_adaptor_type adaptor_type;
-        typedef typename agg::conv_curve<adaptor_type>            conv_font_curve_type;
-        typedef typename agg::conv_segmentator<conv_font_curve_type>   conv_font_segm_type;
+    void Rasterizer_InternalAddChar(Rasterizer* rasterizer, double x, double y, double scale, FontManager* font_manager) {
+        unsigned currGlyph = font_manager->m_feng.glyph_index();
+
+        typedef FontManager::path_adaptor_type adaptor_type;
+        typedef agg::conv_curve<adaptor_type>            conv_font_curve_type;
+        typedef agg::conv_segmentator<conv_font_curve_type>   conv_font_segm_type;
 
         agg::int8u* glyph_data = (agg::int8u*)std::malloc(font_manager->m_feng.data_size());
         font_manager->m_feng.write_glyph_to(glyph_data);
-
-        std::cout << "[C++] glyph data write done" << std::endl;
 
         adaptor_type adaptor;
 
@@ -268,15 +277,48 @@ namespace AntigrainCPP {
         fsegm.approximation_scale(3.0);
         fcurves.approximation_scale(2.0);
 
-        adaptor.init(glyph_data, font_manager->m_feng.data_size(), x, y);
+        adaptor.init(glyph_data, font_manager->m_feng.data_size(), x, y, scale);
 
-        std::cout << "[C++] adaptor init done" << std::endl;
+        if (rasterizer->has_transform) 
+        { 
+            if (rasterizer->has_clip_box) 
+            { 
+                agg::conv_transform<conv_font_segm_type, agg::trans_affine> conv(fsegm, rasterizer->transform_matrix); 
+                agg::conv_clip_polygon<agg::conv_transform<conv_font_segm_type, agg::trans_affine>> clip(conv); 
+                
+                double x1 = rasterizer->x1; double y1 = rasterizer->y1; 
+                double x2 = rasterizer->x2; double y2 = rasterizer->y2; 
+                
+                clip.clip_box (x1, y1, x2, y2); 
 
-        rasterizer->rasterizer.add_path(fsegm);
-        /* path->path.join_path(fsegm, 0); */
+                rasterizer->rasterizer.add_path (clip); 
+            } 
+            else 
+            { 
+                agg::conv_transform<conv_font_segm_type, agg::trans_affine> conv(fsegm, rasterizer->transform_matrix); 
+                rasterizer->rasterizer.add_path(conv); 
+            } 
+        } 
+        else 
+        { 
+            if (rasterizer->has_clip_box) 
+            { 
+                agg::conv_clip_polygon<conv_font_segm_type> clip(fsegm); 
+                
+                double x1 = rasterizer->x1; double y1 = rasterizer->y1; 
+                double x2 = rasterizer->x2; double y2 = rasterizer->y2; 
+                
+                clip.clip_box (x1, y1, x2, y2); 
+                
+                rasterizer->rasterizer.add_path (clip); 
+            } 
+            else 
+            { 
+                rasterizer->rasterizer.add_path(fsegm);
+            } 
+        } 
 
         std::free(glyph_data);
-        std::cout << "[C++] make path from char done" << std::endl;
     }
     /*void */
     /*Rasterizer_AddGlyph(Rasterizer* rasterizer, agg::font_face* face, */

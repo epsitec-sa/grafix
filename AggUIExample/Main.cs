@@ -7,7 +7,8 @@ namespace Example
 {
     class Application : AggWindow
     {
-        public Application(bool flip_y, FontManager fm) : base(flip_y, fm)
+        public Application(bool flip_y, FontManager fm)
+            : base(flip_y, fm)
         {
             Font font = Font.LoadFromFile("Impacted.ttf");
             bool isBold = font.IsBold;
@@ -39,6 +40,14 @@ namespace Example
 
         public override void OnDraw(GraphicContext gctx)
         {
+            Rasterizer rast = new Rasterizer();
+            rast.SetTransform(0, -1, 1, 0, 150, 150);
+            rast.AddGlyph(68, 0, 0, 1.0, this.FontManager);
+            rast.SetTransform(-1, 0, 0, -1, 150, 150);
+            rast.AddGlyph(69, 30, 20, 2.0, this.FontManager);
+            rast.AddGlyph(70, 50, -10, 1.0, this.FontManager);
+            gctx.RendererSolid.Color(1, 0, 0, 1);
+            rast.RenderSolid(gctx.RendererSolid);
         }
     }
 

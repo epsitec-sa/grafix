@@ -62,7 +62,12 @@ namespace AntigrainCPP {
         bool curved
     );
 
-    extern "C" DECLSPEC void Rasterizer_AddChar(Rasterizer* rasterizer, char c, double x, double y, FontManager* font_manager);
+    extern "C" DECLSPEC void Rasterizer_AddGlyph(Rasterizer* rasterizer, int glyph, double x, double y, double scale, FontManager* font_manager);
+
+    extern "C" DECLSPEC void Rasterizer_AddChar(Rasterizer* rasterizer, char c, double x, double y, double scale, FontManager* font_manager);
+
+    void Rasterizer_InternalAddChar(Rasterizer* rasterizer, double x, double y, double scale, FontManager* font_manager);
+
     /* extern "C" DECLSPEC void Rasterizer_AddGlyph( */
     /*     Rasterizer* rasterizer, */ 
     /*     agg::font_face* face, */ 

@@ -17,16 +17,20 @@ namespace AntigrainSharp
             this.Dispose();
         }
 
-        public void Dispose(){
-            if (this.rasterizer != IntPtr.Zero){
+        public void Dispose()
+        {
+            if (this.rasterizer != IntPtr.Zero)
+            {
                 Rasterizer_Delete(rasterizer);
                 this.rasterizer = IntPtr.Zero;
             }
             GC.SuppressFinalize(this);
         }
 
-        private void RequireNotDisposed(){
-            if (this.rasterizer == IntPtr.Zero){
+        private void RequireNotDisposed()
+        {
+            if (this.rasterizer == IntPtr.Zero)
+            {
                 throw new ObjectDisposedException(this.GetType().FullName);
             }
         }
@@ -78,6 +82,18 @@ namespace AntigrainSharp
             this.RequireNotDisposed();
             path.RequireNotDisposed();
             Rasterizer_AddPath(rasterizer, path.path, curves);
+        }
+
+        public void AddGlyph(int glyph, double x, double y, double scale, FontManager font_manager)
+        {
+            this.RequireNotDisposed();
+            Rasterizer_AddGlyph(rasterizer, glyph, x, y, scale, font_manager.manager);
+        }
+
+        public void AddChar(char c, double x, double y, double scale, FontManager font_manager)
+        {
+            this.RequireNotDisposed();
+            Rasterizer_AddChar(rasterizer, c, x, y, scale, font_manager.manager);
         }
 
         /* public void AddGlyph( */
