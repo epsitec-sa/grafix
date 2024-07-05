@@ -1,6 +1,21 @@
 # Grafix (a.k.a AggUI)
 
-C# bindings for the C++ Antigrain Geometry library.
+AggUI is a library that allows you to build graphical applications.
+It provides basic primitives to render shapes and texts to a memory buffer.
+There is also an optional support for creating window and receiving input events.
+The library supports windows, macos and linux systems.
+
+## Design
+
+AggUI mostly consists of C# bindings for some C++ libraries:
+- [Antigrain Geometry](https://github.com/ghaerr/agg-2.6) for all the drawings
+- [Freetype](https://freetype.org/) to read fonts
+
+See [DESIGN.md](./DESIGN.md) for more details.
+
+## Building
+
+See [BUILDING.md](./BUILDING.md)
 
 ## Usage
 
@@ -27,9 +42,11 @@ Look at [AggUIExample](./AggUIExample/) for an example use of this library.
 
 To run the example, call `dotnet run` from inside the example root directory:
 
-## Building
+## Documentation
 
-See [BUILDING.md](./BUILDING.md)
+See [DOCUMENTATION.md](./DOCUMENTATION.md)
 
 ## Authors
 
+The original bindings were developed by Pierre Arnaud and Daniel Roux.
+They were refactored and adapted to be cross-platform by Roger Vuistiner and Baptiste Lambert.
