@@ -28,7 +28,7 @@ namespace AntigrainSharp
         public AggWindow(bool flip_y, FontManager fm)
         {
             onDrawDelegate = InternalOnDraw;
-            onResizeDelegate = OnResize;
+            onResizeDelegate = InternalOnResize;
             onMouseMoveDelegate = InternalOnMouseMove;
             onMouseButtonDownDelegate = InternalOnMouseButtonDown;
             onMouseButtonUpDelegate = InternalOnMouseButtonUp;
@@ -55,13 +55,6 @@ namespace AntigrainSharp
                 Application_Delete(this.app);
                 this.app = IntPtr.Zero;
             }
-            this.fontManager = null;
-            this.onDrawDelegate = null;
-            this.onResizeDelegate = null;
-            this.onMouseMoveDelegate = null;
-            this.onMouseButtonDownDelegate = null;
-            this.onMouseButtonUpDelegate = null;
-            this.onKeyDelegate = null;
             GC.SuppressFinalize(this);
         }
 
@@ -87,6 +80,8 @@ namespace AntigrainSharp
         public bool Init(uint width, uint height, WindowFlags flags)
         {
             this.RequireNotDisposed();
+            this.Width = width;
+            this.Height = height;
             return Application_Init(this.app, width, height, flags);
         }
 
@@ -104,8 +99,17 @@ namespace AntigrainSharp
 
         internal void InternalOnDraw(IntPtr gctx)
         {
-            GraphicContext graphicContext = new GraphicContext(gctx);
+            GraphicContext graphicContext = new GraphicContext(
+                gctx,
+                this.Width, this.Height
+            );
             this.OnDraw(graphicContext);
+        }
+
+        internal void InternalOnResize(int sx, int sy) {
+            this.Width = (uint)sx;
+            this.Height = (uint)sy;
+            this.OnResize(sx, sy);
         }
 
         internal void InternalOnMouseMove(int x, int y, uint flags) {
@@ -135,6 +139,9 @@ namespace AntigrainSharp
         public virtual void OnMouseButtonUp(int x, int y, InputFlags flags) { }
 
         public virtual void OnKey(int x, int y, uint key, InputFlags flags) { }
+
+        public uint Width { get; private set; }
+        public uint Height { get; private set; }
 
         public AntigrainSharp.FontManager fontManager;
 

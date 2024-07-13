@@ -1,9 +1,0 @@
-{
-  "profiles": {
-    "Example": {
-      "commandName": "Project",
-      "workingDirectory": "C:\\devel\\cresus-core-dev\\grafix\\AggUIExample",
-      "nativeDebugging": true
-    }
-  }
-}

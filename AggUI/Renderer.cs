@@ -125,17 +125,14 @@ namespace AntigrainSharp
         public class Image : Renderer.Base
         {
             internal Image(IntPtr renderer)
-                : base(renderer) { }
+                : base(renderer) {
+                this.SetStretchMode(0, 0);
+            }
 
             public void Matrix(double xx, double xy, double yx, double yy, double tx, double ty)
             {
                 RendererImage_Matrix(renderer, xx, xy, yx, yy, tx, ty);
             }
-
-            /* public void Source1(IntPtr buffer) */
-            /* { */
-            /*     RendererImage_Source1(renderer, buffer); */
-            /* } */
 
             public void AttachSource(byte[] byte_buffer, int dx, int dy, int stride)
             {
