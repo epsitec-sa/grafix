@@ -3,16 +3,25 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <!-- <TargetFramework>netstandard2.0</TargetFramework> -->
-    <TargetFramework>net8</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
+
+  <Choose>
+    <When Condition="$([MSBuild]::IsOSPlatform(Windows))">
+      <PropertyGroup>
+        <BuildSharedLibCmd>"$(PROGRAMFILES)\Git\bin\sh.exe" "$(MSBuildThisFileDirectory)aggcpp\build_lib.sh"</BuildSharedLibCmd>
+      </PropertyGroup>
+    </When>
+    <Otherwise>
+       <PropertyGroup>
+        <BuildSharedLibCmd>aggcpp/build_lib.sh</BuildSharedLibCmd>
+      </PropertyGroup>
+   </Otherwise>
+  </Choose>
+  
   <Target Name="BuildSharedLib" BeforeTargets="Build">
-    <Exec Condition=" '$(OS)' == 'Windows_NT' "
-      Command='"$(PROGRAMFILES)\Git\bin\sh.exe" "$(MSBuildThisFileDirectory)aggcpp\build_lib.sh"' /> 
-    <Exec Command="aggcpp/build_lib.sh" 
-          Condition=" '$(OS)' != 'Windows_NT' " />
+    <Exec Command='$(BuildSharedLibCmd)' /> 
   </Target>
   <ItemGroup>
     <ContentWithTargetPath 
