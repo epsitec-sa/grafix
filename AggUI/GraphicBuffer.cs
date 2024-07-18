@@ -70,7 +70,7 @@ namespace AntigrainSharp
         public abstract void Dispose();
 
         protected internal IntPtr buffer;
-        protected GraphicContext gctx;
+        protected GraphicContext gctx = null!;
     }
 
     public class GraphicBufferExternalData : AbstractGraphicBuffer
