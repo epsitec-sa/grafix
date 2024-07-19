@@ -5,6 +5,12 @@ VisualStudioVersion = 17.10.35027.167
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AntigrainSharp", "AntigrainSharp.csproj", "{735264AF-3E70-4A16-8019-06336D7D362B}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".build", ".build", "{0A8A62A8-57CC-4F9E-9C6E-F1A659906EFD}"
+	ProjectSection(SolutionItems) = preProject
+		aggcpp\build_lib.sh = aggcpp\build_lib.sh
+		aggcpp\CMakeLists.txt = aggcpp\CMakeLists.txt
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
