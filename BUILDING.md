@@ -7,8 +7,6 @@ Inside your project root directory, run:
 dotnet build
 ```
 
-Do to a bug I didn't managed to fix yet, the build might fail the very first time. In that case, simply relaunching the build should solve the issue.
-
 ## Installing build dependencies
 
 On all systems, you need:
