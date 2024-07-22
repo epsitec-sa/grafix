@@ -1,6 +1,2 @@
 [update-version]
 	version-props = Version.props
-	rc = agg2/examples/win32_mfc/CustomRasterizer/CustomRasterizer.rc
-	rc = agg2/examples/win32_mfc/CustomRenderer/CustomRenderer.rc
-	rc = AntiGrain.NET/app.rc
-	rc = AntiGrain.Win32/AntiGrain.Win32.rc
