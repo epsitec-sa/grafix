@@ -30,6 +30,8 @@ Antigrain was developed with the intention that you would use it as a C++ librar
 
 The script `patch_agg.sh` is responsible of patching the library. It is invoked by `CMakeLists.txt` after cloning the antigrain repo. It works by overwritting files in the cloned antigrain repo by their corresponding patch found in the `agg_patch_files` directory. The lines that were patched are indicated in the patch file by a comment starting with "PATCHED" and followed by an explanation as to why the patch is necessary.
 
+Note that the patch is only applied after the antigrain repository is *cloned*. If you make changes to the patch files, you will need to re-run `patch_agg.sh` manually. Another option is to delete the `build` directory: on the next build, antigrain will be redownloaded and your new patch applied.
+
 ### AggUI
 
 AggUI's build script (`AggUI.csproj`) consists of the following steps:
