@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.29)
+cmake_minimum_required(VERSION 3.20)
 
 PROJECT( AggCPP )
 
@@ -34,7 +34,7 @@ FetchContent_Declare(
   GIT_REPOSITORY https://github.com/ghaerr/agg-2.6.git
   GIT_TAG        c4f36b4432142f22c0bf82c6fbdb41567a236be2
   GIT_PROGRESS   ON
-  SOURCE_SUBDIR  agg-src 
+  SOURCE_SUBDIR  agg-src
   PATCH_COMMAND  ${antigrain_patch}
   OVERRIDE_FIND_PACKAGE
 )
