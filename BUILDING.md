@@ -22,11 +22,17 @@ On windows, you should install git-bash for the bash runtime. You will also need
 
 ### Building freetype (windows)
 
+This step has been automated, these instructions are provided here as a reference.
+
 - Get the [freetype sources](https://download.savannah.gnu.org/releases/freetype/) and unpack them in some directory
 - Inside the freetype directory, open the file `builds\windows\vc2010\freetype.sln` in VisualStudio. In the build options, select "Release Static" and build the solution.
 - Set the environment variable `FREETYPE_DIR` to the location of the unpacked freetype directory before building AggUI (e.g. in PowerShell `$Env:FREETYPE_DIR="/path/to/freetype"`)
 
+### Installing Xorg on macos
+
 On macos, AggUI relies on Xorg to display it's windows.
+Note that this step is only necessary if you want to use the window system provided in AggUI.
+
 Install Xorg through [macports](https://www.macports.org/install.php):
 
 ```
