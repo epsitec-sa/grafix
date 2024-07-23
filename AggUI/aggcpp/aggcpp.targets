@@ -1,0 +1,63 @@
+﻿<!-- Shared between aggcpp.msbuildproj and aggcpp.vcxproj -->
+<Project InitialTargets="TraceAggCpp">
+
+  <PropertyGroup>
+    <FreeTypeTar>$(ModuleDir)freetype.tar.gz</FreeTypeTar>
+    <FreetypeDir>$(ModuleDir)freetype</FreetypeDir>
+    <FreeTypeSolution>$(FreetypeDir)\builds\windows\vc2010\freetype.sln</FreeTypeSolution>
+  </PropertyGroup>
+
+  <!-- Download freetype -->
+  <Target Name="DownloadFreeType" Condition="!Exists('$(FreeTypeTar)')">
+    <Message Importance="high" Text="Downloading freetype to $(FreeTypeTar)" />
+    <Exec
+      Command='curl -L -o $(FreeTypeTar) https://download.savannah.gnu.org/releases/freetype/freetype-2.13.2.tar.gz'
+      StandardOutputImportance="low"
+      StandardErrorImportance="low"/>
+  </Target>
+
+  <!-- Expand freetype -->
+  <Target Name="ExpandFreeType" DependsOnTargets="DownloadFreeType" BeforeTargets="ImportProject"
+      Condition="$([MSBuild]::IsOsPlatform(Windows)) And !Exists('$(FreetypeDir)')">
+    <Message Importance="high" Text="Expanding $(FreeTypeTar) to $(FreetypeDir)" />
+    <MakeDir Directories="$(FreetypeDir)" />
+    <Exec
+      Command='tar --strip-components=1 -xf "$(FreeTypeTar)" -C "$(FreetypeDir)"'
+      StandardOutputImportance="low"
+      StandardErrorImportance="low"/> 
+  </Target>
+
+  <!-- Build freetype -->
+  <ItemGroup Condition="$([MSBuild]::IsOsPlatform(Windows))">
+    <ImportProject Include="$(FreeTypeSolution)">
+      <Configuration>$(Configuration) Static</Configuration>
+      <Platform>x64</Platform>
+    </ImportProject>
+  </ItemGroup>
+
+  <Import Condition="$([MSBuild]::IsOsPlatform(Windows))" Project="$(ZouDir)ImportProject.targets" />
+
+  <!-- Build aggcpp -->
+  <Choose>
+    <When Condition="$([MSBuild]::IsOSPlatform(Windows))">
+      <PropertyGroup>
+        <BuildAggCppCmd>"$(PROGRAMFILES)\Git\bin\sh.exe" "$(MSBuildThisFileDirectory)build_lib.sh"</BuildAggCppCmd>
+      </PropertyGroup>
+    </When>
+    <Otherwise>
+       <PropertyGroup>
+        <BuildAggCppCmd>$(MSBuildThisFileDirectory)build_lib.sh</BuildAggCppCmd>
+      </PropertyGroup>
+   </Otherwise>
+  </Choose>
+
+  <Target Name="BuildAggCpp" AfterTargets="ImportProject">
+    <Exec Command='$(BuildAggCppCmd)' EnvironmentVariables="FREETYPE_DIR=$(FreetypeDir)" />
+  </Target>
+
+  <Target Name="TraceAggCpp" Condition="'$(TraceAggCpp)' == 'true'">
+    <Message Importance="high" Text="ModuleDir = $(ModuleDir)" />
+    <Message Importance="high" Text="FreetypeDir = $(FreetypeDir)" />
+    <Message Importance="high" Text="FreeTypeSolution = $(FreeTypeSolution)" />
+  </Target>
+</Project>

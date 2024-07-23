@@ -1,60 +1,19 @@
 ﻿<!-- vim: expandtab sw=2 
 -->
-<Project Sdk="Microsoft.NET.Sdk" InitialTargets="TraceAntigrain">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
-  <Choose>
-    <When Condition="$([MSBuild]::IsOSPlatform(Windows))">
-      <PropertyGroup>
-        <BuildSharedLibCmd>"$(PROGRAMFILES)\Git\bin\sh.exe" "$(MSBuildThisFileDirectory)aggcpp\build_lib.sh"</BuildSharedLibCmd>
-      </PropertyGroup>
-    </When>
-    <Otherwise>
-       <PropertyGroup>
-        <BuildSharedLibCmd>aggcpp/build_lib.sh</BuildSharedLibCmd>
-      </PropertyGroup>
-   </Otherwise>
-  </Choose>
-  
-  <PropertyGroup>
-    <FREETYPE_DIR>$([System.IO.Path]::GetFullPath('$(BundleDir)..\freetype'))</FREETYPE_DIR>
-    <FreeTypeSolution>$(FREETYPE_DIR)\builds\windows\vc2010\freetype.sln</FreeTypeSolution>
-  </PropertyGroup>
-
-  <Target Name="BuildSharedLib" BeforeTargets="Build">
-    <Exec Command='$(BuildSharedLibCmd)' EnvironmentVariables="FREETYPE_DIR=$(FREETYPE_DIR)" /> 
-  </Target>
-
-  <ItemGroup>
-    <ContentWithTargetPath 
-      Include="aggcpp/libs/**" 
-      CopyToOutputDirectory="PreserveNewest"
-      TargetPath="%(Filename)%(Extension)" />
-  </ItemGroup>
   <ItemGroup>
     <Compile Remove="old/*.cs" />
     <None Include="old/*.cs" />
   </ItemGroup>
 
-  <!-- C++ interop -->
-  <ItemGroup Condition="$([MSBuild]::IsOsPlatform(Windows))">
-    <ImportProject Include="$(FreeTypeSolution)">
-      <Configuration>Release Static</Configuration>
-      <Platform>x64</Platform>
-    </ImportProject>
-    <None Include="$(FreeTypeSolution)">
-      <Link>freetype.sln</Link>
-    </None>
+  <ItemGroup>
+    <ContentWithTargetPath Include="aggcpp/libs/**" CopyToOutputDirectory="PreserveNewest" TargetPath="%(FileName)%(Extension)" />
   </ItemGroup>
-  <Import Condition="$([MSBuild]::IsOsPlatform(Windows))" Project="$(ZouDir)Cs.Interop.targets" />
-
-  <Target Name="TraceAntigrain">
-    <Message Importance="high" Text="FREETYPE_DIR = $(FREETYPE_DIR)" />
-    <Message Importance="high" Text="FreeTypeSolution = $(FreeTypeSolution)" />
-  </Target>
 
 </Project>

@@ -4,12 +4,17 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 17.10.35027.167
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AntigrainSharp", "AntigrainSharp.csproj", "{735264AF-3E70-4A16-8019-06336D7D362B}"
+	ProjectSection(ProjectDependencies) = postProject
+		{8B94BAE5-A4A6-442C-A33B-6DBE63B076E7} = {8B94BAE5-A4A6-442C-A33B-6DBE63B076E7}
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".build", ".build", "{0A8A62A8-57CC-4F9E-9C6E-F1A659906EFD}"
 	ProjectSection(SolutionItems) = preProject
 		aggcpp\build_lib.sh = aggcpp\build_lib.sh
 		aggcpp\CMakeLists.txt = aggcpp\CMakeLists.txt
 	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "aggcpp", "aggcpp\aggcpp.vcxproj", "{8B94BAE5-A4A6-442C-A33B-6DBE63B076E7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +38,15 @@ Global
 		{735264AF-3E70-4A16-8019-06336D7D362B}.Release|x64.Build.0 = Release|x64
 		{735264AF-3E70-4A16-8019-06336D7D362B}.Release|x86.ActiveCfg = Release|x86
 		{735264AF-3E70-4A16-8019-06336D7D362B}.Release|x86.Build.0 = Release|x86
+		{8B94BAE5-A4A6-442C-A33B-6DBE63B076E7}.Debug|Any CPU.ActiveCfg = Debug|x64
+		{8B94BAE5-A4A6-442C-A33B-6DBE63B076E7}.Debug|x64.ActiveCfg = Debug|x64
+		{8B94BAE5-A4A6-442C-A33B-6DBE63B076E7}.Debug|x86.ActiveCfg = Debug|x86
+		{8B94BAE5-A4A6-442C-A33B-6DBE63B076E7}.Release|Any CPU.ActiveCfg = Release|x64
+		{8B94BAE5-A4A6-442C-A33B-6DBE63B076E7}.Release|Any CPU.Build.0 = Release|x64
+		{8B94BAE5-A4A6-442C-A33B-6DBE63B076E7}.Release|x64.ActiveCfg = Release|x64
+		{8B94BAE5-A4A6-442C-A33B-6DBE63B076E7}.Release|x64.Build.0 = Release|x64
+		{8B94BAE5-A4A6-442C-A33B-6DBE63B076E7}.Release|x86.ActiveCfg = Release|x86
+		{8B94BAE5-A4A6-442C-A33B-6DBE63B076E7}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

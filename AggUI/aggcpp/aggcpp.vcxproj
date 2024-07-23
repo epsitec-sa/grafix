@@ -1,0 +1,8 @@
+﻿<Project DefaultTargets="Build">
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{8B94BAE5-A4A6-442C-A33B-6DBE63B076E7}</ProjectGuid>
+  </PropertyGroup>
+  <Import Project="..\..\..\zou\Cpp.Agent.props" />
+  <Import Project="aggcpp.targets" />
+  <Import Project="$(ZouDir)Cpp.Import.targets" />
+</Project>

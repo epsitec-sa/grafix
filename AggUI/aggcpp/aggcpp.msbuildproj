@@ -1,0 +1,5 @@
+﻿<Project DefaultTargets="Build">
+  <Import Project="..\..\..\zou\Cpp.Agent.props" />
+  <Import Project="aggcpp.targets" />
+  <Import Project="$(ZouDir)Import.targets" />
+</Project>
