@@ -110,6 +110,9 @@ ENDIF( agg_USE_FREETYPE )
 # C++ shared library
 ##############################################################################
 
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED True)
+
 # screeninfo subdirectory
 add_subdirectory(screeninfo)
 
