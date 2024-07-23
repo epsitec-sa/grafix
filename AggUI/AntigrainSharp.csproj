@@ -1,6 +1,6 @@
 ﻿<!-- vim: expandtab sw=2 
 -->
-<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk" InitialTargets="TraceAntigrain">
 
   <PropertyGroup>
     <ImplicitUsings>enable</ImplicitUsings>
@@ -20,9 +20,15 @@
    </Otherwise>
   </Choose>
   
+  <PropertyGroup>
+    <FREETYPE_DIR>$([System.IO.Path]::GetFullPath('$(BundleDir)..\freetype'))</FREETYPE_DIR>
+    <FreeTypeSolution>$(FREETYPE_DIR)\builds\windows\vc2010\freetype.sln</FreeTypeSolution>
+  </PropertyGroup>
+
   <Target Name="BuildSharedLib" BeforeTargets="Build">
-    <Exec Command='$(BuildSharedLibCmd)' /> 
+    <Exec Command='$(BuildSharedLibCmd)' EnvironmentVariables="FREETYPE_DIR=$(FREETYPE_DIR)" /> 
   </Target>
+
   <ItemGroup>
     <ContentWithTargetPath 
       Include="aggcpp/libs/**" 
@@ -33,4 +39,22 @@
     <Compile Remove="old/*.cs" />
     <None Include="old/*.cs" />
   </ItemGroup>
+
+  <!-- C++ interop -->
+  <ItemGroup Condition="$([MSBuild]::IsOsPlatform(Windows))">
+    <ImportProject Include="$(FreeTypeSolution)">
+      <Configuration>Release Static</Configuration>
+      <Platform>x64</Platform>
+    </ImportProject>
+    <None Include="$(FreeTypeSolution)">
+      <Link>freetype.sln</Link>
+    </None>
+  </ItemGroup>
+  <Import Condition="$([MSBuild]::IsOsPlatform(Windows))" Project="$(ZouDir)Cs.Interop.targets" />
+
+  <Target Name="TraceAntigrain">
+    <Message Importance="high" Text="FREETYPE_DIR = $(FREETYPE_DIR)" />
+    <Message Importance="high" Text="FreeTypeSolution = $(FreeTypeSolution)" />
+  </Target>
+
 </Project>
