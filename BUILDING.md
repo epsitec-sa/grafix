@@ -1,11 +1,14 @@
 # Building AggUI
 
 Make sure to have all build dependencies installed before building.
-Inside your project root directory, run:
+Inside the project root directory, run:
 
 ```
-dotnet build
+dotnet build -p:Configuration=Release
 ```
+
+You can set the configuration to `Release` to build everything (the C# bindings and the C++ libraries).
+If you set the configuration to `Debug`, only the C# bindings are built.
 
 ## Installing build dependencies
 
