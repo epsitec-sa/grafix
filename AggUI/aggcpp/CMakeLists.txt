@@ -154,6 +154,6 @@ target_link_libraries(AntigrainCPP PRIVATE compiler_flags screeninfo ${AGG_LIBRA
 
 file(MAKE_DIRECTORY "${CMAKE_SOURCE_DIR}/libs")
 add_custom_command(TARGET AntigrainCPP POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy -t "${CMAKE_SOURCE_DIR}/libs" $<TARGET_FILE:AntigrainCPP>
+    COMMAND ${CMAKE_COMMAND} -E copy "$<TARGET_FILE:AntigrainCPP>" "${CMAKE_SOURCE_DIR}/libs"
     COMMAND_EXPAND_LISTS
 )
