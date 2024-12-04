@@ -158,7 +158,8 @@ namespace agg
 
         FT_Vector*  point;
         FT_Vector*  limit;
-        char*       tags;
+        // PATCHED: API change in freetype
+        unsigned char*       tags;
 
         int   n;         // index of contour in outline
         int   first;     // index of first point in contour
